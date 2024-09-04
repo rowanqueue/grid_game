@@ -1,0 +1,72 @@
+{
+  "name": "bubble9",
+  "version": 0,
+  "gridSize": {"x": 3,"y": 3},
+  "handSize": 3,
+  "handChoices": 2,
+  "tokenVariables": {
+    "__helper": "these aren't loaded or anything, they're just to help understand all the tokens in the game",
+    "color": ["red","green","blue"],
+    "number": [1,2,3,4,5,6,7,8,9],
+    "special": ["","empty","shield"],
+  },
+  "scoreVariables": {
+  },
+  "startingBag":[
+    {
+      "token": {"color":"red","number": 1},
+      "count": 2,
+    },
+    {
+      "token": {"color":"green","number": 1},
+      "count": 2,
+    },
+    {
+      "token": {"color":"red","number": 2},
+      "count": 2,
+    },
+    {
+      "token": {"color":"green","number": 2},
+      "count": 2,
+    },
+    {
+      "token": {"color":"red","number": 3},
+      "count": 2,
+    },
+    {
+      "token": {"color":"green","number": 3},
+      "count": 2,
+    },
+    {
+      "token": {"color":"red","number": 4},
+      "count": 2,
+    },
+    {
+      "token": {"color":"green","number": 4},
+      "count": 2,
+    },
+  ],
+  "progress":{
+    "events":[
+      {
+        "event":[
+          {
+            "score": 100,
+          }
+        ],
+        "reward":[
+          {
+            {
+              "token": {"color":"red","number": 5},
+              "count": 2,
+            },
+            {
+              "token": {"color":"green","number": 5},
+              "count": 2,
+            },
+          }
+        ]
+      },
+    ]
+  }
+}
