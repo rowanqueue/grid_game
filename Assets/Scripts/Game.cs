@@ -1,3 +1,4 @@
+using Json;
 using System.Collections;
 using System.Collections.Generic;
 using System.Xml.Linq;
@@ -17,49 +18,23 @@ namespace Logic
         {TokenColor.Blue,1 },
         {TokenColor.Red,2 }
     };
-        public override void Initialize()
+        public Dictionary<string, TokenColor> colorNames = new Dictionary<string, TokenColor>()
         {
-            gridSize = new Vector2Int(5, 5);
-            handSize = 4;
-            bagContents = new Dictionary<TokenData, int>()
-        {
-            {new TokenData(TokenColor.Blue,1),6 },
-            {new TokenData(TokenColor.Red,1),4 }
-
+            {"blue",TokenColor.Blue},
+            {"red",TokenColor.Red },
+            {"green",TokenColor.Green },
+            {"purple",TokenColor.Purple }
         };
-            progress = new ProgressToken(this, new Dictionary<List<TokenData>, Dictionary<TokenData, int>>()
+        public override void Initialize(Json.Root root)
         {
-            {new List<TokenData>(){new TokenData(TokenColor.Blue,4)}, new Dictionary<TokenData, int>()
-                {
-                    {new TokenData(TokenColor.Blue,1),-1 },
-                    {new TokenData(TokenColor.Blue,2),1 }
-                }
-            },
-            {new List<TokenData>(){new TokenData(TokenColor.Red,4)}, new Dictionary<TokenData, int>()
-                {
-                    {new TokenData(TokenColor.Red,1),-1 },
-                    {new TokenData(TokenColor.Red,2),1 }
-                }
-            },
-            {new List<TokenData>(){new TokenData(TokenColor.Blue,5)}, new Dictionary<TokenData, int>()
-                {
-                    {new TokenData(TokenColor.Blue,2),-1 },
-                    {new TokenData(TokenColor.Blue,3),1 }
-                }
-            },
-            {new List<TokenData>(){new TokenData(TokenColor.Red,5)}, new Dictionary<TokenData, int>()
-                {
-                    {new TokenData(TokenColor.Red,2),-1 },
-                    {new TokenData(TokenColor.Red,3),1 }
-                }
-            },
-            {new List<TokenData>(){new TokenData(TokenColor.Red,3),new TokenData(TokenColor.Blue,3)}, new Dictionary<TokenData, int>()
-                {
-                    {new TokenData(TokenColor.Green,1),1 }
-                }
-            },
-        });
-            base.Initialize();
+            groupCollapseNum = root.gameVariables.groupCollapseNum;
+            colorScoreMulti = new Dictionary<TokenColor, int>();
+            //code this better later lol
+            colorScoreMulti.Add(TokenColor.Blue, root.scoreVariables.colorScoreMultiplier.blue);
+            colorScoreMulti.Add(TokenColor.Red, root.scoreVariables.colorScoreMultiplier.red);
+            colorScoreMulti.Add(TokenColor.Green, root.scoreVariables.colorScoreMultiplier.green);
+            colorScoreMulti.Add(TokenColor.Purple, root.scoreVariables.colorScoreMultiplier.purple);
+            base.Initialize(root);
         }
         protected override void GridChanged(Token tokenChanged)
         {
@@ -102,7 +77,7 @@ namespace Logic
         public new string name = "bubble9";
         public new int version = 0;
         public int depth = 1;
-        public override void Initialize()
+        public override void Initialize(Json.Root root)
         {
             gridSize = new Vector2Int(3, 3);
             handSize = 3;
@@ -127,7 +102,7 @@ namespace Logic
                 }
             }
         });
-            base.Initialize();
+            base.Initialize(root);
         }
         protected override void GridChanged(Token token)
         {
@@ -268,6 +243,7 @@ namespace Logic
     }
     public class Game
     {
+        public Json.Root root;
         public string name;
         public int version;
         public bool gridUpdating = false;
@@ -287,8 +263,74 @@ namespace Logic
         protected int handChoices = -1;
         protected Dictionary<TokenData, int> bagContents;
 
-        public virtual void Initialize()
+        public virtual void Initialize(Json.Root root)
         {
+            Debug.Log(root.name);
+            //gridSize
+            gridSize = new Vector2Int(root.gridSize.x, root.gridSize.y);
+            //handSize
+            handSize = root.handSize;
+            //bagContents
+            bagContents = new Dictionary<TokenData, int>();
+            foreach(StartingBag tokenSet in root.startingBag)
+            {
+                TokenData _token = ConvertJsonToken(tokenSet.token);
+                bagContents.Add(_token, tokenSet.count);
+            }
+            //progress
+            Dictionary<List<TokenData>, Dictionary<TokenData, int>> tokenUnlocks = new Dictionary<List<TokenData>, Dictionary<TokenData, int>>();
+            foreach (Json.Event _event in root.progress.events)
+            {
+                List<TokenData> triggers = new List<TokenData>();
+                foreach(Json.Trigger trigger in _event.trigger)
+                {
+                    triggers.Add(ConvertJsonToken(trigger.token));
+                }
+                Dictionary<TokenData, int> rewards = new Dictionary<TokenData, int>();
+                foreach (Json.Reward reward in _event.reward)
+                {
+                    rewards.Add(ConvertJsonToken(reward.token), reward.count);
+                    if(reward.replacesToken != null)
+                    {
+                        TokenData replacedToken = ConvertJsonToken(reward.replacesToken.color, reward.replacesToken.number);
+                        rewards.Add(replacedToken, -1);
+                    }
+                }
+                tokenUnlocks.Add(triggers, rewards);
+                if (_event.prototypical)
+                {
+                    for(int i = 1; i < 10; i++)
+                    {
+                        List<TokenData> moreTriggers = new List<TokenData>();
+                        foreach(TokenData tokenData in triggers)
+                        {
+                            moreTriggers.Add(new TokenData(tokenData.color, tokenData.num + i));
+                        }
+                        Dictionary<TokenData, int> moreRewards = new Dictionary<TokenData, int>();
+                        foreach (TokenData reward in rewards.Keys)
+                        {
+                            int count = rewards[reward];
+                            if (rewards[reward] < 0)
+                            {
+                                //jsut removing a 1
+                                moreRewards.Add(reward, count);
+                                continue;
+                            }
+                            moreRewards.Add(new TokenData(reward.color,reward.num + i), rewards[reward]);
+                        }
+                        tokenUnlocks.Add(moreTriggers, moreRewards);
+                    }
+                }
+            }
+            progress = new ProgressToken(this, tokenUnlocks);
+            /*new ProgressToken(this, new Dictionary<List<TokenData>, Dictionary<TokenData, int>>()
+        {
+            {new List<TokenData>(){new TokenData(TokenColor.Blue,4)}, new Dictionary<TokenData, int>()
+                {
+                    {new TokenData(TokenColor.Blue,1),-1 },
+                    {new TokenData(TokenColor.Blue,2),1 }
+                }
+            },*/
             grid = new Grid(gridSize);
 
             bag = new Bag(bagContents);
@@ -297,6 +339,26 @@ namespace Logic
             history = new History(this);
             history.turns.Add(new History.Turn(this));
             status = new StatusReport();
+        }
+        public TokenData ConvertJsonToken(Json.Token token)
+        {
+            Dictionary<string, TokenColor> colors = new Dictionary<string, TokenColor>()
+            {
+                {"red",TokenColor.Red },
+                {"blue",TokenColor.Blue },
+                {"green",TokenColor.Green },
+            };
+            return new TokenData(colors[token.color], token.number);
+        }
+        public TokenData ConvertJsonToken(string color, int number)
+        {
+            Dictionary<string, TokenColor> colors = new Dictionary<string, TokenColor>()
+            {
+                {"red",TokenColor.Red },
+                {"blue",TokenColor.Blue },
+                {"green",TokenColor.Green },
+            };
+            return new TokenData(colors[color], number);
         }
         public void EarnPoints(int pts)
         {
@@ -488,6 +550,21 @@ namespace Logic
                             {
                                 shouldContinue = true;
                             }
+                            else
+                            {
+                                //not the same
+                                if(neighbor.token.data.num == token.data.num)
+                                {
+                                    //same number
+                                    if(neighbor.token.data.color == TokenColor.Purple)
+                                    {
+                                        if(token.data.color == TokenColor.Blue || token.data.color == TokenColor.Red)
+                                        {
+                                            shouldContinue = true;
+                                        }
+                                    }
+                                }
+                            }
                             break;
                         case Check.Color:
                             if (neighbor.token.data.color == token.data.color)
@@ -599,7 +676,8 @@ namespace Logic
     {
         Red,
         Green,
-        Blue
+        Blue,
+        Purple
     }
     public class Token
     {

@@ -4,6 +4,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.XR;
 using UnityEngine.SceneManagement;
+using Newtonsoft.Json;
 
 public enum GameType
 {
@@ -19,6 +20,7 @@ public enum InputState
 public class GameController : MonoBehaviour
 {
     public bool load;
+    public TextAsset gameJson;
     public GameType whichGame;
     public Logic.Game game;
     //public TextInput.SimInput simInput;
@@ -65,8 +67,8 @@ public class GameController : MonoBehaviour
                 game = new Logic.BubbleGame();
                 break;
         }
-        
-        game.Initialize();
+        Json.Root root = JsonConvert.DeserializeObject<Json.Root>(gameJson.text);
+        game.Initialize(root);
         if (load && PlayerPrefs.HasKey("save"))
         {
             string save = PlayerPrefs.GetString("save");

@@ -1,111 +1,165 @@
 {
-  "name": "tripleTile",
-  "version": 1,
-  "gridSize": {"x": 5,"y": 5},
-  "handSize": 4,
-  "gameVariables":{
-    "groupCollapseNum": 3,
-  },
-  "tokenVariables": {
-    "color": ["blue","red","green","purple"],
-    "number": [1,2,3,4,5,6,7,8,9],
-    "special": ["","clipper","water"],
-    "temporary": false
-  },
-  "scoreVariables": {
-    "colorScoreMultiplier":{
-      "blue" : 1,
-      "red" : 2,
-      "green" : 3
+    "name": "tripleTile",
+    "version": 1,
+    "gridSize": {
+        "x": 5,
+        "y": 5
+    },
+    "handSize": 4,
+    "gameVariables": {
+        "groupCollapseNum": 3
+    },
+    "tokenVariables": {
+        "color": [
+            "blue",
+            "red",
+            "green",
+            "purple"
+        ],
+        "number": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+        ],
+        "special": [
+            "",
+            "clipper",
+            "water"
+        ],
+        "temporary": false
+    },
+    "scoreVariables": {
+        "colorScoreMultiplier": {
+            "blue": 1,
+            "red": 2,
+            "green": 3,
+            "purple": 4,
+        }
+    },
+    "startingBag": [
+        {
+            "token": {
+                "color": "blue",
+                "number": 1
+            },
+            "count": 6
+        },
+        {
+            "token": {
+                "color": "red",
+                "number": 1
+            },
+            "count": 4
+        }
+    ],
+    "progress": {
+        "events": [
+            {
+                "prototypical": true,
+                "__helper": "prototypical means that this will create this progress event for all possible number tokens of this color",
+                "trigger": [
+                    {
+                        "token": {
+                            "color": "blue",
+                            "number": 3
+                        }
+                    }
+                ],
+                "reward": [
+                    {
+                        "token": {
+                            "color": "blue",
+                            "number": 2
+                        },
+                        "replacesToken": {
+                            "color": "blue",
+                            "number": 1
+                        },
+                        "count": 1
+                    }
+                ]
+            },
+            {
+                "prototypical": true,
+                "__helper": "prototypical means that this will create this progress event for all possible number tokens of this color",
+                "trigger": [
+                    {
+                        "token": {
+                            "color": "red",
+                            "number": 3
+                        }
+                    }
+                ],
+                "reward": [
+                    {
+                        "token": {
+                            "color": "red",
+                            "number": 2
+                        },
+                        "replacesToken": {
+                            "color": "blue",
+                            "number": 1
+                        },
+                        "count": 1
+                    }
+                ]
+            },
+            {
+                "trigger": [
+                    {
+                        "token": {
+                            "color": "blue",
+                            "number": 3
+                        }
+                    },
+                    {
+                        "token": {
+                            "color": "red",
+                            "number": 3
+                        }
+                    }
+                ],
+                "reward": [
+                    {
+                        "token": {
+                            "color": "green",
+                            "number": 1
+                        },
+                        "count": 1
+                    }
+                ]
+            },
+            {
+                "prototypical": true,
+                "__helper": "prototypical means that this will create this progress event for all possible number tokens of this color",
+                "trigger": [
+                    {
+                        "token": {
+                            "color": "green",
+                            "number": 3
+                        }
+                    }
+                ],
+                "reward": [
+                    {
+                        "token": {
+                            "color": "green",
+                            "number": 2
+                        },
+                        "replacesToken": {
+                            "color": "green",
+                            "number": 1
+                        },
+                        "count": 1
+                    }
+                ]
+            }
+        ]
     }
-  },
-  "startingBag":[
-    {
-      "token": {"color":"blue","number": 1},
-      "count": 6,
-    },
-    {
-      "token": {"color":"red","number": 1},
-      "count": 4,
-    },
-  ],
-  "progress":{
-    "events":[
-      {
-        "prototypical": true,
-        "__helper": "prototypical means that this will create this progress event for all possible number tokens of this color"
-
-        "event":[
-          {
-            "has": {"color": "blue","number": 3}
-          }
-        ],
-        "reward":[
-          {
-            {
-              "token": {"color":"blue","number": 2},
-              "replacesToken":{"color":"blue","number":1},
-              "count": 1,
-            },
-          }
-        ]
-      },
-      {
-        "prototypical": true,
-        "__helper": "prototypical means that this will create this progress event for all possible number tokens of this color"
-
-        "event":[
-          {
-            "has": {"color": "red","number": 3}
-          }
-        ],
-        "reward":[
-          {
-            {
-              "token": {"color":"red","number": 2},
-              "replacesToken":{"color":"blue","number":1},
-              "count": 1,
-            },
-          }
-        ]
-      },
-      {
-        "event":[
-          {
-            "has": {"color": "blue","number": 3}
-          },
-          {
-            "has": {"color": "red","number": 3}
-          },
-        ],
-        "reward":[
-          {
-            {
-              "token": {"color":"green","number": 1},
-              "count": 1,
-            },
-          }
-        ]
-      },
-      {
-        "prototypical": true,
-        "__helper": "prototypical means that this will create this progress event for all possible number tokens of this color"
-
-        "event":[
-          {
-            "has": {"color": "green","number": 3}
-          }
-        ],
-        "reward":[
-          {
-            {
-              "token": {"color":"green","number": 2},
-              "replacesToken":{"color":"green","number":1},
-              "count": 1,
-            },
-          }
-        ]
-      }
-    ]
-  }
 }
