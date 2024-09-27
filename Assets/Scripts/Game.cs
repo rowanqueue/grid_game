@@ -61,8 +61,12 @@ namespace Logic
                 Tile tile = tokenChanged.tile;
                 tokenChanged.Destroy();
                 grid.PlaceToken(tile.pos,newToken);
+                Dictionary<TokenData, int> updatedContents = progress.CheckProgress(newToken);
+                if (updatedContents.Count > 0)
+                {
+                    bag.AddContents(updatedContents);
+                }
                 status.events.Add(new StatusReport.Event(StatusReport.EventType.TokenChanged, new List<Token>() { tokenChanged,newToken }));
-                GridChanged(newToken);
                 GridChanged(newToken);
             }
             else
@@ -279,6 +283,7 @@ namespace Logic
             }
             //progress
             Dictionary<List<TokenData>, Dictionary<TokenData, int>> tokenUnlocks = new Dictionary<List<TokenData>, Dictionary<TokenData, int>>();
+            Dictionary<List<TokenData>, bool> prototypical = new Dictionary<List<TokenData>, bool>();
             foreach (Json.Event _event in root.progress.events)
             {
                 List<TokenData> triggers = new List<TokenData>();
@@ -297,6 +302,7 @@ namespace Logic
                     }
                 }
                 tokenUnlocks.Add(triggers, rewards);
+                prototypical.Add(triggers, _event.prototypical);
                 if (_event.prototypical)
                 {
                     for(int i = 1; i < 10; i++)
@@ -313,16 +319,17 @@ namespace Logic
                             if (rewards[reward] < 0)
                             {
                                 //jsut removing a 1
-                                moreRewards.Add(reward, count);
+                                moreRewards.Add(new TokenData(reward.color,reward.num+i), count);
                                 continue;
                             }
                             moreRewards.Add(new TokenData(reward.color,reward.num + i), rewards[reward]);
                         }
                         tokenUnlocks.Add(moreTriggers, moreRewards);
+                        prototypical.Add(moreTriggers, true);
                     }
                 }
             }
-            progress = new ProgressToken(this, tokenUnlocks);
+            progress = new ProgressToken(this, tokenUnlocks,prototypical);
             /*new ProgressToken(this, new Dictionary<List<TokenData>, Dictionary<TokenData, int>>()
         {
             {new List<TokenData>(){new TokenData(TokenColor.Blue,4)}, new Dictionary<TokenData, int>()
@@ -347,6 +354,7 @@ namespace Logic
                 {"red",TokenColor.Red },
                 {"blue",TokenColor.Blue },
                 {"green",TokenColor.Green },
+                {"purple",TokenColor.Purple },
             };
             return new TokenData(colors[token.color], token.number);
         }
@@ -357,6 +365,7 @@ namespace Logic
                 {"red",TokenColor.Red },
                 {"blue",TokenColor.Blue },
                 {"green",TokenColor.Green },
+                {"purple",TokenColor.Purple },
             };
             return new TokenData(colors[color], number);
         }
@@ -422,11 +431,7 @@ namespace Logic
         protected virtual void GridFinishedChanging()
         {
             //this has to be called
-            Dictionary<TokenData, int> updatedContents = progress.CheckProgress();
-            if (updatedContents.Count > 0)
-            {
-                bag.AddContents(updatedContents);
-            }
+            
             if (hand.IsHandEmpty())
             {
                 hand.EmptyHand();
@@ -824,7 +829,7 @@ namespace Logic
     {
         public Game game;
         public ProgressType type;
-        public virtual Dictionary<TokenData, int> CheckProgress() { return new Dictionary<TokenData, int>(); }
+        public virtual Dictionary<TokenData, int> CheckProgress(Token token) { return new Dictionary<TokenData, int>(); }
         public virtual List<bool> GetUnlockedByIndex() { return new List<bool>(); }
         public virtual Dictionary<TokenData, int> LoadFromIndexList(List<bool> completed) { return new Dictionary<TokenData, int>(); }
     }
@@ -832,38 +837,52 @@ namespace Logic
     {
         public Dictionary<List<TokenData>, Dictionary<TokenData, int>> tokenUnlocks;
         public Dictionary<List<TokenData>, bool> unlocked;
+        public Dictionary<List<TokenData>, bool> prototypical;
+        public Dictionary<List<TokenData>, int> prototypicalCount;
 
-        public ProgressToken(Game game, Dictionary<List<TokenData>, Dictionary<TokenData, int>> tokenUnlocks)
+        public ProgressToken(Game game, Dictionary<List<TokenData>, Dictionary<TokenData, int>> tokenUnlocks, Dictionary<List<TokenData>,bool> _proto)
         {
             this.game = game;
             type = ProgressType.Token;
             this.tokenUnlocks = tokenUnlocks;
             unlocked = new Dictionary<List<TokenData>, bool>();
+            prototypical = _proto;
+            prototypicalCount = new Dictionary<List<TokenData>, int>();
             foreach (List<TokenData> tokens in tokenUnlocks.Keys)
             {
                 unlocked.Add(tokens, false);
+                prototypicalCount.Add(tokens, 0);
             }
         }
 
-        public override Dictionary<TokenData, int> CheckProgress()
+        public override Dictionary<TokenData, int> CheckProgress(Token token)
         {
             Dictionary<TokenData, int> newContents = new Dictionary<TokenData, int>();
 
             foreach (List<TokenData> tokens in tokenUnlocks.Keys)
             {
-                if (unlocked[tokens]) { continue; }
+                if (unlocked[tokens] && prototypical[tokens] == false) { continue; }
                 //does this tokenData exist on the board?
                 bool _unlock = true;
+                bool newTokenIsNeeded = false;
                 foreach(TokenData tokenData in tokens)
                 {
                     if (game.grid.Contains(tokenData) == false)
                     {
                         _unlock = false;
                     }
+                    if(token.data == tokenData)
+                    {
+                        newTokenIsNeeded = true;
+                    }
                 }
-                if (_unlock)
+                if (_unlock && newTokenIsNeeded)
                 {
                     unlocked[tokens] = true;
+                    if (prototypical[tokens])
+                    {
+                        prototypicalCount[tokens]++;
+                    }
                     foreach(TokenData tokenData in tokenUnlocks[tokens].Keys)
                     {
                         newContents.Add(tokenData, tokenUnlocks[tokens][tokenData]);

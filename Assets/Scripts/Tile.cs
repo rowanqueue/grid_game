@@ -13,7 +13,7 @@ public class Tile : MonoBehaviour
     {
         if (freeSlot)
         {
-            transform.position = Services.GameController.firstGridPos + (Services.GameController.freeSlotGridPos * Services.GameController.gridSeparation);
+            transform.localPosition = Vector3.zero;
         }
         else
         {

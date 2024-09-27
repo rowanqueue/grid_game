@@ -36,7 +36,8 @@ public class GameController : MonoBehaviour
     public Vector2 firstGridPos;
     public Vector2 gridSeparation;
 
-    public Vector2Int freeSlotGridPos;
+    public Vector2 freeSlotPos;
+    Vector2Int freeSlotChoice = new Vector2Int(-20, -20);
 
     //gameplay
     public InputState inputState = InputState.Choose;
@@ -44,6 +45,7 @@ public class GameController : MonoBehaviour
     public int chosenIndex = -1;
     public Dictionary<Vector2Int,Tile> tiles = new Dictionary<Vector2Int,Tile>();
     public Tile freeSlot;
+    public GameObject freeSlotVisual;
     public Vector2Int chosenPos = Vector2Int.left;
     public float waitTime = 0.1f;
     float waiting = 0f;
@@ -108,6 +110,7 @@ public class GameController : MonoBehaviour
         //free slot
         freeSlot = GameObject.Instantiate(tilePrefab, transform).GetComponent<Tile>();
         freeSlot.freeSlot = true;
+        freeSlot.transform.parent = freeSlotVisual.transform;
         LoadTokensIntoGrid();
         
 
@@ -263,7 +266,7 @@ public class GameController : MonoBehaviour
                 float dist = Vector2.Distance(mousePos, freeSlot.transform.position);
                 if(dist < 0.5f)
                 {
-                    chosenPos = freeSlotGridPos;
+                    chosenPos = freeSlotChoice;
                 }
                 //let go
                 if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Z))
@@ -271,7 +274,7 @@ public class GameController : MonoBehaviour
                     EnterInputState(InputState.Choose);
                 }else if (Input.GetMouseButtonDown(0))
                 {
-                    if(chosenPos == freeSlotGridPos)
+                    if(chosenPos == freeSlotChoice)
                     {
                         if (game.IsFreeSlotFree())
                         {
@@ -401,7 +404,7 @@ public class GameController : MonoBehaviour
         //free slot
         if(inputState == InputState.Place && chosenIndex < game.hand.handSize)
         {
-            freeSlot.Draw(chosenPos == freeSlotGridPos);
+            freeSlot.Draw(chosenPos == freeSlotChoice);
         }
         else
         {
