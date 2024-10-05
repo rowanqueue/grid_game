@@ -40,7 +40,15 @@ namespace Logic
         {
             //recursively make groups based on neighbors
             List<Token> tokenGroup = new List<Token>();
-            tokenChanged.tile.CheckNeighbors(Check.Equals, tokenGroup);
+            if(tokenChanged.data.color == TokenColor.Purple)
+            {
+                tokenChanged.tile.CheckNeighbors(Check.Equals, tokenGroup);
+            }
+            else
+            {
+                tokenChanged.tile.CheckNeighbors(Check.Equals, tokenGroup);
+            }
+            
             if (tokenGroup.Count >= groupCollapseNum)
             {
                 //remove everything except the one you placed and change it to the next num
@@ -539,10 +547,15 @@ namespace Logic
             }
             return false;
         }
-        public void CheckNeighbors(Check check, List<Token> tokenGroup)
+        public void CheckNeighbors(Check check, List<Token> tokenGroup,Token tokenToCheck = null)
         {
             if (IsEmpty()) { return; }
             tokenGroup.Add(token);
+            bool hadAToken = tokenToCheck != null;
+            if(tokenToCheck == null)
+            {
+                tokenToCheck = token;
+            }
             foreach (Tile neighbor in neighbors)
             {
                 if (neighbor.IsEmpty() == false && tokenGroup.Contains(neighbor.token) == false)
@@ -551,19 +564,26 @@ namespace Logic
                     switch (check)
                     {
                         case Check.Equals:
-                            if (neighbor.token.data == token.data)
+                            if (neighbor.token.data == tokenToCheck.data)
                             {
                                 shouldContinue = true;
                             }
                             else
                             {
                                 //not the same
-                                if(neighbor.token.data.num == token.data.num)
+                                if(neighbor.token.data.num == tokenToCheck.data.num)
                                 {
                                     //same number
                                     if(neighbor.token.data.color == TokenColor.Purple)
                                     {
-                                        if(token.data.color == TokenColor.Blue || token.data.color == TokenColor.Red)
+                                        if(tokenToCheck.data.color == TokenColor.Blue || tokenToCheck.data.color == TokenColor.Red)
+                                        {
+                                            shouldContinue = true;
+                                        }
+                                    }
+                                    if(tokenToCheck.data.color == TokenColor.Purple)
+                                    {
+                                        if (neighbor.token.data.color == TokenColor.Blue || neighbor.token.data.color == TokenColor.Red)
                                         {
                                             shouldContinue = true;
                                         }
@@ -572,13 +592,13 @@ namespace Logic
                             }
                             break;
                         case Check.Color:
-                            if (neighbor.token.data.color == token.data.color)
+                            if (neighbor.token.data.color == tokenToCheck.data.color)
                             {
                                 shouldContinue = true;
                             }
                             break;
                         case Check.Num:
-                            if (neighbor.token.data.num == token.data.num)
+                            if (neighbor.token.data.num == tokenToCheck.data.num)
                             {
                                 shouldContinue = true;
                             }
@@ -586,7 +606,15 @@ namespace Logic
                     }
                     if (shouldContinue)
                     {
-                        neighbor.CheckNeighbors(check, tokenGroup);
+                        if (hadAToken)
+                        {
+                            neighbor.CheckNeighbors(check, tokenGroup,tokenToCheck);
+                        }
+                        else
+                        {
+                            neighbor.CheckNeighbors(check, tokenGroup);
+                        }
+                        
                     }
                 }
             }
@@ -610,6 +638,10 @@ namespace Logic
                 if (bagContents.ContainsKey(tokenData))
                 {
                     bagContents[tokenData] += newContents[tokenData];
+                    if (bagContents[tokenData] <= 0)
+                    {
+                        bagContents.Remove(tokenData);
+                    }
                 }
                 else
                 {
@@ -890,6 +922,24 @@ namespace Logic
                 }
                 
             }
+            string s = "";
+            if(newContents.Count > 0)
+            {
+                foreach(TokenData tokenData in newContents.Keys)
+                {
+                    s += tokenData.ToString() + ":" + newContents[tokenData] + ", ";
+                    if (newContents[tokenData] < 0)
+                    {
+                        if(game.bag.bagContents.ContainsKey(tokenData) == false)
+                        {
+                            //you don't have that token to upgrade :(
+                            return new Dictionary<TokenData, int>();
+                        }
+                    }
+                }
+                //Debug.Log(s);
+            }
+           
 
             return newContents;
         }

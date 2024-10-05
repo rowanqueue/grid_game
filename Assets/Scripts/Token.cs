@@ -20,6 +20,7 @@ public class Token : MonoBehaviour
     public void PlaceInHand(int index)
     {
         transform.position = Services.GameController.firstHandPos + (index * Services.GameController.handSeparation);
+        transform.localEulerAngles = new Vector3(0, 0, Random.Range(-10f, 10f));
     }
     public void PlaceInTile(Tile tile)
     {

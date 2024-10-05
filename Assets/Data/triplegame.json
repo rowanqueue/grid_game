@@ -48,15 +48,22 @@
                 "color": "blue",
                 "number": 1
             },
-            "count": 6
+            "count": 1
         },
         {
             "token": {
                 "color": "red",
                 "number": 1
             },
-            "count": 4
-        }
+            "count": 1
+        },
+        {
+            "token": {
+                "color": "purple",
+                "number": 1
+            },
+            "count": 1
+        },
     ],
     "progress": {
         "events": [
@@ -67,7 +74,7 @@
                     {
                         "token": {
                             "color": "blue",
-                            "number": 3
+                            "number": 4
                         }
                     }
                 ],
@@ -103,7 +110,7 @@
                             "number": 2
                         },
                         "replacesToken": {
-                            "color": "blue",
+                            "color": "red",
                             "number": 1
                         },
                         "count": 1
