@@ -48,15 +48,22 @@
                 "color": "blue",
                 "number": 1
             },
-            "count": 4
+            "count": 1
         },
         {
             "token": {
                 "color": "red",
                 "number": 1
             },
-            "count": 0
+            "count": 1
         },
+        {
+            "token": {
+                "color": "purple",
+                "number": 1
+            },
+            "count": 1
+        }
     ],
     "progress": {
         "events": [
@@ -334,7 +341,7 @@
                         "count": 1
                     }
                 ]
-            }
+            }    
         ]
     }
 }
