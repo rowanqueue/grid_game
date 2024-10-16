@@ -47,9 +47,18 @@ TagManager:
   - name: TokenPlaced
     uniqueID: 863746701
     locked: 0
+  - name: TokenHand
+    uniqueID: 3719150371
+    locked: 0
   - name: TokenMoving
     uniqueID: 4216249877
     locked: 0
-  - name: TokenHand
-    uniqueID: 3719150371
+  - name: TokenHeld
+    uniqueID: 3428442959
+    locked: 0
+  - name: UI
+    uniqueID: 607463127
+    locked: 0
+  - name: UIToken
+    uniqueID: 140710249
     locked: 0

@@ -42,11 +42,11 @@ namespace Logic
             List<Token> tokenGroup = new List<Token>();
             if(tokenChanged.data.color == TokenColor.Purple)
             {
-                tokenChanged.tile.CheckNeighbors(Check.Equals, tokenGroup);
+                tokenChanged.tile.CheckNeighbors(Check.Equals, tokenGroup,tokenChanged);
             }
             else
             {
-                tokenChanged.tile.CheckNeighbors(Check.Equals, tokenGroup);
+                tokenChanged.tile.CheckNeighbors(Check.Equals, tokenGroup,tokenChanged);
             }
             
             if (tokenGroup.Count >= groupCollapseNum)

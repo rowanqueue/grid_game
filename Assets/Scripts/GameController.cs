@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine.XR;
 using UnityEngine.SceneManagement;
 using Newtonsoft.Json;
+using static UnityEditor.PlayerSettings;
 
 public enum GameType
 {
@@ -39,24 +40,30 @@ public class GameController : MonoBehaviour
     public Vector2 freeSlotPos;
     Vector2Int freeSlotChoice = new Vector2Int(-20, -20);
 
+    public BagDisplay deckDisplay;
+    public TextMeshPro deckNumberDisplay;
+
     //gameplay
     public InputState inputState = InputState.Choose;
     public List<Token> hand = new List<Token>();
     public int chosenIndex = -1;
+    public Token chosenToken => (chosenIndex < game.hand.handSize ? hand[chosenIndex] : freeSlot.token);
     public Dictionary<Vector2Int,Tile> tiles = new Dictionary<Vector2Int,Tile>();
     public Tile freeSlot;
     public GameObject freeSlotVisual;
     public Vector2Int chosenPos = Vector2Int.left;
     public float waitTime = 0.1f;
     float waiting = 0f;
+    public Token lastTokenPlaced;
 
     //data
     public int score = 0;
     public int scoreDelta = 0;
 
     public Logic.History.Turn currentSave;
+
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         InitializeServices();
         Application.targetFrameRate = 60;
@@ -87,6 +94,7 @@ public class GameController : MonoBehaviour
         CreateGrid();
         hand = new List<Token>();
         CreateHand();
+        deckDisplay.game = game;
     }
     void InitializeServices()
     {
@@ -127,9 +135,14 @@ public class GameController : MonoBehaviour
         }
         if (freeSlot.token)
         {
+            Debug.Log("remove free slot");
             GameObject.Destroy(freeSlot.token.gameObject);
             freeSlot.token = null;
         }
+    }
+    public void ToggleBagDisplay()
+    {
+        deckDisplay.gameObject.SetActive(!deckDisplay.gameObject.activeSelf);
     }
     void LoadTokensIntoGrid()
     {
@@ -145,7 +158,9 @@ public class GameController : MonoBehaviour
         }
         if (game.freeSlot != null)
         {
+            Debug.Log("load in freeslot");
             Token token = GameObject.Instantiate(tokenPrefab, transform).GetComponent<Token>();
+            token.token = game.freeSlot;
             freeSlot.token = token;
             token.PlaceInTile(freeSlot);
         }
@@ -195,7 +210,21 @@ public class GameController : MonoBehaviour
     }
     void EnterInputState(InputState newState)
     {
+        switch (newState)
+        {
+            case InputState.Choose:
+                if(inputState == InputState.Place)
+                {
+                    //returning
+                    chosenToken.UpdateLayer("TokenHand");
+                }
+                break;
+            case InputState.Place:
+                chosenToken.UpdateLayer("TokenHeld");
+                break;
+        }
         inputState = newState;
+        
     }
 
     // Update is called once per frame
@@ -244,13 +273,28 @@ public class GameController : MonoBehaviour
                     {
                         Services.AudioManager.PlaySound(Services.AudioManager.select);
                         EnterInputState(InputState.Place);
+                        break;
                     }
                 }
-                if (Input.GetKeyDown(KeyCode.Z))
+                if (Input.GetMouseButtonDown(0))
                 {
-                    Undo();
-                    
+                    chosenPos = Vector2Int.one * -5;
+                    foreach (Tile tile in tiles.Values)
+                    {
+                        float d = Vector2.Distance(mousePos, tile.transform.position);
+                        if (d < 0.5f)
+                        {
+                            chosenPos = tile.tile.pos;
+                            break;
+                        }
+                    }
+                    if (tiles.ContainsKey(chosenPos) && tiles[chosenPos].token != null && tiles[chosenPos].token == lastTokenPlaced)
+                    {
+                        lastTokenPlaced = null;
+                        Undo();
+                    }
                 }
+                
                 break;
             case InputState.Place:
                 chosenPos = Vector2Int.one * -5;
@@ -276,7 +320,10 @@ public class GameController : MonoBehaviour
                 {
                     if(chosenPos == freeSlotChoice)
                     {
-                        if (game.IsFreeSlotFree())
+                        if (chosenIndex == game.hand.handSize + 2)
+                        {//put it back!
+                            EnterInputState(InputState.Choose);
+                        }else if (game.IsFreeSlotFree())
                         {
                             Services.AudioManager.PlaySound(Services.AudioManager.select, 1);
                             game.PlaceTokenInFreeSlot(chosenIndex);
@@ -295,6 +342,8 @@ public class GameController : MonoBehaviour
                         {
                             //freeSlot
                             tiles[chosenPos].token = freeSlot.token;
+                            lastTokenPlaced = freeSlot.token;
+                            lastTokenPlaced.transform.localEulerAngles = Vector3.zero;
                             freeSlot.token.UpdateLayer("TokenMoving");
                             freeSlot.token = null;
                         }
@@ -302,6 +351,8 @@ public class GameController : MonoBehaviour
                         {
                             tiles[chosenPos].token = hand[chosenIndex];
                             hand[chosenIndex].UpdateLayer("TokenMoving");
+                            lastTokenPlaced = hand[chosenIndex];
+                            lastTokenPlaced.transform.localEulerAngles = Vector3.zero;
                             hand[chosenIndex] = null;
                         }
                         
@@ -373,6 +424,7 @@ public class GameController : MonoBehaviour
                         }
                         else
                         {
+                            deckDisplay.MakeBag();
                             score += scoreDelta;
                             scoreDelta = 0;
                             EnterInputState(InputState.Choose);
@@ -444,6 +496,7 @@ public class GameController : MonoBehaviour
             
             
         }
+        deckNumberDisplay.text = game.bag.bag.Count.ToString();
         switch (inputState)
         {
             case InputState.Choose:

@@ -11,6 +11,7 @@ public class Token : MonoBehaviour
 
     public void Init(Logic.Token _token)
     {
+        token = _token;
         //spriteDisplay.color = Services.Visuals.tokenColors[(int)token.data.color];
         spriteDisplay.sprite = Services.Visuals.tokenSprites[(int)token.data.color];
         textDisplay.text = token.data.num.ToString();
@@ -31,6 +32,15 @@ public class Token : MonoBehaviour
     {
         Init(token);
         transform.position += ((Vector3)pos - transform.position) * 1.5f * (Time.deltaTime/0.16666f);
+        if(Services.GameController.lastTokenPlaced == this)
+        {
+            float angle = Mathf.Sin(Time.time * 5f) * 3f;
+            transform.localEulerAngles = new Vector3(0, 0, angle);
+        }
+        else
+        {
+            transform.localEulerAngles = Vector3.zero;
+        }
         //border.enabled = hover;
         if(spriteDisplay.sortingLayerName == "TokenMoving")
         {
