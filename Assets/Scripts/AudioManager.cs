@@ -55,5 +55,25 @@ public class AudioManager : MonoBehaviour
             break;
         }
     }
+    public void PlayPickUpSound()
+    {
+        PlaySound(select);
+    }
+    public void PlayLetGoSound()
+    {
+        PlaySound(select);
+    }
+    public void PlayPlaceSound()
+    {
+        PlaySound(select);
+    }
+    public void PlayRemoveTileSound(int depth = 0)
+    {
+        PlaySound(pop,depth);
+    }
+    public void PlayUpgradeTileSound(int depth = 0)
+    {
+        PlaySound(crack,depth);
+    }
 
 }

@@ -1420,7 +1420,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c58c8316b9f91a54a86c8773e6418c9a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  load: 1
+  load: 0
   gameJson: {fileID: 4900000, guid: 1776d1bcb3aa2bd4f8a3a2d2c9e7f094, type: 3}
   whichGame: 0
   display: {fileID: 356314379}

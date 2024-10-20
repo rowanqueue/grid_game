@@ -271,7 +271,8 @@ public class GameController : MonoBehaviour
                 {
                     if(chosenIndex > -1)
                     {
-                        Services.AudioManager.PlaySound(Services.AudioManager.select);
+                        
+                        Services.AudioManager.PlayPickUpSound();
                         EnterInputState(InputState.Place);
                         break;
                     }
@@ -322,10 +323,11 @@ public class GameController : MonoBehaviour
                     {
                         if (chosenIndex == game.hand.handSize + 2)
                         {//put it back!
+                            Services.AudioManager.PlayLetGoSound();
                             EnterInputState(InputState.Choose);
                         }else if (game.IsFreeSlotFree())
                         {
-                            Services.AudioManager.PlaySound(Services.AudioManager.select, 1);
+                            Services.AudioManager.PlayPlaceSound();
                             game.PlaceTokenInFreeSlot(chosenIndex);
                             freeSlot.token = hand[chosenIndex];
                             hand[chosenIndex].UpdateLayer("TokenMoving");
@@ -336,7 +338,7 @@ public class GameController : MonoBehaviour
 
                     }else if (game.CanPlaceHere(chosenPos))
                     {
-                        Services.AudioManager.PlaySound(Services.AudioManager.select,1);
+                        Services.AudioManager.PlayPlaceSound();
                         game.PlaceTokenFromHand(chosenIndex, chosenPos);
                         if(chosenIndex >= game.hand.handSize)
                         {
@@ -365,6 +367,7 @@ public class GameController : MonoBehaviour
                         float d = Vector2.Distance(mousePos, pos);
                         if (d < 0.5f)
                         {
+                            Services.AudioManager.PlayLetGoSound();
                             EnterInputState(InputState.Choose);
                         }
                     }
@@ -394,7 +397,7 @@ public class GameController : MonoBehaviour
                                             {
                                                 GameObject.Destroy(tile.token.gameObject);
                                                 tile.token = null;
-                                                Services.AudioManager.PlaySound(Services.AudioManager.pop);
+                                                Services.AudioManager.PlayRemoveTileSound(1);
                                             }
                                         }
                                     }
@@ -408,7 +411,7 @@ public class GameController : MonoBehaviour
                                             if (tile.token.token == token)
                                             {
                                                 tile.token.token = _event.tokens[1];
-                                                Services.AudioManager.PlaySound(Services.AudioManager.crack);
+                                                Services.AudioManager.PlayUpgradeTileSound();
                                             }
                                         }
                                     }
