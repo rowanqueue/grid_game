@@ -4,12 +4,15 @@ using UnityEngine;
 
 public class AudioManager : MonoBehaviour
 {
-    public GameObject audioPrefab;
+    //public GameObject audioPrefab;
     [HideInInspector]
     public AudioSource[] sounds;
     public AudioClip pop;
     public AudioClip select;
     public AudioClip crack;
+    public FMODUnity.EventReference popSFX;
+    public FMODUnity.EventReference selectSFX;
+    public FMODUnity.EventReference crackSFX;
     [Header("Misc")]
     public float baseVolume;
     public float loudVolume;
@@ -23,6 +26,7 @@ public class AudioManager : MonoBehaviour
     {
         /*spriteRenderer = GetComponent<SpriteRenderer>();
         spriteRenderer.color = Services.Visuals.connectorColor;*/
+        /*
         sounds = new AudioSource[32];
         muted = false;
         for (int i = 0; i < sounds.Length; i++)
@@ -30,7 +34,7 @@ public class AudioManager : MonoBehaviour
             GameObject obj = GameObject.Instantiate(audioPrefab, transform);
             sounds[i] = obj.GetComponent<AudioSource>();
             sounds[i].loop = false;
-        }
+        }*/
         /*if(Services.GameController.grid.landscape == false){
             transform.position =  -Services.GameController.grid.menuVector+new Vector3(0,Services.GameController.grid.verticalDistance*1.75f);
             transform.position+=Services.GameController.grid.transform.position;
@@ -57,22 +61,27 @@ public class AudioManager : MonoBehaviour
     }
     public void PlayPickUpSound()
     {
+        FMODUnity.RuntimeManager.PlayOneShot(selectSFX);
         PlaySound(select);
     }
     public void PlayLetGoSound()
     {
+        FMODUnity.RuntimeManager.PlayOneShot(selectSFX);
         PlaySound(select);
     }
     public void PlayPlaceSound()
     {
+        FMODUnity.RuntimeManager.PlayOneShot(selectSFX);
         PlaySound(select);
     }
     public void PlayRemoveTileSound(int depth = 0)
     {
+        FMODUnity.RuntimeManager.PlayOneShot(popSFX);
         PlaySound(pop,depth);
     }
     public void PlayUpgradeTileSound(int depth = 0)
     {
+        FMODUnity.RuntimeManager.PlayOneShot(crackSFX);
         PlaySound(crack,depth);
     }
 

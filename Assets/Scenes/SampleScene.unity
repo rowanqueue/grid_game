@@ -937,14 +937,20 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!81 &519420029
-AudioListener:
+--- !u!114 &519420029
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 519420028}
   m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86c6556701af9e04380698b89f691b6e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  nonRigidbodyVelocity: 0
+  attenuationObject: {fileID: 0}
 --- !u!20 &519420031
 Camera:
   m_ObjectHideFlags: 0
@@ -2487,11 +2493,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f952fe4d742c78343b217feb6c591c9c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  audioPrefab: {fileID: 5179557131764202488, guid: 9ea19041200839740b9534e0e64bbb82, type: 3}
   sounds: []
   pop: {fileID: 8300000, guid: d446b8562ba94d4498d2f90cafc99e19, type: 3}
   select: {fileID: 8300000, guid: 4d43f6170bdc2a443a19bd32578c9753, type: 3}
   crack: {fileID: 8300000, guid: d446b8562ba94d4498d2f90cafc99e19, type: 3}
+  popSFX:
+    Guid:
+      Data1: -445016626
+      Data2: 1293532510
+      Data3: -268274514
+      Data4: -832683610
+    Path: event:/TEMP_Floracotta_Pop
+  selectSFX:
+    Guid:
+      Data1: 354394655
+      Data2: 1078491744
+      Data3: -1280801368
+      Data4: 1036591656
+    Path: event:/SFX_Floracotta_PickUp
+  crackSFX:
+    Guid:
+      Data1: -445016626
+      Data2: 1293532510
+      Data3: -268274514
+      Data4: -832683610
+    Path: event:/TEMP_Floracotta_Pop
   baseVolume: 1
   loudVolume: 1
   spriteRenderer: {fileID: 0}
