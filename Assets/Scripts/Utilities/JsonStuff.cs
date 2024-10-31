@@ -14,6 +14,7 @@ namespace Json
     public class Event
     {
         public bool prototypical { get; set; }
+        public bool repeatable { get; set; }
         public string __helper { get; set; }
         public List<Trigger> trigger { get; set; }
         public List<Reward> reward { get; set; }
@@ -76,6 +77,7 @@ namespace Json
     {
         public string color { get; set; }
         public int number { get; set; }
+        public bool temporary { get; set; }
     }
     [System.Serializable]
     public class TokenVariables

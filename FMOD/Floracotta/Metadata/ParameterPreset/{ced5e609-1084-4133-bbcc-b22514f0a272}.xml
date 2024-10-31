@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.02.00">
+	<object class="ParameterPreset" id="{ced5e609-1084-4133-bbcc-b22514f0a272}">
+		<property name="name">
+			<value>Sidechain</value>
+		</property>
+		<relationship name="folder">
+			<destination>{599211ec-b2f3-4110-8be4-784b5ad259e8}</destination>
+		</relationship>
+		<relationship name="parameter">
+			<destination>{3ac2bf38-9068-402d-adb7-77d2e9a9577f}</destination>
+		</relationship>
+	</object>
+	<object class="GameParameter" id="{3ac2bf38-9068-402d-adb7-77d2e9a9577f}">
+		<property name="parameterType">
+			<value>1</value>
+		</property>
+		<property name="maximum">
+			<value>2</value>
+		</property>
+		<property name="initialValue">
+			<value>0</value>
+		</property>
+	</object>
+</objects>

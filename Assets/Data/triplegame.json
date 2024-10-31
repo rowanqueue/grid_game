@@ -14,7 +14,8 @@
             "blue",
             "red",
             "green",
-            "purple"
+            "purple",
+            "clipper"
         ],
         "number": [
             1,
@@ -26,11 +27,6 @@
             7,
             8,
             9
-        ],
-        "special": [
-            "",
-            "clipper",
-            "water"
         ],
         "temporary": false
     },
@@ -48,18 +44,40 @@
                 "color": "blue",
                 "number": 1
             },
-            "count": 6
+            "count": 3
         },
         {
             "token": {
                 "color": "red",
                 "number": 1
             },
-            "count": 4
-        }
+            "count": 0
+        },
     ],
     "progress": {
         "events": [
+          {
+              "repetable": true,
+              "__helper": "repeatable means that this will be repeatable",
+              "trigger": [
+                  {
+                      "token": {
+                          "color": "blue",
+                          "number": 2
+                      }
+                  }
+              ],
+              "reward": [
+                  {
+                      "token": {
+                          "color": "clipper",
+                          "number": -1,
+                          "temporary": true,
+                      },
+                      "count": 1
+                  }
+              ]
+          },
             {
                 "prototypical": true,
                 "__helper": "prototypical means that this will create this progress event for all possible number tokens of this color",

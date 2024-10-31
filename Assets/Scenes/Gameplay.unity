@@ -1280,11 +1280,13 @@ MonoBehaviour:
   - {r: 0, g: 0.64705884, b: 0.45882356, a: 1}
   - {r: 0.2392157, g: 0.5137255, b: 0.8196079, a: 1}
   - {r: 0.46274513, g: 0.3803922, b: 0.8470589, a: 1}
+  - {r: 0.82294345, g: 0.84705883, b: 0.38039216, a: 1}
   tokenSprites:
   - {fileID: 21300000, guid: 4848b72c094e2984e9d4aceacab3084f, type: 3}
   - {fileID: 21300000, guid: b71b9f7fe05b53f4289deb3ec73e2200, type: 3}
   - {fileID: 21300000, guid: 4d590ffe84ecc124abf95882ac524be6, type: 3}
   - {fileID: 21300000, guid: 80dae54153b96904fbb87160e76456db, type: 3}
+  - {fileID: 21300000, guid: 0e4a0892bdedea2418a5af3893008fa5, type: 3}
   numberSprites:
   - {fileID: 21300000, guid: 47667d5d6849f3443a27adbeefb6ab7d, type: 3}
   - {fileID: 21300000, guid: e40d6389a47f2bc4daa0d5083c025edc, type: 3}
@@ -1448,6 +1450,7 @@ MonoBehaviour:
   chosenPos: {x: -1, y: 0}
   waitTime: 0.25
   lastTokenPlaced: {fileID: 0}
+  holdingClipper: 0
   score: 0
   scoreDelta: 0
   currentSave:
@@ -1458,6 +1461,7 @@ MonoBehaviour:
     freeSlot:
       color: 0
       num: 0
+      temporary: 0
     currentBag: []
     unlocked: 
 --- !u!1 &1055410718
@@ -1659,10 +1663,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ac5b5eb4cccb0842bfd9e54ad8a2be2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  bagUpdated: 1
   firstGridPos: {x: -1.85, y: 1.53}
   gridSeparation: {x: 0.94, y: -1.25}
   perRow: 5
   tokens: []
+  numTokens: 0
 --- !u!4 &1174742338
 Transform:
   m_ObjectHideFlags: 0
@@ -2518,6 +2524,20 @@ MonoBehaviour:
       Data3: -268274514
       Data4: -832683610
     Path: event:/TEMP_Floracotta_Pop
+  musicRef:
+    Guid:
+      Data1: -205147065
+      Data2: 1279716877
+      Data3: 1920059786
+      Data4: 1651416562
+    Path: event:/MUS_Floracotta
+  ambienceRef:
+    Guid:
+      Data1: 1889282574
+      Data2: 1223146304
+      Data3: 1481094046
+      Data4: 544297774
+    Path: event:/SFX_Floracotta_Ambience
   baseVolume: 1
   loudVolume: 1
   spriteRenderer: {fileID: 0}

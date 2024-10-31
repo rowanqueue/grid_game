@@ -13,6 +13,8 @@ public class AudioManager : MonoBehaviour
     public FMODUnity.EventReference popSFX;
     public FMODUnity.EventReference selectSFX;
     public FMODUnity.EventReference crackSFX;
+    public FMODUnity.EventReference musicRef;
+    public FMODUnity.EventReference ambienceRef;
     [Header("Misc")]
     public float baseVolume;
     public float loudVolume;
@@ -21,6 +23,9 @@ public class AudioManager : MonoBehaviour
     public Sprite[] sprites;
     public bool muted;
     bool hovered;
+
+    FMOD.Studio.EventInstance music;
+    FMOD.Studio.EventInstance ambience;
 
     public void Initialize()
     {
@@ -42,6 +47,10 @@ public class AudioManager : MonoBehaviour
             transform.position =  -Services.GameController.grid.menuVector+new Vector3((Services.GameController.grid.width-1)*Services.GameController.grid.horizontalDistance,Services.GameController.grid.verticalDistance*0.55f);
             transform.position+=Services.GameController.grid.transform.position;
         }*/
+        music = FMODUnity.RuntimeManager.CreateInstance(musicRef);
+        ambience = FMODUnity.RuntimeManager.CreateInstance(ambienceRef);
+        music.start();
+        ambience.start();
     }
     public void PlaySound(AudioClip clip, int depth = 0)
     {
