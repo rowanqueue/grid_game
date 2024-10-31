@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.02.00">
+	<object class="MixerGroup" id="{bfcb6f04-915c-4b4c-9aef-ddce81ba51d1}">
+		<property name="name">
+			<value>Ambience</value>
+		</property>
+		<relationship name="effectChain">
+			<destination>{4d5b1e4a-163c-42bf-bc17-7ab9aa8b7c41}</destination>
+		</relationship>
+		<relationship name="panner">
+			<destination>{d752a748-3357-448a-8849-626b4ea7173e}</destination>
+		</relationship>
+		<relationship name="output">
+			<destination>{dda73bf5-5418-49e8-ad2e-1ea0d220c6a7}</destination>
+		</relationship>
+	</object>
+	<object class="MixerBusEffectChain" id="{4d5b1e4a-163c-42bf-bc17-7ab9aa8b7c41}">
+		<relationship name="effects">
+			<destination>{4c47f371-c799-4b95-b33f-9a0efcfe38f5}</destination>
+		</relationship>
+	</object>
+	<object class="MixerBusPanner" id="{d752a748-3357-448a-8849-626b4ea7173e}" />
+	<object class="MixerBusFader" id="{4c47f371-c799-4b95-b33f-9a0efcfe38f5}" />
+</objects>

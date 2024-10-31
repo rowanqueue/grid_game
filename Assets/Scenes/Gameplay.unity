@@ -2524,6 +2524,20 @@ MonoBehaviour:
       Data3: -268274514
       Data4: -832683610
     Path: event:/TEMP_Floracotta_Pop
+  musicRef:
+    Guid:
+      Data1: -205147065
+      Data2: 1279716877
+      Data3: 1920059786
+      Data4: 1651416562
+    Path: event:/MUS_Floracotta
+  ambienceRef:
+    Guid:
+      Data1: 1889282574
+      Data2: 1223146304
+      Data3: 1481094046
+      Data4: 544297774
+    Path: event:/SFX_Floracotta_Ambience
   baseVolume: 1
   loudVolume: 1
   spriteRenderer: {fileID: 0}
