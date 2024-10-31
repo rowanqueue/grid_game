@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.02.00">
+	<object class="AudioFile" id="{e2f9b0df-a2ed-4f89-90d4-92e90509b6b8}">
+		<property name="assetPath">
+			<value>country_ambience_01_60_loop.wav</value>
+		</property>
+		<property name="isStreaming">
+			<value>true</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>48</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>60.093229166666667</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{0cc1a9d7-3786-41fe-84dd-ca9ae5ff05a5}</destination>
+		</relationship>
+	</object>
+</objects>
