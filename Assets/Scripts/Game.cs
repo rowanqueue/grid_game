@@ -23,7 +23,8 @@ namespace Logic
             {"blue",TokenColor.Blue},
             {"red",TokenColor.Red },
             {"green",TokenColor.Green },
-            {"purple",TokenColor.Purple }
+            {"purple",TokenColor.Purple },
+            {"clipper",TokenColor.Clipper }
         };
         public override void Initialize(Json.Root root)
         {
@@ -72,6 +73,7 @@ namespace Logic
                 Dictionary<TokenData, int> updatedContents = progress.CheckProgress(newToken);
                 if (updatedContents.Count > 0)
                 {
+                    status.events.Add(new StatusReport.Event(StatusReport.EventType.BagUpdated, 0));
                     bag.AddContents(updatedContents);
                 }
                 status.events.Add(new StatusReport.Event(StatusReport.EventType.TokenChanged, new List<Token>() { tokenChanged,newToken }));
@@ -216,7 +218,8 @@ namespace Logic
             TokenCreated,//unimplemented
             TokenDestroyed,
             TokenChanged,//tokens[0] becomes tokens[1]
-            ScoreAdded
+            ScoreAdded,
+            BagUpdated
         }
         public class Event
         {
@@ -336,6 +339,10 @@ namespace Logic
                         prototypical.Add(moreTriggers, true);
                     }
                 }
+                if (_event.repeatable)
+                {
+                    prototypical.Add(triggers, _event.repeatable);
+                }
             }
             progress = new ProgressToken(this, tokenUnlocks,prototypical);
             /*new ProgressToken(this, new Dictionary<List<TokenData>, Dictionary<TokenData, int>>()
@@ -346,7 +353,7 @@ namespace Logic
                     {new TokenData(TokenColor.Blue,2),1 }
                 }
             },*/
-            grid = new Grid(gridSize);
+            grid = new Grid(gridSize,this);
 
             bag = new Bag(bagContents);
             hand = new Hand(handSize, handChoices);
@@ -363,8 +370,9 @@ namespace Logic
                 {"blue",TokenColor.Blue },
                 {"green",TokenColor.Green },
                 {"purple",TokenColor.Purple },
+                {"clipper",TokenColor.Clipper }
             };
-            return new TokenData(colors[token.color], token.number);
+            return new TokenData(colors[token.color], token.number,token.temporary);
         }
         public TokenData ConvertJsonToken(string color, int number)
         {
@@ -374,6 +382,7 @@ namespace Logic
                 {"blue",TokenColor.Blue },
                 {"green",TokenColor.Green },
                 {"purple",TokenColor.Purple },
+                {"clipper",TokenColor.Clipper }
             };
             return new TokenData(colors[color], number);
         }
@@ -382,14 +391,15 @@ namespace Logic
             score += pts;
             //todo: score event :(((
             status.events.Add(new StatusReport.Event(StatusReport.EventType.ScoreAdded, pts));
+
         }
-        public bool CanPlaceHere(Vector2Int p)
+        public bool CanPlaceHere(Vector2Int p,bool holdingClipper)
         {
             if (grid.tiles.ContainsKey(p) && grid.tiles[p].IsEmpty())
             {
-                return true;
+                return !holdingClipper;
             }
-            return false;
+            return holdingClipper;
         }
         public void PlaceTokenFromHand(int handIndex, Vector2Int gridPos)
         {
@@ -406,11 +416,24 @@ namespace Logic
             else
             {
                 token = hand.TakeToken(handIndex);
+                if (token.data.temporary)
+                {
+                    bag.RemoveToken(token);
+                    status.events.Add(new StatusReport.Event(StatusReport.EventType.BagUpdated, 0));
+                }
             }
             
             gridUpdating = true;
-            grid.PlaceToken(gridPos, token);
-            GridChanged(token);
+            token = grid.PlaceToken(gridPos, token);
+            if (token != null)
+            {
+                GridChanged(token);
+            }
+            else
+            {
+                GridFinishedChanging();
+            }
+            
         }
         public bool IsFreeSlotFree()
         {
@@ -427,6 +450,11 @@ namespace Logic
             status = new StatusReport();
             //end new turn stuff
             Token token = hand.TakeToken(handIndex);
+            if (token.data.temporary)
+            {
+                status.events.Add(new StatusReport.Event(StatusReport.EventType.BagUpdated, 0));
+                bag.RemoveToken(token);
+            }
             gridUpdating = true;
             freeSlot = token;
             GridFinishedChanging();
@@ -460,6 +488,7 @@ namespace Logic
     }
     public class Grid
     {
+        Game game;
         public Vector2Int gridSize;
         public Dictionary<Vector2Int, Tile> tiles = new Dictionary<Vector2Int, Tile>();
 
@@ -470,10 +499,11 @@ namespace Logic
         Vector2Int.down,
         Vector2Int.left,
     };
-        public Grid(Vector2Int size)
+        public Grid(Vector2Int size, Game game)
         {
             this.gridSize = size;
             PopulateGrid();
+            this.game = game;   
         }
         public void Clear()
         {
@@ -505,11 +535,40 @@ namespace Logic
                 }
             }
         }
-        public void PlaceToken(Vector2Int p, Token token)
+        public Token PlaceToken(Vector2Int p, Token token)
         {
+            
             Tile tile = tiles[p];
-            tile.token = token;
-            token.tile = tile;
+            if (token.data.color == TokenColor.Clipper)
+            {
+                game.status.events.Add(new StatusReport.Event(StatusReport.EventType.TokenDestroyed, new List<Token>() { token }));
+                int num = tile.token.data.num - 1;
+                if(num > 0)
+                {
+                    Token newToken = new Token(tile.token.data, false);
+
+                    newToken.data.num = num;
+                    game.status.events.Add(new StatusReport.Event(StatusReport.EventType.TokenChanged, new List<Token>() { tile.token, newToken }));
+                    tile.token.Destroy();
+                    PlaceToken(p, newToken);
+                    
+                    return newToken;
+                }
+                else
+                {
+                    game.status.events.Add(new StatusReport.Event(StatusReport.EventType.TokenDestroyed,new List<Token>() { tile.token }));
+                    tile.token.Destroy();
+                    return null;
+                }
+
+            }
+            else
+            {
+                tile.token = token;
+                token.tile = tile;
+                return token;
+            }
+            
         }
         public bool Contains(TokenData tokenData)
         {
@@ -671,6 +730,18 @@ namespace Logic
             }
             return tokenData;
         }
+        public void RemoveToken(Token token)
+        {
+            TokenData tokenData = token.data;
+            if (bagContents.ContainsKey(tokenData))
+            {
+                bagContents[tokenData]--;
+                if (bagContents[tokenData] <= 0)
+                {
+                    bagContents.Remove(tokenData);
+                }
+            }
+        }
 
         public override string ToString()
         {
@@ -714,7 +785,8 @@ namespace Logic
         Red,
         Green,
         Blue,
-        Purple
+        Purple,
+        Clipper
     }
     public class Token
     {
@@ -749,10 +821,18 @@ namespace Logic
     {
         public TokenColor color;
         public int num;
+        public bool temporary;
         public TokenData(TokenColor color, int num)
         {
             this.color = color;
             this.num = num;
+            this.temporary = false;
+        }
+        public TokenData(TokenColor color, int num, bool temporary)
+        {
+            this.color = color;
+            this.num = num;
+            this.temporary = temporary;
         }
         public override string ToString()
         {

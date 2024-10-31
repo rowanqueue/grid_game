@@ -55,6 +55,7 @@ public class GameController : MonoBehaviour
     public float waitTime = 0.1f;
     float waiting = 0f;
     public Token lastTokenPlaced;
+    public bool holdingClipper = false;
 
     //data
     public int score = 0;
@@ -298,6 +299,7 @@ public class GameController : MonoBehaviour
                 
                 break;
             case InputState.Place:
+                holdingClipper = chosenToken.token.data.color == Logic.TokenColor.Clipper;
                 chosenPos = Vector2Int.one * -5;
                 foreach(Tile tile in tiles.Values)
                 {
@@ -336,26 +338,48 @@ public class GameController : MonoBehaviour
                             waiting = 0f;
                         }
 
-                    }else if (game.CanPlaceHere(chosenPos))
+                    }else if (game.CanPlaceHere(chosenPos,holdingClipper))
                     {
                         Services.AudioManager.PlayPlaceSound();
                         game.PlaceTokenFromHand(chosenIndex, chosenPos);
+                        
                         if(chosenIndex >= game.hand.handSize)
                         {
-                            //freeSlot
-                            tiles[chosenPos].token = freeSlot.token;
-                            lastTokenPlaced = freeSlot.token;
-                            lastTokenPlaced.transform.localEulerAngles = Vector3.zero;
-                            freeSlot.token.UpdateLayer("TokenMoving");
-                            freeSlot.token = null;
+                            if (holdingClipper == false)
+                            {
+                                //freeSlot
+                                tiles[chosenPos].token = freeSlot.token;
+                                lastTokenPlaced = freeSlot.token;
+                                lastTokenPlaced.transform.localEulerAngles = Vector3.zero;
+                                freeSlot.token.UpdateLayer("TokenMoving");
+                                freeSlot.token = null;
+                            }
+                            else
+                            {
+                                GameObject.Destroy(freeSlot.token.gameObject);
+
+                                freeSlot.token = null;
+                            }
+                            
                         }
                         else
                         {
-                            tiles[chosenPos].token = hand[chosenIndex];
-                            hand[chosenIndex].UpdateLayer("TokenMoving");
-                            lastTokenPlaced = hand[chosenIndex];
-                            lastTokenPlaced.transform.localEulerAngles = Vector3.zero;
-                            hand[chosenIndex] = null;
+                            if(holdingClipper == false)
+                            {
+                                tiles[chosenPos].token = hand[chosenIndex];
+                                hand[chosenIndex].UpdateLayer("TokenMoving");
+                                lastTokenPlaced = hand[chosenIndex];
+                                lastTokenPlaced.transform.localEulerAngles = Vector3.zero;
+                                hand[chosenIndex] = null;
+                            }
+                            else
+                            {
+                                GameObject.Destroy(hand[chosenIndex].gameObject);
+
+                                hand[chosenIndex] = null;
+
+                            }
+                            
                         }
                         
                         EnterInputState(InputState.Wait);
@@ -388,7 +412,9 @@ public class GameController : MonoBehaviour
                             switch (_event.type)
                             {
                                 case Logic.StatusReport.EventType.TokenDestroyed:
+                                    Debug.Log("destr'yed");
                                     token = _event.tokens[0];
+                                    Debug.Log(token);
                                     foreach (Tile tile in tiles.Values)
                                     {
                                         if (tile.token)
@@ -422,6 +448,10 @@ public class GameController : MonoBehaviour
                                 case Logic.StatusReport.EventType.ScoreAdded:
                                     scoreDelta += _event.num;
                                     waiting = waitTime * 0.1f;
+                                    break;
+                                case Logic.StatusReport.EventType.BagUpdated:
+                                    deckDisplay.bagUpdated = true;
+                                    waiting = waitTime * 0.01f;
                                     break;
                             }
                         }

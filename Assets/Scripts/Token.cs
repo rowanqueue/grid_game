@@ -13,10 +13,15 @@ public class Token : MonoBehaviour
     {
         token = _token;
         //spriteDisplay.color = Services.Visuals.tokenColors[(int)token.data.color];
+        Debug.Log((int)token.data.color);
         spriteDisplay.sprite = Services.Visuals.tokenSprites[(int)token.data.color];
         textDisplay.text = token.data.num.ToString();
         number.color = Services.Visuals.tokenColors[(int)token.data.color];
-        number.sprite = Services.Visuals.numberSprites[(int)token.data.num];
+        if (token.data.num >= 0)
+        {
+            number.sprite = Services.Visuals.numberSprites[(int)token.data.num];
+        }
+        
     }
     public void PlaceInHand(int index)
     {
