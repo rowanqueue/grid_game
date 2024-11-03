@@ -44,20 +44,20 @@
                 "color": "blue",
                 "number": 1
             },
-            "count": 3
+            "count": 6
         },
         {
             "token": {
                 "color": "red",
                 "number": 1
             },
-            "count": 0
+            "count": 4
         },
     ],
     "progress": {
         "events": [
           {
-              "repetable": true,
+              "repeatable": true,
               "__helper": "repeatable means that this will be repeatable",
               "trigger": [
                   {

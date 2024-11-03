@@ -313,7 +313,7 @@ namespace Logic
                     }
                 }
                 tokenUnlocks.Add(triggers, rewards);
-                prototypical.Add(triggers, _event.prototypical);
+                prototypical.Add(triggers, _event.prototypical || _event.repeatable);
                 if (_event.prototypical)
                 {
                     for(int i = 1; i < 10; i++)
@@ -338,10 +338,6 @@ namespace Logic
                         tokenUnlocks.Add(moreTriggers, moreRewards);
                         prototypical.Add(moreTriggers, true);
                     }
-                }
-                if (_event.repeatable)
-                {
-                    prototypical.Add(triggers, _event.repeatable);
                 }
             }
             progress = new ProgressToken(this, tokenUnlocks,prototypical);
