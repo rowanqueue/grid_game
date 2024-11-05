@@ -56,28 +56,6 @@
     ],
     "progress": {
         "events": [
-          {
-              "repeatable": true,
-              "__helper": "repeatable means that this will be repeatable",
-              "trigger": [
-                  {
-                      "token": {
-                          "color": "blue",
-                          "number": 2
-                      }
-                  }
-              ],
-              "reward": [
-                  {
-                      "token": {
-                          "color": "clipper",
-                          "number": -1,
-                          "temporary": true,
-                      },
-                      "count": 1
-                  }
-              ]
-          },
             {
                 "prototypical": true,
                 "__helper": "prototypical means that this will create this progress event for all possible number tokens of this color",
@@ -178,6 +156,7 @@
                     }
                 ]
             },
+
             {
                 "trigger": [
                     {
@@ -232,6 +211,25 @@
                 "trigger": [
                     {
                         "token": {
+                            "color": "green",
+                            "number": 4
+                        }
+                    },
+                ],
+                "reward": [
+                    {
+                        "token": {
+                            "color": "purple",
+                            "number": 1
+                        },
+                        "count": 1
+                    }
+                ]
+            },
+            {
+                "trigger": [
+                    {
+                        "token": {
                             "color": "blue",
                             "number": 5
                         }
@@ -257,7 +255,7 @@
                 "trigger": [
                     {
                         "token": {
-                            "color": "green",
+                            "color": "blue",
                             "number": 5
                         }
                     }
@@ -265,9 +263,29 @@
                 "reward": [
                     {
                         "token": {
-                            "color": "purple",
-                            "number": 1
+                            "color": "clipper",
+                            "number": -1,
                         },
+                        "count": 1
+                    }
+                ]
+            },
+            {
+                "trigger": [
+                    {
+                        "token": {
+                            "color": "red",
+                            "number": 5
+                        }
+                    }
+                ],
+                "reward": [
+                    {
+                        "token": {
+                            "color": "clipper",
+                            "number": -1,
+                        },
+                        "count": 1
                     }
                 ]
             },
