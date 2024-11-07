@@ -2552,6 +2552,20 @@ MonoBehaviour:
       Data3: 1481094046
       Data4: 544297774
     Path: event:/SFX_Floracotta_Ambience
+  freeSlotSFX:
+    Guid:
+      Data1: 756760392
+      Data2: 1224581909
+      Data3: 403972792
+      Data4: -935828182
+    Path: event:/SFX_Floracotta_PutDown_FreeSlot
+  bagSFX:
+    Guid:
+      Data1: -1794009056
+      Data2: 1128023584
+      Data3: 527886761
+      Data4: -600219485
+    Path: event:/SFX_Floracotta_Bag_Open
   baseVolume: 1
   loudVolume: 1
   spriteRenderer: {fileID: 0}

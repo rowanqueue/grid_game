@@ -144,6 +144,7 @@ public class GameController : MonoBehaviour
     public void ToggleBagDisplay()
     {
         deckDisplay.gameObject.SetActive(!deckDisplay.gameObject.activeSelf);
+        Services.AudioManager.PlayBagSound();
     }
     void LoadTokensIntoGrid()
     {
@@ -329,7 +330,7 @@ public class GameController : MonoBehaviour
                             EnterInputState(InputState.Choose);
                         }else if (game.IsFreeSlotFree())
                         {
-                            Services.AudioManager.PlayPlaceSound();
+                            Services.AudioManager.PlayFreeSlotSound();
                             game.PlaceTokenInFreeSlot(chosenIndex);
                             freeSlot.token = hand[chosenIndex];
                             hand[chosenIndex].UpdateLayer("TokenMoving");

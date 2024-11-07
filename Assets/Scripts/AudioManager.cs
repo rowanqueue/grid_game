@@ -17,6 +17,8 @@ public class AudioManager : MonoBehaviour
     public FMODUnity.EventReference crackSFX;
     public FMODUnity.EventReference musicRef;
     public FMODUnity.EventReference ambienceRef;
+    public FMODUnity.EventReference freeSlotSFX;
+    public FMODUnity.EventReference bagSFX;
     FMOD.Studio.PARAMETER_ID popDepth;
     [Header("Misc")]
     public float baseVolume;
@@ -108,6 +110,16 @@ public class AudioManager : MonoBehaviour
         popEvent.release();
         //FMODUnity.RuntimeManager.PlayOneShot(crackSFX);
         //PlaySound(crack,depth);
+    }
+
+    public void PlayFreeSlotSound()
+    {
+        FMODUnity.RuntimeManager.PlayOneShot(freeSlotSFX);
+    }
+
+    public void PlayBagSound()
+    {
+        FMODUnity.RuntimeManager.PlayOneShot(bagSFX);
     }
 
 }
