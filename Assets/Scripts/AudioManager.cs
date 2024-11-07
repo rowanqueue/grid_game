@@ -11,10 +11,13 @@ public class AudioManager : MonoBehaviour
     public AudioClip select;
     public AudioClip crack;
     public FMODUnity.EventReference popSFX;
-    public FMODUnity.EventReference selectSFX;
+    public FMODUnity.EventReference placeSFX;
+    public FMODUnity.EventReference pickUpSFX;
+    public FMODUnity.EventReference putDownSFX;
     public FMODUnity.EventReference crackSFX;
     public FMODUnity.EventReference musicRef;
     public FMODUnity.EventReference ambienceRef;
+    FMOD.Studio.PARAMETER_ID popDepth;
     [Header("Misc")]
     public float baseVolume;
     public float loudVolume;
@@ -47,6 +50,11 @@ public class AudioManager : MonoBehaviour
             transform.position =  -Services.GameController.grid.menuVector+new Vector3((Services.GameController.grid.width-1)*Services.GameController.grid.horizontalDistance,Services.GameController.grid.verticalDistance*0.55f);
             transform.position+=Services.GameController.grid.transform.position;
         }*/
+        FMOD.Studio.EventDescription popEventDescription = FMODUnity.RuntimeManager.GetEventDescription(popSFX);
+        FMOD.Studio.PARAMETER_DESCRIPTION popDepthParameterDescription;
+        popEventDescription.getParameterDescriptionByName("TilePopDepth", out popDepthParameterDescription);
+        popDepth = popDepthParameterDescription.id;
+
         music = FMODUnity.RuntimeManager.CreateInstance(musicRef);
         ambience = FMODUnity.RuntimeManager.CreateInstance(ambienceRef);
         music.start();
@@ -70,28 +78,36 @@ public class AudioManager : MonoBehaviour
     }
     public void PlayPickUpSound()
     {
-        FMODUnity.RuntimeManager.PlayOneShot(selectSFX);
-        PlaySound(select);
+        FMODUnity.RuntimeManager.PlayOneShot(pickUpSFX);
+        //PlaySound(select);
     }
     public void PlayLetGoSound()
     {
-        FMODUnity.RuntimeManager.PlayOneShot(selectSFX);
-        PlaySound(select);
+        FMODUnity.RuntimeManager.PlayOneShot(putDownSFX);
+        //PlaySound(select);
     }
     public void PlayPlaceSound()
     {
-        FMODUnity.RuntimeManager.PlayOneShot(selectSFX);
-        PlaySound(select);
+        FMODUnity.RuntimeManager.PlayOneShot(placeSFX);
+        //PlaySound(select);
     }
     public void PlayRemoveTileSound(int depth = 0)
     {
-        FMODUnity.RuntimeManager.PlayOneShot(popSFX);
-        PlaySound(pop,depth);
+        FMOD.Studio.EventInstance popEvent = FMODUnity.RuntimeManager.CreateInstance(popSFX);
+        popEvent.setParameterByID(popDepth, depth);
+        popEvent.start();
+        popEvent.release();
+        //FMODUnity.RuntimeManager.PlayOneShot(popSFX);
+        //PlaySound(pop,depth);
     }
     public void PlayUpgradeTileSound(int depth = 0)
     {
-        FMODUnity.RuntimeManager.PlayOneShot(crackSFX);
-        PlaySound(crack,depth);
+        FMOD.Studio.EventInstance popEvent = FMODUnity.RuntimeManager.CreateInstance(popSFX);
+        popEvent.setParameterByID(popDepth, depth);
+        popEvent.start();
+        popEvent.release();
+        //FMODUnity.RuntimeManager.PlayOneShot(crackSFX);
+        //PlaySound(crack,depth);
     }
 
 }

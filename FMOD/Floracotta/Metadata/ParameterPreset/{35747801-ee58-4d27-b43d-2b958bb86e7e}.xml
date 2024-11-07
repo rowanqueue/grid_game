@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.02.00">
+	<object class="ParameterPreset" id="{35747801-ee58-4d27-b43d-2b958bb86e7e}">
+		<property name="name">
+			<value>TilePopDepth</value>
+		</property>
+		<relationship name="folder">
+			<destination>{599211ec-b2f3-4110-8be4-784b5ad259e8}</destination>
+		</relationship>
+		<relationship name="parameter">
+			<destination>{9b135749-18b3-400d-819d-03e29868fe8c}</destination>
+		</relationship>
+	</object>
+	<object class="GameParameter" id="{9b135749-18b3-400d-819d-03e29868fe8c}">
+		<property name="maximum">
+			<value>10</value>
+		</property>
+		<property name="initialValue">
+			<value>0</value>
+		</property>
+	</object>
+</objects>

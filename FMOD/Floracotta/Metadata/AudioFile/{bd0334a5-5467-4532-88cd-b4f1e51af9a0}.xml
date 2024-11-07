@@ -2,7 +2,7 @@
 <objects serializationModel="Studio.02.02.00">
 	<object class="AudioFile" id="{bd0334a5-5467-4532-88cd-b4f1e51af9a0}">
 		<property name="assetPath">
-			<value>MUS_Floracotta_Perc_Mid.wav</value>
+			<value>Music/MUS_Floracotta_Perc_Mid.wav</value>
 		</property>
 		<property name="frequencyInKHz">
 			<value>44.0999985</value>

@@ -2505,25 +2505,39 @@ MonoBehaviour:
   crack: {fileID: 8300000, guid: d446b8562ba94d4498d2f90cafc99e19, type: 3}
   popSFX:
     Guid:
-      Data1: -445016626
-      Data2: 1293532510
-      Data3: -268274514
-      Data4: -832683610
-    Path: event:/TEMP_Floracotta_Pop
-  selectSFX:
+      Data1: 723929183
+      Data2: 1195244979
+      Data3: 1989401791
+      Data4: -1179617031
+    Path: event:/SFX_Floracotta_Pop
+  placeSFX:
+    Guid:
+      Data1: 419112004
+      Data2: 1095669036
+      Data3: -1624431737
+      Data4: 931738145
+    Path: event:/SFX_Floracotta_Place
+  pickUpSFX:
     Guid:
       Data1: 354394655
       Data2: 1078491744
       Data3: -1280801368
       Data4: 1036591656
     Path: event:/SFX_Floracotta_PickUp
+  putDownSFX:
+    Guid:
+      Data1: 1354083560
+      Data2: 1301345052
+      Data3: 2018058125
+      Data4: -1774666919
+    Path: event:/SFX_Floracotta_PutDown
   crackSFX:
     Guid:
-      Data1: -445016626
-      Data2: 1293532510
-      Data3: -268274514
-      Data4: -832683610
-    Path: event:/TEMP_Floracotta_Pop
+      Data1: 723929183
+      Data2: 1195244979
+      Data3: 1989401791
+      Data4: -1179617031
+    Path: event:/SFX_Floracotta_Pop
   musicRef:
     Guid:
       Data1: -205147065
