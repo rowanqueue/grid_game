@@ -252,6 +252,7 @@
                 ]
             },
             {
+                "repeatable": true,
                 "trigger": [
                     {
                         "token": {
@@ -265,12 +266,14 @@
                         "token": {
                             "color": "clipper",
                             "number": -1,
+                            "temporary": true,
                         },
                         "count": 1
                     }
                 ]
             },
             {
+                "repeatable": true,
                 "trigger": [
                     {
                         "token": {
@@ -284,8 +287,30 @@
                         "token": {
                             "color": "clipper",
                             "number": -1,
+                            "temporary": true,
                         },
                         "count": 1
+                    }
+                ]
+            },
+            {
+                "repeatable": true,
+                "trigger": [
+                    {
+                        "token": {
+                            "color": "purple",
+                            "number": 5
+                        }
+                    }
+                ],
+                "reward": [
+                    {
+                        "token": {
+                            "color": "clipper",
+                            "number": -1,
+                            "temporary": true,
+                        },
+                        "count": 2
                     }
                 ]
             },
