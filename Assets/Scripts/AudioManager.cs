@@ -128,4 +128,10 @@ public class AudioManager : MonoBehaviour
         FMODUnity.RuntimeManager.PlayOneShot(undoSFX);
     }
 
+    public void StopMusic()
+    {
+        music.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
+        music.release();
+    }
+
 }

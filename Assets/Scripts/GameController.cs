@@ -597,6 +597,7 @@ public class GameController : MonoBehaviour
     public void Restart()
     {
         PlayerPrefs.DeleteKey("save");
+        Services.AudioManager.StopMusic();
         SceneManager.LoadScene(0);
     }
 
