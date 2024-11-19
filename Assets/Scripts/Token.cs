@@ -12,15 +12,25 @@ public class Token : MonoBehaviour
     public void Init(Logic.Token _token)
     {
         token = _token;
-        //spriteDisplay.color = Services.Visuals.tokenColors[(int)token.data.color];
-        Debug.Log((int)token.data.color);
-        spriteDisplay.sprite = Services.Visuals.tokenSprites[(int)token.data.color];
-        textDisplay.text = token.data.num.ToString();
-        number.color = Services.Visuals.tokenColors[(int)token.data.color];
-        if (token.data.num >= 0)
+        if(token.data.num >= ((Logic.TripleGame)Services.GameController.game).maxTileNum)
         {
-            number.sprite = Services.Visuals.numberSprites[(int)token.data.num];
+            spriteDisplay.sprite = Services.Visuals.tokenMax[(int)token.data.color];
+            number.enabled = false;
         }
+        else
+        {
+            spriteDisplay.sprite = Services.Visuals.tokenSprites[(int)token.data.color];
+            textDisplay.text = token.data.num.ToString();
+            number.color = Services.Visuals.tokenColors[(int)token.data.color];
+            number.enabled = false;
+            if (token.data.num >= 0)
+            {
+                number.enabled = true;
+                number.sprite = Services.Visuals.numberSprites[(int)token.data.num];
+            }
+        }
+        //spriteDisplay.color = Services.Visuals.tokenColors[(int)token.data.color];
+        
         
     }
     public void PlaceInHand(int index)

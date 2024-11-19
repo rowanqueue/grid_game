@@ -5,7 +5,6 @@ using TMPro;
 using UnityEngine.XR;
 using UnityEngine.SceneManagement;
 using Newtonsoft.Json;
-using static UnityEditor.PlayerSettings;
 
 public enum GameType
 {
@@ -56,6 +55,7 @@ public class GameController : MonoBehaviour
     float waiting = 0f;
     public Token lastTokenPlaced;
     public bool holdingClipper = false;
+    public bool holdingSpade = false;
 
     //data
     public int score = 0;
@@ -103,7 +103,7 @@ public class GameController : MonoBehaviour
         Services.Visuals = GameObject.FindObjectOfType<Visuals>();
 
         Services.AudioManager = GameObject.FindObjectOfType<AudioManager>();
-        Services.AudioManager.Initialize();
+        Services.AudioManager?.Initialize();
 
     }
     void CreateGrid()
@@ -301,6 +301,7 @@ public class GameController : MonoBehaviour
                 break;
             case InputState.Place:
                 holdingClipper = chosenToken.token.data.color == Logic.TokenColor.Clipper;
+                holdingSpade = chosenToken.token.data.color == Logic.TokenColor.Spade;
                 chosenPos = Vector2Int.one * -5;
                 foreach(Tile tile in tiles.Values)
                 {
@@ -339,8 +340,12 @@ public class GameController : MonoBehaviour
                             waiting = 0f;
                         }
 
-                    }else if (game.CanPlaceHere(chosenPos,holdingClipper))
+                    }else if (game.CanPlaceHere(chosenPos,holdingClipper || holdingSpade))
                     {
+                        if(holdingSpade && chosenIndex >= game.hand.handSize)
+                        {
+                            break;
+                        }
                         Services.AudioManager.PlayPlaceSound();
                         game.PlaceTokenFromHand(chosenIndex, chosenPos);
                         
@@ -365,20 +370,29 @@ public class GameController : MonoBehaviour
                         }
                         else
                         {
-                            if(holdingClipper == false)
+                            if (holdingSpade)
+                            {
+                                game.PlaceTokenBackInHand(chosenIndex, chosenPos);
+                                GameObject.Destroy(hand[chosenIndex].gameObject);
+ 
+                                hand[chosenIndex] = tiles[chosenPos].token;
+                                hand[chosenIndex].UpdateLayer("TokenHand");
+                                hand[chosenIndex].PlaceInHand(chosenIndex);
+                                tiles[chosenPos].token = null;
+                            }
+                            else if (holdingClipper)
+                            {
+                                GameObject.Destroy(hand[chosenIndex].gameObject);
+
+                                hand[chosenIndex] = null;
+                            }
+                            else
                             {
                                 tiles[chosenPos].token = hand[chosenIndex];
                                 hand[chosenIndex].UpdateLayer("TokenMoving");
                                 lastTokenPlaced = hand[chosenIndex];
                                 lastTokenPlaced.transform.localEulerAngles = Vector3.zero;
                                 hand[chosenIndex] = null;
-                            }
-                            else
-                            {
-                                GameObject.Destroy(hand[chosenIndex].gameObject);
-
-                                hand[chosenIndex] = null;
-
                             }
                             
                         }
@@ -543,6 +557,12 @@ public class GameController : MonoBehaviour
         Logic.History.Turn save = new Logic.History.Turn(game);
         currentSave = save;
         PlayerPrefs.SetString("save", JsonUtility.ToJson(save));
+    }
+    public void Mulligan()
+    {
+        //put back rest of hand and draw 4 more
+        game.Mulligan();
+        CreateHand();
     }
     public void Undo()
     {

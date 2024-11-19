@@ -7,7 +7,8 @@
     },
     "handSize": 4,
     "gameVariables": {
-        "groupCollapseNum": 3
+        "groupCollapseNum": 3,
+        "maxTileNum": 8,
     },
     "tokenVariables": {
         "color": [
@@ -15,7 +16,9 @@
             "red",
             "green",
             "purple",
-            "clipper"
+            "clipper",
+            "gold",
+            "spade"
         ],
         "number": [
             1,
@@ -36,13 +39,14 @@
             "red": 2,
             "green": 3,
             "purple": 4,
+            "gold": 5,
         }
     },
     "startingBag": [
         {
             "token": {
                 "color": "blue",
-                "number": 1
+                "number": 1,
             },
             "count": 6
         },
@@ -56,6 +60,28 @@
     ],
     "progress": {
         "events": [
+          {
+              "repeatable": true,
+              "__helper": "repeatable means that this will be repeatable",
+              "trigger": [
+                  {
+                      "token": {
+                          "color": "blue",
+                          "number": 8
+                      }
+                  }
+              ],
+              "reward": [
+                  {
+                      "token": {
+                          "color": "gold",
+                          "number": 1,
+                          "temporary": true,
+                      },
+                      "count": 1
+                  }
+              ]
+          },
           {
               "repeatable": true,
               "__helper": "repeatable means that this will be repeatable",
