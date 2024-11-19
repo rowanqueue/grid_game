@@ -563,6 +563,7 @@ public class GameController : MonoBehaviour
         //put back rest of hand and draw 4 more
         game.Mulligan();
         CreateHand();
+        Services.AudioManager.PlayUndoSound();
     }
     public void Undo()
     {

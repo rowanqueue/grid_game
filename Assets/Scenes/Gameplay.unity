@@ -2509,6 +2509,13 @@ MonoBehaviour:
       Data3: 527886761
       Data4: -600219485
     Path: event:/SFX_Floracotta_Bag_Open
+  undoSFX:
+    Guid:
+      Data1: 1456415003
+      Data2: 1149250431
+      Data3: -1727091037
+      Data4: 322511465
+    Path: event:/SFX_Floracotta_Undo
   baseVolume: 1
   loudVolume: 1
   spriteRenderer: {fileID: 0}
