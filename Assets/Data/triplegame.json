@@ -247,7 +247,7 @@
                             "color": "green",
                             "number": 1
                         },
-                        "count": 1
+                        "count": 2
                     }
                 ]
             },
@@ -268,7 +268,7 @@
                             "number": -1,
                             "temporary": true,
                         },
-                        "count": 1
+                        "count": 2
                     }
                 ]
             },
@@ -289,7 +289,7 @@
                             "number": -1,
                             "temporary": true,
                         },
-                        "count": 1
+                        "count": 2
                     }
                 ]
             },
@@ -310,7 +310,7 @@
                             "number": -1,
                             "temporary": true,
                         },
-                        "count": 2
+                        "count": 3
                     }
                 ]
             },
