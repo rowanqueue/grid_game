@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.02.00">
+	<object class="AudioFile" id="{80b2cbf8-53c7-473d-9a69-075883f8c4d9}">
+		<property name="assetPath">
+			<value>SFX/Pop/SFX_Floracotta_Pop.wav</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>48</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>0.56533333333333335</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{0cc1a9d7-3786-41fe-84dd-ca9ae5ff05a5}</destination>
+		</relationship>
+	</object>
+</objects>

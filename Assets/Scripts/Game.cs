@@ -13,6 +13,7 @@ namespace Logic
         public new string name = "3tile";
         public new int version = 0;
         public int groupCollapseNum = 3;
+        public int maxTileNum = 8;
         public Dictionary<TokenColor, int> colorScoreMulti = new Dictionary<TokenColor, int>()
     {
         {TokenColor.Blue,1 },
@@ -24,7 +25,9 @@ namespace Logic
             {"red",TokenColor.Red },
             {"green",TokenColor.Green },
             {"purple",TokenColor.Purple },
-            {"clipper",TokenColor.Clipper }
+            {"clipper",TokenColor.Clipper },
+            {"gold",TokenColor.Gold },
+            {"spade",TokenColor.Spade }
         };
         public override void Initialize(Json.Root root)
         {
@@ -35,20 +38,26 @@ namespace Logic
             colorScoreMulti.Add(TokenColor.Red, root.scoreVariables.colorScoreMultiplier.red);
             colorScoreMulti.Add(TokenColor.Green, root.scoreVariables.colorScoreMultiplier.green);
             colorScoreMulti.Add(TokenColor.Purple, root.scoreVariables.colorScoreMultiplier.purple);
+            colorScoreMulti.Add(TokenColor.Gold, root.scoreVariables.colorScoreMultiplier.gold);
+            maxTileNum = root.gameVariables.maxTileNum;
             base.Initialize(root);
         }
         protected override void GridChanged(Token tokenChanged)
         {
             //recursively make groups based on neighbors
             List<Token> tokenGroup = new List<Token>();
-            if(tokenChanged.data.color == TokenColor.Purple)
+            if(tokenChanged.data.num < maxTileNum)
             {
-                tokenChanged.tile.CheckNeighbors(Check.Equals, tokenGroup,tokenChanged);
+                if (tokenChanged.data.color == TokenColor.Purple)
+                {
+                    tokenChanged.tile.CheckNeighbors(Check.Equals, tokenGroup, tokenChanged);
+                }
+                else
+                {
+                    tokenChanged.tile.CheckNeighbors(Check.Equals, tokenGroup, tokenChanged);
+                }
             }
-            else
-            {
-                tokenChanged.tile.CheckNeighbors(Check.Equals, tokenGroup,tokenChanged);
-            }
+            
             
             if (tokenGroup.Count >= groupCollapseNum)
             {
@@ -366,7 +375,9 @@ namespace Logic
                 {"blue",TokenColor.Blue },
                 {"green",TokenColor.Green },
                 {"purple",TokenColor.Purple },
-                {"clipper",TokenColor.Clipper }
+                {"clipper",TokenColor.Clipper },
+                {"gold",TokenColor.Gold },
+                {"spade",TokenColor.Spade }
             };
             return new TokenData(colors[token.color], token.number,token.temporary);
         }
@@ -378,7 +389,9 @@ namespace Logic
                 {"blue",TokenColor.Blue },
                 {"green",TokenColor.Green },
                 {"purple",TokenColor.Purple },
-                {"clipper",TokenColor.Clipper }
+                {"clipper",TokenColor.Clipper },
+                {"gold",TokenColor.Gold },
+                {"spade",TokenColor.Spade }
             };
             return new TokenData(colors[color], number);
         }
@@ -391,11 +404,27 @@ namespace Logic
         }
         public bool CanPlaceHere(Vector2Int p,bool holdingClipper)
         {
-            if (grid.tiles.ContainsKey(p) && grid.tiles[p].IsEmpty())
+            if(grid.tiles.ContainsKey(p) == false)
+            {
+                return false;
+            }
+            if (grid.tiles[p].IsEmpty())
             {
                 return !holdingClipper;
             }
             return holdingClipper;
+        }
+        public void Mulligan()
+        {
+            hand.EmptyHand();
+            hand.FillHand(bag);
+        }
+        public void PlaceTokenBackInHand(int handIndex, Vector2Int gridPos)
+        {
+            history.turns.Add(new History.Turn(this));
+            Token token = grid.tiles[gridPos].token;
+            hand.tokens[handIndex] = token;
+            grid.tiles[gridPos].token = null;
         }
         public void PlaceTokenFromHand(int handIndex, Vector2Int gridPos)
         {
@@ -782,7 +811,9 @@ namespace Logic
         Green,
         Blue,
         Purple,
-        Clipper
+        Clipper,
+        Gold,
+        Spade
     }
     public class Token
     {

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.02.00">
+	<object class="EncodableAsset" id="{e5ec03de-922d-47bd-8683-f080c0a1414d}">
+		<property name="assetPath">
+			<value>SFX/Reroll/</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{0cc1a9d7-3786-41fe-84dd-ca9ae5ff05a5}</destination>
+		</relationship>
+	</object>
+</objects>

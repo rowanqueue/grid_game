@@ -2,7 +2,7 @@
 <objects serializationModel="Studio.02.02.00">
 	<object class="AudioFile" id="{f5cd1981-07cf-4740-89c0-32b3a54cda0d}">
 		<property name="assetPath">
-			<value>SFX_Floracotta_PutDown.wav</value>
+			<value>SFX/SFX_Floracotta_PutDown.wav</value>
 		</property>
 		<property name="frequencyInKHz">
 			<value>44.0999985</value>

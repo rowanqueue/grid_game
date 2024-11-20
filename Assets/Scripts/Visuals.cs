@@ -5,6 +5,7 @@ using UnityEngine;
 public class Visuals : MonoBehaviour
 {
     public List<Color> tokenColors;
+    public List<Sprite> tokenMax;
     public List<Sprite> tokenSprites;
     public List<Sprite> numberSprites;
     //public Dictionary<Logic.TokenColor, Color> tokenColors;

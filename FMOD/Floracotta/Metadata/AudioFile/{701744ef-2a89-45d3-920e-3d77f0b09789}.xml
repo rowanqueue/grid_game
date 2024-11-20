@@ -2,7 +2,7 @@
 <objects serializationModel="Studio.02.02.00">
 	<object class="AudioFile" id="{701744ef-2a89-45d3-920e-3d77f0b09789}">
 		<property name="assetPath">
-			<value>MUS_Floracotta_Piano_NoSidechain_1.wav</value>
+			<value>Music/MUS_Floracotta_Piano_NoSidechain_1.wav</value>
 		</property>
 		<property name="frequencyInKHz">
 			<value>44.0999985</value>

@@ -9,6 +9,7 @@ namespace Json
         public int red { get; set; }
         public int green { get; set; }
         public int purple { get; set; }
+        public int gold { get; set; }
     }
     [System.Serializable]
     public class Event
@@ -23,6 +24,7 @@ namespace Json
     public class GameVariables
     {
         public int groupCollapseNum { get; set; }
+        public int maxTileNum { get; set; }
     }
     [System.Serializable]
     public class GridSize
