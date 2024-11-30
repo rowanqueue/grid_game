@@ -27,7 +27,8 @@ namespace Logic
             {"purple",TokenColor.Purple },
             {"clipper",TokenColor.Clipper },
             {"gold",TokenColor.Gold },
-            {"spade",TokenColor.Spade }
+            {"spade",TokenColor.Spade },
+            {"adder",TokenColor.Adder }
         };
         public override void Initialize(Json.Root root)
         {
@@ -377,7 +378,8 @@ namespace Logic
                 {"purple",TokenColor.Purple },
                 {"clipper",TokenColor.Clipper },
                 {"gold",TokenColor.Gold },
-                {"spade",TokenColor.Spade }
+                {"spade",TokenColor.Spade },
+                {"adder",TokenColor.Adder }
             };
             return new TokenData(colors[token.color], token.number,token.temporary);
         }
@@ -391,7 +393,8 @@ namespace Logic
                 {"purple",TokenColor.Purple },
                 {"clipper",TokenColor.Clipper },
                 {"gold",TokenColor.Gold },
-                {"spade",TokenColor.Spade }
+                {"spade",TokenColor.Spade },
+                {"adder",TokenColor.Spade },
             };
             return new TokenData(colors[color], number);
         }
@@ -423,8 +426,20 @@ namespace Logic
         {
             history.turns.Add(new History.Turn(this));
             Token token = grid.tiles[gridPos].token;
-            hand.tokens[handIndex] = token;
+            if(handIndex >= hand.handSize)
+            {
+                freeSlot = token;
+            }
+            else
+            {
+                hand.tokens[handIndex] = token;
+            }
             grid.tiles[gridPos].token = null;
+            hand.tokensTaken--;
+        }
+        public void FakeTurn()
+        {
+            GridFinishedChanging();
         }
         public void PlaceTokenFromHand(int handIndex, Vector2Int gridPos)
         {
@@ -585,6 +600,19 @@ namespace Logic
                     tile.token.Destroy();
                     return null;
                 }
+
+            }else if(token.data.color == TokenColor.Adder)
+            {
+                game.status.events.Add(new StatusReport.Event(StatusReport.EventType.TokenDestroyed, new List<Token>() { token }));
+                int num = tile.token.data.num + 1;
+                Token newToken = new Token(tile.token.data, false);
+
+                newToken.data.num = num;
+                game.status.events.Add(new StatusReport.Event(StatusReport.EventType.TokenChanged, new List<Token>() { tile.token, newToken }));
+                tile.token.Destroy();
+                PlaceToken(p, newToken);
+
+                return newToken;
 
             }
             else
@@ -813,7 +841,8 @@ namespace Logic
         Purple,
         Clipper,
         Gold,
-        Spade
+        Spade,
+        Adder
     }
     public class Token
     {
@@ -937,14 +966,14 @@ namespace Logic
         {
             if (handChoices == -1)
             {
-                if (tokensTaken == handSize)
+                foreach(Token token in tokens)
                 {
-                    return true;
+                    if(token != null)
+                    {
+                        return false;
+                    }
                 }
-                else
-                {
-                    return false;
-                }
+                return true;
             }
             else
             {

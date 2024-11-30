@@ -1328,6 +1328,7 @@ MonoBehaviour:
   - {r: 0.82294345, g: 0.84705883, b: 0.38039216, a: 1}
   - {r: 0.82294345, g: 0.84705883, b: 0.38039216, a: 1}
   - {r: 0.82294345, g: 0.84705883, b: 0.38039216, a: 1}
+  - {r: 0.82294345, g: 0.84705883, b: 0.38039216, a: 1}
   tokenMax:
   - {fileID: 21300000, guid: ddff52bfb7bc04243b88d71f0114a6fd, type: 3}
   - {fileID: 21300000, guid: 2ccef3d6891acac4eb650b0152fd706e, type: 3}
@@ -1341,7 +1342,8 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 80dae54153b96904fbb87160e76456db, type: 3}
   - {fileID: 21300000, guid: 0e4a0892bdedea2418a5af3893008fa5, type: 3}
   - {fileID: 21300000, guid: cb70aab42b0f02349b4830e7f11e922c, type: 3}
-  - {fileID: 21300000, guid: 1b8e3d3ce42377642a70896f88479a0a, type: 3}
+  - {fileID: 21300000, guid: 270fac645f156d843a98e76ca4e272ca, type: 3}
+  - {fileID: 21300000, guid: 2d7c62a142ccf2b46bac77a12440fdfc, type: 3}
   numberSprites:
   - {fileID: 21300000, guid: 47667d5d6849f3443a27adbeefb6ab7d, type: 3}
   - {fileID: 21300000, guid: e40d6389a47f2bc4daa0d5083c025edc, type: 3}
@@ -1486,7 +1488,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c58c8316b9f91a54a86c8773e6418c9a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  load: 0
+  load: 1
   gameJson: {fileID: 4900000, guid: 1776d1bcb3aa2bd4f8a3a2d2c9e7f094, type: 3}
   whichGame: 0
   display: {fileID: 356314379}
@@ -1510,6 +1512,7 @@ MonoBehaviour:
   lastTokenPlaced: {fileID: 0}
   holdingClipper: 0
   holdingSpade: 0
+  holdingAdder: 0
   score: 0
   scoreDelta: 0
   currentSave:
