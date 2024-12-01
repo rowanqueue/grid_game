@@ -56,6 +56,7 @@ public class GameController : MonoBehaviour
     public Token lastTokenPlaced;
     public bool holdingClipper = false;
     public bool holdingSpade = false;
+    public bool holdingAdder = false;
 
     //data
     public int score = 0;
@@ -302,6 +303,7 @@ public class GameController : MonoBehaviour
             case InputState.Place:
                 holdingClipper = chosenToken.token.data.color == Logic.TokenColor.Clipper;
                 holdingSpade = chosenToken.token.data.color == Logic.TokenColor.Spade;
+                holdingAdder = chosenToken.token.data.color == Logic.TokenColor.Adder;
                 chosenPos = Vector2Int.one * -5;
                 foreach(Tile tile in tiles.Values)
                 {
@@ -322,13 +324,14 @@ public class GameController : MonoBehaviour
                 {
                     EnterInputState(InputState.Choose);
                 }else if (Input.GetMouseButtonDown(0))
-                {
+                {//clicking
                     if(chosenPos == freeSlotChoice)
                     {
                         if (chosenIndex == game.hand.handSize + 2)
                         {//put it back!
                             Services.AudioManager.PlayLetGoSound();
                             EnterInputState(InputState.Choose);
+                            break;
                         }else if (game.IsFreeSlotFree())
                         {
                             Services.AudioManager.PlayFreeSlotSound();
@@ -338,20 +341,17 @@ public class GameController : MonoBehaviour
                             hand[chosenIndex] = null;
                             EnterInputState(InputState.Wait);
                             waiting = 0f;
-                        }
-
-                    }else if (game.CanPlaceHere(chosenPos,holdingClipper || holdingSpade))
-                    {
-                        if(holdingSpade && chosenIndex >= game.hand.handSize)
-                        {
                             break;
                         }
-                        Services.AudioManager.PlayPlaceSound();
-                        game.PlaceTokenFromHand(chosenIndex, chosenPos);
-                        
-                        if(chosenIndex >= game.hand.handSize)
+
+                    }
+                    if(holdingClipper == false && holdingSpade == false && holdingAdder == false)
+                    {
+                        if (game.CanPlaceHere(chosenPos, false))
                         {
-                            if (holdingClipper == false)
+                            Services.AudioManager.PlayPlaceSound();
+                            game.PlaceTokenFromHand(chosenIndex, chosenPos);
+                            if (chosenIndex >= game.hand.handSize)
                             {
                                 //freeSlot
                                 tiles[chosenPos].token = freeSlot.token;
@@ -359,32 +359,7 @@ public class GameController : MonoBehaviour
                                 lastTokenPlaced.transform.localEulerAngles = Vector3.zero;
                                 freeSlot.token.UpdateLayer("TokenMoving");
                                 freeSlot.token = null;
-                            }
-                            else
-                            {
-                                GameObject.Destroy(freeSlot.token.gameObject);
 
-                                freeSlot.token = null;
-                            }
-                            
-                        }
-                        else
-                        {
-                            if (holdingSpade)
-                            {
-                                game.PlaceTokenBackInHand(chosenIndex, chosenPos);
-                                GameObject.Destroy(hand[chosenIndex].gameObject);
- 
-                                hand[chosenIndex] = tiles[chosenPos].token;
-                                hand[chosenIndex].UpdateLayer("TokenHand");
-                                hand[chosenIndex].PlaceInHand(chosenIndex);
-                                tiles[chosenPos].token = null;
-                            }
-                            else if (holdingClipper)
-                            {
-                                GameObject.Destroy(hand[chosenIndex].gameObject);
-
-                                hand[chosenIndex] = null;
                             }
                             else
                             {
@@ -394,21 +369,69 @@ public class GameController : MonoBehaviour
                                 lastTokenPlaced.transform.localEulerAngles = Vector3.zero;
                                 hand[chosenIndex] = null;
                             }
-                            
+                            EnterInputState(InputState.Wait);
+                            waiting = 0f;
+                            break;
                         }
-                        
-                        EnterInputState(InputState.Wait);
-                        waiting = 0f;
-                    }
-                    else
+                    }else if (holdingClipper || holdingAdder)
                     {
-                        Vector2 pos = firstHandPos + (chosenIndex * handSeparation);
-                        float d = Vector2.Distance(mousePos, pos);
-                        if (d < 0.5f)
+                        if (game.CanPlaceHere(chosenPos, holdingClipper || holdingAdder))
                         {
-                            Services.AudioManager.PlayLetGoSound();
-                            EnterInputState(InputState.Choose);
+                            game.PlaceTokenFromHand(chosenIndex, chosenPos);
+                            Services.AudioManager.PlayPlaceSound();
+                            if (chosenIndex >= game.hand.handSize)
+                            {
+                                GameObject.Destroy(freeSlot.token.gameObject);
+
+                                freeSlot.token = null;
+                            }
+                            else
+                            {
+                                GameObject.Destroy(hand[chosenIndex].gameObject);
+
+                                hand[chosenIndex] = null;
+                            }
+                            EnterInputState(InputState.Wait);
+                            waiting = 0f;
+                            break;
                         }
+                    }else if (holdingSpade)
+                    {
+                        if (game.CanPlaceHere(chosenPos, holdingSpade))
+                        {
+                            Services.AudioManager.PlayPlaceSound();
+                            if (chosenIndex >= game.hand.handSize)
+                            {
+                                game.PlaceTokenBackInHand(chosenIndex, chosenPos);
+                                GameObject.Destroy(freeSlot.token.gameObject);
+
+                                freeSlot.token = tiles[chosenPos].token;
+                                freeSlot.token.UpdateLayer("TokenHand");
+                                freeSlot.token.PlaceInHand(chosenIndex);
+                                tiles[chosenPos].token = null;
+                            }
+                            else
+                            {
+                                game.PlaceTokenBackInHand(chosenIndex, chosenPos);
+                                GameObject.Destroy(hand[chosenIndex].gameObject);
+
+                                hand[chosenIndex] = tiles[chosenPos].token;
+                                hand[chosenIndex].UpdateLayer("TokenHand");
+                                hand[chosenIndex].PlaceInHand(chosenIndex);
+                                tiles[chosenPos].token = null;
+                            }
+                            game.FakeTurn();
+                            EnterInputState(InputState.Wait);
+                            waiting = 0f;
+                            break;
+                        }
+                    }
+                    Vector2 pos = firstHandPos + (chosenIndex * handSeparation);
+                    float d = Vector2.Distance(mousePos, pos);
+                    if (d < 0.5f)
+                    {
+                        Services.AudioManager.PlayLetGoSound();
+                        EnterInputState(InputState.Choose);
                     }
                 }
                 break;
