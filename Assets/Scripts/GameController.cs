@@ -382,13 +382,13 @@ public class GameController : MonoBehaviour
                             if (chosenIndex >= game.hand.handSize)
                             {
                                 GameObject.Destroy(freeSlot.token.gameObject);
-
+                                
                                 freeSlot.token = null;
                             }
                             else
                             {
                                 GameObject.Destroy(hand[chosenIndex].gameObject);
-
+                                Services.AudioManager.PlayShearsSound();
                                 hand[chosenIndex] = null;
                             }
                             EnterInputState(InputState.Wait);
