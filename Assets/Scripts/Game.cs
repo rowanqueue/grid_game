@@ -419,7 +419,7 @@ namespace Logic
         }
         public void Mulligan()
         {
-            hand.EmptyHand();
+            hand.ReturnHand(bag);
             hand.FillHand(bag);
         }
         public void PlaceTokenBackInHand(int handIndex, Vector2Int gridPos)
@@ -432,6 +432,11 @@ namespace Logic
             }
             else
             {
+                if (hand.tokens[handIndex].data.temporary)
+                {
+                    bag.RemoveToken(hand.tokens[handIndex]);
+                    status.events.Add(new StatusReport.Event(StatusReport.EventType.BagUpdated, 0));
+                }
                 hand.tokens[handIndex] = token;
             }
             grid.tiles[gridPos].token = null;
@@ -783,6 +788,11 @@ namespace Logic
             }
             return tokenData;
         }
+        public void AddTokenBack(Token token)
+        {
+            TokenData tokenData = token.data;
+            bag.Add(tokenData);
+        }
         public void RemoveToken(Token token)
         {
             TokenData tokenData = token.data;
@@ -950,6 +960,17 @@ namespace Logic
                 TokenData nextData = bag.DrawToken();
                 tokens[i] = new Token(nextData, true);
             }
+        }
+        public void ReturnHand(Bag bag)
+        {
+            for(int i = 0; i < tokens.Length; i++)
+            {
+                if (tokens[i] == null) { continue; }
+                Token token = tokens[i];
+                bag.AddTokenBack(token);
+
+            }
+            EmptyHand();
         }
         public void EmptyHand()
         {

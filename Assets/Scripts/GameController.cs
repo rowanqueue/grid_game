@@ -399,6 +399,7 @@ public class GameController : MonoBehaviour
                     {
                         if (game.CanPlaceHere(chosenPos, holdingSpade))
                         {
+                            game.PlaceTokenFromHand(chosenIndex, chosenPos);
                             Services.AudioManager.PlayPlaceSound();
                             if (chosenIndex >= game.hand.handSize)
                             {
@@ -420,7 +421,6 @@ public class GameController : MonoBehaviour
                                 hand[chosenIndex].PlaceInHand(chosenIndex);
                                 tiles[chosenPos].token = null;
                             }
-                            game.FakeTurn();
                             EnterInputState(InputState.Wait);
                             waiting = 0f;
                             break;
