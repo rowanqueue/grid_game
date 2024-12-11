@@ -382,13 +382,13 @@ public class GameController : MonoBehaviour
                             if (chosenIndex >= game.hand.handSize)
                             {
                                 GameObject.Destroy(freeSlot.token.gameObject);
-
+                                
                                 freeSlot.token = null;
                             }
                             else
                             {
                                 GameObject.Destroy(hand[chosenIndex].gameObject);
-
+                                Services.AudioManager.PlayShearsSound();
                                 hand[chosenIndex] = null;
                             }
                             EnterInputState(InputState.Wait);
@@ -399,6 +399,7 @@ public class GameController : MonoBehaviour
                     {
                         if (game.CanPlaceHere(chosenPos, holdingSpade))
                         {
+                            game.PlaceTokenFromHand(chosenIndex, chosenPos);
                             Services.AudioManager.PlayPlaceSound();
                             if (chosenIndex >= game.hand.handSize)
                             {
@@ -420,7 +421,6 @@ public class GameController : MonoBehaviour
                                 hand[chosenIndex].PlaceInHand(chosenIndex);
                                 tiles[chosenPos].token = null;
                             }
-                            game.FakeTurn();
                             EnterInputState(InputState.Wait);
                             waiting = 0f;
                             break;

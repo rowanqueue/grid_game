@@ -20,6 +20,7 @@ public class AudioManager : MonoBehaviour
     public FMODUnity.EventReference freeSlotSFX;
     public FMODUnity.EventReference bagSFX;
     public FMODUnity.EventReference undoSFX;
+    public FMODUnity.EventReference shearsSFX;
     FMOD.Studio.PARAMETER_ID popDepth;
     [Header("Misc")]
     public float baseVolume;
@@ -126,6 +127,11 @@ public class AudioManager : MonoBehaviour
     public void PlayUndoSound()
     {
         FMODUnity.RuntimeManager.PlayOneShot(undoSFX);
+    }
+
+    public void PlayShearsSound()
+    {
+        FMODUnity.RuntimeManager.PlayOneShot(shearsSFX);
     }
 
     public void StopMusic()
