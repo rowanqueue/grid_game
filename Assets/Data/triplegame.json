@@ -350,7 +350,7 @@
                     {
                         "token": {
                             "color": "blue",
-                            "number": 3
+                            "number": 5
                         }
                     }
                 ],
@@ -399,7 +399,7 @@
                 "reward": [
                     {
                         "token": {
-                            "color": "clipper",
+                            "color": "adder",
                             "number": -1,
                             "temporary": true,
                         },
