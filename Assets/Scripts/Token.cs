@@ -23,7 +23,11 @@ public class Token : MonoBehaviour
             textDisplay.text = token.data.num.ToString();
             number.color = Services.Visuals.tokenColors[(int)token.data.color];
             number.enabled = false;
-            if (token.data.num >= 0 || token.data.color == Logic.TokenColor.Spade || token.data.color == Logic.TokenColor.Adder)
+            if(token.data.color == Logic.TokenColor.Clipper || token.data.color == Logic.TokenColor.Spade || token.data.color == Logic.TokenColor.Adder)
+            {
+                return;
+            }
+            if (token.data.num >= 0)
             {
                 number.enabled = true;
                 number.sprite = Services.Visuals.numberSprites[(int)token.data.num];
