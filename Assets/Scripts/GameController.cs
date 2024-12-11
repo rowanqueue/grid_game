@@ -399,7 +399,6 @@ public class GameController : MonoBehaviour
                     {
                         if (game.CanPlaceHere(chosenPos, holdingSpade))
                         {
-                            game.PlaceTokenFromHand(chosenIndex, chosenPos);
                             Services.AudioManager.PlayPlaceSound();
                             if (chosenIndex >= game.hand.handSize)
                             {
