@@ -378,8 +378,8 @@
                 "reward": [
                     {
                         "token": {
-                            "color": "clipper",
-                            "number": -1,
+                            "color": "spade",
+                            "number": 1,
                             "temporary": true,
                         },
                         "count": 2
@@ -400,7 +400,91 @@
                     {
                         "token": {
                             "color": "adder",
+                            "number": 1,
+                            "temporary": true,
+                        },
+                        "count": 1
+                    }
+                ]
+            },
+            {
+                "repeatable": true,
+                "trigger": [
+                    {
+                        "token": {
+                            "color": "blue",
+                            "number": 7
+                        }
+                    }
+                ],
+                "reward": [
+                    {
+                        "token": {
+                            "color": "clipper",
                             "number": -1,
+                            "temporary": true,
+                        },
+                        "count": 1
+                    }
+                ]
+            },
+            {
+                "repeatable": true,
+                "trigger": [
+                    {
+                        "token": {
+                            "color": "red",
+                            "number": 7
+                        }
+                    }
+                ],
+                "reward": [
+                    {
+                        "token": {
+                            "color": "clipper",
+                            "number": -1,
+                            "temporary": true,
+                        },
+                        "count": 1
+                    }
+                ]
+            },
+            {
+                "repeatable": true,
+                "trigger": [
+                    {
+                        "token": {
+                            "color": "purple",
+                            "number": 7
+                        }
+                    }
+                ],
+                "reward": [
+                    {
+                        "token": {
+                            "color": "clipper",
+                            "number": -1,
+                            "temporary": true,
+                        },
+                        "count": 2
+                    }
+                ]
+            },
+            {
+                "repeatable": true,
+                "trigger": [
+                    {
+                        "token": {
+                            "color": "green",
+                            "number": 5
+                        }
+                    }
+                ],
+                "reward": [
+                    {
+                        "token": {
+                            "color": "spade",
+                            "number": 1,
                             "temporary": true,
                         },
                         "count": 3
