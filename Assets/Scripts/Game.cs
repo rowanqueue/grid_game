@@ -303,17 +303,16 @@ namespace Logic
                 bagContents.Add(_token, tokenSet.count);
             }
             //progress
-            Dictionary<List<TokenData>, Dictionary<TokenData, int>> tokenUnlocks = new Dictionary<List<TokenData>, Dictionary<TokenData, int>>();
-            Dictionary<List<TokenData>, bool> prototypical = new Dictionary<List<TokenData>, bool>();
-            foreach (Json.Event _event in root.progress.events)
+            List<Unlock> unlocks = new List<Unlock>();
+            foreach(Json.Event _event in root.progress.events)
             {
                 List<TokenData> triggers = new List<TokenData>();
                 foreach(Json.Trigger trigger in _event.trigger)
                 {
                     triggers.Add(ConvertJsonToken(trigger.token));
                 }
-                Dictionary<TokenData, int> rewards = new Dictionary<TokenData, int>();
-                foreach (Json.Reward reward in _event.reward)
+                Dictionary<TokenData,int> rewards = new Dictionary<TokenData,int>();
+                foreach(Json.Reward reward in _event.reward)
                 {
                     rewards.Add(ConvertJsonToken(reward.token), reward.count);
                     if(reward.replacesToken != null)
@@ -322,14 +321,14 @@ namespace Logic
                         rewards.Add(replacedToken, -1);
                     }
                 }
-                tokenUnlocks.Add(triggers, rewards);
-                prototypical.Add(triggers, _event.prototypical || _event.repeatable);
+                bool repeatable = _event.prototypical || _event.repeatable;
+                unlocks.Add(new Unlock(triggers, rewards, repeatable));
                 if (_event.prototypical)
                 {
-                    for(int i = 1; i < 10; i++)
+                    for (int i = 1; i < 10; i++)
                     {
                         List<TokenData> moreTriggers = new List<TokenData>();
-                        foreach(TokenData tokenData in triggers)
+                        foreach (TokenData tokenData in triggers)
                         {
                             moreTriggers.Add(new TokenData(tokenData.color, tokenData.num + i));
                         }
@@ -340,25 +339,16 @@ namespace Logic
                             if (rewards[reward] < 0)
                             {
                                 //jsut removing a 1
-                                moreRewards.Add(new TokenData(reward.color,reward.num+i), count);
+                                moreRewards.Add(new TokenData(reward.color, reward.num + i), count);
                                 continue;
                             }
-                            moreRewards.Add(new TokenData(reward.color,reward.num + i), rewards[reward]);
+                            moreRewards.Add(new TokenData(reward.color, reward.num + i), rewards[reward]);
                         }
-                        tokenUnlocks.Add(moreTriggers, moreRewards);
-                        prototypical.Add(moreTriggers, true);
+                        unlocks.Add(new Unlock(moreTriggers, moreRewards, true));
                     }
                 }
             }
-            progress = new ProgressToken(this, tokenUnlocks,prototypical);
-            /*new ProgressToken(this, new Dictionary<List<TokenData>, Dictionary<TokenData, int>>()
-        {
-            {new List<TokenData>(){new TokenData(TokenColor.Blue,4)}, new Dictionary<TokenData, int>()
-                {
-                    {new TokenData(TokenColor.Blue,1),-1 },
-                    {new TokenData(TokenColor.Blue,2),1 }
-                }
-            },*/
+            progress = new ProgressNew(this, unlocks);
             grid = new Grid(gridSize,this);
 
             bag = new Bag(bagContents);
@@ -403,7 +393,6 @@ namespace Logic
             score += pts;
             //todo: score event :(((
             status.events.Add(new StatusReport.Event(StatusReport.EventType.ScoreAdded, pts));
-
         }
         public bool CanPlaceHere(Vector2Int p,bool holdingClipper)
         {
@@ -702,7 +691,8 @@ namespace Logic
                                     {
                                         if (neighbor.token.data.color == TokenColor.Blue || neighbor.token.data.color == TokenColor.Red)
                                         {
-                                            shouldContinue = true;
+                                            tokenGroup.Add(neighbor.token);
+                                            //shouldContinue = true;
                                         }
                                     }
                                 }
@@ -739,23 +729,46 @@ namespace Logic
     }
     public class Bag
     {
+        public Dictionary<TokenData, int> startingBagContents;
         public Dictionary<TokenData, int> bagContents; //prototypical bag
         public List<TokenData> bag = new List<TokenData>();
+        public List<TokenData> nextBagsTemporary = new List<TokenData>();
 
         public Bag(Dictionary<TokenData, int> bagContents)
         {
             this.bagContents = bagContents;
+            startingBagContents = new Dictionary<TokenData, int>();
+            foreach(TokenData token in bagContents.Keys)
+            {
+                startingBagContents.Add(token, bagContents[token]);
+            }
             RefillBag();
 
         }
-        public void AddContents(Dictionary<TokenData, int> newContents)
+        public void ResetBag()
+        {
+            bagContents.Clear();
+            foreach (TokenData token in startingBagContents.Keys)
+            {
+                bagContents.Add(token, startingBagContents[token]);
+            }
+        }
+        public void AddContents(Dictionary<TokenData, int> newContents,bool loading = false)
         {
             foreach (TokenData tokenData in newContents.Keys)
             {
+                if (tokenData.temporary)
+                {
+                    for(int i = 0; i < newContents[tokenData]; i++)
+                    {
+                        nextBagsTemporary.Add(tokenData);
+                    }
+                    continue;
+                }
                 if (bagContents.ContainsKey(tokenData))
                 {
                     bagContents[tokenData] += newContents[tokenData];
-                    if (bagContents[tokenData] <= 0)
+                    if (bagContents[tokenData] <= 0 && loading == false)
                     {
                         bagContents.Remove(tokenData);
                     }
@@ -763,6 +776,21 @@ namespace Logic
                 else
                 {
                     bagContents.Add(tokenData, newContents[tokenData]);
+                }
+            }
+            if (loading)
+            {
+                List<TokenData> removed = new List<TokenData>();
+                foreach(TokenData tokenData in bagContents.Keys)
+                {
+                    if (bagContents[tokenData] <= 0)
+                    {
+                        removed.Add(tokenData);
+                    }
+                }
+                foreach(TokenData tokenData in removed)
+                {
+                    bagContents.Remove(tokenData);
                 }
             }
         }
@@ -776,6 +804,11 @@ namespace Logic
                     bag.Add(tokenData);
                 }
             }
+            foreach(TokenData tokenData in nextBagsTemporary)
+            {
+                bag.Add(tokenData);
+            }
+            nextBagsTemporary.Clear();
             Shuffle();
         }
         public TokenData DrawToken()
@@ -792,6 +825,7 @@ namespace Logic
         {
             TokenData tokenData = token.data;
             bag.Add(tokenData);
+            Shuffle();
         }
         public void RemoveToken(Token token)
         {
@@ -809,6 +843,7 @@ namespace Logic
         public override string ToString()
         {
             string s = string.Empty;
+            s += "Next Bag\n";
             foreach (var tokenData in bagContents.Keys)
             {
                 for (int i = 0; i < bagContents[tokenData]; i++)
@@ -817,14 +852,23 @@ namespace Logic
                 }
 
             }
-            /*for(int i = 0; i < bag.Count; i++)
+            for (int i = 0; i < nextBagsTemporary.Count; i++)
             {
                 if (s != string.Empty)
                 {
-                    s += "-";
+                    s += ",";
+                }
+                s += nextBagsTemporary[i].ToString();
+            }
+            s += "\nThis Bag\n";
+            for(int i = 0; i < bag.Count; i++)
+            {
+                if (s != string.Empty)
+                {
+                    s += ",";
                 }
                 s += bag[i].ToString();
-            }*/
+            }
             return s;
         }
 
@@ -906,6 +950,13 @@ namespace Logic
             s += "<color=\"" + color.ToString().ToLower() + "\">";
             s += num.ToString();
             s += "</color>";
+            return s;
+        }
+        public string ShortString()
+        {
+            string s = string.Empty;
+            s += color.ToString().ToLower().Substring(0, 1);
+            s += num.ToString();
             return s;
         }
 
@@ -1022,6 +1073,151 @@ namespace Logic
         public virtual List<bool> GetUnlockedByIndex() { return new List<bool>(); }
         public virtual Dictionary<TokenData, int> LoadFromIndexList(List<bool> completed) { return new Dictionary<TokenData, int>(); }
     }
+    public class ProgressNew : Progress
+    {
+        public List<Unlock> unlocks = new List<Unlock>();
+        Dictionary<string, Unlock> name2Unlock = new Dictionary<string, Unlock>();
+        public ProgressNew(Game game,List<Unlock> tokenUnlocks)
+        {
+            this.game = game;
+            type = ProgressType.Token;
+            unlocks = tokenUnlocks;
+            foreach(Unlock unlock in unlocks)
+            {
+                name2Unlock.Add(unlock.ID(), unlock);
+            }
+        }
+        public override Dictionary<TokenData, int> CheckProgress(Token token)
+        {
+            Dictionary<TokenData, int> newContents = new Dictionary<TokenData, int>();
+            foreach(Unlock unlock in unlocks)
+            {
+                if (unlock.repeatable == false && unlock.unlocked > 0) { continue; }
+                bool did_i_unlock = true;
+                bool newTokenIsNeeded = false;
+                foreach (TokenData tokenData in unlock.triggers)
+                {
+                    if (game.grid.Contains(tokenData) == false)
+                    {
+                        did_i_unlock = false;
+                    }
+                    if (token.data == tokenData)
+                    {
+                        newTokenIsNeeded = true;
+                    }
+                }
+                if(did_i_unlock && newTokenIsNeeded)
+                {
+                    unlock.ActuallyUnlock(newContents);
+                    
+                }
+            }
+            string s = "";
+            if (newContents.Count > 0)
+            {
+                foreach (TokenData tokenData in newContents.Keys)
+                {
+                    s += tokenData.ToString() + ":" + newContents[tokenData] + ", ";
+                    if (newContents[tokenData] < 0)
+                    {
+                        if (game.bag.bagContents.ContainsKey(tokenData) == false)
+                        {
+                            //you don't have that token to upgrade :(
+                            return new Dictionary<TokenData, int>();
+                        }
+                    }
+                }
+                //Debug.Log(s);
+            }
+
+
+            return newContents;
+        }
+        public string SaveUnlocks()
+        {
+            string s = string.Empty;
+            foreach(Unlock unlock in unlocks)
+            {
+                if(s != string.Empty)
+                {
+                    s += "_";
+                }
+                s += unlock.ID() + "|" + unlock.unlocked.ToString();
+            }
+            return s;
+        }
+        public Dictionary<TokenData,int> LoadUnlocks(string s)
+        {
+            string[] split = s.Split('_');
+            foreach(string info in split)
+            {
+                string[] info_split = info.Split('|');
+                string id = info_split[0];
+                int num = int.Parse(info_split[1]);
+                if(name2Unlock.ContainsKey(id) == false)
+                {
+                    name2Unlock[id].unlocked = num;
+                }
+            }
+            Dictionary<TokenData, int> newContents = new Dictionary<TokenData, int>();
+            foreach(Unlock unlock in unlocks)
+            {
+                int unlock_num = unlock.unlocked;
+                unlock.unlocked = 0;
+                for(int i = 0; i < unlock_num; i++)
+                {
+                    unlock.ActuallyUnlock(newContents);
+                }
+            }
+            return newContents;
+        }
+
+    }
+    public class Unlock
+    {
+        public List<TokenData> triggers;
+        public Dictionary<TokenData, int> rewards;
+        public bool repeatable = false;
+
+        public int unlocked = 0;
+        public Unlock(List<TokenData> triggers, Dictionary<TokenData, int> rewards, bool repeatable)
+        {
+            this.triggers = triggers;
+            this.rewards = rewards;
+            this.repeatable = repeatable;
+        }
+        public void ActuallyUnlock(Dictionary<TokenData,int> newContents)
+        {
+            unlocked++;
+            foreach (TokenData tokenData in rewards.Keys)
+            {
+                newContents.Add(tokenData, rewards[tokenData]);
+            }
+        }
+        public string ID()
+        {
+            string s = "";
+            foreach(TokenData t in triggers)
+            {
+                s += t.ShortString();
+            }
+            s += ":";
+            foreach(TokenData t in rewards.Keys)
+            {
+                s += t.ShortString();
+            }
+
+            return s;
+        }
+        public bool isMyId(string s)
+        {
+            if(s == ID())
+            {
+                return true;
+            }
+            return false;
+        }
+    }
     public class ProgressToken : Progress
     {
         public Dictionary<List<TokenData>, Dictionary<TokenData, int>> tokenUnlocks;
@@ -1129,6 +1325,7 @@ namespace Logic
         }
 
     }
+    
     public class ProgressScore : Progress
     {
         public Dictionary<int, Dictionary<TokenData, int>> scoreUnlocks;
@@ -1173,8 +1370,9 @@ namespace Logic
             public TokenData freeSlot;
             //state of bag
             public List<TokenData> currentBag;
+            public List<TokenData> nextBag;
             //state of progress
-            public List<bool> unlocked;
+            public string unlocked;
 
             public Turn(Game game)
             {
@@ -1218,7 +1416,8 @@ namespace Logic
                     freeSlot = nullToken;
                 }
                 currentBag = new List<TokenData>(game.bag.bag);
-                unlocked = game.progress.GetUnlockedByIndex();
+                nextBag = new List<TokenData>(game.bag.nextBagsTemporary);
+                unlocked = ((ProgressNew)game.progress).SaveUnlocks();
             }
             public void Load(Game game)
             {
@@ -1252,10 +1451,13 @@ namespace Logic
                 }
                 //bag
                 game.bag.bag = currentBag;
-                Dictionary<TokenData, int> updatedContents = game.progress.LoadFromIndexList(unlocked);
+                game.bag.nextBagsTemporary = nextBag;
+                game.bag.ResetBag();
+                
+                Dictionary<TokenData, int> updatedContents = ((ProgressNew)game.progress).LoadUnlocks(unlocked);
                 if (updatedContents.Count > 0)
                 {
-                    game.bag.AddContents(updatedContents);
+                    game.bag.AddContents(updatedContents,true);
                 }
             }
         }
