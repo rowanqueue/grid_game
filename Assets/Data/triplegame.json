@@ -49,14 +49,21 @@
                 "color": "blue",
                 "number": 1,
             },
-            "count": 6
+            "count": 2
         },
         {
             "token": {
                 "color": "red",
                 "number": 1
             },
-            "count": 4
+            "count": 2
+        },
+        {
+            "token": {
+                "color": "purple",
+                "number": 1
+            },
+            "count": 2
         },
     ],
     "progress": {

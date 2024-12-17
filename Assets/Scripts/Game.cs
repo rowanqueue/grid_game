@@ -51,11 +51,11 @@ namespace Logic
             {
                 if (tokenChanged.data.color == TokenColor.Purple)
                 {
-                    tokenChanged.tile.CheckNeighbors(Check.Equals, tokenGroup, tokenChanged);
+                    tokenChanged.tile.CheckNeighbors(Check.Equals, tokenGroup,0, tokenChanged);
                 }
                 else
                 {
-                    tokenChanged.tile.CheckNeighbors(Check.Equals, tokenGroup, tokenChanged);
+                    tokenChanged.tile.CheckNeighbors(Check.Equals, tokenGroup,0, tokenChanged);
                 }
             }
             
@@ -146,7 +146,7 @@ namespace Logic
                 }
                 if (alreadyGrouped) { continue; }
                 List<Token> tokenGroup = new List<Token>();
-                tile.CheckNeighbors(Check.Color, tokenGroup);
+                tile.CheckNeighbors(Check.Color, tokenGroup,0);
                 tokenGroups.Add(tokenGroup);
             }
             if (depth > 1 && tokenGroups.Count == 0)
@@ -653,8 +653,9 @@ namespace Logic
             }
             return false;
         }
-        public void CheckNeighbors(Check check, List<Token> tokenGroup,Token tokenToCheck = null)
+        public void CheckNeighbors(Check check, List<Token> tokenGroup,int depth,Token tokenToCheck = null)
         {
+            if (depth >= 3) { return; }
             if (IsEmpty()) { return; }
             tokenGroup.Add(token);
             bool hadAToken = tokenToCheck != null;
@@ -691,8 +692,8 @@ namespace Logic
                                     {
                                         if (neighbor.token.data.color == TokenColor.Blue || neighbor.token.data.color == TokenColor.Red)
                                         {
-                                            tokenGroup.Add(neighbor.token);
-                                            //shouldContinue = true;
+                                            //tokenGroup.Add(neighbor.token);
+                                            shouldContinue = true;
                                         }
                                     }
                                 }
@@ -715,11 +716,11 @@ namespace Logic
                     {
                         if (hadAToken)
                         {
-                            neighbor.CheckNeighbors(check, tokenGroup,tokenToCheck);
+                            neighbor.CheckNeighbors(check, tokenGroup,depth+1,tokenToCheck);
                         }
                         else
                         {
-                            neighbor.CheckNeighbors(check, tokenGroup);
+                            neighbor.CheckNeighbors(check, tokenGroup,depth+1);
                         }
                         
                     }
