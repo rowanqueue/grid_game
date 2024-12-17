@@ -382,13 +382,13 @@ public class GameController : MonoBehaviour
                             if (chosenIndex >= game.hand.handSize)
                             {
                                 GameObject.Destroy(freeSlot.token.gameObject);
-
+                                lastTokenPlaced = null;
                                 freeSlot.token = null;
                             }
                             else
                             {
                                 GameObject.Destroy(hand[chosenIndex].gameObject);
-
+                                lastTokenPlaced = null;
                                 hand[chosenIndex] = null;
                             }
                             EnterInputState(InputState.Wait);
@@ -406,6 +406,7 @@ public class GameController : MonoBehaviour
                                 GameObject.Destroy(freeSlot.token.gameObject);
 
                                 freeSlot.token = tiles[chosenPos].token;
+                                lastTokenPlaced = null;
                                 freeSlot.token.UpdateLayer("TokenHand");
                                 freeSlot.token.PlaceInHand(chosenIndex);
                                 tiles[chosenPos].token = null;
@@ -413,6 +414,7 @@ public class GameController : MonoBehaviour
                             else
                             {
                                 game.PlaceTokenBackInHand(chosenIndex, chosenPos);
+                                lastTokenPlaced = null;
                                 GameObject.Destroy(hand[chosenIndex].gameObject);
 
                                 hand[chosenIndex] = tiles[chosenPos].token;
