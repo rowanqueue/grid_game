@@ -115,14 +115,14 @@ public class GameController : MonoBehaviour
             tile.tile = _tile;
             tiles.Add(tile.tile.pos, tile);
             tile.transform.position = firstGridPos + (_tile.pos * gridSeparation);
-            
+
         }
         //free slot
         freeSlot = GameObject.Instantiate(tilePrefab, transform).GetComponent<Tile>();
         freeSlot.freeSlot = true;
         freeSlot.transform.parent = freeSlotVisual.transform;
         LoadTokensIntoGrid();
-        
+
 
     }
     void ClearTokensFromGrid()
@@ -172,7 +172,7 @@ public class GameController : MonoBehaviour
     {
         for(int i = 0; i < game.hand.tokens.Length; i++)
         {
-            if (game.hand.tokens[i] == null) { 
+            if (game.hand.tokens[i] == null) {
                 if(hand.Count < game.hand.tokens.Length)
                 {
                     hand.Add(null);
@@ -184,7 +184,7 @@ public class GameController : MonoBehaviour
                         GameObject.Destroy(hand[i].gameObject);
                     }
                 }
-                continue; 
+                continue;
             }
             if(hand.Count < game.hand.tokens.Length || hand[i] == null)
             {
@@ -198,7 +198,7 @@ public class GameController : MonoBehaviour
                 {
                     hand[i] = token;
                 }
-                
+
             }
             else
             {
@@ -209,7 +209,7 @@ public class GameController : MonoBehaviour
             hand[i].PlaceInHand(i);
 
         }
-        
+
     }
     void EnterInputState(InputState newState)
     {
@@ -227,7 +227,7 @@ public class GameController : MonoBehaviour
                 break;
         }
         inputState = newState;
-        
+
     }
 
     // Update is called once per frame
@@ -274,7 +274,7 @@ public class GameController : MonoBehaviour
                 {
                     if(chosenIndex > -1)
                     {
-                        
+
                         Services.AudioManager.PlayPickUpSound();
                         EnterInputState(InputState.Place);
                         break;
@@ -298,7 +298,7 @@ public class GameController : MonoBehaviour
                         Undo();
                     }
                 }
-                
+
                 break;
             case InputState.Place:
                 holdingClipper = chosenToken.token.data.color == Logic.TokenColor.Clipper;
@@ -382,13 +382,14 @@ public class GameController : MonoBehaviour
                             if (chosenIndex >= game.hand.handSize)
                             {
                                 GameObject.Destroy(freeSlot.token.gameObject);
-                                
+                                lastTokenPlaced = null;
                                 freeSlot.token = null;
                             }
                             else
                             {
                                 GameObject.Destroy(hand[chosenIndex].gameObject);
                                 Services.AudioManager.PlayShearsSound();
+                                lastTokenPlaced = null;
                                 hand[chosenIndex] = null;
                             }
                             EnterInputState(InputState.Wait);
@@ -406,6 +407,7 @@ public class GameController : MonoBehaviour
                                 GameObject.Destroy(freeSlot.token.gameObject);
 
                                 freeSlot.token = tiles[chosenPos].token;
+                                lastTokenPlaced = null;
                                 freeSlot.token.UpdateLayer("TokenHand");
                                 freeSlot.token.PlaceInHand(chosenIndex);
                                 tiles[chosenPos].token = null;
@@ -413,6 +415,7 @@ public class GameController : MonoBehaviour
                             else
                             {
                                 game.PlaceTokenBackInHand(chosenIndex, chosenPos);
+                                lastTokenPlaced = null;
                                 GameObject.Destroy(hand[chosenIndex].gameObject);
 
                                 hand[chosenIndex] = tiles[chosenPos].token;
@@ -502,7 +505,7 @@ public class GameController : MonoBehaviour
                             Save();
                         }
                     }
-                    
+
                 }
                 break;
         }
@@ -563,14 +566,14 @@ public class GameController : MonoBehaviour
             {
                 hand[i].Draw(pos);
             }
-            
-            
+
+
         }
         deckNumberDisplay.text = game.bag.bag.Count.ToString();
         switch (inputState)
         {
             case InputState.Choose:
-                
+
                 break;
         }
     }
