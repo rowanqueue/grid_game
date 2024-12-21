@@ -451,6 +451,7 @@ namespace Logic
                 token = hand.TakeToken(handIndex);
                 if (token.data.temporary)
                 {
+                    bag.PlayedTempToken(token);
                     bag.RemoveToken(token);
                     status.events.Add(new StatusReport.Event(StatusReport.EventType.BagUpdated, 0));
                 }
@@ -486,6 +487,7 @@ namespace Logic
             if (token.data.temporary)
             {
                 status.events.Add(new StatusReport.Event(StatusReport.EventType.BagUpdated, 0));
+                bag.PlayedTempToken(token);
                 bag.RemoveToken(token);
             }
             gridUpdating = true;
@@ -738,6 +740,7 @@ namespace Logic
         public Dictionary<TokenData, int> bagContents; //prototypical bag
         public List<TokenData> bag = new List<TokenData>();
         public List<TokenData> nextBagsTemporary = new List<TokenData>();
+        public List<TokenData> playedTempTiles = new List<TokenData>();
 
         public Bag(Dictionary<TokenData, int> bagContents)
         {
@@ -764,11 +767,16 @@ namespace Logic
             {
                 if (tokenData.temporary)
                 {
-                    for(int i = 0; i < newContents[tokenData]; i++)
+                    if(loading == false)
                     {
-                        nextBagsTemporary.Add(tokenData);
+                        for (int i = 0; i < newContents[tokenData]; i++)
+                        {
+                            nextBagsTemporary.Add(tokenData);
+                        }
+                        
                     }
                     continue;
+
                 }
                 if (bagContents.ContainsKey(tokenData))
                 {
@@ -814,6 +822,7 @@ namespace Logic
                 bag.Add(tokenData);
             }
             nextBagsTemporary.Clear();
+            playedTempTiles.Clear();
             Shuffle();
         }
         public TokenData DrawToken()
@@ -831,6 +840,10 @@ namespace Logic
             TokenData tokenData = token.data;
             bag.Add(tokenData);
             Shuffle();
+        }
+        public void PlayedTempToken(Token token)
+        {
+            playedTempTiles.Add(token.data);
         }
         public void RemoveToken(Token token)
         {
@@ -857,6 +870,7 @@ namespace Logic
                 }
 
             }
+            s += "|";
             for (int i = 0; i < nextBagsTemporary.Count; i++)
             {
                 if (s != string.Empty)
@@ -952,9 +966,17 @@ namespace Logic
         public override string ToString()
         {
             string s = string.Empty;
-            s += "<color=\"" + color.ToString().ToLower() + "\">";
-            s += num.ToString();
-            s += "</color>";
+            if(color == TokenColor.Clipper || color == TokenColor.Adder || color == TokenColor.Spade || color == TokenColor.Gold)
+            {
+                s += color.ToString().Substring(0, 1) + num.ToString();
+            }
+            else
+            {
+                s += "<color=\"" + color.ToString().ToLower() + "\">";
+                s += num.ToString();
+                s += "</color>";
+            }
+            
             return s;
         }
         public string ShortString()
