@@ -452,9 +452,7 @@ public class GameController : MonoBehaviour
                             switch (_event.type)
                             {
                                 case Logic.StatusReport.EventType.TokenDestroyed:
-                                    Debug.Log("destr'yed");
                                     token = _event.tokens[0];
-                                    Debug.Log(token);
                                     foreach (Tile tile in tiles.Values)
                                     {
                                         if (tile.token)
