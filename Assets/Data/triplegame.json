@@ -56,7 +56,18 @@
                 "color": "red",
                 "number": 4
             },
+<<<<<<< HEAD
             "count": 4
+=======
+            "count": 2
+        },
+        {
+            "token": {
+                "color": "purple",
+                "number": 4
+            },
+            "count": 2
+>>>>>>> main
         },
     ],
     "progress": {

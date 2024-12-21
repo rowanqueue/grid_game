@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Xml.Linq;
 using UnityEngine;
 using UnityEngine.XR;
-using static UnityEngine.Experimental.Rendering.RayTracingAccelerationStructure;
 
 namespace Logic
 {
@@ -314,7 +313,7 @@ namespace Logic
                 Dictionary<TokenData,int> rewards = new Dictionary<TokenData,int>();
                 foreach(Json.Reward reward in _event.reward)
                 {
-                    rewards.Add(ConvertJsonToken(reward.token), reward.count);
+                    rewards.Add(ConvertJsonToken(reward.token), (reward.count == 0 ? 1 : reward.count));
                     if(reward.replacesToken != null)
                     {
                         TokenData replacedToken = ConvertJsonToken(reward.replacesToken.color, reward.replacesToken.number);
@@ -1107,9 +1106,25 @@ namespace Logic
                         newTokenIsNeeded = true;
                     }
                 }
+                Debug.Log(did_i_unlock &&  newTokenIsNeeded);
                 if(did_i_unlock && newTokenIsNeeded)
                 {
-                    unlock.ActuallyUnlock(newContents);
+                    bool hasenough = true;
+                    if (unlock.replacing)
+                    {
+                        foreach(TokenData tokenData in unlock.rewards.Keys)
+                        {
+                            if(game.bag.bagContents.ContainsKey(tokenData) == false)
+                            {
+                                hasenough = false;
+                            }
+                        }
+                    }
+                    if (hasenough)
+                    {
+                        unlock.ActuallyUnlock(newContents);
+                    }
+                    
                     
                 }
             }
@@ -1119,14 +1134,15 @@ namespace Logic
                 foreach (TokenData tokenData in newContents.Keys)
                 {
                     s += tokenData.ToString() + ":" + newContents[tokenData] + ", ";
-                    if (newContents[tokenData] < 0)
+                    /*if (newContents[tokenData] < 0)
                     {
                         if (game.bag.bagContents.ContainsKey(tokenData) == false)
                         {
+                            Debug.Log("thsi is");
                             //you don't have that token to upgrade :(
                             return new Dictionary<TokenData, int>();
                         }
-                    }
+                    }*/
                 }
                 //Debug.Log(s);
             }
@@ -1179,6 +1195,7 @@ namespace Logic
         public List<TokenData> triggers;
         public Dictionary<TokenData, int> rewards;
         public bool repeatable = false;
+        public bool replacing = false;
 
         public int unlocked = 0;
         public Unlock(List<TokenData> triggers, Dictionary<TokenData, int> rewards, bool repeatable)
@@ -1186,13 +1203,28 @@ namespace Logic
             this.triggers = triggers;
             this.rewards = rewards;
             this.repeatable = repeatable;
+            foreach(TokenData reward in rewards.Keys)
+            {
+                if (rewards[reward] < 0)
+                {
+                    replacing = true;
+                }
+            }
         }
         public void ActuallyUnlock(Dictionary<TokenData,int> newContents)
         {
             unlocked++;
             foreach (TokenData tokenData in rewards.Keys)
             {
-                newContents.Add(tokenData, rewards[tokenData]);
+                if (newContents.ContainsKey(tokenData))
+                {
+                    newContents[tokenData] += rewards[tokenData];
+                }
+                else
+                {
+                    newContents.Add(tokenData, rewards[tokenData]);
+                }
+                
             }
         }
         public string ID()
