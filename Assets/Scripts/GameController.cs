@@ -64,6 +64,8 @@ public class GameController : MonoBehaviour
 
     public Logic.History.Turn currentSave;
 
+    public Logic.History.Turn snapshotSave;
+
     // Start is called before the first frame update
     void Awake()
     {
@@ -574,6 +576,25 @@ public class GameController : MonoBehaviour
 
                 break;
         }
+    }
+    public void Snapshot()
+    {
+        snapshotSave = currentSave;
+        PlayerPrefs.SetString("snapshot", JsonUtility.ToJson(snapshotSave));
+    }
+    public void LoadSnapshot()
+    {
+        if (PlayerPrefs.HasKey("snapshot"))
+        {
+            string save = PlayerPrefs.GetString("snapshot");
+            snapshotSave = JsonUtility.FromJson<Logic.History.Turn>(save);
+        }
+        if(snapshotSave == null) { return; }
+        game.LoadTurn(snapshotSave);
+        score = game.score;
+        CreateHand();
+        ClearTokensFromGrid();
+        LoadTokensIntoGrid();
     }
     public void Save()
     {

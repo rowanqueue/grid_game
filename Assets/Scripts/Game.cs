@@ -518,6 +518,11 @@ namespace Logic
             }
             turn.Load(this);
         }
+        public void LoadTurn(History.Turn turn)
+        {
+            history.turns.Clear();
+            turn.Load(this);
+        }
     }
     public class Grid
     {
@@ -1106,7 +1111,6 @@ namespace Logic
                         newTokenIsNeeded = true;
                     }
                 }
-                Debug.Log(did_i_unlock &&  newTokenIsNeeded);
                 if(did_i_unlock && newTokenIsNeeded)
                 {
                     bool hasenough = true;
@@ -1114,10 +1118,14 @@ namespace Logic
                     {
                         foreach(TokenData tokenData in unlock.rewards.Keys)
                         {
-                            if(game.bag.bagContents.ContainsKey(tokenData) == false)
+                            if (unlock.rewards[tokenData] < 0)
                             {
-                                hasenough = false;
+                                if (game.bag.bagContents.ContainsKey(tokenData) == false)
+                                {
+                                    hasenough = false;
+                                }
                             }
+                            
                         }
                     }
                     if (hasenough)
