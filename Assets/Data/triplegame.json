@@ -47,27 +47,16 @@
         {
             "token": {
                 "color": "blue",
-                "number": 4
+                "number": 1
             },
             "count": 6
         },
         {
             "token": {
                 "color": "red",
-                "number": 4
+                "number": 1
             },
-<<<<<<< HEAD
             "count": 4
-=======
-            "count": 2
-        },
-        {
-            "token": {
-                "color": "purple",
-                "number": 4
-            },
-            "count": 2
->>>>>>> main
         },
     ],
     "progress": {
