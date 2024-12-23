@@ -286,6 +286,22 @@ namespace Logic
         protected int handSize;
         protected int handChoices = -1;
         protected Dictionary<TokenData, int> bagContents;
+        public Dictionary<int, TokenColor> clippingColors = new Dictionary<int, TokenColor>()
+        {
+            {1,TokenColor.Blue },
+            {2,TokenColor.Red },
+            {3,TokenColor.Green },
+            {4,TokenColor.Purple },
+            {5,TokenColor.Gold }
+        };
+        public Dictionary<TokenColor, int> clippingNumbers = new Dictionary<TokenColor, int>()
+        {
+            {TokenColor.Blue,1},
+            {TokenColor.Red,2 },
+            {TokenColor.Green,3 },
+            {TokenColor.Purple,4 },
+            {TokenColor.Gold,5 }
+        };
 
         public virtual void Initialize(Json.Root root)
         {
@@ -393,17 +409,41 @@ namespace Logic
             //todo: score event :(((
             status.events.Add(new StatusReport.Event(StatusReport.EventType.ScoreAdded, pts));
         }
-        public bool CanPlaceHere(Vector2Int p,bool holdingClipper)
+        public bool CanPlaceHere(Vector2Int p,TokenData heldToken )
         {
-            if(grid.tiles.ContainsKey(p) == false)
+            if (grid.tiles.ContainsKey(p) == false)
             {
                 return false;
             }
             if (grid.tiles[p].IsEmpty())
             {
-                return !holdingClipper;
+                if (heldToken.color == TokenColor.Clipper || heldToken.color == TokenColor.Spade)
+                {
+                    return false;
+                }
+                else if (heldToken.color == TokenColor.Adder)
+                {
+                    if (heldToken.num == 0) { return false; }
+                    if (heldToken.num > 0) { return true; }
+                }
+                else
+                {
+                    return true;
+                }
             }
-            return holdingClipper;
+            //non empty
+            if(heldToken.color == TokenColor.Clipper || heldToken.color == TokenColor.Spade)
+            {
+                return true;
+            }
+            //adder
+            TokenData gridToken = grid.tiles[p].token.data;
+            if(gridToken.num >= 8) { return false; }
+            if (clippingColors.ContainsKey(heldToken.num) ==false) { return true; }
+            //clipping tile
+            int num = clippingNumbers[gridToken.color];
+            if (num == heldToken.num) { return true; }
+            return false;
         }
         public void Mulligan()
         {
@@ -458,6 +498,20 @@ namespace Logic
             }
             
             gridUpdating = true;
+            if(token.data.color == TokenColor.Clipper)
+            {
+                Token clippedToken = grid.tiles[gridPos].token;
+                Token newToken = new Token(new TokenData(TokenColor.Adder, clippingNumbers[clippedToken.data.color]), true);
+                if(handIndex >= hand.handSize)
+                {
+                    freeSlot = newToken;
+                }
+                else
+                {
+                    hand.tokens[handIndex] = newToken;
+                }
+                
+            }
             token = grid.PlaceToken(gridPos, token);
             if (token != null)
             {
@@ -603,6 +657,16 @@ namespace Logic
 
             }else if(token.data.color == TokenColor.Adder)
             {
+                if (tile.IsEmpty())
+                {
+                    Token placedToken = token;
+                    token.data.color = game.clippingColors[token.data.num];
+                    token.data.num = 1;
+                    
+                    tile.token = placedToken;
+                    token.tile = tile;
+                    return placedToken;
+                }
                 game.status.events.Add(new StatusReport.Event(StatusReport.EventType.TokenDestroyed, new List<Token>() { token }));
                 int num = tile.token.data.num + 1;
                 Token newToken = new Token(tile.token.data, false);

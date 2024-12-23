@@ -20,6 +20,10 @@ public class Token : MonoBehaviour
         else
         {
             spriteDisplay.sprite = Services.Visuals.tokenSprites[(int)token.data.color];
+            if(token.data.color == Logic.TokenColor.Adder)
+            {
+                spriteDisplay.sprite = Services.Visuals.clippingSprites[token.data.num];
+            }
             textDisplay.text = token.data.num.ToString();
             number.color = Services.Visuals.tokenColors[(int)token.data.color];
             number.enabled = false;

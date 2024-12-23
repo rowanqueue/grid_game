@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine.XR;
 using UnityEngine.SceneManagement;
 using Newtonsoft.Json;
+using Logic;
 
 public enum GameType
 {
@@ -349,7 +350,7 @@ public class GameController : MonoBehaviour
                     }
                     if(holdingClipper == false && holdingSpade == false && holdingAdder == false)
                     {
-                        if (game.CanPlaceHere(chosenPos, false))
+                        if (game.CanPlaceHere(chosenPos, chosenToken.token.data))
                         {
                             Services.AudioManager.PlayPlaceSound();
                             game.PlaceTokenFromHand(chosenIndex, chosenPos);
@@ -377,22 +378,68 @@ public class GameController : MonoBehaviour
                         }
                     }else if (holdingClipper || holdingAdder)
                     {
-                        if (game.CanPlaceHere(chosenPos, holdingClipper || holdingAdder))
+                        bool emptyTile = game.grid.tiles[chosenPos].IsEmpty();
+                        if (game.CanPlaceHere(chosenPos, chosenToken.token.data))
                         {
                             game.PlaceTokenFromHand(chosenIndex, chosenPos);
-                            Services.AudioManager.PlayPlaceSound();
+                            //Services.AudioManager.PlayPlaceSound();
+                            if (holdingClipper)
+                            {
+                                Services.AudioManager.PlayShearsSound();
+                            }
                             if (chosenIndex >= game.hand.handSize)
                             {
-                                GameObject.Destroy(freeSlot.token.gameObject);
+                                if (holdingAdder && emptyTile)
+                                {
+                                    tiles[chosenPos].token = freeSlot.token;
+                                    lastTokenPlaced = freeSlot.token;
+                                    lastTokenPlaced.transform.localEulerAngles = Vector3.zero;
+                                    freeSlot.token.UpdateLayer("TokenMoving");
+                                    freeSlot.token = null;
+                                }
+                                else
+                                {
+                                    GameObject.Destroy(hand[chosenIndex].gameObject);
+                                }
+                                if (holdingClipper)
+                                {
+                                    freeSlot.token = CreateClippingToken(game.freeSlot);//new tiletiles[chosenPos].token;
+                                    freeSlot.token.PlaceInTile(freeSlot);
+                                }
+                                else
+                                {
+                                    freeSlot.token = null;
+                                }
                                 lastTokenPlaced = null;
-                                freeSlot.token = null;
+                                
                             }
                             else
                             {
-                                GameObject.Destroy(hand[chosenIndex].gameObject);
-                                Services.AudioManager.PlayShearsSound();
+                                if(holdingAdder && emptyTile)
+                                {
+                                    tiles[chosenPos].token = hand[chosenIndex];
+                                    hand[chosenIndex].UpdateLayer("TokenMoving");
+                                    lastTokenPlaced = hand[chosenIndex];
+                                    lastTokenPlaced.transform.localEulerAngles = Vector3.zero;
+                                    hand[chosenIndex] = null;
+                                }
+                                else
+                                {
+                                    GameObject.Destroy(hand[chosenIndex].gameObject);
+                                }
+                                
                                 lastTokenPlaced = null;
-                                hand[chosenIndex] = null;
+                                if (holdingClipper)
+                                {
+                                    hand[chosenIndex] = CreateClippingToken(game.hand.tokens[chosenIndex]);//new tiletiles[chosenPos].token;
+                                    hand[chosenIndex].PlaceInHand(chosenIndex);
+                                }
+                                else
+                                {
+                                    hand[chosenIndex] = null;
+                                }
+                                
+                               
                             }
                             EnterInputState(InputState.Wait);
                             waiting = 0f;
@@ -400,7 +447,7 @@ public class GameController : MonoBehaviour
                         }
                     }else if (holdingSpade)
                     {
-                        if (game.CanPlaceHere(chosenPos, holdingSpade))
+                        if (game.CanPlaceHere(chosenPos, chosenToken.token.data))
                         {
                             Services.AudioManager.PlayPlaceSound();
                             if (chosenIndex >= game.hand.handSize)
@@ -576,6 +623,14 @@ public class GameController : MonoBehaviour
 
                 break;
         }
+    }
+    public Token CreateClippingToken(Logic.Token _token)
+    {
+        Token token = GameObject.Instantiate(tokenPrefab, transform).GetComponent<Token>();
+        token.Init(_token);
+        token.UpdateLayer("TokenHand");
+        return token;
+        
     }
     public void Snapshot()
     {
