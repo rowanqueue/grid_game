@@ -1829,6 +1829,13 @@ MonoBehaviour:
   - {fileID: 21300000, guid: f318c8befd147b842bae4779d7d3142e, type: 3}
   - {fileID: 21300000, guid: 83546769a566de546abc47378d4d2796, type: 3}
   - {fileID: 21300000, guid: 5385fb472e6b11d428b5193cd1fb2a4c, type: 3}
+  clippingSprites:
+  - {fileID: 21300000, guid: 2d7c62a142ccf2b46bac77a12440fdfc, type: 3}
+  - {fileID: 21300000, guid: f53984b6f8540ce4d9eaedca6446e06d, type: 3}
+  - {fileID: 21300000, guid: ae739ec92e9dae84eb2c2de2d21a334f, type: 3}
+  - {fileID: 21300000, guid: 5b239496e6d83ac48b25022a8c659d0f, type: 3}
+  - {fileID: 21300000, guid: de452f0a2b5585d409160c908bd1b482, type: 3}
+  - {fileID: 21300000, guid: c7bdf2ff39313b549bcc9eb80a7b6e63, type: 3}
 --- !u!1 &1000727338
 GameObject:
   m_ObjectHideFlags: 0

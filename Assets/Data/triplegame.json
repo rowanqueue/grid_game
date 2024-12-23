@@ -407,7 +407,7 @@
                     {
                         "token": {
                             "color": "adder",
-                            "number": 1,
+                            "number": 0,
                             "temporary": true,
                         },
                         "count": 1
