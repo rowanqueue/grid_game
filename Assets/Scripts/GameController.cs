@@ -378,6 +378,7 @@ public class GameController : MonoBehaviour
                         }
                     }else if (holdingClipper || holdingAdder)
                     {
+                        bool emptyTile = game.grid.tiles[chosenPos].IsEmpty();
                         if (game.CanPlaceHere(chosenPos, chosenToken.token.data))
                         {
                             game.PlaceTokenFromHand(chosenIndex, chosenPos);
@@ -388,7 +389,18 @@ public class GameController : MonoBehaviour
                             }
                             if (chosenIndex >= game.hand.handSize)
                             {
-                                GameObject.Destroy(freeSlot.token.gameObject);
+                                if (holdingAdder && emptyTile)
+                                {
+                                    tiles[chosenPos].token = freeSlot.token;
+                                    lastTokenPlaced = freeSlot.token;
+                                    lastTokenPlaced.transform.localEulerAngles = Vector3.zero;
+                                    freeSlot.token.UpdateLayer("TokenMoving");
+                                    freeSlot.token = null;
+                                }
+                                else
+                                {
+                                    GameObject.Destroy(hand[chosenIndex].gameObject);
+                                }
                                 if (holdingClipper)
                                 {
                                     freeSlot.token = CreateClippingToken(game.freeSlot);//new tiletiles[chosenPos].token;
@@ -403,7 +415,19 @@ public class GameController : MonoBehaviour
                             }
                             else
                             {
-                                GameObject.Destroy(hand[chosenIndex].gameObject);
+                                if(holdingAdder && emptyTile)
+                                {
+                                    tiles[chosenPos].token = hand[chosenIndex];
+                                    hand[chosenIndex].UpdateLayer("TokenMoving");
+                                    lastTokenPlaced = hand[chosenIndex];
+                                    lastTokenPlaced.transform.localEulerAngles = Vector3.zero;
+                                    hand[chosenIndex] = null;
+                                }
+                                else
+                                {
+                                    GameObject.Destroy(hand[chosenIndex].gameObject);
+                                }
+                                
                                 lastTokenPlaced = null;
                                 if (holdingClipper)
                                 {

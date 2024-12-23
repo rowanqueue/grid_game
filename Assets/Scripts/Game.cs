@@ -417,9 +417,14 @@ namespace Logic
             }
             if (grid.tiles[p].IsEmpty())
             {
-                if(heldToken.color == TokenColor.Clipper || heldToken.color == TokenColor.Adder || heldToken.color == TokenColor.Spade)
+                if (heldToken.color == TokenColor.Clipper || heldToken.color == TokenColor.Spade)
                 {
                     return false;
+                }
+                else if (heldToken.color == TokenColor.Adder)
+                {
+                    if (heldToken.num == 0) { return false; }
+                    if (heldToken.num > 0) { return true; }
                 }
                 else
                 {
@@ -432,8 +437,10 @@ namespace Logic
                 return true;
             }
             //adder
-            if (clippingColors.ContainsKey(heldToken.num) ==false) { return true; }
             TokenData gridToken = grid.tiles[p].token.data;
+            if(gridToken.num >= 8) { return false; }
+            if (clippingColors.ContainsKey(heldToken.num) ==false) { return true; }
+            //clipping tile
             int num = clippingNumbers[gridToken.color];
             if (num == heldToken.num) { return true; }
             return false;
@@ -650,6 +657,16 @@ namespace Logic
 
             }else if(token.data.color == TokenColor.Adder)
             {
+                if (tile.IsEmpty())
+                {
+                    Token placedToken = token;
+                    token.data.color = game.clippingColors[token.data.num];
+                    token.data.num = 1;
+                    
+                    tile.token = placedToken;
+                    token.tile = tile;
+                    return placedToken;
+                }
                 game.status.events.Add(new StatusReport.Event(StatusReport.EventType.TokenDestroyed, new List<Token>() { token }));
                 int num = tile.token.data.num + 1;
                 Token newToken = new Token(tile.token.data, false);
