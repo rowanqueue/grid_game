@@ -491,6 +491,27 @@
                     }
                 ]
             },
+            {
+                "repeatable": true,
+                "trigger": [
+                    {
+                        "token": {
+                            "color": "green",
+                            "number": 7
+                        }
+                    }
+                ],
+                "reward": [
+                    {
+                        "token": {
+                            "color": "adder",
+                            "number": 1,
+                            "temporary": true,
+                        },
+                        "count": 2
+                    }
+                ]
+            },
         ]
     }
 }
