@@ -399,7 +399,7 @@ public class GameController : MonoBehaviour
                                 }
                                 else
                                 {
-                                    GameObject.Destroy(hand[chosenIndex].gameObject);
+                                    GameObject.Destroy(freeSlot.token.gameObject);
                                     lastTokenPlaced = null;
                                 }
                                 if (holdingClipper)
