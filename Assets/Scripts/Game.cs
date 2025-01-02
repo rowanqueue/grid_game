@@ -436,6 +436,10 @@ namespace Logic
             {
                 return true;
             }
+            if(heldToken.color != TokenColor.Adder)
+            {
+                return false;
+            }
             //adder
             TokenData gridToken = grid.tiles[p].token.data;
             if(gridToken.num >= 8) { return false; }
@@ -659,13 +663,13 @@ namespace Logic
             {
                 if (tile.IsEmpty())
                 {
-                    Token placedToken = token;
                     token.data.color = game.clippingColors[token.data.num];
                     token.data.num = 1;
-                    
-                    tile.token = placedToken;
+                    //game.status.events.Add(new StatusReport.Event(StatusReport.EventType.TokenChanged, new List<Token>() { token, token }));
+
+                    tile.token = token;
                     token.tile = tile;
-                    return placedToken;
+                    return token;
                 }
                 game.status.events.Add(new StatusReport.Event(StatusReport.EventType.TokenDestroyed, new List<Token>() { token }));
                 int num = tile.token.data.num + 1;

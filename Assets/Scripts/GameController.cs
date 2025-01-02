@@ -399,7 +399,8 @@ public class GameController : MonoBehaviour
                                 }
                                 else
                                 {
-                                    GameObject.Destroy(hand[chosenIndex].gameObject);
+                                    GameObject.Destroy(freeSlot.token.gameObject);
+                                    lastTokenPlaced = null;
                                 }
                                 if (holdingClipper)
                                 {
@@ -409,8 +410,9 @@ public class GameController : MonoBehaviour
                                 else
                                 {
                                     freeSlot.token = null;
+
                                 }
-                                lastTokenPlaced = null;
+                                
                                 
                             }
                             else
@@ -426,9 +428,10 @@ public class GameController : MonoBehaviour
                                 else
                                 {
                                     GameObject.Destroy(hand[chosenIndex].gameObject);
+                                    lastTokenPlaced = null;
                                 }
                                 
-                                lastTokenPlaced = null;
+                                
                                 if (holdingClipper)
                                 {
                                     hand[chosenIndex] = CreateClippingToken(game.hand.tokens[chosenIndex]);//new tiletiles[chosenPos].token;
