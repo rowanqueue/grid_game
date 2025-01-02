@@ -403,6 +403,10 @@ namespace Logic
             };
             return new TokenData(colors[color], number);
         }
+        public bool isGameover()
+        {
+            return grid.isFull();
+        }
         public void EarnPoints(int pts)
         {
             score += pts;
@@ -602,6 +606,18 @@ namespace Logic
             this.gridSize = size;
             PopulateGrid();
             this.game = game;   
+        }
+        public bool HasTile(Vector2Int pos)
+        {
+            return tiles.ContainsKey(pos);
+        }
+        public bool isFull()
+        {
+            foreach(Tile tile in tiles.Values)
+            {
+                if (tile.IsEmpty()) {  return false; }
+            }
+            return true;
         }
         public void Clear()
         {
@@ -1269,7 +1285,7 @@ namespace Logic
                 string[] info_split = info.Split('|');
                 string id = info_split[0];
                 int num = int.Parse(info_split[1]);
-                if(name2Unlock.ContainsKey(id) == false)
+                if(name2Unlock.ContainsKey(id) != false)
                 {
                     name2Unlock[id].unlocked = num;
                 }
