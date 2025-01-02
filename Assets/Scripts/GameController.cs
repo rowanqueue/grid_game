@@ -378,7 +378,7 @@ public class GameController : MonoBehaviour
                         }
                     }else if (holdingClipper || holdingAdder)
                     {
-                        bool emptyTile = game.grid.tiles[chosenPos].IsEmpty();
+                        bool emptyTile = game.grid.HasTile(chosenPos) && game.grid.tiles[chosenPos].IsEmpty();
                         if (game.CanPlaceHere(chosenPos, chosenToken.token.data))
                         {
                             game.PlaceTokenFromHand(chosenIndex, chosenPos);
