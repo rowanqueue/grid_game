@@ -1596,6 +1596,10 @@ namespace Logic
                 {
                     game.freeSlot = new Token(freeSlot, true);
                 }
+                else
+                {
+                    game.freeSlot = null;
+                }
                 //bag
                 game.bag.bag = currentBag;
                 game.bag.nextBagsTemporary = nextBag;
