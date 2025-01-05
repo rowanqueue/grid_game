@@ -404,8 +404,9 @@ public class GameController : MonoBehaviour
                                 }
                                 if (holdingClipper)
                                 {
-                                    freeSlot.token = CreateClippingToken(game.freeSlot);//new tiletiles[chosenPos].token;
-                                    freeSlot.token.PlaceInTile(freeSlot);
+                                    //freeSlot.token = CreateClippingToken(game.freeSlot);//new tiletiles[chosenPos].token;
+                                    //freeSlot.token.PlaceInTile(freeSlot);
+                                    freeSlot.token = null;
                                 }
                                 else
                                 {
@@ -434,8 +435,9 @@ public class GameController : MonoBehaviour
                                 
                                 if (holdingClipper)
                                 {
-                                    hand[chosenIndex] = CreateClippingToken(game.hand.tokens[chosenIndex]);//new tiletiles[chosenPos].token;
-                                    hand[chosenIndex].PlaceInHand(chosenIndex);
+                                    //hand[chosenIndex] = CreateClippingToken(game.hand.tokens[chosenIndex]);//new tiletiles[chosenPos].token;
+                                    //hand[chosenIndex].PlaceInHand(chosenIndex);
+                                    hand[chosenIndex] = null;
                                 }
                                 else
                                 {
@@ -645,6 +647,7 @@ public class GameController : MonoBehaviour
         if (PlayerPrefs.HasKey("snapshot"))
         {
             string save = PlayerPrefs.GetString("snapshot");
+            Debug.Log(save);
             snapshotSave = JsonUtility.FromJson<Logic.History.Turn>(save);
         }
         if(snapshotSave == null) { return; }
@@ -704,208 +707,3 @@ public class GameController : MonoBehaviour
     }
 
 }
-/*namespace TextInput
-{
-
-    public enum InputState
-    {
-        Choose,
-        Place,
-        Wait
-    }
-    public class SimInput
-    {
-        public Logic.Game game;
-        public InputState state = InputState.Choose;
-
-        //choose
-        public int chooseIndex = 0;
-
-        //place
-        public Vector2Int placePos = Vector2Int.zero;
-        public SimInput(Logic.Game game)
-        {
-            this.game = game;
-        }
-        void AcceptableHandIndex(bool up)
-        {
-            chooseIndex = (chooseIndex + game.hand.handSize) % game.hand.handSize;
-            while (game.hand.tokens[chooseIndex] == null)
-            {
-                chooseIndex += (up ? 1 : -1);
-                chooseIndex = (chooseIndex + game.hand.handSize) % game.hand.handSize;
-            }
-        }
-        public void Update()
-        {
-            switch (state)
-            {
-                case InputState.Choose:
-                    if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
-                    {
-                        chooseIndex++;
-                        AcceptableHandIndex(true);
-                    }
-                    else if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
-                    {
-                        chooseIndex--;
-                        AcceptableHandIndex(false);
-                    }
-                    if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return))
-                    {
-                        EnterInputState(InputState.Place);
-                    }
-                    if (Input.GetKeyDown(KeyCode.Z))
-                    {
-                        game.Undo();
-                    }
-                    break;
-                case InputState.Place:
-                    if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
-                    {
-                        placePos.x += 1;
-                        placePos.x %= game.grid.gridSize.x;
-                    }
-                    else if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
-                    {
-                        placePos.x -= 1;
-                        placePos.x = (placePos.x + game.grid.gridSize.x) % game.grid.gridSize.x;
-                    }
-                    if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
-                    {
-                        placePos.y += 1;
-                        placePos.y %= game.grid.gridSize.y;
-                    }
-                    else if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
-                    {
-                        placePos.y -= 1;
-                        placePos.y = (placePos.y + game.grid.gridSize.y) % game.grid.gridSize.y;
-                    }
-                    if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return))
-                    {
-                        if (game.CanPlaceHere(placePos))
-                        {
-                            game.PlaceTokenFromHand(chooseIndex, placePos);
-                            EnterInputState(InputState.Wait);
-                        }
-
-                    }
-                    if (Input.GetKeyDown(KeyCode.Z))
-                    {
-                        EnterInputState(InputState.Choose);
-                    }
-                    break;
-                case InputState.Wait:
-                    if (game.gridUpdating == false)
-                    {
-                        EnterInputState(InputState.Choose);
-                    }
-                    break;
-            }
-        }
-        public string Draw()
-        {
-            string s = string.Empty;
-            s += "<size=50%>" + game.score.ToString() + "</size>\n";
-            s += "<size=75%>";
-            s += DrawGrid();
-            s += "\n" + DrawHand();
-            if (game.hand.handChoices > -1)
-            {
-                s += (game.hand.handChoices - game.hand.tokensTaken).ToString() + "/" + game.hand.handChoices.ToString();
-            }
-            s += " " + state.ToString();
-            return s;
-        }
-        string DrawGrid()
-        {
-            string s = string.Empty;
-            for (int y = game.grid.gridSize.y - 1; y >= 0; y--)
-            {
-                if (y != game.grid.gridSize.y - 1)
-                {
-                    s += "\n";
-                }
-                for (int x = 0; x < game.grid.gridSize.y; x++)
-                {
-                    Vector2Int pos = new Vector2Int(x, y);
-                    string p = "";
-                    if (game.grid.tiles[pos].IsEmpty())
-                    {
-                        p = " ";
-                    }
-                    else
-                    {
-                        p = "<size=50%>" + game.grid.tiles[pos].token.ToString() + "</size>";
-                    }
-                    p = "[" + p + "]";
-                    if (state == InputState.Place)
-                    {
-                        if (placePos == pos)
-                        {
-                            p = "<s>" + p + "</s>";
-                        }
-                    }
-                    s += p;
-                }
-
-            }
-            return s;
-        }
-        string DrawHand()
-        {
-            string s = string.Empty;
-            s += "<size=50%>";
-            for (int i = 0; i < game.hand.handSize; i++)
-            {
-                string p = "";
-                p += " ";
-                if (game.hand.tokens[i] == null)
-                {
-                    p += " ";
-                }
-                else
-                {
-                    p += game.hand.tokens[i].ToString();
-                }
-                p += " ";
-                if (i == chooseIndex)
-                {
-                    if (state == InputState.Choose)
-                    {
-                        p = "<u>" + p + "</u>";
-                    }
-                    else if (state == InputState.Place)
-                    {
-                        p = "<u>" + p + "</u>";
-                    }
-
-                }
-
-                s += p;
-            }
-            return s;
-        }
-        void EnterInputState(InputState _state)
-        {
-            if (state == _state) { return; }
-            ExitInputState();
-            switch (_state)
-            {
-                case InputState.Choose:
-                    AcceptableHandIndex(true);
-                    break;
-                case InputState.Place:
-                    break;
-                case InputState.Wait:
-                    break;
-            }
-            state = _state;
-        }
-        void ExitInputState()
-        {
-
-        }
-    }
-}
-*/
