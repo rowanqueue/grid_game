@@ -508,7 +508,7 @@ namespace Logic
             gridUpdating = true;
             if(token.data.color == TokenColor.Clipper)
             {
-                Token clippedToken = grid.tiles[gridPos].token;
+                /*Token clippedToken = grid.tiles[gridPos].token;
                 Token newToken = new Token(new TokenData(TokenColor.Adder, clippingNumbers[clippedToken.data.color]), true);
                 if(handIndex >= hand.handSize)
                 {
@@ -517,7 +517,7 @@ namespace Logic
                 else
                 {
                     hand.tokens[handIndex] = newToken;
-                }
+                }*/
                 
             }
             token = grid.PlaceToken(gridPos, token);
@@ -655,6 +655,7 @@ namespace Logic
             Tile tile = tiles[p];
             if (token.data.color == TokenColor.Clipper)
             {
+                game.bag.AddContents(new Dictionary<TokenData, int>() {{ new TokenData(TokenColor.Adder, game.clippingNumbers[tile.token.data.color],true),1}});
                 game.status.events.Add(new StatusReport.Event(StatusReport.EventType.TokenDestroyed, new List<Token>() { token }));
                 int num = tile.token.data.num - 1;
                 if(num > 0)
