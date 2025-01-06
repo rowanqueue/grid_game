@@ -39,6 +39,9 @@ namespace Logic
             colorScoreMulti.Add(TokenColor.Green, root.scoreVariables.colorScoreMultiplier.green);
             colorScoreMulti.Add(TokenColor.Purple, root.scoreVariables.colorScoreMultiplier.purple);
             colorScoreMulti.Add(TokenColor.Gold, root.scoreVariables.colorScoreMultiplier.gold);
+            colorScoreMulti.Add(TokenColor.Spade, 6);
+            colorScoreMulti.Add(TokenColor.Adder, 7);
+            colorScoreMulti.Add(TokenColor.Clipper, 8);
             maxTileNum = root.gameVariables.maxTileNum;
             base.Initialize(root);
         }
@@ -520,7 +523,17 @@ namespace Logic
                 }*/
                 
             }
+            bool placingAdder = token.data.color == TokenColor.Adder;
             token = grid.PlaceToken(gridPos, token);
+            if (placingAdder)
+            {
+                Dictionary<TokenData, int> updatedContents = progress.CheckProgress(token);
+                if (updatedContents.Count > 0)
+                {
+                    status.events.Add(new StatusReport.Event(StatusReport.EventType.BagUpdated, 0));
+                    bag.AddContents(updatedContents);
+                }
+            }
             if (token != null)
             {
                 GridChanged(token);

@@ -6,6 +6,7 @@ using UnityEngine.XR;
 using UnityEngine.SceneManagement;
 using Newtonsoft.Json;
 using Logic;
+using Save;
 
 public enum GameType
 {
@@ -20,7 +21,6 @@ public enum InputState
 }
 public class GameController : MonoBehaviour
 {
-    public bool load;
     public TextAsset gameJson;
     public GameType whichGame;
     public Logic.Game game;
@@ -42,6 +42,7 @@ public class GameController : MonoBehaviour
 
     public BagDisplay deckDisplay;
     public TextMeshPro deckNumberDisplay;
+    public TextMeshPro debugBagDisplay;
 
     //gameplay
     public InputState inputState = InputState.Choose;
@@ -83,17 +84,7 @@ public class GameController : MonoBehaviour
         }
         Json.Root root = JsonConvert.DeserializeObject<Json.Root>(gameJson.text);
         game.Initialize(root);
-        if (load && PlayerPrefs.HasKey("save"))
-        {
-            string save = PlayerPrefs.GetString("save");
-            Debug.Log(save);
-            Logic.History.Turn turn = JsonUtility.FromJson<Logic.History.Turn>(save);
-            game.history.turns.Clear();
-            game.history.turns.Add(turn);
-            turn.Load(game);
-            currentSave = turn;
-            score = turn.score;
-        }
+        
         //simInput = new TextInput.SimInput(game);
 
         CreateGrid();
@@ -101,6 +92,7 @@ public class GameController : MonoBehaviour
         CreateHand();
         deckDisplay.game = game;
     }
+    
     void InitializeServices()
     {
         Services.GameController = this;
@@ -232,10 +224,86 @@ public class GameController : MonoBehaviour
         inputState = newState;
 
     }
+    void DebugBagDisplay()
+    {
+        string s = "";
+        Logic.Bag bag = game.bag;
+        Dictionary<TokenData, int> numbers = new Dictionary<TokenData, int>();
+        List<string> lines = new List<string>();
+        foreach(TokenData token in bag.bagContents.Keys)
+        {
+            /*string line = token.ToString() + "<size=75%>x</size>" + bag.bagContents[token].ToString();
+            int num = token.num + (10 * ((Logic.TripleGame)game).colorScoreMulti[token.color]);
+            lines.Add(num.ToString()+"_"+line);*/
+            numbers.Add(token, bag.bagContents[token]);
+        }
+        //temp
+        foreach (TokenData token in bag.nextBagsTemporary)
+        {
+            if (numbers.ContainsKey(token))
+            {
+                numbers[token] += 1;
+            }
+            else
+            {
+                numbers.Add(token, 1);
+            }
+        }
+        Dictionary<TokenData, int> currentbag = new Dictionary<TokenData, int>();
+        foreach (TokenData token in bag.bag)
+        {
+            if (currentbag.ContainsKey(token))
+            {
+                currentbag[token] += 1;
+            }
+            else
+            {
+                currentbag.Add(token, 1);
+            }
+        }
+        lines = new List<string>();
+        foreach (TokenData token in currentbag.Keys)
+        {
+            string line = token.ToString() + "<size=75%>x</size>" + currentbag[token].ToString();
+            int num = token.num + (10 * ((Logic.TripleGame)game).colorScoreMulti[token.color]);
+            line = num.ToString() + "_" + line;
+            
+            if (numbers.ContainsKey(token))
+            {
+                line += "/";
+                line += numbers[token].ToString();
+            }
+            lines.Add(line);
+        }
+        foreach(TokenData token in numbers.Keys)
+        {
+            if(currentbag.ContainsKey(token) == false)
+            {
+                string line = token.ToString() + "<size=75%>x</size>0";
+                int num = token.num + (10 * ((Logic.TripleGame)game).colorScoreMulti[token.color]);
+                line = num.ToString() + "_" + line;
+                line += "/";
+                line += numbers[token].ToString();
+                lines.Add(line);
+            }
+        }
+        lines.Sort();
+        foreach (string line in lines)
+        {
+            s += line.Substring(3) + "\n";
+        }
+
+        debugBagDisplay.text = s;
+    }
 
     // Update is called once per frame
     void Update()
     {
+        if (game.isGameover())
+        {
+            Debug.Log("game over");
+        }
+        DebugBagDisplay();
         //save stuff
 
         //simInput.Update();
@@ -639,16 +707,16 @@ public class GameController : MonoBehaviour
     }
     public void Snapshot()
     {
+        SaveLoad.Save(currentSave);
         snapshotSave = currentSave;
-        PlayerPrefs.SetString("snapshot", JsonUtility.ToJson(snapshotSave));
     }
     public void LoadSnapshot()
     {
-        if (PlayerPrefs.HasKey("snapshot"))
+        Logic.History.Turn _save = null;
+        if (SaveLoad.HasSave())
         {
-            string save = PlayerPrefs.GetString("snapshot");
-            Debug.Log(save);
-            snapshotSave = JsonUtility.FromJson<Logic.History.Turn>(save);
+            _save = SaveLoad.Load();
+            snapshotSave = _save;
         }
         if(snapshotSave == null) { return; }
         game.LoadTurn(snapshotSave);
@@ -661,7 +729,7 @@ public class GameController : MonoBehaviour
     {
         Logic.History.Turn save = new Logic.History.Turn(game);
         currentSave = save;
-        PlayerPrefs.SetString("save", JsonUtility.ToJson(save));
+        SaveLoad.Save(currentSave);
     }
     public void Mulligan()
     {

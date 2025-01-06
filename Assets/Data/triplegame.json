@@ -47,23 +47,16 @@
         {
             "token": {
                 "color": "blue",
-                "number": 4
-            },
-            "count": 2
-        },
-        {
-            "token": {
-                "color": "adder",
                 "number": 1
             },
-            "count": 2
+            "count": 6
         },
         {
             "token": {
-                "color": "purple",
-                "number": 8
+                "color": "red",
+                "number": 1
             },
-            "count": 2
+            "count": 4
         },
     ],
     "progress": {
@@ -75,7 +68,7 @@
                   {
                       "token": {
                           "color": "blue",
-                          "number": 2
+                          "number": 8
                       }
                   }
               ],
@@ -495,6 +488,27 @@
                             "temporary": true,
                         },
                         "count": 3
+                    }
+                ]
+            },
+            {
+                "repeatable": true,
+                "trigger": [
+                    {
+                        "token": {
+                            "color": "green",
+                            "number": 7
+                        }
+                    }
+                ],
+                "reward": [
+                    {
+                        "token": {
+                            "color": "adder",
+                            "number": 0,
+                            "temporary": true,
+                        },
+                        "count": 2
                     }
                 ]
             },
