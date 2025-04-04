@@ -9,37 +9,48 @@ public class Token : MonoBehaviour
     public SpriteRenderer number;
     public TextMeshPro textDisplay;
 
+    float totalDeathMovement = 0.5f;
+    Vector3 finalPos;
+
+    public float liftSpeed = 0.9f;
+    public float liftHeight = 0.75f;
+
     public void Init(Logic.Token _token)
     {
         token = _token;
-        if(token.data.num >= ((Logic.TripleGame)Services.GameController.game).maxTileNum)
+        SetTokenData(token.data);
+        //spriteDisplay.color = Services.Visuals.tokenColors[(int)token.data.color];
+    }
+    public void SetTokenData(Logic.TokenData tokenData)
+    {
+        if (tokenData.num >= ((Logic.TripleGame)Services.GameController.game).maxTileNum)
         {
-            spriteDisplay.sprite = Services.Visuals.tokenMax[(int)token.data.color];
+            spriteDisplay.sprite = Services.Visuals.tokenMax[(int)tokenData.color];
             number.enabled = false;
         }
         else
         {
-            spriteDisplay.sprite = Services.Visuals.tokenSprites[(int)token.data.color];
-            if(token.data.color == Logic.TokenColor.Adder)
+            spriteDisplay.sprite = Services.Visuals.tokenSprites[(int)tokenData.color];
+            if (tokenData.color == Logic.TokenColor.Adder)
             {
-                spriteDisplay.sprite = Services.Visuals.clippingSprites[token.data.num];
+                spriteDisplay.sprite = Services.Visuals.clippingSprites[tokenData.num];
             }
-            textDisplay.text = token.data.num.ToString();
-            number.color = Services.Visuals.tokenColors[(int)token.data.color];
+            textDisplay.text = Services.GameController.ScoreToken(tokenData).ToString();
+            textDisplay.text = "<size=70%><voffset=0.2em>+</voffset></size>" + textDisplay.text;
+            number.color = Services.Visuals.tokenColors[(int)tokenData.color];
+            textDisplay.color = number.color;
             number.enabled = false;
-            if(token.data.color == Logic.TokenColor.Clipper || token.data.color == Logic.TokenColor.Spade || token.data.color == Logic.TokenColor.Adder)
+            if (tokenData.color == Logic.TokenColor.Clipper || tokenData.color == Logic.TokenColor.Spade || tokenData.color == Logic.TokenColor.Adder)
             {
                 return;
             }
-            if (token.data.num >= 0)
+            if (tokenData.num >= 0)
             {
                 number.enabled = true;
-                number.sprite = Services.Visuals.numberSprites[(int)token.data.num];
+                number.sprite = Services.Visuals.numberSprites[(int)tokenData.num];
+                
             }
         }
-        //spriteDisplay.color = Services.Visuals.tokenColors[(int)token.data.color];
-        
-        
     }
     public void PlaceInHand(int index)
     {
@@ -78,5 +89,41 @@ public class Token : MonoBehaviour
         spriteDisplay.sortingLayerName = sortingLayer;
         number.sortingLayerName = sortingLayer;
         textDisplay.sortingLayerID = spriteDisplay.sortingLayerID;
+    }
+    public void Die()
+    {
+        textDisplay.transform.parent = transform.parent;
+        textDisplay.transform.localScale = Vector3.one * 1.4f;
+        finalPos = transform.localPosition + Vector3.up * liftHeight;
+        StartCoroutine(Dying());
+    }
+    IEnumerator Dying()
+    {
+        float speed = liftSpeed;
+        UpdateLayer("TokenMoving");
+        while(Vector2.Distance(finalPos,transform.localPosition) > 0.01f)
+        {
+            transform.localPosition += (finalPos - transform.localPosition) * speed;
+            totalDeathMovement -= speed;
+            yield return new WaitForEndOfFrame();
+        }
+        while(spriteDisplay.color.a > 0.05f)
+        {
+            var a = (float)spriteDisplay.color.a;
+            a -= liftSpeed;
+            spriteDisplay.color = new Color(spriteDisplay.color.r, spriteDisplay.color.g, spriteDisplay.color.b, a);
+            number.color = new Color(number.color.r, number.color.g, number.color.b, a);
+            yield return new WaitForEndOfFrame();
+        }
+        yield return new WaitForSeconds(0.33f);
+        while (textDisplay.transform.localScale.x > 0.2f)
+        {
+            textDisplay.transform.localScale -= Vector3.one * speed * 0.95f;
+            yield return new WaitForEndOfFrame();
+        }
+        GameObject.Destroy(textDisplay.gameObject);
+        GameObject.Destroy(gameObject);
+        //yield return null;
+
     }
 }

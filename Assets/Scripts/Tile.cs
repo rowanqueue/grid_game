@@ -17,7 +17,7 @@ public class Tile : MonoBehaviour
         }
         else
         {
-            transform.position = Services.GameController.firstGridPos + (tile.pos * Services.GameController.gridSeparation);
+            transform.localPosition = Services.GameController.firstGridPos + (tile.pos * Services.GameController.gridSeparation);
         }
         
         float size = 1f;
