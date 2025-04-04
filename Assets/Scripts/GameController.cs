@@ -89,6 +89,7 @@ public class GameController : MonoBehaviour
 
     public List<GameObject> flowerPrefabs;
     public Dictionary<Tile, List<Flower>> flowers;
+    public int numFlowers;
 
     public Transform gridTransform;
     public List<Transform> handTransforms = new List<Transform>();
@@ -1109,6 +1110,7 @@ public class GameController : MonoBehaviour
             } while (farEnough == false);
         }
         flowers[tile].Add(flower);
+        numFlowers++;
     }
     public void Snapshot()
     {
