@@ -100,7 +100,7 @@ namespace Save
     public class TileFlowers
     {
         public Vector2 pos;
-        public int[] flowers = new int[3];
+        public int[] flowers = new int[6];
         public TileFlowers(Vector2 p, List<Flower> _flowers)
         {
             pos = p;
