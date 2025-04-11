@@ -579,7 +579,7 @@ public class GameController : MonoBehaviour
                         //next pos
                         for (int i = 0; i < tiles[finishTokenPos].token.token.data.num; i++)
                         {
-                            CreateFlower(tiles[finishTokenPos], tiles[finishTokenPos].token);
+                            CreateFlower(tiles[finishTokenPos], tiles[finishTokenPos].token.token.data.color);
                         }
                         score += tiles[finishTokenPos].token.token.data.num * ((TripleGame)game).colorScoreMulti[tiles[finishTokenPos].token.token.data.color];
 
@@ -931,7 +931,7 @@ public class GameController : MonoBehaviour
                                             {
                                                 for(int i = 0; i < token.data.num; i++)
                                                 {
-                                                    CreateFlower(tile, tile.token);
+                                                    CreateFlower(tile, tile.token.token.data.color);
                                                 }
                                                 tile.token.Die();
                                                 tile.token = null;
@@ -1104,17 +1104,38 @@ public class GameController : MonoBehaviour
         return token;
         
     }
-    void CreateFlower(Tile tile,Token token)
+    public void CreateFlower(Vector2 pos,TokenColor tokenColor,bool loaded = false)
     {
-        Vector2 extents = new Vector2(0.3f,0.4f);
-        extents.x = Random.Range(-extents.x,extents.x);
-        extents.y = Random.Range(-extents.y, extents.y);
-        extents.x = Random.Range(0.15f, 0.33f);
-        if (Random.value < 0.5f) { extents.x *= -1f; }
-        extents.y = Random.Range(0.2f, 0.48f);
-        if( Random.value < 0.5f) { extents.y *= -1f; }
-        Flower flower = GameObject.Instantiate(flowerPrefabs[(int)token.token.data.color], tile.transform.position + (Vector3)extents, Quaternion.identity, gridTransform).GetComponent<Flower>();
-        flower.tokenColor = token.token.data.color;
+        CreateFlower(tiles[new Vector2Int((int)pos.x,(int)pos.y)], tokenColor,loaded);
+    }
+    public void CreateFlower(Tile tile,TokenColor tokenColor, bool loaded = false)
+    {
+        Rect total = new Rect(-0.5f, -0.45f, 0.82f, 1.3f);
+        total = new Rect(-gridSeparation.x * 0.5f, -gridSeparation.y * 0.5f, gridSeparation.x, gridSeparation.y);
+        float x_dif = 0.1f;
+        float y_dif = 0.1f;
+        Rect notAllowed = new Rect(total.x+x_dif, total.y+y_dif, total.width-(x_dif), total.height-(y_dif*2f));
+        total.y -= 0.2f;
+        notAllowed.y -= 0.2f;
+        Vector2 extents;
+        int tries = 0;
+        do
+        {
+            tries++;
+            extents = new Vector2(Random.Range(total.x, total.x + total.height), Random.Range(total.y, total.y + total.height));
+            if (tries > 20)
+            {
+                Debug.Log("gave up");
+                break;
+            }
+        } while (notAllowed.Contains(extents));
+        Flower flower = GameObject.Instantiate(flowerPrefabs[(int)tokenColor], tile.transform.position + (Vector3)extents, Quaternion.identity, gridTransform).GetComponent<Flower>();
+        flower.tokenColor = tokenColor;
+        if (loaded)
+        {
+            flower.Finish();
+        }
+        bool keepFlower = true;
         if (flowers.ContainsKey(tile) == false)
         {
             flowers.Add(tile,new List<Flower>());
@@ -1128,6 +1149,9 @@ public class GameController : MonoBehaviour
                 count++;
                 if(count > 20)
                 {
+                    Debug.Log("gave up for this reason");
+                    //todo: boost the flower you hit last
+                    keepFlower = false;
                     break;
                 }
                 foreach(Flower f in flowers[tile])
@@ -1140,17 +1164,34 @@ public class GameController : MonoBehaviour
                 }
                 if(farEnough == false)
                 {
-                    extents.x = Random.Range(0.2f, 0.4f);
-                    if (Random.value < 0.5f) { extents.x *= -1f; }
-                    extents.y = Random.Range(0.3f, 0.5f);
-                    if (Random.value < 0.5f) { extents.y *= -1f; }
+                    tries = 0;
+                    do
+                    {
+                        tries++;
+                        extents = new Vector2(Random.Range(total.x, total.x + total.height), Random.Range(total.y, total.y + total.height));
+                        if (tries > 20)
+                        {
+                            Debug.Log("gave up inside");
+                            break;
+                        }
+                    } while (notAllowed.Contains(extents));
                     flower.transform.position = tile.transform.position + (Vector3)extents;
                 }
 
             } while (farEnough == false);
         }
-        flowers[tile].Add(flower);
         numFlowers++;
+        if (keepFlower)
+        {
+            flowers[tile].Add(flower);
+            
+        }
+        else
+        {
+            GameObject.Destroy(flower.gameObject);
+        }
+        
+        
     }
     public void Snapshot()
     {

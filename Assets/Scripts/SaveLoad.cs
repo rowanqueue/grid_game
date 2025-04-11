@@ -89,7 +89,6 @@ namespace Save
         }
         public void Load()
         {
-            Debug.Log(turn);
             foreach(TileFlowers f in flowers)
             {
                 f.Load();
@@ -111,7 +110,17 @@ namespace Save
         }
         public void Load()
         {
-
+            for(int i = 0; i < flowers.Length; i++)
+            {
+                int num = flowers[i];
+                if(num > 0)
+                {
+                    for(int j = 0; j < num; j++)
+                    {
+                        Services.GameController.CreateFlower(pos, (Logic.TokenColor)i,true);
+                    }
+                }
+            }
         }
     }
 }
