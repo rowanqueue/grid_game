@@ -27,6 +27,10 @@ public class AnchorGameObject : MonoBehaviour
     // Use this for initialization
     public void SetAnchor()
     {
+        if(gameObject.activeSelf == false)
+        {
+            return;
+        }
         updateAnchorRoutine = UpdateAnchorAsync();
         StartCoroutine(updateAnchorRoutine);
     }
@@ -93,9 +97,9 @@ public class AnchorGameObject : MonoBehaviour
     void SetAnchor(Vector3 anchor)
     {
         Vector3 newPos = anchor + anchorOffset;
-        if (!transform.position.Equals(newPos))
+        if (!transform.localPosition.Equals(newPos))
         {
-            transform.position = newPos;
+            transform.localPosition = newPos;
         }
     }
 

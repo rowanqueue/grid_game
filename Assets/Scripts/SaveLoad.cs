@@ -18,7 +18,7 @@ namespace Save
             string path = null;
 #if UNITY_EDITOR
             path = "Assets/Resources/Saves";
-#elif UNITY_ANDROID
+#else
             path = Application.persistentDataPath;
 #endif
             path += "/Save" + save.id + ".json";
@@ -32,7 +32,7 @@ namespace Save
             string path = null;
 #if UNITY_EDITOR
             path = "Assets/Resources/Saves";
-#elif UNITY_ANDROID
+#else
             path = Application.persistentDataPath;
 #endif
             path += "/Save"+id.ToString()+".json";
@@ -47,7 +47,7 @@ namespace Save
             string path = null;
 #if UNITY_EDITOR
             path = "Assets/Resources/Saves";
-#elif UNITY_ANDROID
+#else
             path = Application.persistentDataPath;
 #endif
             path += "/Save" + id.ToString() + ".json";
@@ -58,7 +58,7 @@ namespace Save
             string path = null;
 #if UNITY_EDITOR
             path = "Assets/Resources/Saves";
-#elif UNITY_ANDROID
+#else
             path = Application.persistentDataPath;
 #endif
             path += "/Save"+id+".json";

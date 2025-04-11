@@ -4,14 +4,31 @@ using UnityEngine;
 
 public class UISlider : MonoBehaviour
 {
+    public bool music;
     public Vector2 startPoint;
     public Vector2 endPoint;
     bool hover = false;
     bool held = false;
+
     // Start is called before the first frame update
     void Start()
     {
-        
+        string setting = (music ? "musicVolume" : "soundVolume");
+        if (PlayerPrefs.HasKey(setting))
+        {
+            float percent = PlayerPrefs.GetFloat(setting);
+            float x = Mathf.Lerp(startPoint.x, endPoint.x, percent);
+            transform.localPosition = new Vector2(x, startPoint.y);
+        }
+    }
+    void SetVolume(float x)
+    {
+        x -= startPoint.x;
+        x /= (endPoint.x - startPoint.x);
+        Debug.Log(x);
+        string setting = (music ? "musicVolume" : "soundVolume");
+        PlayerPrefs.SetFloat(setting, x);
+        PlayerPrefs.Save();
     }
 
     // Update is called once per frame
@@ -26,6 +43,7 @@ public class UISlider : MonoBehaviour
             if(Input.GetMouseButtonUp(0))
             {
                 held = false;
+                SetVolume(x);
             }
         }
         else

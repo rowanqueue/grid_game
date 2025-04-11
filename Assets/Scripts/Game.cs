@@ -883,6 +883,50 @@ namespace Logic
             RefillBag();
 
         }
+        public Dictionary<TokenData,Vector2Int> GetCurrentBag()
+        {
+            //vector2: x is how many you currently have, y is how many you're supposed to have
+            Dictionary<TokenData, Vector2Int> contents = new Dictionary<TokenData, Vector2Int>();
+            foreach(TokenData token in bagContents.Keys)
+            {
+                Vector2Int num = new Vector2Int(0, bagContents[token]);
+                contents.Add(token,num);
+            }
+            foreach(TokenData token in bag)
+            {
+                if (contents.ContainsKey(token))
+                {
+                    contents[token] += Vector2Int.right;
+                }
+                else
+                {
+                    contents.Add(token, new Vector2Int(1, 1));
+                }
+            }
+            return contents;
+        }
+        public Dictionary<TokenData,Vector2Int> GetNextBag()
+        {
+            Dictionary<TokenData, Vector2Int> contents = new Dictionary<TokenData, Vector2Int>();
+            //todo: implement new and changed tags by comparing bagContents with bag and aaah
+            foreach (TokenData token in bagContents.Keys)
+            {
+                Vector2Int num = new Vector2Int(bagContents[token], bagContents[token]);
+                contents.Add(token, num);
+            }
+            foreach(TokenData token in nextBagsTemporary)
+            {
+                if (contents.ContainsKey(token))
+                {
+                    contents[token] += Vector2Int.right;
+                }
+                else
+                {
+                    contents.Add(token, new Vector2Int(1, 1));
+                }
+            }
+            return contents;
+        }
         public void ResetBag()
         {
             bagContents.Clear();
@@ -1139,6 +1183,56 @@ namespace Logic
         public static bool operator !=(TokenData c1, TokenData c2)
         {
             return !(c1.color == c2.color && c1.num == c2.num);
+        }
+
+        public int CompareTo(TokenData other)
+        {
+            int a = (int)color;
+            //this is a stupid fix to reorder red,green,blue into blue,red,green in the bag display
+            switch (a)
+            {
+                case 0:
+                    a = 1;
+                    break;
+                case 1:
+                    a = 2;
+                    break;
+                case 2:
+                    a = 0;
+                    break;
+            }
+            int b = (int)other.color;
+            switch (b)
+            {
+                case 0:
+                    b = 1;
+                    break;
+                case 1:
+                    b = 2;
+                    break;
+                case 2:
+                    b = 0;
+                    break;
+            }
+            if (a < b)
+            {
+                return -1;
+            }
+            if (a > b)
+            {
+                return 1;
+            }
+            //same color
+            if(num < other.num)
+            {
+                return -1;
+            }
+            if(num > other.num)
+            {
+                return 1;
+            }
+            return 0;
+
         }
     }
     public class Hand

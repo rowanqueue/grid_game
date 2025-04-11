@@ -88,7 +88,11 @@ public class UpgradePopup : MonoBehaviour
                 content.text = "A {0} tile has been added to your bag!";
                 TokenData data = contents.Keys.ToList()[0];
                 string token_info = "";
-                if (data.color == TokenColor.Adder || data.color == TokenColor.Spade || data.color == TokenColor.Clipper)
+                if (data.color == TokenColor.Adder)
+                {
+                    token_info = "Watering Can";
+                }
+                else if(data.color == TokenColor.Spade || data.color == TokenColor.Clipper)
                 {
                     token_info = data.color.ToString();
                 }

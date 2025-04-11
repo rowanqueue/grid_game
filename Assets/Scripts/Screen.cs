@@ -13,7 +13,7 @@ public class Screen : MonoBehaviour
     {
 
     }
-    void SetAnchor()
+    public void SetAnchor()
     {
         foreach(AnchorGameObject a in anchoreds)
         {

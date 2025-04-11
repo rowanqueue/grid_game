@@ -140,6 +140,8 @@ public class CameraViewportHandler : MonoBehaviour
         float cameraX, cameraY;
         cameraX = camera.transform.position.x;
         cameraY = camera.transform.position.y;
+        cameraX = 0;
+        cameraY = 0;
 
         leftX = cameraX - _width / 2;
         rightX = cameraX + _width / 2;

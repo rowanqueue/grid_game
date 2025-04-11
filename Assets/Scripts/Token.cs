@@ -15,6 +15,8 @@ public class Token : MonoBehaviour
     public float liftSpeed = 0.9f;
     public float liftHeight = 0.75f;
 
+    public GameObject shade;
+
     public void Init(Logic.Token _token)
     {
         token = _token;
@@ -38,7 +40,7 @@ public class Token : MonoBehaviour
             textDisplay.text = Services.GameController.ScoreToken(tokenData).ToString();
             textDisplay.text = "<size=70%><voffset=0.2em>+</voffset></size>" + textDisplay.text;
             number.color = Services.Visuals.tokenColors[(int)tokenData.color];
-            textDisplay.color = number.color;
+            //textDisplay.color = number.color;
             number.enabled = false;
             if (tokenData.color == Logic.TokenColor.Clipper || tokenData.color == Logic.TokenColor.Spade || tokenData.color == Logic.TokenColor.Adder)
             {
@@ -56,6 +58,10 @@ public class Token : MonoBehaviour
     {
         transform.position = Services.GameController.firstHandPos + (index * Services.GameController.handSeparation);
         transform.localEulerAngles = new Vector3(0, 0, Random.Range(-10f, 10f));
+    }
+    public void TurnShade()
+    {
+        shade.SetActive(true);
     }
     public void PlaceInTile(Tile tile)
     {

@@ -1,5 +1,7 @@
+using Logic;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class BagDisplay : MonoBehaviour
@@ -8,10 +10,13 @@ public class BagDisplay : MonoBehaviour
     public Logic.Game game;
     public Vector2 firstGridPos;
     public Vector2 gridSeparation;
+    public Transform tokenParent;
     public int perRow;
-    public Dictionary<Logic.TokenData,int> bagContents = new Dictionary<Logic.TokenData,int>();
-    public List<Token> tokens = new List<Token>();
     public int numTokens = 0;
+    public bool showNextBag = false;
+
+    public SpriteRenderer bagSwitchSprite;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -21,43 +26,74 @@ public class BagDisplay : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        bagSwitchSprite.flipX = showNextBag;
         if(bagUpdated)
         {
             bagUpdated = false;
             MakeBag();
         }
-        for(int i = 0; i < numTokens; i++)
+        
+    }
+    public void CurrentBag()
+    {
+        if (showNextBag == false) { return; }
+        showNextBag = false;
+        ClearBag();
+        MakeBag();
+    }
+    public void NextBag()
+    {
+        if (showNextBag == true) { return; }
+        showNextBag = true;
+        ClearBag();
+        MakeBag();
+    }
+    public void ClearBag()
+    {
+        foreach(Transform child in tokenParent)
         {
-            Vector2 move = new Vector2(i%perRow*gridSeparation.x,i/perRow*gridSeparation.y);
-            tokens[i].Draw(firstGridPos+move);
+            GameObject.Destroy(child.gameObject);
         }
     }
     public void MakeBag()
     {
-        bagContents = game.bag.bagContents;
+        Dictionary<Logic.TokenData, Vector2Int> bagContents = new Dictionary<Logic.TokenData, Vector2Int>();
+        if (showNextBag)
+        {
+            bagContents = game.bag.GetNextBag();
+        }
+        else
+        {
+            bagContents = game.bag.GetCurrentBag();
+        }
+        List<TokenData> uniqueTokens = bagContents.Keys.ToList();
+        uniqueTokens.Sort((t1,t2) => t1.CompareTo(t2));
         int i = 0;
-        foreach(Logic.TokenData tokenData in bagContents.Keys)
+        foreach(Logic.TokenData tokenData in uniqueTokens)
         {
 
-            for (int j = 0; j < bagContents[tokenData]; j++)
+            for (int j = 0; j < bagContents[tokenData].y; j++)
             {
-                Token token;
-                if (i <= tokens.Count)
-                {
-                    tokens.Add(GameObject.Instantiate(Services.GameController.tokenPrefab, transform).GetComponent<Token>());
-                }
-                token = tokens[i];
+                Token token = GameObject.Instantiate(Services.GameController.tokenPrefab, tokenParent).GetComponent<Token>();
                 token.Init(new Logic.Token(tokenData, true));
                 token.gameObject.SetActive(true);
                 token.UpdateLayer("UIToken");
+                Debug.Log(bagContents[tokenData].ToString());
+                if(showNextBag == false)
+                {
+                    if (j >= bagContents[tokenData].x)
+                    {
+                        token.TurnShade();
+                    }
+                }
+
+                Vector2 move = new Vector2(i % perRow * gridSeparation.x, i / perRow * gridSeparation.y);
+                token.Draw(firstGridPos + move + (Vector2)transform.position);
+                token.transform.position = firstGridPos + move + (Vector2)transform.position;
                 i++;
                 numTokens = i;
             }
             
-        }
-        for(int j = numTokens; j < tokens.Count; j++)
-        {
-            tokens[j].gameObject.SetActive(false);
         }
     }
 }

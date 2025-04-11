@@ -26,7 +26,8 @@ public enum GameState
     Gameplay,
     Settings,
     Start,
-    Snapshot
+    Snapshot,
+    Bag
 }
 public class GameController : MonoBehaviour
 {
@@ -103,6 +104,16 @@ public class GameController : MonoBehaviour
     void Awake()
     {
         InitializeServices();
+        if (PlayerPrefs.HasKey("musicVolume") == false)
+        {
+            PlayerPrefs.SetFloat("musicVolume", 1.0f);
+            PlayerPrefs.Save();
+        }
+        if (PlayerPrefs.HasKey("soundVolume") == false)
+        {
+            PlayerPrefs.SetFloat("soundVolume", 1.0f);
+            PlayerPrefs.Save();
+        }
         Application.targetFrameRate = 60;
         switch (whichGame)
         {
@@ -236,18 +247,21 @@ public class GameController : MonoBehaviour
     {
         gameState = GameState.Gameplay;
         stateScreens[(int)gameState].gameObject.SetActive(true);
+        stateScreens[(int)gameState].SetAnchor();
         movingToScreen = true;
     }
     public void GameStateStart()
     {
         gameState = GameState.Start;
         stateScreens[(int)gameState].gameObject.SetActive(true);
+        stateScreens[(int)gameState].SetAnchor();
         movingToScreen = true;
     }
     public void GameStateSettings()
     {
         gameState = GameState.Settings;
         stateScreens[(int)gameState].gameObject.SetActive(true);
+        stateScreens[(int)gameState].SetAnchor();
         movingToScreen = true;
     }
     public void GameStateSnapshot()
@@ -255,6 +269,14 @@ public class GameController : MonoBehaviour
         gameState = GameState.Snapshot;
         snapshotPreview.openScreen();
         stateScreens[(int)gameState].gameObject.SetActive(true);
+        stateScreens[(int)gameState].SetAnchor();
+        movingToScreen = true;
+    }
+    public void GameStateBag()
+    {
+        gameState = GameState.Bag;
+        //stateScreens[(int)gameState].gameObject.SetActive(true);
+        //stateScreens[(int)gameState].SetAnchor();
         movingToScreen = true;
     }
     void ClearTokensFromGrid()
@@ -280,8 +302,18 @@ public class GameController : MonoBehaviour
         {
             tutorial.IncrementStage();
         }
-        Services.Gems.numGems += 1;
-        deckDisplay.gameObject.SetActive(!deckDisplay.gameObject.activeSelf);
+        if(gameState == GameState.Bag)
+        {
+            deckDisplay.ClearBag();
+            GameStateGameplay();
+        }
+        else
+        {
+            deckDisplay.MakeBag();
+            GameStateBag();
+        }
+        
+        //deckDisplay.gameObject.SetActive(!deckDisplay.gameObject.activeSelf);
         Services.AudioManager.PlayBagSound();
     }
     void LoadTokensIntoGrid()
@@ -492,18 +524,26 @@ public class GameController : MonoBehaviour
                 case GameState.Snapshot:
                     cameraPos.x = -8;
                     break;
+                case GameState.Bag:
+                    cameraPos.y = -8;
+                    break;
             }
             Camera.main.transform.position += (cameraPos - Camera.main.transform.position) * 0.1f;
             if(Vector2.Distance(Camera.main.transform.position,cameraPos) < 0.03f)
             {
+                movingToScreen = true;
                 Camera.main.transform.position = cameraPos;
-                for(int i = 0; i < stateScreens.Count; i++)
+                if (gameState != GameState.Bag)
                 {
-                    if ((int)gameState != i)
+                    for (int i = 0; i < stateScreens.Count; i++)
                     {
-                        stateScreens[i].gameObject.SetActive(false);
+                        if ((int)gameState != i)
+                        {
+                            stateScreens[i].gameObject.SetActive(false);
+                        }
                     }
                 }
+
             }
         }
         

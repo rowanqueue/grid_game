@@ -20,7 +20,11 @@ public class Button : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        display.color = (hover ? hoverColor : Color.white);
+        if(display != null)
+        {
+            display.color = (hover ? hoverColor : Color.white);
+        }
+        
         if(hover && Input.GetMouseButtonDown(0))
         {
             _event.Invoke();
