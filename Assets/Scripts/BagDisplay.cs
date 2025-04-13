@@ -27,11 +27,6 @@ public class BagDisplay : MonoBehaviour
     void Update()
     {
         bagSwitchSprite.flipX = showNextBag;
-        if(bagUpdated)
-        {
-            bagUpdated = false;
-            MakeBag();
-        }
         
     }
     public void CurrentBag()
@@ -72,19 +67,18 @@ public class BagDisplay : MonoBehaviour
         foreach(Logic.TokenData tokenData in uniqueTokens)
         {
 
-            for (int j = 0; j < bagContents[tokenData].y; j++)
+            for (int j = 0; j < bagContents[tokenData].x; j++)
             {
                 Token token = GameObject.Instantiate(Services.GameController.tokenPrefab, tokenParent).GetComponent<Token>();
                 token.Init(new Logic.Token(tokenData, true));
                 token.gameObject.SetActive(true);
                 token.UpdateLayer("UIToken");
-                Debug.Log(bagContents[tokenData].ToString());
                 if(showNextBag == false)
                 {
-                    if (j >= bagContents[tokenData].x)
+                    /*if (j >= bagContents[tokenData].x)
                     {
                         token.TurnShade();
-                    }
+                    }*/
                 }
 
                 Vector2 move = new Vector2(i % perRow * gridSeparation.x, i / perRow * gridSeparation.y);
@@ -93,7 +87,28 @@ public class BagDisplay : MonoBehaviour
                 i++;
                 numTokens = i;
             }
-            
         }
+        if(showNextBag == false)
+        {
+            foreach (Logic.TokenData tokenData in uniqueTokens)
+            {
+                int leftover = bagContents[tokenData].y - bagContents[tokenData].x;
+                for (int j = 0; j < leftover; j++)
+                {
+                    Token token = GameObject.Instantiate(Services.GameController.tokenPrefab, tokenParent).GetComponent<Token>();
+                    token.Init(new Logic.Token(tokenData, true));
+                    token.gameObject.SetActive(true);
+                    token.UpdateLayer("UIToken");
+                    token.TurnShade();
+
+                    Vector2 move = new Vector2(i % perRow * gridSeparation.x, i / perRow * gridSeparation.y);
+                    token.Draw(firstGridPos + move + (Vector2)transform.position);
+                    token.transform.position = firstGridPos + move + (Vector2)transform.position;
+                    i++;
+                    numTokens = i;
+                }
+            }
+        }
+        
     }
 }

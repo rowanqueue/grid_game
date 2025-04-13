@@ -28,6 +28,10 @@ public class Token : MonoBehaviour
         if (tokenData.num >= ((Logic.TripleGame)Services.GameController.game).maxTileNum)
         {
             spriteDisplay.sprite = Services.Visuals.tokenMax[(int)tokenData.color];
+            if (Services.GameController.diceMode)
+            {
+                number.sprite = Services.Visuals.altNumberSprites[(int)tokenData.num];
+            }
             number.enabled = false;
         }
         else
@@ -50,6 +54,10 @@ public class Token : MonoBehaviour
             {
                 number.enabled = true;
                 number.sprite = Services.Visuals.numberSprites[(int)tokenData.num];
+                if (Services.GameController.diceMode)
+                {
+                    number.sprite = Services.Visuals.altNumberSprites[(int)tokenData.num];
+                }
                 
             }
         }

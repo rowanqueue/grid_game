@@ -8,6 +8,7 @@ public class Visuals : MonoBehaviour
     public List<Sprite> tokenMax;
     public List<Sprite> tokenSprites;
     public List<Sprite> numberSprites;
+    public List<Sprite> altNumberSprites;
     public List<Sprite> clippingSprites;
     //public Dictionary<Logic.TokenColor, Color> tokenColors;
 

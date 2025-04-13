@@ -15,23 +15,32 @@ public class UpgradePopup : MonoBehaviour
 {
     public GameObject visual;
     public GameObject unlockParent;
-    public Token unlockedToken;
+    public GameObject[] unlockSubParents;
+    public List<Token> unlockedTokens;
     public GameObject upgradeParent;
     public Token upgradedToken;
     public Token oldToken;
     public TextMeshPro title;
     public TextMeshPro content;
+    //public List<MiniTile> unlockReasons;
+
+
     [SerializeField] UpgradeType type;
-    List<string> previousUnlocks;
+    public List<string> previousUnlocks;
 
     //tiny popup
     public GameObject tinyTab;
     public List<MiniTile> miniTiles;
+    //where should it be depending on how many you have
+    public List<float> tinyTabX;
     // Start is called before the first frame update
     void Start()
     {
-        previousUnlocks = new List<string>();
         visual.SetActive(false);
+        for (int i = 0; i < unlockSubParents.Length; i++)
+        {
+            unlockSubParents[i].SetActive(false);
+        }
         unlockParent.SetActive(false);
         upgradeParent.SetActive(false);
 
@@ -58,6 +67,7 @@ public class UpgradePopup : MonoBehaviour
                 tileCount++;
                 miniTiles[tileCount].gameObject.SetActive(true);
                 miniTiles[tileCount].SetTile(contents.Keys.ToList()[1]);
+                tileCount++;
                 break;
             case UpgradeType.Unlock:
                 miniTiles[tileCount].gameObject.SetActive(true);
@@ -69,11 +79,18 @@ public class UpgradePopup : MonoBehaviour
                     miniTiles[tileCount].SetTile(contents.Keys.ToList()[0]);
                     tileCount++;
                 }
+                if (contents.Values.ToList()[0] > 2)
+                {
+                    miniTiles[tileCount].gameObject.SetActive(true);
+                    miniTiles[tileCount].SetTile(contents.Keys.ToList()[0]);
+                    tileCount++;
+                }
                 miniTiles[tileCount].gameObject.SetActive(true);
                 miniTiles[tileCount].SetPlus();
                 tileCount++;
                 break;
         }
+        tinyTab.transform.localPosition = new Vector2(tinyTabX[tileCount-1], tinyTab.transform.localPosition.y);
     }
     IEnumerator ActuallyCreate(Dictionary<TokenData,int> contents)
     {
@@ -87,6 +104,23 @@ public class UpgradePopup : MonoBehaviour
                 title.text = "Tile Unlock";
                 content.text = "A {0} tile has been added to your bag!";
                 TokenData data = contents.Keys.ToList()[0];
+                if (contents[data] == 1 || contents[data] == 3)
+                {
+                    unlockSubParents[0].SetActive(true);
+                    if (contents[data] == 3)
+                    {
+                        unlockSubParents[2].SetActive(true);
+                    }
+                }
+                else
+                {
+                    unlockSubParents[1].SetActive(true);
+                }
+                if (contents[data] > 1)
+                {
+                    string[] numWords = new string[]{"Zero", "one", "Two", "Three" };
+                    content.text = numWords[contents[data]] + " {0} tiles have been added to your bag!";
+                }
                 string token_info = "";
                 if (data.color == TokenColor.Adder)
                 {
@@ -101,8 +135,12 @@ public class UpgradePopup : MonoBehaviour
                     token_info = data.color.ToString() + " " + data.num.ToString();
                 }
                 content.text = string.Format(content.text, new string[1] { token_info });
-                unlockedToken.SetTokenData(data);
-                unlockedToken.UpdateLayer("UIToken");
+                for(int i = 0; i < unlockedTokens.Count; i++)
+                {
+                    unlockedTokens[i].SetTokenData(data);
+                    unlockedTokens[i].UpdateLayer("UIToken");
+                }
+                
                 break;
             case UpgradeType.Upgrade:
                 upgradeParent.SetActive(true);
@@ -168,6 +206,10 @@ public class UpgradePopup : MonoBehaviour
     public void Close()
     {
         unlockParent.SetActive(false);
+        for(int i = 0; i < unlockSubParents.Length;i++)
+        {
+            unlockSubParents[i].SetActive(false);
+        }
         upgradeParent.SetActive(false);
         visual.SetActive(false);
         tinyTab.SetActive(false);

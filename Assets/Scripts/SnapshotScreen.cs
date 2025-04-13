@@ -50,6 +50,7 @@ public class SnapshotScreen : MonoBehaviour
         freeSlot = GameObject.Instantiate(tilePrefab, gridTransform).GetComponent<Tile>();
         freeSlot.freeSlot = true;
         freeSlot.transform.parent = freeSlotVisual.transform;
+        freeSlot.transform.localPosition = Vector3.zero;
         LoadTokensIntoGrid();
 
 

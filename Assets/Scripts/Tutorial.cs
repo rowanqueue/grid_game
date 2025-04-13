@@ -22,7 +22,8 @@ public enum TutorialStage
     Blue3Appears,
     ActualBlue3,
     MoreScoring,
-    Finish
+    Finish,
+    ActuallyFinishDefault
 }
 public class Tutorial : MonoBehaviour
 {
@@ -53,7 +54,7 @@ public class Tutorial : MonoBehaviour
     {
         ExitStage();
         stage = newStage;
-        if ((int)stage >= stageParents.Count)
+        if (stage == TutorialStage.ActuallyFinishDefault)
         {
             ExitTutorial();
             return;
@@ -152,7 +153,6 @@ public class Tutorial : MonoBehaviour
     public void StageUpdate()
     {
         stagePhase += 1;
-        Debug.Log(stagePhase);
         switch (stage)
         {
             case TutorialStage.Placing:

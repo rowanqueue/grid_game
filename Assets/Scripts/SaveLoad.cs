@@ -79,6 +79,7 @@ namespace Save
         public int id;
         public Logic.History.Turn turn;
         public List<TileFlowers> flowers = new List<TileFlowers>();
+        public List<string> previousUnlocks = new List<string>();
         public Save(Logic.History.Turn turn)
         {
             this.turn = turn;
@@ -86,13 +87,25 @@ namespace Save
             {
                 flowers.Add(new TileFlowers(tile.tile.pos, Services.GameController.flowers[tile]));
             }
+            foreach(string s in Services.GameController.upgradePopup.previousUnlocks)
+            {
+                previousUnlocks.Add(s);
+            }
         }
         public void Load()
         {
-            foreach(TileFlowers f in flowers)
+            if(Services.GameController.gameState == GameState.Gameplay || Services.GameController.gameState == GameState.Start)
             {
-                f.Load();
+                foreach (TileFlowers f in flowers)
+                {
+                    f.Load();
+                }
+                foreach(string s in previousUnlocks)
+                {
+                    Services.GameController.upgradePopup.previousUnlocks.Add(s);
+                }
             }
+            
         }
     }
     [Serializable]
