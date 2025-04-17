@@ -17,6 +17,8 @@ public class Token : MonoBehaviour
 
     public GameObject shade;
 
+    bool moving = false;
+    public Vector2 handPos;
     public void Init(Logic.Token _token)
     {
         token = _token;
@@ -76,9 +78,39 @@ public class Token : MonoBehaviour
         transform.position = tile.transform.position;
         UpdateLayer("TokenPlaced");
     }
+    public void DrawFromBag(int index)
+    {
+        moving = true;
+        transform.position = Services.GameController.bagButtonTransform.position;
+        StartCoroutine(BagDraw(index * 0.2f));//*(1f/1.5f)));
+    }
+    IEnumerator BagDraw(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        Services.GameController.tempDeckNumberForAnim -= 1;
+        while (Vector3.Distance(handPos,transform.position) > 0.05f)
+        {
+            transform.position += ((Vector3)handPos - transform.position) * 0.1f;
+            yield return new WaitForEndOfFrame();
+        }
+        /*while (Mathf.Abs(handPos.y - transform.position.y) > 0.1f)
+        {
+            transform.position += (new Vector3(0, handPos.y > transform.position.y ? 1f : -1f)) * 0.1f*1.5f;
+            yield return new WaitForEndOfFrame();
+        }
+        transform.position = new Vector3(transform.position.x, handPos.y);
+        while (Mathf.Abs(handPos.x - transform.position.x) > 0.1f)
+        {
+            transform.position += (new Vector3(handPos.x > transform.position.x ? 1f : -1f,0)) * 0.1f*1.5f;
+            yield return new WaitForEndOfFrame();
+        }*/
+        transform.position = handPos;
+        moving = false;
+    }
     public void Draw(Vector2 pos, bool hover = false)
     {
         Init(token);
+        if (moving) { return; }
         transform.position += ((Vector3)pos - transform.position) * 1.5f * (Time.deltaTime/0.16666f);
         if(Services.GameController.lastTokenPlaced == this)
         {

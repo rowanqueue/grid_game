@@ -22,17 +22,19 @@ public class UpgradePopup : MonoBehaviour
     public Token oldToken;
     public TextMeshPro title;
     public TextMeshPro content;
-    //public List<MiniTile> unlockReasons;
+    public List<MiniTile> unlockReasons;
 
 
     [SerializeField] UpgradeType type;
     public List<string> previousUnlocks;
 
     //tiny popup
-    public GameObject tinyTab;
-    public List<MiniTile> miniTiles;
+    public List<UpgradeTab> tinyTabs;
+    public List<Vector3> tabPositions;
     //where should it be depending on how many you have
     public List<float> tinyTabX;
+
+    Coroutine ending;
     // Start is called before the first frame update
     void Start()
     {
@@ -43,15 +45,71 @@ public class UpgradePopup : MonoBehaviour
         }
         unlockParent.SetActive(false);
         upgradeParent.SetActive(false);
+        for(int i = 0; i < unlockReasons.Count; i++)
+        {
+            unlockReasons[i].gameObject.SetActive(false);
+        }
 
         //tiny
-        tinyTab.SetActive(false);
+        foreach(UpgradeTab tab in tinyTabs)
+        {
+            tab.popup = this;
+            tab.Deactivate();
+            tabPositions.Add(tab.transform.parent.localPosition);
+        }
     }
     IEnumerator TinyActuallyCreate(Dictionary<TokenData,int> contents)
     {
         yield return new WaitForSeconds(0.0f);
-        tinyTab.SetActive(true);
-        foreach(MiniTile tile in miniTiles)
+        UpgradeTab tinyTab = tinyTabs[0];
+        if (tinyTabs[0].active == false)
+        {
+            //no need to worry, just put it in the first slot
+        }
+        else if (tinyTabs[tinyTabs.Count - 1].active)
+        {
+            //all tabs are full! push them all back, then put the last one in the first slot
+            tinyTab = tinyTabs[tinyTabs.Count - 1];
+            tinyTabs.Remove(tinyTab);
+            tinyTabs.Insert(0, tinyTab);
+        }
+        else
+        {
+            //some slots at end are empty
+            for(int i = 1; i < tinyTabs.Count; i++)
+            {
+                if (tinyTabs[i].active == false)
+                {
+                    tinyTab = tinyTabs[i];
+                    tinyTabs.Remove(tinyTab);
+                    tinyTabs.Insert(0, tinyTab);
+                    break;
+                }
+            }
+        }
+        for(int i = 0; i < tinyTabs.Count; i++)
+        {
+            tinyTabs[i].SetHeight(tabPositions[i].y);
+        }
+        tinyTab.Activate();
+        //unlock triggers/reasons
+        List<TokenData> triggers = new List<TokenData>();
+        foreach (TokenData token in contents.Keys)
+        {
+            if (contents[token] == 100)
+            {
+                triggers.Add(token);
+            }
+        }
+        int triggerCount = 0;
+        foreach (TokenData token in triggers)
+        {
+            unlockReasons[triggerCount].gameObject.SetActive(true);
+            unlockReasons[triggerCount].SetTile(token);
+            contents.Remove(token);
+            triggerCount++;
+        }
+        foreach (MiniTile tile in tinyTab.miniTiles)
         {
             tile.gameObject.SetActive(false);
         }
@@ -59,43 +117,78 @@ public class UpgradePopup : MonoBehaviour
         switch (type)
         {
             case UpgradeType.Upgrade:
-                miniTiles[tileCount].gameObject.SetActive(true);
-                miniTiles[tileCount].SetTile(contents.Keys.ToList()[0]);
+                tinyTab.miniTiles[tileCount].gameObject.SetActive(true);
+                tinyTab.miniTiles[tileCount].SetTile(contents.Keys.ToList()[0]);
                 tileCount++;
-                miniTiles[tileCount].gameObject.SetActive(true);
-                miniTiles[tileCount].SetArrow();
+                tinyTab.miniTiles[tileCount].gameObject.SetActive(true);
+                tinyTab.miniTiles[tileCount].SetArrow();
                 tileCount++;
-                miniTiles[tileCount].gameObject.SetActive(true);
-                miniTiles[tileCount].SetTile(contents.Keys.ToList()[1]);
+                tinyTab.miniTiles[tileCount].gameObject.SetActive(true);
+                tinyTab.miniTiles[tileCount].SetTile(contents.Keys.ToList()[1]);
                 tileCount++;
                 break;
             case UpgradeType.Unlock:
-                miniTiles[tileCount].gameObject.SetActive(true);
-                miniTiles[tileCount].SetTile(contents.Keys.ToList()[0]);
+                tinyTab.miniTiles[tileCount].gameObject.SetActive(true);
+                tinyTab.miniTiles[tileCount].SetTile(contents.Keys.ToList()[0]);
                 tileCount++;
                 if(contents.Values.ToList()[0] > 1)
                 {
-                    miniTiles[tileCount].gameObject.SetActive(true);
-                    miniTiles[tileCount].SetTile(contents.Keys.ToList()[0]);
+                    tinyTab.miniTiles[tileCount].gameObject.SetActive(true);
+                    tinyTab.miniTiles[tileCount].SetTile(contents.Keys.ToList()[0]);
                     tileCount++;
                 }
                 if (contents.Values.ToList()[0] > 2)
                 {
-                    miniTiles[tileCount].gameObject.SetActive(true);
-                    miniTiles[tileCount].SetTile(contents.Keys.ToList()[0]);
+                    tinyTab.miniTiles[tileCount].gameObject.SetActive(true);
+                    tinyTab.miniTiles[tileCount].SetTile(contents.Keys.ToList()[0]);
                     tileCount++;
                 }
-                miniTiles[tileCount].gameObject.SetActive(true);
-                miniTiles[tileCount].SetPlus();
+                tinyTab.miniTiles[tileCount].gameObject.SetActive(true);
+                tinyTab.miniTiles[tileCount].SetPlus();
                 tileCount++;
                 break;
         }
-        tinyTab.transform.localPosition = new Vector2(tinyTabX[tileCount-1], tinyTab.transform.localPosition.y);
+        float x = tinyTabX[tileCount - 1];
+        float y = tinyTab.transform.localPosition.y;
+        tinyTab.NewPosition(new Vector2(x, y));
     }
     IEnumerator ActuallyCreate(Dictionary<TokenData,int> contents)
     {
         yield return new WaitForSeconds(0.0f);
+        bool alreadyActive = visual.activeSelf;
         visual.SetActive(true);
+        visual.transform.localPosition = new Vector2(-6f, 0f);
+        if(alreadyActive == false)
+        {
+            StartCoroutine(SlideFromLeft());
+        }
+        else
+        {
+            if(ending != null)
+            {
+                StopCoroutine(ending);
+                ending = null;
+                StartCoroutine(SlideFromLeft());
+            }
+        }
+        
+        //unlock triggers/reasons
+        List<TokenData> triggers = new List<TokenData>();
+        foreach(TokenData token in contents.Keys)
+        {
+            if (contents[token] == 100)
+            {
+                triggers.Add(token);
+            }
+        }
+        int triggerCount = 0;
+        foreach (TokenData token in triggers)
+        {
+            unlockReasons[triggerCount].gameObject.SetActive(true);
+            unlockReasons[triggerCount].SetTile(token);
+            contents.Remove(token);
+            triggerCount++;
+        }
         switch (type)
         {
             case UpgradeType.Unlock:
@@ -210,11 +303,36 @@ public class UpgradePopup : MonoBehaviour
         {
             unlockSubParents[i].SetActive(false);
         }
+        for (int i = 0; i < unlockReasons.Count; i++)
+        {
+            unlockReasons[i].gameObject.SetActive(false);
+        }
         upgradeParent.SetActive(false);
-        visual.SetActive(false);
-        tinyTab.SetActive(false);
+        if(ending == null)
+        {
+            ending = StartCoroutine(SlideToRight());
+        }
+        
     }
 
+    public void TabClosed(UpgradeTab tab)
+    {
+        //end of list anyway
+
+        for(int i = 0; i < tinyTabs.Count; i++)
+        {
+            if (tinyTabs[i].active == false)
+            {
+                UpgradeTab _tab = tinyTabs[i];
+                tinyTabs.Remove(_tab);
+                tinyTabs.Add(_tab);
+            }
+        }
+        for (int i = 0; i < tinyTabs.Count; i++)
+        {
+            tinyTabs[i].SetHeight(tabPositions[i].y);
+        }
+    }
     // Update is called once per frame
     void Update()
     {
@@ -231,5 +349,24 @@ public class UpgradePopup : MonoBehaviour
         }
 
         return s;
+    }
+    IEnumerator SlideFromLeft()
+    {
+        while (Mathf.Abs(0 - visual.transform.localPosition.x) > 0.1f)
+        {
+            visual.transform.localPosition += (Vector3.zero - visual.transform.localPosition) * 0.1f;
+            yield return new WaitForEndOfFrame();
+        }
+        visual.transform.localPosition = Vector3.zero;
+    }
+    IEnumerator SlideToRight()
+    {
+        while (Mathf.Abs(6f - visual.transform.localPosition.x) > 0.1f)
+        {
+            visual.transform.localPosition += (new Vector3(6f,0f) - visual.transform.localPosition) * 0.1f;
+            yield return new WaitForEndOfFrame();
+        }
+        visual.gameObject.SetActive(false);
+        ending = null;
     }
 }

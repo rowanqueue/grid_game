@@ -36,10 +36,11 @@ public class GameController : MonoBehaviour
     public TextAsset gameJson;
     public GameType whichGame;
     public GameState gameState = GameState.Gameplay;
+    GameState lastState;
     public bool runTutorial;
     //once tutorial is done, it should be created from a prefab
     public Tutorial tutorial;
-    public bool inTutorial => tutorial != null;
+    public bool inTutorial => tutorial.active;
     public List<Screen> stateScreens = new List<Screen>();
     bool movingToScreen = false;
     public Logic.Game game;
@@ -61,6 +62,7 @@ public class GameController : MonoBehaviour
 
     public BagDisplay deckDisplay;
     public TextMeshPro deckNumberDisplay;
+    public int tempDeckNumberForAnim;
     public TextMeshPro debugBagDisplay;
 
     //gameplay
@@ -106,6 +108,8 @@ public class GameController : MonoBehaviour
 
     public bool diceMode = false;
     public bool useHaptics = false;
+
+    public Transform bagButtonTransform;
 
     // Start is called before the first frame update
     void Awake()
@@ -200,7 +204,6 @@ public class GameController : MonoBehaviour
         else
         {
             tutorial.ExitTutorial();
-            tutorial = null;
         }
         Camera.main.transform.position = cameraPos;
 
@@ -208,7 +211,6 @@ public class GameController : MonoBehaviour
         flowers = new Dictionary<Tile, List<Flower>>();
         CreateGrid();
         hand = new List<Token>();
-        Debug.Log(inTutorial);
         if(inTutorial)
         {
             hand.Add(null);
@@ -271,7 +273,12 @@ public class GameController : MonoBehaviour
     }
     public void GameStateGameplay()
     {
-        if(gameState == GameState.Gameplay) { return; }
+        if (inTutorial && tutorial.stage == TutorialStage.GreenNextBag)
+        {
+            tutorial.IncrementStage();
+        }
+        if (gameState == GameState.Gameplay) { return; }
+        lastState = gameState;
         gameState = GameState.Gameplay;
         stateScreens[(int)gameState].gameObject.SetActive(true);
         stateScreens[(int)gameState].SetAnchor();
@@ -279,6 +286,7 @@ public class GameController : MonoBehaviour
     }
     public void GameStateStart()
     {
+        lastState = gameState;
         gameState = GameState.Start;
         stateScreens[(int)gameState].gameObject.SetActive(true);
         stateScreens[(int)gameState].SetAnchor();
@@ -286,6 +294,7 @@ public class GameController : MonoBehaviour
     }
     public void GameStateSettings()
     {
+        lastState = gameState;
         gameState = GameState.Settings;
         stateScreens[(int)gameState].gameObject.SetActive(true);
         stateScreens[(int)gameState].SetAnchor();
@@ -293,6 +302,7 @@ public class GameController : MonoBehaviour
     }
     public void GameStateSnapshot()
     {
+        lastState = gameState;
         gameState = GameState.Snapshot;
         
         stateScreens[(int)gameState].gameObject.SetActive(true);
@@ -302,6 +312,7 @@ public class GameController : MonoBehaviour
     }
     public void GameStateBag()
     {
+        lastState = gameState;
         gameState = GameState.Bag;
         //stateScreens[(int)gameState].gameObject.SetActive(true);
         //stateScreens[(int)gameState].SetAnchor();
@@ -342,14 +353,19 @@ public class GameController : MonoBehaviour
         {
             tutorial.IncrementStage();
         }
+        
         if (movingToScreen) { return; }
         if(gameState == GameState.Bag)
         {
-            deckDisplay.ClearBag();
+            deckDisplay.ClearBagAfterDelay();
             GameStateGameplay();
         }
         else
         {
+            if (inTutorial && tutorial.stage == TutorialStage.GreenStart)
+            {
+                tutorial.IncrementStage();
+            }
             deckDisplay.MakeBag();
             GameStateBag();
         }
@@ -378,7 +394,7 @@ public class GameController : MonoBehaviour
             token.PlaceInTile(freeSlot);
         }
     }
-    public void CreateHand()
+    public void CreateHand(bool midgame = false)
     {
         for(int i = 0; i < game.hand.tokens.Length; i++)
         {
@@ -416,6 +432,16 @@ public class GameController : MonoBehaviour
             }
             hand[i].Init(hand[i].token);
             hand[i].UpdateLayer("TokenHand");
+            if (midgame)
+            {
+                if(tempDeckNumberForAnim < hand.Count)
+                {
+                    tempDeckNumberForAnim += 1;
+                }
+                
+                hand[i].handPos = handTransforms[i].position;
+                hand[i].DrawFromBag(i);
+            }
             //hand[i].PlaceInHand(i);
 
         }
@@ -572,8 +598,14 @@ public class GameController : MonoBehaviour
                     cameraPos.y = -8;
                     break;
             }
-            Camera.main.transform.position += (cameraPos - Camera.main.transform.position) * 0.1f;
-            if(Vector2.Distance(Camera.main.transform.position,cameraPos) < 0.03f)
+            float cameraSpeed = 0.125f;
+            if(gameState == GameState.Bag)
+            {
+                cameraSpeed *= 1.5f;
+            }
+            
+            Camera.main.transform.position += (cameraPos - Camera.main.transform.position) * cameraSpeed; ;
+            if (Vector2.Distance(Camera.main.transform.position,cameraPos) < 0.03f)
             {
                 movingToScreen = false;
                 Camera.main.transform.position = cameraPos;
@@ -591,6 +623,7 @@ public class GameController : MonoBehaviour
             }
         }
         
+
         if (game.isGameover())
         {
             //Debug.Log("game over");
@@ -614,9 +647,9 @@ public class GameController : MonoBehaviour
         {
             if (Input.GetMouseButtonDown(0))
             {
-                if(mousePos.y >= -6.0f)
+                if(mousePos.y >= -13.0f)
                 {
-                    deckDisplay.ClearBag();
+                    deckDisplay.ClearBagAfterDelay();
                     GameStateGameplay();
                 }
             }
@@ -1072,8 +1105,14 @@ public class GameController : MonoBehaviour
                                             game.FourthTutorialHand();
                                         }
                                     }
-                                    CreateHand();
-
+                                    
+                                    CreateHand(true);
+                                    deckNumberDisplay.text = (game.bag.bag.Count + tempDeckNumberForAnim).ToString();
+                                    break;
+                                case Logic.StatusReport.EventType.BagRefill:
+                                    tempDeckNumberForAnim = hand.Count;
+                                    StartCoroutine(BagRefillAnim());
+                                    deckNumberDisplay.text = (game.bag.bag.Count + tempDeckNumberForAnim).ToString();
                                     break;
                                 case Logic.StatusReport.EventType.ScoreAdded:
                                     scoreDelta += _event.num;
@@ -1179,13 +1218,46 @@ public class GameController : MonoBehaviour
 
 
         }
-        deckNumberDisplay.text = game.bag.bag.Count.ToString();
+        bool updatedNumber = true;
+        if(inputState == InputState.Wait)
+        {
+            foreach(Logic.StatusReport.Event _event in game.status.events)
+            {
+                if(_event.type == Logic.StatusReport.EventType.NewHand)
+                {
+                    updatedNumber = false;
+                }
+            }
+        }
+        if(updatedNumber)
+        {
+            deckNumberDisplay.text = (game.bag.bag.Count + tempDeckNumberForAnim).ToString();
+        }
+        
         switch (inputState)
         {
             case InputState.Choose:
 
                 break;
         }
+    }
+    IEnumerator BagRefillAnim()
+    {
+        float originalScale = bagButtonTransform.localScale.x;
+        float scale = originalScale;
+        while(scale > originalScale * 0.8f)
+        {
+            scale += ((originalScale * 0.75f) - scale) * 0.2f;
+            bagButtonTransform.localScale = Vector3.one * scale;
+            yield return new WaitForEndOfFrame();
+        }
+        while (scale < originalScale*0.95f)
+        {
+            scale += ((originalScale) - scale) * 0.2f;
+            bagButtonTransform.localScale = Vector3.one * scale;
+            yield return new WaitForEndOfFrame();
+        }
+        bagButtonTransform.localScale = Vector3.one * originalScale;
     }
     public int ScoreToken(Logic.TokenData _token)
     {
@@ -1384,6 +1456,8 @@ public class GameController : MonoBehaviour
     public void RestartWithTutorial()
     {
         PlayerPrefs.DeleteKey("tutorialComplete");
+        PlayerPrefs.DeleteKey("greenLearnt");
+        PlayerPrefs.DeleteKey("purpleLearnt");
         Restart();
     }
 

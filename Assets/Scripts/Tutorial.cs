@@ -1,3 +1,4 @@
+using Logic;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -23,11 +24,17 @@ public enum TutorialStage
     ActualBlue3,
     MoreScoring,
     Finish,
-    ActuallyFinishDefault
+    ActuallyFinishDefault,
+    GreenStart,
+    GreenBag,
+    GreenNextBag,
+    GreenFinish,
+    PurpleStart,
+    PurpleFinish
 }
 public class Tutorial : MonoBehaviour
 {
-    bool active = false;
+    public bool active = false;
     public bool changed = false;
     public TutorialStage stage;
     public int stagePhase;
@@ -38,6 +45,21 @@ public class Tutorial : MonoBehaviour
     public bool choosingRule = false;
     public Logic.TokenColor allowedColor;
     GameObject highlight;
+    bool greenLearnt;
+    bool purpleLearnt;
+    public List<Transform> tokenTransforms;
+    public List<Token> purpleTokens;
+    private void Start()
+    {
+        if (PlayerPrefs.HasKey("greenLearnt"))
+        {
+            greenLearnt = true;
+        }
+        if (PlayerPrefs.HasKey("purpleLearnt"))
+        {
+            purpleLearnt = true;
+        }
+    }
     // Start is called before the first frame update
     public void StartTutorial()
     {
@@ -48,7 +70,11 @@ public class Tutorial : MonoBehaviour
     {
         PlayerPrefs.SetInt("tutorialComplete", 1);
         active = false;
-        GameObject.Destroy(gameObject);
+    }
+    public void StartSpecialTutorial(TutorialStage stage)
+    {
+        active = true;
+        EnterStage(stage);
     }
     void EnterStage(TutorialStage newStage)
     {
@@ -57,6 +83,20 @@ public class Tutorial : MonoBehaviour
         if (stage == TutorialStage.ActuallyFinishDefault)
         {
             ExitTutorial();
+            return;
+        }
+        if(stage == TutorialStage.GreenFinish)
+        {
+            active = false;
+            PlayerPrefs.SetInt("greenLearnt", 1);
+            greenLearnt = true;
+            return;
+        }
+        if(stage == TutorialStage.PurpleFinish)
+        {
+            active = false;
+            PlayerPrefs.SetInt("purpleLearnt", 1);
+            purpleLearnt = true;
             return;
         }
         stageParents[(int)stage].SetActive(true);
@@ -79,6 +119,8 @@ public class Tutorial : MonoBehaviour
                 Services.GameController.CreateHand();
                 break;
             case TutorialStage.HandRefill:
+                choosingRule = true;
+                break;
             case TutorialStage.FreeSlot:
                 placingRule = true;
                 choosingRule = false;
@@ -134,6 +176,13 @@ public class Tutorial : MonoBehaviour
                 };
                 choosingRule = true;
                 allowedColor = Logic.TokenColor.Blue;
+                break;
+            case TutorialStage.GreenStart:
+            case TutorialStage.GreenBag:
+            case TutorialStage.GreenNextBag:
+            case TutorialStage.PurpleStart:
+                placingRule = true;
+                choosingRule = true;
                 break;
         }
     }
@@ -203,6 +252,41 @@ public class Tutorial : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(active == false)
+        {
+            if(greenLearnt == false)
+            {
+                if(Services.GameController.inputState == InputState.Choose)
+                {
+                    foreach (TokenData token in Services.GameController.game.bag.bagContents.Keys)
+                    {
+                        if (token.color == TokenColor.Green)
+                        {
+                            StartSpecialTutorial(TutorialStage.GreenStart);
+                            return;
+                        }
+                    }
+                }
+                
+            }
+            if (purpleLearnt == false)
+            {
+                for (int i = 0; i < Services.GameController.hand.Count; i++)
+                {
+                    Token t = Services.GameController.hand[i];
+                    if (t != null)
+                    {
+                        Logic.TokenColor color = t.token.data.color;
+                        if (color == Logic.TokenColor.Purple)
+                        {
+                            StartSpecialTutorial(TutorialStage.PurpleStart);
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+        
         if (changed)
         {
             changed = false;
@@ -221,6 +305,9 @@ public class Tutorial : MonoBehaviour
                 case TutorialStage.EmptyHand:
                 case TutorialStage.TeachMulligan:
                 case TutorialStage.ThirdBlue2:
+                case TutorialStage.GreenStart:
+                case TutorialStage.GreenBag:
+                case TutorialStage.GreenNextBag:
                     break;
                 default:
                     if (Input.anyKeyDown)

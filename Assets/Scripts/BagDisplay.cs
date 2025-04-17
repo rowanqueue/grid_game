@@ -38,6 +38,10 @@ public class BagDisplay : MonoBehaviour
     }
     public void NextBag()
     {
+        if (Services.GameController.inTutorial && Services.GameController.tutorial.stage == TutorialStage.GreenBag)
+        {
+            Services.GameController.tutorial.IncrementStage();
+        }
         if (showNextBag == true) { return; }
         showNextBag = true;
         ClearBag();
@@ -49,6 +53,19 @@ public class BagDisplay : MonoBehaviour
         {
             GameObject.Destroy(child.gameObject);
         }
+    }
+    public void ClearBagAfterDelay()
+    {
+        StartCoroutine(EmptyBag());
+    }
+    IEnumerator EmptyBag()
+    {
+        yield return new WaitForSeconds(1f);
+        if(Services.GameController.gameState != GameState.Bag)
+        {
+            ClearBag();
+        }
+        
     }
     public void MakeBag()
     {

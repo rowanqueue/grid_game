@@ -231,7 +231,8 @@ namespace Logic
             TokenDestroyed,
             TokenChanged,//tokens[0] becomes tokens[1]
             ScoreAdded,
-            BagUpdated
+            BagUpdated,
+            BagRefill
         }
         public class Event
         {
@@ -375,13 +376,13 @@ namespace Logic
             }
             progress = new ProgressNew(this, unlocks);
             grid = new Grid(gridSize,this);
-
-            bag = new Bag(bagContents);
+            status = new StatusReport();
+            bag = new Bag(this,bagContents);
             hand = new Hand(handSize, handChoices);
             hand.FillHand(bag);
             history = new History(this);
             history.turns.Add(new History.Turn(this));
-            status = new StatusReport();
+            
         }
         public void StartTutorial()
         {
@@ -866,14 +867,16 @@ namespace Logic
     }
     public class Bag
     {
+        public Game game;
         public Dictionary<TokenData, int> startingBagContents;
         public Dictionary<TokenData, int> bagContents; //prototypical bag
         public List<TokenData> bag = new List<TokenData>();
         public List<TokenData> nextBagsTemporary = new List<TokenData>();
         public List<TokenData> playedTempTiles = new List<TokenData>();
 
-        public Bag(Dictionary<TokenData, int> bagContents)
+        public Bag(Game game,Dictionary<TokenData, int> bagContents)
         {
+            this.game = game;
             this.bagContents = bagContents;
             startingBagContents = new Dictionary<TokenData, int>();
             foreach(TokenData token in bagContents.Keys)
@@ -939,6 +942,7 @@ namespace Logic
         {
             foreach (TokenData tokenData in newContents.Keys)
             {
+                if (newContents[tokenData] == 100) { continue; }
                 if (tokenData.temporary)
                 {
                     if(loading == false)
@@ -983,6 +987,7 @@ namespace Logic
         }
         void RefillBag()
         {
+            game.status.events.Add(new StatusReport.Event(StatusReport.EventType.BagRefill,0));
             bag.Clear();
             foreach (var tokenData in bagContents.Keys)
             {
@@ -1383,6 +1388,7 @@ namespace Logic
                 bool newTokenIsNeeded = false;
                 foreach (TokenData tokenData in unlock.triggers)
                 {
+                    newContents.Add(tokenData, 100);
                     if (game.grid.Contains(tokenData) == false)
                     {
                         did_i_unlock = false;

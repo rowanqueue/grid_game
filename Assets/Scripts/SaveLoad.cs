@@ -87,6 +87,7 @@ namespace Save
             {
                 flowers.Add(new TileFlowers(tile.tile.pos, Services.GameController.flowers[tile]));
             }
+            Services.GameController.upgradePopup.previousUnlocks.Clear();
             foreach(string s in Services.GameController.upgradePopup.previousUnlocks)
             {
                 previousUnlocks.Add(s);
