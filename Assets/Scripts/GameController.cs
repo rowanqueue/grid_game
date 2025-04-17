@@ -577,7 +577,10 @@ public class GameController : MonoBehaviour
     void Update()
     {
         DeathCheck();
-        
+
+        Services.AudioManager.SetVolume(0, PlayerPrefs.GetFloat("musicVolume"));
+        Services.AudioManager.SetVolume(1, PlayerPrefs.GetFloat("soundVolume"));
+
         if (movingToScreen)
         {
             Vector3 cameraPos = new Vector3(0, 0, Camera.main.transform.position.z);

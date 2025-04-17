@@ -34,6 +34,9 @@ public class AudioManager : MonoBehaviour
     FMOD.Studio.EventInstance music;
     FMOD.Studio.EventInstance ambience;
 
+    FMOD.Studio.Bus musicBus;
+    FMOD.Studio.Bus soundBus;
+
     public void Initialize()
     {
         /*spriteRenderer = GetComponent<SpriteRenderer>();
@@ -58,6 +61,9 @@ public class AudioManager : MonoBehaviour
         FMOD.Studio.PARAMETER_DESCRIPTION popDepthParameterDescription;
         popEventDescription.getParameterDescriptionByName("TilePopDepth", out popDepthParameterDescription);
         popDepth = popDepthParameterDescription.id;
+
+        musicBus = FMODUnity.RuntimeManager.GetBus("bus:/Music");
+        soundBus = FMODUnity.RuntimeManager.GetBus("bus:/SFX");
 
         music = FMODUnity.RuntimeManager.CreateInstance(musicRef);
         ambience = FMODUnity.RuntimeManager.CreateInstance(ambienceRef);
@@ -138,6 +144,18 @@ public class AudioManager : MonoBehaviour
     {
         music.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
         music.release();
+    }
+
+    public void SetVolume(int busNumber, float volume)
+    {
+        if (busNumber == 0)
+        {
+            musicBus.setVolume(volume);
+        }
+        else if (busNumber == 1)
+        {
+            soundBus.setVolume(volume);
+        }
     }
 
 }
