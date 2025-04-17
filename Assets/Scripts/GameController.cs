@@ -660,6 +660,7 @@ public class GameController : MonoBehaviour
             case InputState.TapToRestart:
                 if (Input.anyKeyDown)
                 {
+                    Services.AudioManager.StopMusic();
                     SceneManager.LoadScene(0);
                 }
                 break;
@@ -1058,7 +1059,6 @@ public class GameController : MonoBehaviour
                                                 }
                                                 tile.token.Die();
                                                 tile.token = null;
-                                                Services.AudioManager.PlayRemoveTileSound(1);
                                                 if (useHaptics)
                                                 {
                                                     MMVibrationManager.Haptic(HapticTypes.LightImpact);

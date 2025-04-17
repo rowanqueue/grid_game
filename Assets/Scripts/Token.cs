@@ -141,6 +141,7 @@ public class Token : MonoBehaviour
         textDisplay.transform.parent = transform.parent;
         textDisplay.transform.localScale = Vector3.one * 1.4f;
         finalPos = transform.localPosition + Vector3.up * liftHeight;
+        Services.AudioManager.PlayRemoveTileSound(1);
         StartCoroutine(Dying());
     }
     IEnumerator Dying()

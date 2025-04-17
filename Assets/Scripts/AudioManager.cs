@@ -136,7 +136,7 @@ public class AudioManager : MonoBehaviour
 
     public void StopMusic()
     {
-        music.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
+        music.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
         music.release();
     }
 
