@@ -88,6 +88,7 @@ public class Token : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
         Services.GameController.tempDeckNumberForAnim -= 1;
+        Services.AudioManager.PlayNewTileSound();
         while (Vector3.Distance(handPos,transform.position) > 0.05f)
         {
             transform.position += ((Vector3)handPos - transform.position) * 0.1f;
