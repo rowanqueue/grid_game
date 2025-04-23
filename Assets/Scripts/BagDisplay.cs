@@ -33,8 +33,10 @@ public class BagDisplay : MonoBehaviour
     {
         if (showNextBag == false) { return; }
         showNextBag = false;
+        Services.AudioManager.PlayBagRustleSound();
         ClearBag();
         MakeBag();
+        
     }
     public void NextBag()
     {
@@ -44,6 +46,7 @@ public class BagDisplay : MonoBehaviour
         }
         if (showNextBag == true) { return; }
         showNextBag = true;
+        Services.AudioManager.PlayBagRustleSound();
         ClearBag();
         MakeBag();
     }

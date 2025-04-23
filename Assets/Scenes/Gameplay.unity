@@ -303,6 +303,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 1959469644}
+        m_TargetAssemblyTypeName: AudioManager, Assembly-CSharp
+        m_MethodName: PlayButtonPressSound
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   display: {fileID: 2014710394}
   toggledDisplay: {fileID: 0}
   words: {fileID: 0}
@@ -316,7 +328,7 @@ Transform:
   m_GameObject: {fileID: 30839280}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2.4446292, y: 3.97, z: 0}
+  m_LocalPosition: {x: 9.1325245, y: 3.97, z: 0}
   m_LocalScale: {x: 0.3, y: 0.3, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2618,10 +2630,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 952704114865331038, guid: 87c71665e3db96e49a7959b49bef144c, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 87c71665e3db96e49a7959b49bef144c, type: 3}
 --- !u!1 &203339601
 GameObject:
@@ -3746,10 +3755,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 952704114865331038, guid: 87c71665e3db96e49a7959b49bef144c, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 87c71665e3db96e49a7959b49bef144c, type: 3}
 --- !u!1 &292897671
 GameObject:
@@ -4281,10 +4287,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 952704114865331038, guid: 87c71665e3db96e49a7959b49bef144c, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 87c71665e3db96e49a7959b49bef144c, type: 3}
 --- !u!1001 &335321651
 PrefabInstance:
@@ -4419,10 +4422,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 952704114865331038, guid: 87c71665e3db96e49a7959b49bef144c, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 87c71665e3db96e49a7959b49bef144c, type: 3}
 --- !u!1 &340179908
 GameObject:
@@ -6057,10 +6057,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 952704114865331038, guid: 87c71665e3db96e49a7959b49bef144c, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 87c71665e3db96e49a7959b49bef144c, type: 3}
 --- !u!4 &543381274 stripped
 Transform:
@@ -6626,6 +6623,18 @@ MonoBehaviour:
       - m_Target: {fileID: 1045093960}
         m_TargetAssemblyTypeName: GameController, Assembly-CSharp
         m_MethodName: GameStateSettings
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1959469644}
+        m_TargetAssemblyTypeName: AudioManager, Assembly-CSharp
+        m_MethodName: PlayButtonPressSound
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -7902,6 +7911,18 @@ MonoBehaviour:
       - m_Target: {fileID: 1045093960}
         m_TargetAssemblyTypeName: GameController, Assembly-CSharp
         m_MethodName: GameStateGameplay
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1959469644}
+        m_TargetAssemblyTypeName: AudioManager, Assembly-CSharp
+        m_MethodName: PlayButtonPressSound
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -9263,10 +9284,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 952704114865331038, guid: 87c71665e3db96e49a7959b49bef144c, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 87c71665e3db96e49a7959b49bef144c, type: 3}
 --- !u!1 &925525405
 GameObject:
@@ -10088,10 +10106,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 4998947804394442212, guid: a540604b5893ef240bb46395327beb12, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a540604b5893ef240bb46395327beb12, type: 3}
 --- !u!1001 &1022351266
 PrefabInstance:
@@ -10186,10 +10201,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 952704114865331038, guid: 87c71665e3db96e49a7959b49bef144c, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 87c71665e3db96e49a7959b49bef144c, type: 3}
 --- !u!1 &1024977813
 GameObject:
@@ -11734,10 +11746,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 952704114865331038, guid: 87c71665e3db96e49a7959b49bef144c, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 87c71665e3db96e49a7959b49bef144c, type: 3}
 --- !u!1 &1135808319
 GameObject:
@@ -12771,10 +12780,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 952704114865331038, guid: 87c71665e3db96e49a7959b49bef144c, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 87c71665e3db96e49a7959b49bef144c, type: 3}
 --- !u!1 &1229240862
 GameObject:
@@ -13421,10 +13427,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 952704114865331038, guid: 87c71665e3db96e49a7959b49bef144c, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 87c71665e3db96e49a7959b49bef144c, type: 3}
 --- !u!1 &1278372124
 GameObject:
@@ -13732,10 +13735,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 952704114865331038, guid: 87c71665e3db96e49a7959b49bef144c, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 87c71665e3db96e49a7959b49bef144c, type: 3}
 --- !u!1 &1316500648
 GameObject:
@@ -13935,6 +13935,18 @@ MonoBehaviour:
       - m_Target: {fileID: 1045093960}
         m_TargetAssemblyTypeName: GameController, Assembly-CSharp
         m_MethodName: Snapshot
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1959469644}
+        m_TargetAssemblyTypeName: AudioManager, Assembly-CSharp
+        m_MethodName: PlayButtonPressSound
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -14385,10 +14397,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 952704114865331038, guid: 87c71665e3db96e49a7959b49bef144c, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 87c71665e3db96e49a7959b49bef144c, type: 3}
 --- !u!1 &1352210248
 GameObject:
@@ -14910,10 +14919,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 952704114865331038, guid: 87c71665e3db96e49a7959b49bef144c, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 87c71665e3db96e49a7959b49bef144c, type: 3}
 --- !u!1 &1400231820
 GameObject:
@@ -16594,10 +16600,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 952704114865331038, guid: 87c71665e3db96e49a7959b49bef144c, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 87c71665e3db96e49a7959b49bef144c, type: 3}
 --- !u!1 &1645019532
 GameObject:
@@ -19139,10 +19142,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 952704114865331038, guid: 87c71665e3db96e49a7959b49bef144c, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 87c71665e3db96e49a7959b49bef144c, type: 3}
 --- !u!1 &1931998536
 GameObject:
@@ -19433,6 +19433,27 @@ MonoBehaviour:
       Data3: 766603650
       Data4: 368868300
     Path: event:/SFX_Floracotta_Shears
+  bagRustleSFX:
+    Guid:
+      Data1: -83402271
+      Data2: 1097392616
+      Data3: 292744349
+      Data4: -1984580696
+    Path: event:/SFX_Floracotta_Bag_Rustle
+  newTileSFX:
+    Guid:
+      Data1: 1258740235
+      Data2: 1194978404
+      Data3: -634619245
+      Data4: -1679079417
+    Path: event:/SFX_Floracotta_NewTile
+  buttonPressSFX:
+    Guid:
+      Data1: 837023763
+      Data2: 1326878643
+      Data3: -1422898788
+      Data4: -975992685
+    Path: event:/SFX_Floracotta_ButtonPress
   baseVolume: 1
   loudVolume: 1
   spriteRenderer: {fileID: 0}
@@ -19802,6 +19823,18 @@ MonoBehaviour:
       - m_Target: {fileID: 1045093960}
         m_TargetAssemblyTypeName: GameController, Assembly-CSharp
         m_MethodName: GameStateGameplay
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1959469644}
+        m_TargetAssemblyTypeName: AudioManager, Assembly-CSharp
+        m_MethodName: PlayButtonPressSound
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -20753,10 +20786,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 952704114865331038, guid: 87c71665e3db96e49a7959b49bef144c, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 87c71665e3db96e49a7959b49bef144c, type: 3}
 --- !u!1 &2059835215
 GameObject:

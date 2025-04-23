@@ -358,6 +358,7 @@ public class GameController : MonoBehaviour
         if(gameState == GameState.Bag)
         {
             deckDisplay.ClearBagAfterDelay();
+            Services.AudioManager.PlayBagSound();
             GameStateGameplay();
         }
         else

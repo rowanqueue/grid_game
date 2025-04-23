@@ -21,6 +21,9 @@ public class AudioManager : MonoBehaviour
     public FMODUnity.EventReference bagSFX;
     public FMODUnity.EventReference undoSFX;
     public FMODUnity.EventReference shearsSFX;
+    public FMODUnity.EventReference bagRustleSFX;
+    public FMODUnity.EventReference newTileSFX;
+    public FMODUnity.EventReference buttonPressSFX;
     FMOD.Studio.PARAMETER_ID popDepth;
     [Header("Misc")]
     public float baseVolume;
@@ -138,6 +141,21 @@ public class AudioManager : MonoBehaviour
     public void PlayShearsSound()
     {
         FMODUnity.RuntimeManager.PlayOneShot(shearsSFX);
+    }
+
+    public void PlayBagRustleSound()
+    {
+        FMODUnity.RuntimeManager.PlayOneShot(bagRustleSFX);
+    }
+
+    public void PlayNewTileSound()
+    {
+        FMODUnity.RuntimeManager.PlayOneShot(newTileSFX);
+    }
+
+    public void PlayButtonPressSound()
+    {
+        FMODUnity.RuntimeManager.PlayOneShot(buttonPressSFX);
     }
 
     public void StopMusic()
