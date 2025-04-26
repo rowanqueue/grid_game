@@ -3,11 +3,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.Events;
-
+public enum ButtonType
+{
+    None,
+    Mulligan,
+    BagButton,
+    Haptics,
+    DiceMode
+}
 public class Button : MonoBehaviour
 {
+    public ButtonType type;
     public UnityEvent _event;
     public SpriteRenderer display;
+    public SpriteRenderer toggledDisplay;
     public TextMeshPro words;
     public Color hoverColor;
     bool hover = false;
@@ -20,7 +29,34 @@ public class Button : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        display.color = (hover ? hoverColor : Color.white);
+        switch (type)
+        {
+            case ButtonType.Mulligan:
+                if(Services.GameController.inTutorial == false)
+                {
+                    display.color = Color.gray;
+                    return;
+                    break;
+                }
+                break;
+            case ButtonType.DiceMode:
+                if(toggledDisplay != null)
+                {
+                    toggledDisplay.enabled = Services.GameController.diceMode;
+                }
+                break;
+            case ButtonType.Haptics:
+                if (toggledDisplay != null)
+                {
+                    toggledDisplay.enabled = Services.GameController.useHaptics;
+                }
+                break;
+        }
+        if(display != null)
+        {
+            display.color = (hover ? hoverColor : Color.white);
+        }
+        
         if(hover && Input.GetMouseButtonDown(0))
         {
             _event.Invoke();

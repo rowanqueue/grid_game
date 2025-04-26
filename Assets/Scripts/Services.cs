@@ -8,4 +8,5 @@ public class Services
     public static Grid Grid;
     public static AudioManager AudioManager;
     public static Visuals Visuals;
+    public static Gems Gems;
 }
