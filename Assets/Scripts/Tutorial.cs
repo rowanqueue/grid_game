@@ -312,6 +312,8 @@ public class Tutorial : MonoBehaviour
                 default:
                     if (Input.anyKeyDown)
                     {
+                        Services.AudioManager.PlayTutorialNotificationSound();
+                        Debug.Log("start tutorial");
                         IncrementStage();
                     }
                     break;

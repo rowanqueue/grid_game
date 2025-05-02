@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.02.00">
+	<object class="AudioFile" id="{78d71d90-0164-4f9e-83be-44417ec54517}">
+		<property name="assetPath">
+			<value>SFX/Menu/SFX_Floracotta_Menu_Transition_03.wav</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>44.0999985</value>
+		</property>
+		<property name="channelCount">
+			<value>1</value>
+		</property>
+		<property name="length">
+			<value>1.1200000000000001</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{0cc1a9d7-3786-41fe-84dd-ca9ae5ff05a5}</destination>
+		</relationship>
+	</object>
+</objects>

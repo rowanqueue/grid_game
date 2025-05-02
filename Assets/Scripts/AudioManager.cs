@@ -24,6 +24,9 @@ public class AudioManager : MonoBehaviour
     public FMODUnity.EventReference bagRustleSFX;
     public FMODUnity.EventReference newTileSFX;
     public FMODUnity.EventReference buttonPressSFX;
+    public FMODUnity.EventReference menuTransitionSFX;
+    public FMODUnity.EventReference startButtonSFX;
+    public FMODUnity.EventReference tutorialNotificationSFX;
     FMOD.Studio.PARAMETER_ID popDepth;
     [Header("Misc")]
     public float baseVolume;
@@ -70,7 +73,7 @@ public class AudioManager : MonoBehaviour
 
         music = FMODUnity.RuntimeManager.CreateInstance(musicRef);
         ambience = FMODUnity.RuntimeManager.CreateInstance(ambienceRef);
-        music.start();
+        //music.start();
         ambience.start();
     }
     public void PlaySound(AudioClip clip, int depth = 0)
@@ -156,6 +159,26 @@ public class AudioManager : MonoBehaviour
     public void PlayButtonPressSound()
     {
         FMODUnity.RuntimeManager.PlayOneShot(buttonPressSFX);
+    }
+
+    public void PlayMenuTransitionSound()
+    {
+        FMODUnity.RuntimeManager.PlayOneShot(menuTransitionSFX);
+    }
+
+    public void PlayStartTransitionSound()
+    {
+        FMODUnity.RuntimeManager.PlayOneShot(startButtonSFX);
+    }
+
+    public void PlayTutorialNotificationSound()
+    {
+        FMODUnity.RuntimeManager.PlayOneShot(tutorialNotificationSFX);
+    }
+
+    public void StartMusic()
+    {
+        music.start();
     }
 
     public void StopMusic()

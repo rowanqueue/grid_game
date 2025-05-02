@@ -315,6 +315,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 1959469644}
+        m_TargetAssemblyTypeName: AudioManager, Assembly-CSharp
+        m_MethodName: PlayMenuTransitionSound
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   display: {fileID: 2014710394}
   toggledDisplay: {fileID: 0}
   words: {fileID: 0}
@@ -5578,6 +5590,30 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 1959469644}
+        m_TargetAssemblyTypeName: AudioManager, Assembly-CSharp
+        m_MethodName: PlayStartTransitionSound
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1959469644}
+        m_TargetAssemblyTypeName: AudioManager, Assembly-CSharp
+        m_MethodName: StartMusic
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   display: {fileID: 1038133111}
   toggledDisplay: {fileID: 0}
   words: {fileID: 0}
@@ -6635,6 +6671,18 @@ MonoBehaviour:
       - m_Target: {fileID: 1959469644}
         m_TargetAssemblyTypeName: AudioManager, Assembly-CSharp
         m_MethodName: PlayButtonPressSound
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1959469644}
+        m_TargetAssemblyTypeName: AudioManager, Assembly-CSharp
+        m_MethodName: PlayMenuTransitionSound
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -7923,6 +7971,18 @@ MonoBehaviour:
       - m_Target: {fileID: 1959469644}
         m_TargetAssemblyTypeName: AudioManager, Assembly-CSharp
         m_MethodName: PlayButtonPressSound
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1959469644}
+        m_TargetAssemblyTypeName: AudioManager, Assembly-CSharp
+        m_MethodName: PlayMenuTransitionSound
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -19454,6 +19514,27 @@ MonoBehaviour:
       Data3: -1422898788
       Data4: -975992685
     Path: event:/SFX_Floracotta_ButtonPress
+  menuTransitionSFX:
+    Guid:
+      Data1: 1744804950
+      Data2: 1320842312
+      Data3: -1326369142
+      Data4: -344975821
+    Path: event:/SFX_Floracotta_Menu_Transition
+  startButtonSFX:
+    Guid:
+      Data1: 782031448
+      Data2: 1331343496
+      Data3: -1285292671
+      Data4: 909596434
+    Path: event:/SFX_Floracotta_Start_Transition
+  tutorialNotificationSFX:
+    Guid:
+      Data1: -825956207
+      Data2: 1317517785
+      Data3: 865576090
+      Data4: -1747929229
+    Path: event:/SFX_Floracotta_Tutorial_Notification
   baseVolume: 1
   loudVolume: 1
   spriteRenderer: {fileID: 0}
@@ -19835,6 +19916,18 @@ MonoBehaviour:
       - m_Target: {fileID: 1959469644}
         m_TargetAssemblyTypeName: AudioManager, Assembly-CSharp
         m_MethodName: PlayButtonPressSound
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1959469644}
+        m_TargetAssemblyTypeName: AudioManager, Assembly-CSharp
+        m_MethodName: PlayMenuTransitionSound
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
