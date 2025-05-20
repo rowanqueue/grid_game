@@ -558,6 +558,7 @@ MonoBehaviour:
   spriteDisplay: {fileID: 6756949188581621345}
   number: {fileID: 6732201034993618971}
   textDisplay: {fileID: 7870965745117892702}
-  liftSpeed: 0.08
-  liftHeight: 0.75
+  liftSpeed: 0.085
+  liftHeight: 0.85
   shade: {fileID: 428284641300924110}
+  handPos: {x: 0, y: 0}

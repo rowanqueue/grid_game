@@ -312,6 +312,11 @@ public class UpgradePopup : MonoBehaviour
         {
             ending = StartCoroutine(SlideToRight());
         }
+        else
+        {
+            visual.gameObject.SetActive(false);
+            StopCoroutine(ending);
+        }
         
     }
 

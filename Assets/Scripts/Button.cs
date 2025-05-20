@@ -9,7 +9,8 @@ public enum ButtonType
     Mulligan,
     BagButton,
     Haptics,
-    DiceMode
+    DiceMode,
+    Difficulty
 }
 public class Button : MonoBehaviour
 {
@@ -20,6 +21,7 @@ public class Button : MonoBehaviour
     public TextMeshPro words;
     public Color hoverColor;
     bool hover = false;
+    public bool disabled = false;
     // Start is called before the first frame update
     void Start()
     {
@@ -34,7 +36,7 @@ public class Button : MonoBehaviour
             case ButtonType.Mulligan:
                 if(Services.GameController.inTutorial == false)
                 {
-                    display.color = Color.gray;
+                    display.enabled = false;
                     return;
                     break;
                 }
@@ -56,8 +58,12 @@ public class Button : MonoBehaviour
         {
             display.color = (hover ? hoverColor : Color.white);
         }
+        if (toggledDisplay != null)
+        {
+            toggledDisplay.enabled = !disabled;
+        }
         
-        if(hover && Input.GetMouseButtonDown(0))
+        if(hover && !disabled && Input.GetMouseButtonDown(0))
         {
             _event.Invoke();
         }

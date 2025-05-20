@@ -19,11 +19,24 @@ public class Token : MonoBehaviour
 
     bool moving = false;
     public Vector2 handPos;
+    bool initialized = false;
     public void Init(Logic.Token _token)
     {
+        initialized = true;
         token = _token;
         SetTokenData(token.data);
         //spriteDisplay.color = Services.Visuals.tokenColors[(int)token.data.color];
+    }
+    public void UpgradeToken(Logic.Token _token)
+    {
+        initialized = true;
+        token = _token;
+        StartCoroutine(Upgrade());
+    }
+    IEnumerator Upgrade()
+    {
+        yield return new WaitForSeconds(0.08f);
+        SetTokenData(token.data);
     }
     public void SetTokenData(Logic.TokenData tokenData)
     {
@@ -39,6 +52,10 @@ public class Token : MonoBehaviour
         else
         {
             spriteDisplay.sprite = Services.Visuals.tokenSprites[(int)tokenData.color];
+            if(tokenData.color == Logic.TokenColor.Spade && tokenData.temporary == false)
+            {
+                spriteDisplay.sprite = Services.Visuals.trainingSpade;
+            }
             if (tokenData.color == Logic.TokenColor.Adder)
             {
                 spriteDisplay.sprite = Services.Visuals.clippingSprites[tokenData.num];
@@ -82,6 +99,7 @@ public class Token : MonoBehaviour
     {
         moving = true;
         transform.position = Services.GameController.bagButtonTransform.position;
+        transform.position = new Vector2(-2.5f, -8f);
         StartCoroutine(BagDraw(index * 0.2f));//*(1f/1.5f)));
     }
     IEnumerator BagDraw(float delay)
@@ -110,18 +128,26 @@ public class Token : MonoBehaviour
     }
     public void Draw(Vector2 pos, bool hover = false)
     {
-        Init(token);
+        if(initialized == false)
+        {
+            Init(token);
+        }
+        
         if (moving) { return; }
         transform.position += ((Vector3)pos - transform.position) * 1.5f * (Time.deltaTime/0.16666f);
-        if(Services.GameController.lastTokenPlaced == this)
+        if(spriteDisplay.sortingLayerName == "TokenPlaced")
         {
-            float angle = Mathf.Sin(Time.time * 5f) * 3f;
-            transform.localEulerAngles = new Vector3(0, 0, angle);
+            if (Services.GameController.lastTokenPlaced == this)
+            {
+                float angle = Mathf.Sin(Time.time * 5f) * 3f;
+                transform.localEulerAngles = new Vector3(0, 0, angle);
+            }
+            else
+            {
+                transform.localEulerAngles = Vector3.zero;
+            }
         }
-        else
-        {
-            transform.localEulerAngles = Vector3.zero;
-        }
+        
         //border.enabled = hover;
         if(spriteDisplay.sortingLayerName == "TokenMoving")
         {
@@ -153,6 +179,14 @@ public class Token : MonoBehaviour
         {
             transform.localPosition += (finalPos - transform.localPosition) * speed;
             totalDeathMovement -= speed;
+            if(Vector2.Distance(finalPos,transform.localPosition) < 0.25f)
+            {
+                var a = (float)spriteDisplay.color.a;
+                a -= liftSpeed * 0.5f;
+                spriteDisplay.color = new Color(spriteDisplay.color.r, spriteDisplay.color.g, spriteDisplay.color.b, a);
+                number.color = new Color(number.color.r, number.color.g, number.color.b, a);
+            }
+            
             yield return new WaitForEndOfFrame();
         }
         while(spriteDisplay.color.a > 0.05f)
@@ -164,11 +198,16 @@ public class Token : MonoBehaviour
             yield return new WaitForEndOfFrame();
         }
         yield return new WaitForSeconds(0.33f);
+        //this is right before number erases itself
+        //make it so everything happens
         while (textDisplay.transform.localScale.x > 0.2f)
         {
             textDisplay.transform.localScale -= Vector3.one * speed * 0.95f;
             yield return new WaitForEndOfFrame();
+
         }
+        //todo: make this the right amount of points
+        Services.GameController.score += 1;
         GameObject.Destroy(textDisplay.gameObject);
         GameObject.Destroy(gameObject);
         //yield return null;

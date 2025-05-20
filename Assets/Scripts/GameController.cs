@@ -34,6 +34,11 @@ public enum GameState
 public class GameController : MonoBehaviour
 {
     public TextAsset gameJson;
+    public int difficulty = 0;
+    public List<TextAsset> difficulties = new List<TextAsset>();
+    public List<string> difficultyNames = new List<string>();
+    public TextMeshPro difficultyName;
+    public List<Button> difficultyButtons = new List<Button>();
     public GameType whichGame;
     public GameState gameState = GameState.Gameplay;
     GameState lastState;
@@ -68,6 +73,9 @@ public class GameController : MonoBehaviour
     //gameplay
     public InputState inputState = InputState.Choose;
     public List<Token> hand = new List<Token>();
+    public bool draggingTile = false;
+    public bool holdingClick = false;
+    public float clickHoldDuration;
     public int chosenIndex = -1;
     public Token chosenToken => (chosenIndex < game.hand.handSize ? hand[chosenIndex] : freeSlot.token);
     public Dictionary<Vector2Int,Tile> tiles = new Dictionary<Vector2Int,Tile>();
@@ -154,6 +162,16 @@ public class GameController : MonoBehaviour
                 game = new Logic.BubbleGame();
                 break;
         }
+        if(PlayerPrefs.HasKey("difficulty") == false)
+        {
+            PlayerPrefs.SetInt("difficulty", difficulty);
+            PlayerPrefs.Save();
+        }
+        else
+        {
+            difficulty = PlayerPrefs.GetInt("difficulty");
+        }
+        gameJson = difficulties[difficulty];
         Json.Root root = JsonConvert.DeserializeObject<Json.Root>(gameJson.text);
         game.Initialize(root);
 
@@ -453,6 +471,7 @@ public class GameController : MonoBehaviour
         switch (newState)
         {
             case InputState.Choose:
+                draggingTile = false;
                 if(inputState == InputState.Place)
                 {
                     //returning
@@ -573,10 +592,33 @@ public class GameController : MonoBehaviour
         
         
     }
+    public void HigherDifficulty()
+    {
+        Debug.Log("highered");
+        difficulty++;
+        difficulty = Mathf.Clamp(difficulty, 0, difficulties.Count-1);
+        PlayerPrefs.SetInt("difficulty", difficulty);
+        PlayerPrefs.Save();
+    }
+    public void LowerDifficulty()
+    {
+        difficulty--;
+        Debug.Log("lowered");
+        difficulty = Mathf.Clamp(difficulty, 0, difficulties.Count - 1);
+        PlayerPrefs.SetInt("difficulty", difficulty);
+        PlayerPrefs.Save();
+    }
 
     // Update is called once per frame
     void Update()
     {
+        difficultyName.text = "Difficulty\n" + difficultyNames[difficulty];
+        if (difficulties[difficulty] != gameJson)
+        {
+            difficultyName.text += "<size=50%>\nRestart to change difficulty";
+        }
+        difficultyButtons[0].disabled = difficulty == 0;
+        difficultyButtons[1].disabled = difficulty == difficulties.Count - 1;
         DeathCheck();
 
         Services.AudioManager.SetVolume(0, PlayerPrefs.GetFloat("musicVolume"));
@@ -639,10 +681,10 @@ public class GameController : MonoBehaviour
         //display.text = "<mspace=0.25\nem><line-height=75%>" + simInput.Draw();
         display.text = score.ToString();
 
-        if(scoreDelta > 0)
+        /*if(scoreDelta > 0)
         {
             display.text+= "<size=50%>+</size>"+scoreDelta.ToString();
-        }
+        }*/
         display.text += "\n<size=20%>-score-</size>";
         winScreenScore.text = "<size=35%>Your score:</size>\n"+score.ToString()+"\n<size=15%>-Tap to restart-</size>"; ;
         bagDisplay.text = game.bag.ToString();
@@ -755,6 +797,8 @@ public class GameController : MonoBehaviour
                             MMVibrationManager.Haptic(HapticTypes.MediumImpact);
                         }
                         EnterInputState(InputState.Place);
+                        clickHoldDuration = 0;
+                        holdingClick = true;
                         break;
                     }
                 }
@@ -784,6 +828,18 @@ public class GameController : MonoBehaviour
 
                 break;
             case InputState.Place:
+                if (holdingClick)
+                {
+                    clickHoldDuration += Time.deltaTime;
+                    if(clickHoldDuration > 0.15f)
+                    {
+                        draggingTile = true;
+                    }
+                    if (Input.GetMouseButtonUp(0))
+                    {
+                        holdingClick = false;
+                    }
+                }
                 holdingClipper = chosenToken.token.data.color == Logic.TokenColor.Clipper;
                 holdingSpade = chosenToken.token.data.color == Logic.TokenColor.Spade;
                 holdingAdder = chosenToken.token.data.color == Logic.TokenColor.Adder;
@@ -806,8 +862,9 @@ public class GameController : MonoBehaviour
                 if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Z))
                 {
                     EnterInputState(InputState.Choose);
-                }else if (Input.GetMouseButtonDown(0))
+                }else if (Input.GetMouseButtonDown(0) || (draggingTile && Input.GetMouseButtonUp(0)))
                 {//clicking
+                    Debug.Log("AAAAAAAA");
                     if(chosenPos == freeSlotChoice)
                     {
                         if (chosenIndex == game.hand.handSize + 2)
@@ -1013,13 +1070,53 @@ public class GameController : MonoBehaviour
                             break;
                         }
                     }
-                    Vector2 pos = firstHandPos + (chosenIndex * handSeparation);
-                    float d = Vector2.Distance(mousePos, pos);
-                    if (d < 0.5f)
+                    //are you clicking on another tile??
+                    int new_index = -1;
+                    for (int i = 0; i < game.hand.tokens.Length; i++)
                     {
-                        Services.AudioManager.PlayLetGoSound();
+                        if (hand[i] == null) { continue; }
+                        Vector2 pos = firstHandPos + (i * handSeparation);
+                        float d = Vector2.Distance(mousePos, pos);
+                        if (d < 0.5f)
+                        {
+                            new_index = i;
+                            break;
+                        }
+                    }
+                    if(new_index != -1)
+                    {
+                        if (new_index == chosenIndex)
+                        {
+                            Services.AudioManager.PlayLetGoSound();
+                            EnterInputState(InputState.Choose);
+                        }
+                        else
+                        {
+                            chosenIndex = new_index;
+                            EnterInputState(InputState.Place);
+                        }
+                    }
+                    else
+                    {
+                        if (freeSlot.token)
+                        {
+                            float _dist = Vector2.Distance(mousePos, freeSlot.transform.position);
+                            if (_dist < 0.5f)
+                            {
+                                chosenIndex = game.hand.handSize + 2;
+                                EnterInputState(InputState.Place);
+                            }
+                        }
+                    }
+                    
+                }
+                if(holdingClick == false)
+                {
+                    if (draggingTile)
+                    {
                         EnterInputState(InputState.Choose);
                     }
+                    draggingTile = false;
                 }
                 break;
             case InputState.Wait:
@@ -1049,6 +1146,9 @@ public class GameController : MonoBehaviour
                             Logic.Token token;
                             switch (_event.type)
                             {
+                                case Logic.StatusReport.EventType.TokenWait:
+                                    waiting *= 1.5f;
+                                    break;
                                 case Logic.StatusReport.EventType.TokenDestroyed:
                                     token = _event.tokens[0];
                                     foreach (Tile tile in tiles.Values)
@@ -1072,6 +1172,7 @@ public class GameController : MonoBehaviour
                                     }
                                     break;
                                 case Logic.StatusReport.EventType.TokenChanged:
+                                    //waiting = 0f;
                                     token = _event.tokens[0];
                                     foreach (Tile tile in tiles.Values)
                                     {
@@ -1079,7 +1180,7 @@ public class GameController : MonoBehaviour
                                         {
                                             if (tile.token.token == token)
                                             {
-                                                tile.token.token = _event.tokens[1];
+                                                tile.token.UpgradeToken(_event.tokens[1]);
                                                 Services.AudioManager.PlayUpgradeTileSound();
                                                 if (useHaptics)
                                                 {
@@ -1135,8 +1236,8 @@ public class GameController : MonoBehaviour
                         }
                         else
                         {
-                            score += scoreDelta;
-                            scoreDelta = 0;
+                            /*score += scoreDelta;
+                            scoreDelta = 0;*/
                             /*if (popupopen)
                             {
                                 EnterInputState(InputState.Popup);
@@ -1212,7 +1313,15 @@ public class GameController : MonoBehaviour
                     hand[i].Draw(pos,true);
                 }else if(inputState == InputState.Place)
                 {
-                    hand[i].Draw(pos+Vector2.up*0.5f,true);
+                    if (draggingTile)
+                    {
+                        hand[i].Draw(mousePos + Vector2.up * 0.5f, true);
+                    }
+                    else
+                    {
+                        hand[i].Draw(pos + Vector2.up * 0.5f, true);
+                    }
+                    
                 }
             }
             else

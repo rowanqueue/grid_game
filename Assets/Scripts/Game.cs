@@ -65,6 +65,7 @@ namespace Logic
             if (tokenGroup.Count >= groupCollapseNum)
             {
                 //remove everything except the one you placed and change it to the next num
+                status.events.Add(new StatusReport.Event(StatusReport.EventType.TokenWait,1));
                 for (int i = tokenGroup.Count - 1; i >= 0; i--)
                 {
                     Token token = tokenGroup[i];
@@ -232,7 +233,8 @@ namespace Logic
             TokenChanged,//tokens[0] becomes tokens[1]
             ScoreAdded,
             BagUpdated,
-            BagRefill
+            BagRefill,
+            TokenWait
         }
         public class Event
         {
