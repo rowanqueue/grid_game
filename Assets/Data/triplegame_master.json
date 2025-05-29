@@ -1,0 +1,547 @@
+{
+    "name": "tripleTile",
+    "version": 1,
+    "gridSize": {
+        "x": 5,
+        "y": 5
+    },
+    "handSize": 4,
+    "gameVariables": {
+        "groupCollapseNum": 3,
+        "maxTileNum": 8,
+    },
+    "tokenVariables": {
+        "color": [
+            "blue",
+            "red",
+            "green",
+            "purple",
+            "clipper",
+            "gold",
+            "spade",
+            "adder"
+        ],
+        "number": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+        ],
+        "temporary": false
+    },
+    "scoreVariables": {
+        "colorScoreMultiplier": {
+            "blue": 1,
+            "red": 2,
+            "green": 3,
+            "purple": 5,
+            "gold": 10,
+        }
+    },
+    "startingBag": [
+        {
+            "token": {
+                "color": "blue",
+                "number": 1
+            },
+            "count": 6
+        },
+        {
+            "token": {
+                "color": "red",
+                "number": 1
+            },
+            "count": 4
+        },
+        {
+            "token": {
+                "color": "gnome",
+                "number": 1,
+                "temporary": true,
+            },
+            "count": 1
+        },
+    ],
+    "progress": {
+        "events": [
+          {
+            "repeatable": true,
+            "__helper": "repeatable means that this will be repeatable",
+            "trigger": [
+                {
+                    "token": {
+                        "color": "gold",
+                        "number": 8
+                    }
+                }
+            ],
+            "reward": [
+                {
+                    "token": {
+                        "color": "gnome",
+                        "number": 1,
+                        "temporary": true,
+                    },
+                    "count": 1
+                }
+            ]
+          },
+            {
+              "repeatable": true,
+              "__helper": "repeatable means that this will be repeatable",
+              "trigger": [
+                  {
+                      "token": {
+                          "color": "blue",
+                          "number": 8
+                      }
+                  }
+              ],
+              "reward": [
+                  {
+                      "token": {
+                          "color": "gold",
+                          "number": 1,
+                          "temporary": true,
+                      },
+                      "count": 1
+                  }
+              ]
+            },
+            {
+              "repeatable": true,
+              "__helper": "repeatable means that this will be repeatable",
+              "trigger": [
+                  {
+                      "token": {
+                          "color": "red",
+                          "number": 8
+                      }
+                  }
+              ],
+              "reward": [
+                  {
+                      "token": {
+                          "color": "gold",
+                          "number": 1,
+                          "temporary": true,
+                      },
+                      "count": 1
+                  }
+              ]
+            },
+            {
+              "repeatable": true,
+              "__helper": "repeatable means that this will be repeatable",
+              "trigger": [
+                  {
+                      "token": {
+                          "color": "green",
+                          "number": 8
+                      }
+                  }
+              ],
+              "reward": [
+                  {
+                      "token": {
+                          "color": "gold",
+                          "number": 1,
+                          "temporary": true,
+                      },
+                      "count": 1
+                  }
+              ]
+            },
+            {
+              "repeatable": true,
+              "__helper": "repeatable means that this will be repeatable",
+              "trigger": [
+                   {
+                        "token": {
+                          "color": "purple",
+                          "number": 8
+                        }
+                    }
+               ],
+               "reward": [
+                   {
+                        "token": {
+                          "color": "gold",
+                          "number": 1,
+                          "temporary": true,
+                        },
+                        "count": 1
+                    }
+                ]
+            },
+            {
+                "prototypical": true,
+                "__helper": "prototypical means that this will create this progress event for all possible number tokens of this color",
+                "trigger": [
+                    {
+                        "token": {
+                            "color": "blue",
+                            "number": 4
+                        }
+                    }
+                ],
+                "reward": [
+                    {
+                        "token": {
+                            "color": "blue",
+                            "number": 2
+                        },
+                        "replacesToken": {
+                            "color": "blue",
+                            "number": 1
+                        },
+                        "count": 1
+                    }
+                ]
+            },
+            {
+                "prototypical": true,
+                "__helper": "prototypical means that this will create this progress event for all possible number tokens of this color",
+                "trigger": [
+                    {
+                        "token": {
+                            "color": "red",
+                            "number": 4
+                        }
+                    }
+                ],
+                "reward": [
+                    {
+                        "token": {
+                            "color": "red",
+                            "number": 2
+                        },
+                        "replacesToken": {
+                            "color": "red",
+                            "number": 1
+                        },
+                        "count": 1
+                    }
+                ]
+            },
+            {
+                "prototypical": true,
+                "__helper": "prototypical means that this will create this progress event for all possible number tokens of this color",
+                "trigger": [
+                    {
+                        "token": {
+                            "color": "purple",
+                            "number": 4
+                        }
+                    }
+                ],
+                "reward": [
+                    {
+                        "token": {
+                            "color": "purple",
+                            "number": 2
+                        },
+                        "replacesToken": {
+                            "color": "purple",
+                            "number": 1
+                        },
+                        "count": 1
+                    }
+                ]
+            },
+            {
+                "prototypical": true,
+                "__helper": "prototypical means that this will create this progress event for all possible number tokens of this color",
+                "trigger": [
+                    {
+                        "token": {
+                            "color": "green",
+                            "number": 4
+                        }
+                    }
+                ],
+                "reward": [
+                    {
+                        "token": {
+                            "color": "green",
+                            "number": 2
+                        },
+                        "replacesToken": {
+                            "color": "green",
+                            "number": 1
+                        },
+                        "count": 1
+                    }
+                ]
+            },
+
+            {
+                "trigger": [
+                    {
+                        "token": {
+                            "color": "blue",
+                            "number": 3
+                        }
+                    },
+                    {
+                        "token": {
+                            "color": "red",
+                            "number": 3
+                        }
+                    }
+                ],
+                "reward": [
+                    {
+                        "token": {
+                            "color": "green",
+                            "number": 1
+                        },
+                        "count": 2
+                    }
+                ]
+            },
+            {
+                "trigger": [
+                    {
+                        "token": {
+                            "color": "blue",
+                            "number": 4
+                        }
+                    },
+                    {
+                        "token": {
+                            "color": "red",
+                            "number": 4
+                        }
+                    }
+                ],
+                "reward": [
+                    {
+                        "token": {
+                            "color": "purple",
+                            "number": 1
+                        },
+                        "count": 1
+                    }
+                ]
+            },
+            {
+                "trigger": [
+                    {
+                        "token": {
+                            "color": "green",
+                            "number": 4
+                        }
+                    },
+                ],
+                "reward": [
+                    {
+                        "token": {
+                            "color": "purple",
+                            "number": 1
+                        },
+                        "count": 1
+                    }
+                ]
+            },
+            {
+                "trigger": [
+                    {
+                        "token": {
+                            "color": "blue",
+                            "number": 5
+                        }
+                    },
+                    {
+                        "token": {
+                            "color": "red",
+                            "number": 5
+                        }
+                    }
+                ],
+                "reward": [
+                    {
+                        "token": {
+                            "color": "green",
+                            "number": 1
+                        },
+                        "count": 2
+                    }
+                ]
+            },
+            {
+                "repeatable": true,
+                "trigger": [
+                    {
+                        "token": {
+                            "color": "blue",
+                            "number": 5
+                        }
+                    }
+                ],
+                "reward": [
+                    {
+                        "token": {
+                            "color": "spade",
+                            "number": 1,
+                            "temporary": true,
+                        },
+                        "count": 1
+                    }
+                ]
+            },
+            {
+                "repeatable": true,
+                "trigger": [
+                    {
+                        "token": {
+                            "color": "red",
+                            "number": 5
+                        }
+                    }
+                ],
+                "reward": [
+                    {
+                        "token": {
+                            "color": "spade",
+                            "number": 1,
+                            "temporary": true,
+                        },
+                        "count": 2
+                    }
+                ]
+            },
+            {
+                "repeatable": true,
+                "trigger": [
+                    {
+                        "token": {
+                            "color": "purple",
+                            "number": 5
+                        }
+                    }
+                ],
+                "reward": [
+                    {
+                        "token": {
+                            "color": "adder",
+                            "number": 0,
+                            "temporary": true,
+                        },
+                        "count": 1
+                    }
+                ]
+            },
+            {
+                "repeatable": true,
+                "trigger": [
+                    {
+                        "token": {
+                            "color": "blue",
+                            "number": 7
+                        }
+                    }
+                ],
+                "reward": [
+                    {
+                        "token": {
+                            "color": "clipper",
+                            "number": -1,
+                            "temporary": true,
+                        },
+                        "count": 1
+                    }
+                ]
+            },
+            {
+                "repeatable": true,
+                "trigger": [
+                    {
+                        "token": {
+                            "color": "red",
+                            "number": 7
+                        }
+                    }
+                ],
+                "reward": [
+                    {
+                        "token": {
+                            "color": "clipper",
+                            "number": -1,
+                            "temporary": true,
+                        },
+                        "count": 1
+                    }
+                ]
+            },
+            {
+                "repeatable": true,
+                "trigger": [
+                    {
+                        "token": {
+                            "color": "purple",
+                            "number": 7
+                        }
+                    }
+                ],
+                "reward": [
+                    {
+                        "token": {
+                            "color": "clipper",
+                            "number": -1,
+                            "temporary": true,
+                        },
+                        "count": 2
+                    }
+                ]
+            },
+            {
+                "repeatable": true,
+                "trigger": [
+                    {
+                        "token": {
+                            "color": "green",
+                            "number": 5
+                        }
+                    }
+                ],
+                "reward": [
+                    {
+                        "token": {
+                            "color": "spade",
+                            "number": 1,
+                            "temporary": true,
+                        },
+                        "count": 3
+                    }
+                ]
+            },
+            {
+                "repeatable": true,
+                "trigger": [
+                    {
+                        "token": {
+                            "color": "green",
+                            "number": 7
+                        }
+                    }
+                ],
+                "reward": [
+                    {
+                        "token": {
+                            "color": "adder",
+                            "number": 0,
+                            "temporary": true,
+                        },
+                        "count": 2
+                    }
+                ]
+            },
+        ]
+    }
+}

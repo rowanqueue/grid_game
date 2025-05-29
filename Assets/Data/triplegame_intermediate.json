@@ -75,6 +75,28 @@
     ],
     "progress": {
         "events": [
+          {
+            "repeatable": true,
+            "__helper": "repeatable means that this will be repeatable",
+            "trigger": [
+                {
+                    "token": {
+                        "color": "gold",
+                        "number": 8
+                    }
+                }
+            ],
+            "reward": [
+                {
+                    "token": {
+                        "color": "gnome",
+                        "number": 1,
+                        "temporary": true,
+                    },
+                    "count": 1
+                }
+            ]
+          },
             {
               "repeatable": true,
               "__helper": "repeatable means that this will be repeatable",

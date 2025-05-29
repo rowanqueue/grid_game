@@ -34,6 +34,7 @@ public class UpgradePopup : MonoBehaviour
     //where should it be depending on how many you have
     public List<float> tinyTabX;
 
+    Coroutine starting;
     Coroutine ending;
     // Start is called before the first frame update
     void Start()
@@ -160,7 +161,7 @@ public class UpgradePopup : MonoBehaviour
         visual.transform.localPosition = new Vector2(-6f, 0f);
         if(alreadyActive == false)
         {
-            StartCoroutine(SlideFromLeft());
+            starting = StartCoroutine(SlideFromLeft());
         }
         else
         {
@@ -168,7 +169,7 @@ public class UpgradePopup : MonoBehaviour
             {
                 StopCoroutine(ending);
                 ending = null;
-                StartCoroutine(SlideFromLeft());
+                starting = StartCoroutine(SlideFromLeft());
             }
         }
         
@@ -310,6 +311,10 @@ public class UpgradePopup : MonoBehaviour
         upgradeParent.SetActive(false);
         if(ending == null)
         {
+            if(starting != null)
+            {
+                StopAllCoroutines();
+            }
             ending = StartCoroutine(SlideToRight());
         }
         else
@@ -363,6 +368,7 @@ public class UpgradePopup : MonoBehaviour
             yield return new WaitForEndOfFrame();
         }
         visual.transform.localPosition = Vector3.zero;
+        starting = null;
     }
     IEnumerator SlideToRight()
     {

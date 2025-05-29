@@ -262,7 +262,7 @@ public class Tutorial : MonoBehaviour
                     {
                         if (token.color == TokenColor.Green)
                         {
-                            StartSpecialTutorial(TutorialStage.GreenStart);
+                            //StartSpecialTutorial(TutorialStage.GreenStart);
                             return;
                         }
                     }

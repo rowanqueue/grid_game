@@ -27,7 +27,8 @@ namespace Logic
             {"clipper",TokenColor.Clipper },
             {"gold",TokenColor.Gold },
             {"spade",TokenColor.Spade },
-            {"adder",TokenColor.Adder }
+            {"adder",TokenColor.Adder },
+            {"gnome",TokenColor.Gnome }
         };
         public override void Initialize(Json.Root root)
         {
@@ -42,6 +43,7 @@ namespace Logic
             colorScoreMulti.Add(TokenColor.Spade, 6);
             colorScoreMulti.Add(TokenColor.Adder, 7);
             colorScoreMulti.Add(TokenColor.Clipper, 8);
+            colorScoreMulti.Add(TokenColor.Gnome, 100);
             maxTileNum = root.gameVariables.maxTileNum;
             base.Initialize(root);
         }
@@ -49,17 +51,21 @@ namespace Logic
         {
             //recursively make groups based on neighbors
             List<Token> tokenGroup = new List<Token>();
-            if(tokenChanged.data.num < maxTileNum)
+            if(tokenChanged.data.color != TokenColor.Gnome)
             {
-                if (tokenChanged.data.color == TokenColor.Purple)
+                if (tokenChanged.data.num < maxTileNum)
                 {
-                    tokenChanged.tile.CheckNeighbors(Check.Equals, tokenGroup,0, tokenChanged);
-                }
-                else
-                {
-                    tokenChanged.tile.CheckNeighbors(Check.Equals, tokenGroup,0, tokenChanged);
+                    if (tokenChanged.data.color == TokenColor.Purple)
+                    {
+                        tokenChanged.tile.CheckNeighbors(Check.Equals, tokenGroup, 0, tokenChanged);
+                    }
+                    else
+                    {
+                        tokenChanged.tile.CheckNeighbors(Check.Equals, tokenGroup, 0, tokenChanged);
+                    }
                 }
             }
+            
             
             
             if (tokenGroup.Count >= groupCollapseNum)
@@ -422,7 +428,8 @@ namespace Logic
                 {"clipper",TokenColor.Clipper },
                 {"gold",TokenColor.Gold },
                 {"spade",TokenColor.Spade },
-                {"adder",TokenColor.Adder }
+                {"adder",TokenColor.Adder },
+                {"gnome",TokenColor.Gnome }
             };
             return new TokenData(colors[token.color], token.number,token.temporary);
         }
@@ -437,7 +444,8 @@ namespace Logic
                 {"clipper",TokenColor.Clipper },
                 {"gold",TokenColor.Gold },
                 {"spade",TokenColor.Spade },
-                {"adder",TokenColor.Spade },
+                {"adder",TokenColor.Adder},
+                {"gnome",TokenColor.Gnome }
             };
             return new TokenData(colors[color], number);
         }
@@ -476,6 +484,10 @@ namespace Logic
             //non empty
             if(heldToken.color == TokenColor.Clipper || heldToken.color == TokenColor.Spade)
             {
+                if (heldToken.color == TokenColor.Clipper && grid.tiles[p].token.data.color == TokenColor.Gnome)
+                {
+                    return false;
+                }
                 return true;
             }
             if(heldToken.color != TokenColor.Adder)
@@ -489,6 +501,7 @@ namespace Logic
             //clipping tile
             int num = clippingNumbers[gridToken.color];
             if (num == heldToken.num) { return true; }
+            
             return false;
         }
         public void Mulligan()
@@ -500,7 +513,10 @@ namespace Logic
         {
             history.turns.Add(new History.Turn(this));
             Token token = grid.tiles[gridPos].token;
-            if(handIndex >= hand.handSize)
+            TripleGame _game = this as TripleGame;
+            Debug.Log("yee");
+            _game.EarnPoints(token.data.num * _game.colorScoreMulti[token.data.color]);
+            if (handIndex >= hand.handSize)
             {
                 freeSlot = token;
             }
@@ -634,6 +650,7 @@ namespace Logic
         {
             history.turns.Clear();
             turn.Load(this);
+            history.turns.Add(new History.Turn(this));
         }
     }
     public class Grid
@@ -876,14 +893,23 @@ namespace Logic
         public List<TokenData> nextBagsTemporary = new List<TokenData>();
         public List<TokenData> playedTempTiles = new List<TokenData>();
 
-        public Bag(Game game,Dictionary<TokenData, int> bagContents)
+        public Bag(Game game,Dictionary<TokenData, int> _bagContents)
         {
             this.game = game;
-            this.bagContents = bagContents;
+            this.bagContents = new Dictionary<TokenData, int>();
             startingBagContents = new Dictionary<TokenData, int>();
-            foreach(TokenData token in bagContents.Keys)
+            foreach(TokenData token in _bagContents.Keys)
             {
-                startingBagContents.Add(token, bagContents[token]);
+                if (token.temporary)
+                {
+                    for (int i = 0; i < _bagContents[token]; i++)
+                    {
+                        nextBagsTemporary.Add(token);
+                    }
+                    continue;
+                }
+                bagContents.Add(token, _bagContents[token]);
+                startingBagContents.Add(token, _bagContents[token]);
             }
             RefillBag();
 
@@ -1096,7 +1122,8 @@ namespace Logic
         Clipper,
         Gold,
         Spade,
-        Adder
+        Adder,
+        Gnome
     }
     public class Token
     {
@@ -1164,6 +1191,10 @@ namespace Logic
         {
             string s = string.Empty;
             s += color.ToString().ToLower().Substring(0, 1);
+            if(color == TokenColor.Gnome)
+            {
+                s += "n";
+            }
             s += num.ToString();
             return s;
         }

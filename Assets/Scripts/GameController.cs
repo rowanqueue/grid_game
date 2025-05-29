@@ -55,6 +55,7 @@ public class GameController : MonoBehaviour
 
     public GameObject tokenPrefab;
     public GameObject tilePrefab;
+    public GameObject miniTilePrefab;
     //bad
     public Vector2 firstHandPos;
     public Vector2 handSeparation;
@@ -360,7 +361,6 @@ public class GameController : MonoBehaviour
         }
         if (freeSlot.token)
         {
-            Debug.Log("remove free slot");
             GameObject.Destroy(freeSlot.token.gameObject);
             freeSlot.token = null;
         }
@@ -406,7 +406,6 @@ public class GameController : MonoBehaviour
         }
         if (game.freeSlot != null)
         {
-            Debug.Log("load in freeslot");
             Token token = GameObject.Instantiate(tokenPrefab, gridTransform).GetComponent<Token>();
             token.token = game.freeSlot;
             freeSlot.token = token;
@@ -451,6 +450,12 @@ public class GameController : MonoBehaviour
             }
             hand[i].Init(hand[i].token);
             hand[i].UpdateLayer("TokenHand");
+            float angle = Random.Range(2f, 5f);
+            if(Random.value < 0.5f)
+            {
+                angle *= -1f;
+            }
+            hand[i].transform.localEulerAngles = new Vector3(0, 0, angle);
             if (midgame)
             {
                 if(tempDeckNumberForAnim < hand.Count)
@@ -594,7 +599,6 @@ public class GameController : MonoBehaviour
     }
     public void HigherDifficulty()
     {
-        Debug.Log("highered");
         difficulty++;
         difficulty = Mathf.Clamp(difficulty, 0, difficulties.Count-1);
         PlayerPrefs.SetInt("difficulty", difficulty);
@@ -603,7 +607,6 @@ public class GameController : MonoBehaviour
     public void LowerDifficulty()
     {
         difficulty--;
-        Debug.Log("lowered");
         difficulty = Mathf.Clamp(difficulty, 0, difficulties.Count - 1);
         PlayerPrefs.SetInt("difficulty", difficulty);
         PlayerPrefs.Save();
@@ -864,8 +867,19 @@ public class GameController : MonoBehaviour
                     EnterInputState(InputState.Choose);
                 }else if (Input.GetMouseButtonDown(0) || (draggingTile && Input.GetMouseButtonUp(0)))
                 {//clicking
-                    Debug.Log("AAAAAAAA");
-                    if(chosenPos == freeSlotChoice)
+                    bool _tutorialGood = false;
+                    if (inTutorial)
+                    {
+                        if((tutorial.stage == TutorialStage.FreeSlot || tutorial.stage == TutorialStage.EmptyHand))
+                        {
+                            _tutorialGood = true;
+                        }
+                    }
+                    else
+                    {
+                        _tutorialGood = true;
+                    }
+                    if (chosenPos == freeSlotChoice)
                     {
                         if (chosenIndex == game.hand.handSize + 2)
                         {//put it back!
@@ -876,7 +890,7 @@ public class GameController : MonoBehaviour
                             }
                             EnterInputState(InputState.Choose);
                             break;
-                        }else if (game.IsFreeSlotFree())
+                        }else if (game.IsFreeSlotFree() && _tutorialGood)
                         {
                             Services.AudioManager.PlayFreeSlotSound();
                             game.PlaceTokenInFreeSlot(chosenIndex);
@@ -976,6 +990,7 @@ public class GameController : MonoBehaviour
                                 if (holdingAdder && emptyTile)
                                 {
                                     tiles[chosenPos].token = freeSlot.token;
+                                    tiles[chosenPos].token.SetTokenData(tiles[chosenPos].token.token.data);
                                     lastTokenPlaced = freeSlot.token;
                                     lastTokenPlaced.transform.localEulerAngles = Vector3.zero;
                                     freeSlot.token.UpdateLayer("TokenMoving");
@@ -983,8 +998,9 @@ public class GameController : MonoBehaviour
                                 }
                                 else
                                 {
-                                    GameObject.Destroy(freeSlot.token.gameObject);
-                                    lastTokenPlaced = null;
+                                    //GameObject.Destroy(freeSlot.token.gameObject);
+                                    tiles[chosenPos].token.ToolAnim(freeSlot.token, chosenIndex);
+                                    lastTokenPlaced = tiles[chosenPos].token;
                                 }
                                 if (holdingClipper)
                                 {
@@ -1005,6 +1021,7 @@ public class GameController : MonoBehaviour
                                 if(holdingAdder && emptyTile)
                                 {
                                     tiles[chosenPos].token = hand[chosenIndex];
+                                    tiles[chosenPos].token.SetTokenData(tiles[chosenPos].token.token.data);
                                     hand[chosenIndex].UpdateLayer("TokenMoving");
                                     lastTokenPlaced = hand[chosenIndex];
                                     lastTokenPlaced.transform.localEulerAngles = Vector3.zero;
@@ -1012,13 +1029,15 @@ public class GameController : MonoBehaviour
                                 }
                                 else
                                 {
-                                    GameObject.Destroy(hand[chosenIndex].gameObject);
-                                    lastTokenPlaced = null;
+                                    //GameObject.Destroy(hand[chosenIndex].gameObject);
+                                    tiles[chosenPos].token.ToolAnim(hand[chosenIndex], chosenIndex);
+                                    lastTokenPlaced = tiles[chosenPos].token;
                                 }
                                 
                                 
                                 if (holdingClipper)
                                 {
+                                    lastTokenPlaced = tiles[chosenPos].token;
                                     //hand[chosenIndex] = CreateClippingToken(game.hand.tokens[chosenIndex]);//new tiletiles[chosenPos].token;
                                     //hand[chosenIndex].PlaceInHand(chosenIndex);
                                     hand[chosenIndex] = null;
@@ -1046,23 +1065,23 @@ public class GameController : MonoBehaviour
                             if (chosenIndex >= game.hand.handSize)
                             {
                                 game.PlaceTokenBackInHand(chosenIndex, chosenPos);
-                                GameObject.Destroy(freeSlot.token.gameObject);
-
+                                //GameObject.Destroy(freeSlot.token.gameObject);
+                                tiles[chosenPos].token.ToolAnim(freeSlot.token,chosenIndex);
                                 freeSlot.token = tiles[chosenPos].token;
                                 lastTokenPlaced = null;
                                 freeSlot.token.UpdateLayer("TokenHand");
-                                freeSlot.token.PlaceInHand(chosenIndex);
+                                
                                 tiles[chosenPos].token = null;
                             }
                             else
                             {
                                 game.PlaceTokenBackInHand(chosenIndex, chosenPos);
                                 lastTokenPlaced = null;
-                                GameObject.Destroy(hand[chosenIndex].gameObject);
-
+                                //GameObject.Destroy(hand[chosenIndex].gameObject);
+                                tiles[chosenPos].token.ToolAnim(hand[chosenIndex], chosenIndex);
                                 hand[chosenIndex] = tiles[chosenPos].token;
                                 hand[chosenIndex].UpdateLayer("TokenHand");
-                                hand[chosenIndex].PlaceInHand(chosenIndex);
+                                //hand[chosenIndex].SpadeAnim(chosenIndex);
                                 tiles[chosenPos].token = null;
                             }
                             EnterInputState(InputState.Wait);
@@ -1299,7 +1318,15 @@ public class GameController : MonoBehaviour
                     shouldHover = true;
                 }
             }
-            freeSlot.token.Draw(freeSlot.transform.position+(shouldHover ? Vector3.up*0.5f : Vector3.zero),shouldHover);
+            if (draggingTile)
+            {
+                freeSlot.token.Draw(mousePos + Vector2.up * 0.5f, true);
+            }
+            else
+            {
+                freeSlot.token.Draw(freeSlot.transform.position + (shouldHover ? Vector3.up * 0.5f : Vector3.zero), shouldHover);
+            }
+            
         }
         //draw tokens
         for (int i = 0; i < hand.Count; i++)
@@ -1418,6 +1445,7 @@ public class GameController : MonoBehaviour
         } while (notAllowed.Contains(extents));
         Flower flower = GameObject.Instantiate(flowerPrefabs[(int)tokenColor], tile.transform.position + (Vector3)extents, Quaternion.identity, gridTransform).GetComponent<Flower>();
         flower.tokenColor = tokenColor;
+        flower.x = tile.tile.pos.x;
         if (loaded)
         {
             flower.Finish();

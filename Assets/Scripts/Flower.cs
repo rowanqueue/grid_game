@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class Flower : MonoBehaviour
 {
@@ -11,17 +12,21 @@ public class Flower : MonoBehaviour
     public float animSpeed = 0.1f;
     float animIndex = 0;
     public Logic.TokenColor tokenColor;
+    float _angle;
+    int wind = 0;
+    public int x;
     // Start is called before the first frame update
     void Start()
     {
         bool flip = Random.value < 0.5f;
-        stem.flipX = flip;
-        petals.flipX = flip;
+        //stem.flipX = flip;
+        //petals.flipX = flip;
         float scale = Random.Range(0.375f, 0.525f);
         transform.localScale = Vector3.one * scale;
         float angle = Random.Range(-15f, 15f);
         transform.localEulerAngles = new Vector3(0f, 0f, angle);
         angle = Random.Range(-30f, 30f);
+        _angle = angle;
         petals.transform.localEulerAngles = new Vector3(0f, 0f, angle);
         scale = Random.Range(0.8f, 1f);
         petals.transform.localScale = Vector3.one * scale;
@@ -50,5 +55,50 @@ public class Flower : MonoBehaviour
         index = Mathf.Clamp(index,0,stemSprites.Length-1);
         stem.sprite = stemSprites[index];
         petals.sprite = petalSprites[index];
+        if (Mathf.Round(Time.time*3f % 15) == x)
+        {
+            wind = 1;
+        }
+        float angle = _angle;
+        float scale_factor = 0.25f * (1f / transform.localScale.x);
+ ;       if (wind > 0)
+        {
+            if(wind == 1)
+            {
+                angle -= 7.5f*scale_factor;
+            }
+            if(wind == 2)
+            {
+                angle += 7.5f * scale_factor;
+            }
+            if(wind == 3)
+            {
+                angle -= 7.5f * 0.5f * scale_factor;
+            }
+            if (wind == 4)
+            {
+                angle += 7.5f * 0.5f * scale_factor;
+            }
+            if (wind == 5)
+            {
+                angle -= 7.5f * 0.25f * scale_factor;
+            }
+            if (wind == 6)
+            {
+                angle += 7.5f * 0.25f * scale_factor;
+            }
+
+            if (Mathf.Abs(Mathf.DeltaAngle(angle,transform.localEulerAngles.z)) < 0.1f)
+            {
+                wind += 1;
+                if(wind > 6)
+                {
+                    wind = 0;
+                }
+            }
+        }
+        angle = Mathf.LerpAngle(transform.localEulerAngles.z, angle, 0.155f);
+        transform.localEulerAngles = new Vector3(0f, 0f, angle);
+
     }
 }

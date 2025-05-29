@@ -11,6 +11,7 @@ public class BagDisplay : MonoBehaviour
     public Vector2 firstGridPos;
     public Vector2 gridSeparation;
     public Transform tokenParent;
+    public Transform nextTokenParent;
     public int perRow;
     public int numTokens = 0;
     public bool showNextBag = false;
@@ -81,6 +82,7 @@ public class BagDisplay : MonoBehaviour
         {
             bagContents = game.bag.GetCurrentBag();
         }
+        bagContents = game.bag.GetCurrentBag();
         List<TokenData> uniqueTokens = bagContents.Keys.ToList();
         uniqueTokens.Sort((t1,t2) => t1.CompareTo(t2));
         int i = 0;
@@ -108,27 +110,52 @@ public class BagDisplay : MonoBehaviour
                 numTokens = i;
             }
         }
-        if(showNextBag == false)
+        foreach (Logic.TokenData tokenData in uniqueTokens)
         {
-            foreach (Logic.TokenData tokenData in uniqueTokens)
+            int leftover = bagContents[tokenData].y - bagContents[tokenData].x;
+            for (int j = 0; j < leftover; j++)
             {
-                int leftover = bagContents[tokenData].y - bagContents[tokenData].x;
-                for (int j = 0; j < leftover; j++)
-                {
-                    Token token = GameObject.Instantiate(Services.GameController.tokenPrefab, tokenParent).GetComponent<Token>();
-                    token.Init(new Logic.Token(tokenData, true));
-                    token.gameObject.SetActive(true);
-                    token.UpdateLayer("UIToken");
-                    token.TurnShade();
+                Token token = GameObject.Instantiate(Services.GameController.tokenPrefab, tokenParent).GetComponent<Token>();
+                token.Init(new Logic.Token(tokenData, true));
+                token.gameObject.SetActive(true);
+                token.UpdateLayer("UIToken");
+                token.TurnShade();
 
-                    Vector2 move = new Vector2(i % perRow * gridSeparation.x, i / perRow * gridSeparation.y);
-                    token.Draw(firstGridPos + move + (Vector2)transform.position);
-                    token.transform.position = firstGridPos + move + (Vector2)transform.position;
-                    i++;
-                    numTokens = i;
-                }
+                Vector2 move = new Vector2(i % perRow * gridSeparation.x, i / perRow * gridSeparation.y);
+                token.Draw(firstGridPos + move + (Vector2)transform.position);
+                token.transform.position = firstGridPos + move + (Vector2)transform.position;
+                i++;
+                numTokens = i;
             }
         }
-        
+        if (showNextBag == false)
+        {
+            
+        }
+        bagContents = game.bag.GetNextBag();
+        uniqueTokens = bagContents.Keys.ToList();
+        uniqueTokens.Sort((t1, t2) => t1.CompareTo(t2));
+        i = 0;
+        Vector2 miniTilePos = new Vector2(-2.25f, -2.5f);
+        Vector2 miniTileSeparation = new Vector2(0.5f, -0.55f);
+        int miniTilePerRow = 10;
+;        foreach (Logic.TokenData tokenData in uniqueTokens)
+        {
+
+            for (int j = 0; j < bagContents[tokenData].x; j++)
+            {
+                MiniTile token = GameObject.Instantiate(Services.GameController.miniTilePrefab, tokenParent).GetComponent<MiniTile>();
+                token.SetTile(tokenData);
+                token.gameObject.SetActive(true);
+                
+
+                Vector2 move = new Vector2(i % miniTilePerRow * miniTileSeparation.x, i / miniTilePerRow * miniTileSeparation.y);
+                //token.Draw(firstGridPos + move + (Vector2)transform.position);
+                token.transform.position = miniTilePos + move + (Vector2)transform.position;
+                i++;
+                numTokens = i;
+            }
+        }
+
     }
 }
