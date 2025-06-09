@@ -29,7 +29,8 @@ public enum GameState
     Settings,
     Start,
     Snapshot,
-    Bag
+    Bag,
+    SelectDifficulty
 }
 public class GameController : MonoBehaviour
 {
@@ -39,6 +40,7 @@ public class GameController : MonoBehaviour
     public List<string> difficultyNames = new List<string>();
     public TextMeshPro difficultyName;
     public List<Button> difficultyButtons = new List<Button>();
+    public GameObject difficultyParent;
     public GameType whichGame;
     public GameState gameState = GameState.Gameplay;
     GameState lastState;
@@ -119,7 +121,7 @@ public class GameController : MonoBehaviour
     public bool useHaptics = false;
 
     public Transform bagButtonTransform;
-
+    public bool newGame = false;
     // Start is called before the first frame update
     void Awake()
     {
@@ -176,7 +178,7 @@ public class GameController : MonoBehaviour
         Json.Root root = JsonConvert.DeserializeObject<Json.Root>(gameJson.text);
         game.Initialize(root);
 
-        foreach(Screen screen in stateScreens)
+        foreach (Screen screen in stateScreens)
         {
             screen.gameObject.SetActive(false);
         }
@@ -217,6 +219,10 @@ public class GameController : MonoBehaviour
         }
         if (runTutorial)
         {
+            difficulty = 0;
+            gameJson = difficulties[difficulty];
+            root = JsonConvert.DeserializeObject<Json.Root>(gameJson.text);
+            game.Initialize(root);
             game.StartTutorial();
             tutorial.StartTutorial();
         }
@@ -230,19 +236,18 @@ public class GameController : MonoBehaviour
         flowers = new Dictionary<Tile, List<Flower>>();
         CreateGrid();
         hand = new List<Token>();
-        if(inTutorial)
+        newGame = false;
+        if (inTutorial)
         {
+            
             hand.Add(null);
             hand.Add(null);
             hand.Add(null);
             hand.Add(null);
-        }
-        else
-        {
-            CreateHand();
         }
         
         deckDisplay.game = game;
+        
         if(inTutorial == false)
         {
             if (SaveLoad.HasSave(0))
@@ -256,8 +261,27 @@ public class GameController : MonoBehaviour
                     ClearTokensFromGrid();
                     LoadTokensIntoGrid();
                 }
-                
+                else
+                {
+                    newGame = true;
+                }
+
             }
+            else
+            {
+                newGame = true;
+            }
+        }
+        if (newGame ==false)
+        {
+            CreateHand();
+        }
+        else if(inTutorial ==false)
+        {
+            hand.Add(null);
+            hand.Add(null);
+            hand.Add(null);
+            hand.Add(null);
         }
     }
     
@@ -292,6 +316,24 @@ public class GameController : MonoBehaviour
     }
     public void GameStateGameplay()
     {
+        if(gameState == GameState.Start)
+        {
+            if (newGame)
+            {
+                //if new game
+                GameStateSelectDifficulty();
+                return;
+            }
+            
+        }
+        difficultyParent.SetActive(false);
+        if(gameState == GameState.SelectDifficulty)
+        {
+            gameJson = difficulties[difficulty];
+            Json.Root root = JsonConvert.DeserializeObject<Json.Root>(gameJson.text);
+            game.Initialize(root);
+            CreateHand(true);
+        }
         if (inTutorial && tutorial.stage == TutorialStage.GreenNextBag)
         {
             tutorial.IncrementStage();
@@ -301,6 +343,15 @@ public class GameController : MonoBehaviour
         gameState = GameState.Gameplay;
         stateScreens[(int)gameState].gameObject.SetActive(true);
         stateScreens[(int)gameState].SetAnchor();
+        movingToScreen = true;
+    }
+    public void GameStateSelectDifficulty()
+    {
+        lastState = gameState;
+        gameState = GameState.SelectDifficulty;
+        difficultyParent.SetActive(true);
+        stateScreens[(int)GameState.Gameplay].gameObject.SetActive(true);
+        stateScreens[(int)GameState.Gameplay].SetAnchor();
         movingToScreen = true;
     }
     public void GameStateStart()
@@ -331,6 +382,7 @@ public class GameController : MonoBehaviour
     }
     public void GameStateBag()
     {
+        if(gameState != GameState.Gameplay) { return; } 
         lastState = gameState;
         gameState = GameState.Bag;
         //stateScreens[(int)gameState].gameObject.SetActive(true);
@@ -616,10 +668,10 @@ public class GameController : MonoBehaviour
     void Update()
     {
         difficultyName.text = "Difficulty\n" + difficultyNames[difficulty];
-        if (difficulties[difficulty] != gameJson)
+        /*if (difficulties[difficulty] != gameJson)
         {
             difficultyName.text += "<size=50%>\nRestart to change difficulty";
-        }
+        }*/
         difficultyButtons[0].disabled = difficulty == 0;
         difficultyButtons[1].disabled = difficulty == difficulties.Count - 1;
         DeathCheck();
@@ -658,7 +710,7 @@ public class GameController : MonoBehaviour
             {
                 movingToScreen = false;
                 Camera.main.transform.position = cameraPos;
-                if (gameState != GameState.Bag)
+                if (gameState != GameState.Bag && gameState != GameState.SelectDifficulty)
                 {
                     for (int i = 0; i < stateScreens.Count; i++)
                     {
@@ -831,6 +883,30 @@ public class GameController : MonoBehaviour
 
                 break;
             case InputState.Place:
+                //undoing
+                if (Input.GetMouseButtonDown(0))
+                {
+                    chosenPos = Vector2Int.one * -5;
+                    foreach (Tile tile in tiles.Values)
+                    {
+                        float d = Vector2.Distance(mousePos, tile.transform.position);
+                        if (d < 0.5f)
+                        {
+                            chosenPos = tile.tile.pos;
+                            break;
+                        }
+                    }
+                    if (tiles.ContainsKey(chosenPos) && tiles[chosenPos].token != null && tiles[chosenPos].token == lastTokenPlaced)
+                    {
+                        lastTokenPlaced = null;
+                        if (useHaptics)
+                        {
+                            MMVibrationManager.Haptic(HapticTypes.MediumImpact);
+                        }
+                        Undo();
+                        break;
+                    }
+                }
                 if (holdingClick)
                 {
                     clickHoldDuration += Time.deltaTime;
@@ -1244,11 +1320,15 @@ public class GameController : MonoBehaviour
                                     break;
                                 case Logic.StatusReport.EventType.BagUpdated:
                                     deckDisplay.bagUpdated = true;
-                                    bool madePopup = upgradePopup.Create(_event.contents);
-                                    if (madePopup)
+                                    if(inTutorial == false)
                                     {
-                                        popupopen = true;
+                                        bool madePopup = upgradePopup.Create(_event.contents);
+                                        if (madePopup)
+                                        {
+                                            popupopen = true;
+                                        }
                                     }
+                                    
                                     waiting = waitTime * 0.01f;
                                     break;
                             }
@@ -1332,6 +1412,7 @@ public class GameController : MonoBehaviour
         for (int i = 0; i < hand.Count; i++)
         {
             if (hand[i] == null) { continue; }
+            hand[i].lifted = false;
             Vector2 pos = handTransforms[i].position;// firstHandPos + (i * handSeparation);
             if(i == chosenIndex)
             {
@@ -1340,13 +1421,14 @@ public class GameController : MonoBehaviour
                     hand[i].Draw(pos,true);
                 }else if(inputState == InputState.Place)
                 {
+                    hand[i].lifted = true;
                     if (draggingTile)
                     {
-                        hand[i].Draw(mousePos + Vector2.up * 0.5f, true);
+                        hand[i].Draw(mousePos, true);
                     }
                     else
                     {
-                        hand[i].Draw(pos + Vector2.up * 0.5f, true);
+                        hand[i].Draw(pos, true);
                     }
                     
                 }
@@ -1553,7 +1635,15 @@ public class GameController : MonoBehaviour
         }
         else
         {
-            game.Mulligan();
+            if (inTutorial)
+            {
+
+            }
+            else
+            {
+                game.Mulligan();
+            }
+            
         }
         
         CreateHand();
@@ -1561,7 +1651,7 @@ public class GameController : MonoBehaviour
     }
     public void Undo()
     {
-        if (inputState != InputState.Choose) { return; }
+        //if (inputState != InputState.Choose) { return; }
         if (game.history.turns.Count > 1)
         {
             game.Undo();
@@ -1586,6 +1676,10 @@ public class GameController : MonoBehaviour
                 }
             }*/
             Save();
+            if(inputState != InputState.Choose)
+            {
+                EnterInputState(InputState.Choose);
+            }
         }
     }
     public void Restart()

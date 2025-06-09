@@ -9,6 +9,7 @@ public class Token : MonoBehaviour
     public Logic.Token token;
     public SpriteRenderer spriteDisplay;
     public SpriteRenderer number;
+    public SpriteRenderer shadow;
     public TextMeshPro textDisplay;
 
     float totalDeathMovement = 0.5f;
@@ -26,6 +27,7 @@ public class Token : MonoBehaviour
     Coroutine wiggleAnim;
 
     bool beingSpaded = false;
+    public bool lifted = false;
     public void Init(Logic.Token _token)
     {
         initialized = true;
@@ -65,6 +67,14 @@ public class Token : MonoBehaviour
             if (tokenData.color == Logic.TokenColor.Adder)
             {
                 spriteDisplay.sprite = Services.Visuals.clippingSprites[tokenData.num];
+            }
+            if (tokenData.color == Logic.TokenColor.Adder && tokenData.temporary == false)
+            {
+                spriteDisplay.sprite = Services.Visuals.trainingAdder;
+            }
+            if (tokenData.color == Logic.TokenColor.Clipper && tokenData.temporary == false)
+            {
+                spriteDisplay.sprite = Services.Visuals.trainingClipper;
             }
             textDisplay.text = Services.GameController.ScoreToken(tokenData).ToString();
             textDisplay.text = "<size=70%><voffset=0.2em>+</voffset></size>" + textDisplay.text;
@@ -167,6 +177,18 @@ public class Token : MonoBehaviour
         }
         
         if (moving) { return; }
+        float shadow_scale = Mathf.InverseLerp(0f, 0.5f, spriteDisplay.transform.localPosition.y);
+        shadow.transform.localScale = Vector3.one * Mathf.Lerp(1f,0.75f,shadow_scale);
+        if (lifted)
+        {
+            spriteDisplay.transform.localPosition += (Vector3.up * 0.5f - spriteDisplay.transform.localPosition) * 1.5f * (Time.deltaTime / 0.16666f);
+            //shadow.transform.localPosition = new Vector2(0, -0.5f);
+        }
+        else
+        {
+            spriteDisplay.transform.localPosition += (Vector3.zero- spriteDisplay.transform.localPosition) * 1.5f * (Time.deltaTime / 0.16666f);
+            //shadow.transform.localPosition = Vector3.zero;
+        }
         transform.position += ((Vector3)pos - transform.position) * 1.5f * (Time.deltaTime/0.16666f);
         if(spriteDisplay.sortingLayerName == "TokenPlaced")
         {
@@ -174,7 +196,6 @@ public class Token : MonoBehaviour
             {
                 if(wiggling == false)
                 {
-                    Debug.Log("hmm");
                     wiggleAnim = StartCoroutine(Wiggle());
                 }
             }
@@ -194,9 +215,15 @@ public class Token : MonoBehaviour
         {
             if(Vector2.Distance(pos,transform.position) < 0.1f)
             {
-                UpdateLayer("TokenPlaced");
+                lifted = false;
+                StartCoroutine(LowerLift());
             }
         }
+    }
+    IEnumerator LowerLift()
+    {
+        yield return new WaitForSeconds(0.3f);
+        UpdateLayer("TokenPlaced");
     }
     public void UpdateLayer(string sortingLayer)
     {
@@ -268,7 +295,23 @@ public class Token : MonoBehaviour
             yield return new WaitForEndOfFrame();
         }
         transform.localEulerAngles = new Vector3(0f, 0f, targetAngle);
-        while (Vector2.Distance(finalPos,transform.localPosition) > 0.01f)
+        finalPos = Vector3.up * liftHeight;
+        while (Vector2.Distance(finalPos, spriteDisplay.transform.localPosition) > 0.01f)
+        {
+            spriteDisplay.transform.localPosition += (finalPos - spriteDisplay.transform.localPosition) * speed;
+            totalDeathMovement -= speed;
+            if(Vector2.Distance(finalPos, spriteDisplay.transform.localPosition) < 0.25f)
+            {
+                var a = (float)spriteDisplay.color.a;
+                a -= liftSpeed * 0.5f;
+                spriteDisplay.color = new Color(spriteDisplay.color.r, spriteDisplay.color.g, spriteDisplay.color.b, a);
+                number.color = new Color(number.color.r, number.color.g, number.color.b, a);
+                shadow.color = new Color(shadow.color.r, shadow.color.g, shadow.color.b, Mathf.Lerp(0f,0.5f,a));
+            }
+            
+            yield return new WaitForEndOfFrame();
+        }
+        /*while (Vector2.Distance(finalPos,transform.localPosition) > 0.01f)
         {
             transform.localPosition += (finalPos - transform.localPosition) * speed;
             totalDeathMovement -= speed;
@@ -281,13 +324,14 @@ public class Token : MonoBehaviour
             }
             
             yield return new WaitForEndOfFrame();
-        }
-        while(spriteDisplay.color.a > 0.05f)
+        }*/
+        while (spriteDisplay.color.a > 0.05f)
         {
             var a = (float)spriteDisplay.color.a;
             a -= liftSpeed;
             spriteDisplay.color = new Color(spriteDisplay.color.r, spriteDisplay.color.g, spriteDisplay.color.b, a);
             number.color = new Color(number.color.r, number.color.g, number.color.b, a);
+            shadow.color = new Color(shadow.color.r, shadow.color.g, shadow.color.b, Mathf.Lerp(0, 0.5f, a));
             yield return new WaitForEndOfFrame();
         }
         yield return new WaitForSeconds(0.33f);

@@ -11,6 +11,8 @@ public class Visuals : MonoBehaviour
     public List<Sprite> altNumberSprites;
     public List<Sprite> clippingSprites;
     public Sprite trainingSpade;
+    public Sprite trainingClipper;
+    public Sprite trainingAdder;
     //public Dictionary<Logic.TokenColor, Color> tokenColors;
 
 }

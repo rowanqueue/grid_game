@@ -220,6 +220,10 @@ public class UpgradePopup : MonoBehaviour
                 {
                     token_info = "Watering Can";
                 }
+                else if(data.color == TokenColor.Gnome)
+                {
+                    token_info = "Gnome";
+                }
                 else if(data.color == TokenColor.Spade || data.color == TokenColor.Clipper)
                 {
                     token_info = data.color.ToString();
