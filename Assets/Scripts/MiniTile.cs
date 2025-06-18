@@ -28,6 +28,10 @@ public class MiniTile : MonoBehaviour
         Color c = Services.Visuals.tokenColors[(int)token.color];
         backColor.color = c;
         edgeColor.color = Color.white;
+        if(token.color == TokenColor.Gold)
+        {
+            edgeColor.color = Color.black;
+        }
         number.color = c;
         number.text = token.num.ToString();
         spriteDisplay.enabled = false;

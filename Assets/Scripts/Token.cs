@@ -10,6 +10,7 @@ public class Token : MonoBehaviour
     public SpriteRenderer spriteDisplay;
     public SpriteRenderer number;
     public SpriteRenderer shadow;
+    public SpriteRenderer gnome;
     public TextMeshPro textDisplay;
 
     float totalDeathMovement = 0.5f;
@@ -28,6 +29,7 @@ public class Token : MonoBehaviour
 
     bool beingSpaded = false;
     public bool lifted = false;
+    public bool waitingToDie = false;
     public void Init(Logic.Token _token)
     {
         initialized = true;
@@ -48,6 +50,7 @@ public class Token : MonoBehaviour
     }
     public void SetTokenData(Logic.TokenData tokenData)
     {
+        gnome.enabled = tokenData.color == Logic.TokenColor.Gnome;
         if (tokenData.num >= ((Logic.TripleGame)Services.GameController.game).maxTileNum)
         {
             spriteDisplay.sprite = Services.Visuals.tokenMax[(int)tokenData.color];
@@ -233,6 +236,7 @@ public class Token : MonoBehaviour
     }
     public void Die()
     {
+        
         textDisplay.transform.parent = transform.parent;
         textDisplay.transform.localScale = Vector3.one * 1.4f;
         finalPos = transform.localPosition + Vector3.up * liftHeight;
@@ -286,6 +290,7 @@ public class Token : MonoBehaviour
         {
             targetAngle *= -1f;
         }
+        Services.GameController.dyingTokens.Add(this);
         UpdateLayer("TokenMoving");
         while(Mathf.Abs(transform.localEulerAngles.z -targetAngle) < 0.1f)
         {
@@ -334,9 +339,24 @@ public class Token : MonoBehaviour
             shadow.color = new Color(shadow.color.r, shadow.color.g, shadow.color.b, Mathf.Lerp(0, 0.5f, a));
             yield return new WaitForEndOfFrame();
         }
-        yield return new WaitForSeconds(0.33f);
+        waitingToDie = true;
+        
         //this is right before number erases itself
         //make it so everything happens
+        
+        //yield return null;
+
+
+    }
+    public void StartKillNumber()
+    {
+        StartCoroutine(KillNumber());
+    }
+    IEnumerator KillNumber()
+    {
+        float speed = liftSpeed;
+        float waitTime = Random.Range(0.1f, 0.4f);//0.33f
+        yield return new WaitForSeconds(waitTime);
         while (textDisplay.transform.localScale.x > 0.2f)
         {
             textDisplay.transform.localScale -= Vector3.one * speed * 0.95f;
@@ -344,10 +364,10 @@ public class Token : MonoBehaviour
 
         }
         //todo: make this the right amount of points
-        Services.GameController.score += Services.GameController.ScoreToken(token.data);
+        //Services.GameController.dyingTokens.Remove(this);
+        Debug.Log("I die");
+        Services.GameController.scoreDelta += Services.GameController.ScoreToken(token.data);
         GameObject.Destroy(textDisplay.gameObject);
         GameObject.Destroy(gameObject);
-        //yield return null;
-
     }
 }

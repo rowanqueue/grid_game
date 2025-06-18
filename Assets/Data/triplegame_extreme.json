@@ -1,5 +1,5 @@
 {
-    "name": "tripleTile",
+    "name": "tripleTileSage",
     "version": 1,
     "gridSize": {
         "x": 5,
@@ -49,22 +49,14 @@
                 "color": "blue",
                 "number": 1
             },
-            "count": 6
+            "count": 10
         },
         {
             "token": {
                 "color": "red",
                 "number": 1
             },
-            "count": 4
-        },
-        {
-            "token": {
-                "color": "gnome",
-                "number": 1,
-                "temporary": true,
-            },
-            "count": 4
+            "count": 10
         },
     ],
     "progress": {

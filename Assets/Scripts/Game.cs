@@ -1,7 +1,10 @@
 using Json;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Xml.Linq;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.XR;
 
@@ -331,11 +334,36 @@ namespace Logic
             handSize = root.handSize;
             //bagContents
             bagContents = new Dictionary<TokenData, int>();
-            foreach(StartingBag tokenSet in root.startingBag)
+            if(root.name == "tripleTileSage")
             {
-                TokenData _token = ConvertJsonToken(tokenSet.token);
-                bagContents.Add(_token, tokenSet.count);
+                int seed = DateTime.Today.Second;
+                UnityEngine.Random.InitState(seed);
+                for (int i = 0; i < 20; i++)
+                {
+                    
+                    TokenData blueToken = new TokenData((TokenColor)UnityEngine.Random.Range(0, 4), 1);
+                    if (bagContents.ContainsKey(blueToken))
+                    {
+                        bagContents[blueToken] += 1;
+                    }
+                    else
+                    {
+                        bagContents.Add(blueToken, 1);
+                    }
+                    
+                }
+                
             }
+            else
+            {
+                foreach (StartingBag tokenSet in root.startingBag)
+                {
+                    TokenData _token = ConvertJsonToken(tokenSet.token);
+                    bagContents.Add(_token, tokenSet.count);
+
+                }
+            }
+            
             //progress
             List<Unlock> unlocks = new List<Unlock>();
             foreach(Json.Event _event in root.progress.events)
@@ -497,6 +525,7 @@ namespace Logic
             //adder
             TokenData gridToken = grid.tiles[p].token.data;
             if(gridToken.num >= 8) { return false; }
+            if(gridToken.color == TokenColor.Gnome) { return false; }
             if (clippingColors.ContainsKey(heldToken.num) ==false) { return true; }
             //clipping tile
             int num = clippingNumbers[gridToken.color];
@@ -514,7 +543,6 @@ namespace Logic
             history.turns.Add(new History.Turn(this));
             Token token = grid.tiles[gridPos].token;
             TripleGame _game = this as TripleGame;
-            Debug.Log("yee");
             _game.EarnPoints(token.data.num * _game.colorScoreMulti[token.data.color]);
             if (handIndex >= hand.handSize)
             {
@@ -671,6 +699,31 @@ namespace Logic
             this.gridSize = size;
             PopulateGrid();
             this.game = game;   
+        }
+        public override string ToString()
+        {
+            string s = string.Empty;
+            for(int y = gridSize.y - 1; y >= 0; y--)
+            {
+                for(int x = 0; x < gridSize.x; x++)
+                {
+                    Vector2Int p = new Vector2Int(x, y);
+                    if(tiles.ContainsKey(p) == false)
+                    {
+                        s += "_";
+                        continue;
+                    }
+                    Tile tile = tiles[p];
+                    if (tile.IsEmpty())
+                    {
+                        s += "_";
+                        continue;
+                    }
+                    s += tile.token.ToString();
+                }
+                s += "\n";
+            }
+            return s;
         }
         public bool HasTile(Vector2Int pos)
         {
@@ -1772,7 +1825,6 @@ namespace Logic
                 for (int i = 0; i < grid.Count; i++)
                 {
                     if (grid[i] == History.nullToken) { continue; }
-
                     Vector2Int p = new Vector2Int(i % game.grid.gridSize.x, i / game.grid.gridSize.y);
                     game.grid.PlaceToken(p, new Token(grid[i], false));
                 }

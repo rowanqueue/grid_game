@@ -155,7 +155,7 @@ PlayerSettings:
   allowHDRDisplaySupport: 1
   useHDRDisplay: 1
   hdrBitDepth: 0
-  m_ColorGamuts: 0000000003000000
+  m_ColorGamuts: 0300000000000000
   targetPixelDensity: 30
   resolutionScalingMode: 0
   resetResolutionOnWindowResize: 0
