@@ -338,7 +338,7 @@ namespace Logic
             {
                 int seed = DateTime.Today.Second;
                 UnityEngine.Random.InitState(seed);
-                for (int i = 0; i < 20; i++)
+                for (int i = 0; i < 10; i++)
                 {
                     
                     TokenData blueToken = new TokenData((TokenColor)UnityEngine.Random.Range(0, 4), 1);
@@ -945,6 +945,7 @@ namespace Logic
         public List<TokenData> bag = new List<TokenData>();
         public List<TokenData> nextBagsTemporary = new List<TokenData>();
         public List<TokenData> playedTempTiles = new List<TokenData>();
+        public List<TokenData> tilesDrawnThisBag = new List<TokenData>();
 
         public Bag(Game game,Dictionary<TokenData, int> _bagContents)
         {
@@ -971,20 +972,32 @@ namespace Logic
         {
             //vector2: x is how many you currently have, y is how many you're supposed to have
             Dictionary<TokenData, Vector2Int> contents = new Dictionary<TokenData, Vector2Int>();
-            foreach(TokenData token in bagContents.Keys)
+            /*foreach(TokenData token in bagContents.Keys)
             {
                 Vector2Int num = new Vector2Int(0, bagContents[token]);
                 contents.Add(token,num);
-            }
+            }*/
             foreach(TokenData token in bag)
             {
+                
                 if (contents.ContainsKey(token))
                 {
-                    contents[token] += Vector2Int.right;
+                    contents[token] += new Vector2Int(1, 1);
                 }
                 else
                 {
                     contents.Add(token, new Vector2Int(1, 1));
+                }
+            }
+            foreach(TokenData token in tilesDrawnThisBag)
+            {
+                if (contents.ContainsKey(token))
+                {
+                    contents[token] += new Vector2Int(0, 1);
+                }
+                else
+                {
+                    contents.Add(token, new Vector2Int(0, 1));
                 }
             }
             return contents;
@@ -1013,6 +1026,7 @@ namespace Logic
         }
         public void ResetBag()
         {
+            tilesDrawnThisBag.Clear();
             bagContents.Clear();
             foreach (TokenData token in startingBagContents.Keys)
             {
@@ -1068,6 +1082,7 @@ namespace Logic
         }
         void RefillBag()
         {
+            tilesDrawnThisBag.Clear();
             game.status.events.Add(new StatusReport.Event(StatusReport.EventType.BagRefill,0));
             bag.Clear();
             foreach (var tokenData in bagContents.Keys)
@@ -1087,7 +1102,9 @@ namespace Logic
         }
         public TokenData DrawToken()
         {
+            Shuffle();
             TokenData tokenData = bag[bag.Count - 1];
+            tilesDrawnThisBag.Add(tokenData);
             bag.RemoveAt(bag.Count - 1);
             if (bag.Count <= 0)
             {
@@ -1097,7 +1114,12 @@ namespace Logic
         }
         public void AddTokenBack(Token token)
         {
+            
             TokenData tokenData = token.data;
+            if (tilesDrawnThisBag.Contains(tokenData))
+            {
+                tilesDrawnThisBag.Remove(tokenData);
+            }
             bag.Add(tokenData);
             Shuffle();
         }
@@ -1768,6 +1790,7 @@ namespace Logic
             //state of bag
             public List<TokenData> currentBag;
             public List<TokenData> nextBag;
+            public List<TokenData> playedTokens;
             //state of progress
             public string unlocked;
 
@@ -1814,6 +1837,7 @@ namespace Logic
                 }
                 currentBag = new List<TokenData>(game.bag.bag);
                 nextBag = new List<TokenData>(game.bag.nextBagsTemporary);
+                playedTokens = new List<TokenData>(game.bag.tilesDrawnThisBag);
                 unlocked = ((ProgressNew)game.progress).SaveUnlocks();
             }
             public void Load(Game game)
@@ -1853,6 +1877,7 @@ namespace Logic
                 game.bag.bag = currentBag;
                 game.bag.nextBagsTemporary = nextBag;
                 game.bag.ResetBag();
+                game.bag.tilesDrawnThisBag = playedTokens;
                 
                 Dictionary<TokenData, int> updatedContents = ((ProgressNew)game.progress).LoadUnlocks(unlocked);
                 if (updatedContents.Count > 0)

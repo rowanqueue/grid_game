@@ -86,10 +86,15 @@ public class BagDisplay : MonoBehaviour
         List<TokenData> uniqueTokens = bagContents.Keys.ToList();
         uniqueTokens.Sort((t1,t2) => t1.CompareTo(t2));
         int i = 0;
-        foreach(Logic.TokenData tokenData in uniqueTokens)
+        int splitter = 4;
+        foreach (Logic.TokenData tokenData in uniqueTokens)
         {
-
-            for (int j = 0; j < bagContents[tokenData].x; j++)
+            int amountTokens = bagContents[tokenData].x;
+            if(amountTokens > splitter)
+            {
+                amountTokens = 1;
+            }
+            for (int j = 0; j < amountTokens; j++)
             {
                 Token token = GameObject.Instantiate(Services.GameController.tokenPrefab, tokenParent).GetComponent<Token>();
                 token.Init(new Logic.Token(tokenData, true));
@@ -102,7 +107,10 @@ public class BagDisplay : MonoBehaviour
                         token.TurnShade();
                     }*/
                 }
-
+                if (bagContents[tokenData].x > splitter)
+                {
+                    token.ShowCrunchedDisplay(bagContents[tokenData].x);
+                }
                 Vector2 move = new Vector2(i % perRow * gridSeparation.x, i / perRow * gridSeparation.y);
                 token.Draw(firstGridPos + move + (Vector2)transform.position);
                 token.transform.position = firstGridPos + move + (Vector2)transform.position;
@@ -112,15 +120,25 @@ public class BagDisplay : MonoBehaviour
         }
         foreach (Logic.TokenData tokenData in uniqueTokens)
         {
+            
+            
             int leftover = bagContents[tokenData].y - bagContents[tokenData].x;
-            for (int j = 0; j < leftover; j++)
+            int amountTokens = leftover;
+            if (amountTokens > splitter)
+            {
+                amountTokens = 1;
+            }
+            for (int j = 0; j < amountTokens; j++)
             {
                 Token token = GameObject.Instantiate(Services.GameController.tokenPrefab, tokenParent).GetComponent<Token>();
                 token.Init(new Logic.Token(tokenData, true));
                 token.gameObject.SetActive(true);
                 token.UpdateLayer("UIToken");
                 token.TurnShade();
-
+                if (leftover > splitter)
+                {
+                    token.ShowCrunchedDisplay(leftover);
+                }
                 Vector2 move = new Vector2(i % perRow * gridSeparation.x, i / perRow * gridSeparation.y);
                 token.Draw(firstGridPos + move + (Vector2)transform.position);
                 token.transform.position = firstGridPos + move + (Vector2)transform.position;

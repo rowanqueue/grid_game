@@ -8,7 +8,7 @@ namespace Save
 {
     public class SaveLoad
     {
-        public static int version = 1;
+        public static int version = 2;
         public static void Save(int id,Logic.History.Turn turn)
         {
             Save save = new Save(turn);
@@ -77,11 +77,13 @@ namespace Save
     {
         public int version;
         public int id;
+        public int difficulty;
         public Logic.History.Turn turn;
         public List<TileFlowers> flowers = new List<TileFlowers>();
         public List<string> previousUnlocks = new List<string>();
         public Save(Logic.History.Turn turn)
         {
+            this.difficulty = Services.GameController.difficulty;
             this.turn = turn;
             foreach(Tile tile in Services.GameController.flowers.Keys)
             {
@@ -94,8 +96,12 @@ namespace Save
         }
         public void Load()
         {
+
             if(Services.GameController.gameState == GameState.Gameplay || Services.GameController.gameState == GameState.Start)
             {
+                Services.GameController.difficulty = difficulty;
+                PlayerPrefs.SetInt("difficulty", difficulty);
+                PlayerPrefs.Save();
                 foreach (TileFlowers f in flowers)
                 {
                     f.Load();

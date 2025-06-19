@@ -341,7 +341,7 @@ Transform:
   m_GameObject: {fileID: 30839280}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2.4404302, y: 3.97, z: 0}
+  m_LocalPosition: {x: 2.4426737, y: 3.97, z: 0}
   m_LocalScale: {x: 0.3, y: 0.3, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -11203,6 +11203,7 @@ MonoBehaviour:
       temporary: 0
     currentBag: []
     nextBag: []
+    playedTokens: []
     unlocked: 
   snapshotSave:
     score: 0
@@ -11215,6 +11216,7 @@ MonoBehaviour:
       temporary: 0
     currentBag: []
     nextBag: []
+    playedTokens: []
     unlocked: 
   upgradePopup: {fileID: 867720746}
   popupopen: 0
@@ -23154,12 +23156,26 @@ PrefabInstance:
     m_TransformParent: {fileID: 703125198}
     m_Modifications:
     - target: {fileID: 270247127270743023, guid: 865b248dc43ce7a42b6f3892c582c2f9, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.91
+      objectReference: {fileID: 0}
+    - target: {fileID: 270247127270743023, guid: 865b248dc43ce7a42b6f3892c582c2f9, type: 3}
       propertyPath: m_LocalPosition.y
       value: -1.17
       objectReference: {fileID: 0}
     - target: {fileID: 380967539711986987, guid: 865b248dc43ce7a42b6f3892c582c2f9, type: 3}
       propertyPath: m_LocalPosition.y
       value: -3
+      objectReference: {fileID: 0}
+    - target: {fileID: 595550145758831577, guid: 865b248dc43ce7a42b6f3892c582c2f9, type: 3}
+      propertyPath: m_text
+      value: '<b>WELCOME TO FLORACOTTA</b>
+
+        This is a meditative, tile-laying
+        puzzle game meant to evoke the rhythms and patterns of natural gardening.
+
+        Let''s
+        get started!'
       objectReference: {fileID: 0}
     - target: {fileID: 824067489934363681, guid: 865b248dc43ce7a42b6f3892c582c2f9, type: 3}
       propertyPath: m_LocalPosition.y
@@ -23172,6 +23188,13 @@ PrefabInstance:
     - target: {fileID: 1430055409224154458, guid: 865b248dc43ce7a42b6f3892c582c2f9, type: 3}
       propertyPath: m_SortingOrder
       value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 1511089482682921585, guid: 865b248dc43ce7a42b6f3892c582c2f9, type: 3}
+      propertyPath: m_text
+      value: 'Excellent!
+
+        By placing a set of three or more tiles of the
+        same color and number, the last one placed has leveled up!'
       objectReference: {fileID: 0}
     - target: {fileID: 1751988861291812641, guid: 865b248dc43ce7a42b6f3892c582c2f9, type: 3}
       propertyPath: m_IsActive
@@ -23208,6 +23231,14 @@ PrefabInstance:
     - target: {fileID: 3194747652152294776, guid: 865b248dc43ce7a42b6f3892c582c2f9, type: 3}
       propertyPath: m_LocalPosition.y
       value: -1.35
+      objectReference: {fileID: 0}
+    - target: {fileID: 3728632614647364902, guid: 865b248dc43ce7a42b6f3892c582c2f9, type: 3}
+      propertyPath: m_text
+      value: 'You might have noticed that the Blue 2s that were removed when creating
+        your Blue 3 were worth more points than a Blue 1.
+
+        The value of a
+        tile is multiplied by its level.'
       objectReference: {fileID: 0}
     - target: {fileID: 3835296288763309566, guid: 865b248dc43ce7a42b6f3892c582c2f9, type: 3}
       propertyPath: m_LocalPosition.y
@@ -23281,6 +23312,22 @@ PrefabInstance:
       propertyPath: m_LocalPosition.y
       value: -3
       objectReference: {fileID: 0}
+    - target: {fileID: 5135994315904734320, guid: 865b248dc43ce7a42b6f3892c582c2f9, type: 3}
+      propertyPath: m_text
+      value: 'This is the shelf!
+
+        You draw tiles four at a time and they
+        get placed here before you can play them.'
+      objectReference: {fileID: 0}
+    - target: {fileID: 5148525728801480391, guid: 865b248dc43ce7a42b6f3892c582c2f9, type: 3}
+      propertyPath: m_text
+      value: 'Sweet!
+
+        But wait~
+
+        You have three Blue 2s in a set.
+        That means the most recent one will level up again!'
+      objectReference: {fileID: 0}
     - target: {fileID: 5325504118816601128, guid: 865b248dc43ce7a42b6f3892c582c2f9, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -23317,9 +23364,20 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6887267041676492383, guid: 865b248dc43ce7a42b6f3892c582c2f9, type: 3}
+      propertyPath: m_text
+      value: 'You''ve drawn four blue tiles.
+
+        Place three of them where highlighted
+        in the garden.'
+      objectReference: {fileID: 0}
     - target: {fileID: 7182194200366086373, guid: 865b248dc43ce7a42b6f3892c582c2f9, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7196981541911031393, guid: 865b248dc43ce7a42b6f3892c582c2f9, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 1.06
       objectReference: {fileID: 0}
     - target: {fileID: 7196981541911031393, guid: 865b248dc43ce7a42b6f3892c582c2f9, type: 3}
       propertyPath: m_LocalPosition.y
@@ -23373,6 +23431,14 @@ PrefabInstance:
       propertyPath: stageParents.Array.data[25]
       value: 
       objectReference: {fileID: 1138037236}
+    - target: {fileID: 8758599597965492639, guid: 865b248dc43ce7a42b6f3892c582c2f9, type: 3}
+      propertyPath: m_text
+      value: 'Sets don''t need to be in straight lines!
+
+        Before using your
+        new red tiles lets make another blue 2 using the tiles on your shelf and
+        the one you have in reserve.'
+      objectReference: {fileID: 0}
     - target: {fileID: 8986287510669322511, guid: 865b248dc43ce7a42b6f3892c582c2f9, type: 3}
       propertyPath: m_IsActive
       value: 0

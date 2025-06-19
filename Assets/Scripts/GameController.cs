@@ -7,7 +7,8 @@ using UnityEngine.SceneManagement;
 using Newtonsoft.Json;
 using Logic;
 using Save;
-using MoreMountains.NiceVibrations;
+using EZ.Haptics;
+using System;
 
 public enum GameType
 {
@@ -365,6 +366,7 @@ public class GameController : MonoBehaviour
     }
     public void GameStateSettings()
     {
+        if (inTutorial) { return; }
         lastState = gameState;
         gameState = GameState.Settings;
         stateScreens[(int)gameState].gameObject.SetActive(true);
@@ -373,6 +375,7 @@ public class GameController : MonoBehaviour
     }
     public void GameStateSnapshot()
     {
+        if (inTutorial) { return; }
         lastState = gameState;
         gameState = GameState.Snapshot;
         
@@ -383,6 +386,7 @@ public class GameController : MonoBehaviour
     }
     public void GameStateBag()
     {
+        
         if(gameState != GameState.Gameplay) { return; } 
         lastState = gameState;
         gameState = GameState.Bag;
@@ -514,8 +518,8 @@ public class GameController : MonoBehaviour
             hand[i].UpdateLayer("TokenHand");
             if (tokenAlreadyExisted == false)
             {
-                float angle = Random.Range(2f, 5f);
-                if (Random.value < 0.5f)
+                float angle = UnityEngine.Random.Range(2f, 5f);
+                if (UnityEngine.Random.value < 0.5f)
                 {
                     angle *= -1f;
                 }
@@ -783,6 +787,28 @@ public class GameController : MonoBehaviour
                 }
             }
         }
+        if(inputState != InputState.Wait && inputState != InputState.Finish)
+        {
+            if(dyingTokens.Count > 0)
+            {
+                bool readyToTrigger = true;
+                foreach (Token t in dyingTokens)
+                {
+                    if (t.waitingToDie == false)
+                    {
+                        readyToTrigger = false;
+                    }
+                }
+                if (readyToTrigger)
+                {
+                    for (int i = dyingTokens.Count - 1; i >= 0; i--)
+                    {
+                        dyingTokens[i].StartKillNumber();
+                    }
+                    dyingTokens.Clear();
+                }
+            }
+        }
         //input
         switch (inputState)
         {
@@ -877,7 +903,7 @@ public class GameController : MonoBehaviour
                         Services.AudioManager.PlayPickUpSound();
                         if (useHaptics)
                         {
-                            MMVibrationManager.Haptic(HapticTypes.MediumImpact);
+                            Haptics.PlayTransient(.5f, .5f);
                         }
                         EnterInputState(InputState.Place);
                         clickHoldDuration = 0;
@@ -903,7 +929,7 @@ public class GameController : MonoBehaviour
                         lastTokenPlaced = null;
                         if (useHaptics)
                         {
-                            MMVibrationManager.Haptic(HapticTypes.MediumImpact);
+                            Haptics.PlayTransient(.5f, .5f);
                         }
                         Undo();
                     }
@@ -911,7 +937,6 @@ public class GameController : MonoBehaviour
 
                 break;
             case InputState.Place:
-                
                 if (holdingClick)
                 {
                     clickHoldDuration += Time.deltaTime;
@@ -967,7 +992,7 @@ public class GameController : MonoBehaviour
                             Services.AudioManager.PlayLetGoSound();
                             if (useHaptics)
                             {
-                                MMVibrationManager.Haptic(HapticTypes.MediumImpact);
+                                Haptics.PlayTransient(.5f, .5f);
                             }
                             EnterInputState(InputState.Choose);
                             break;
@@ -980,7 +1005,7 @@ public class GameController : MonoBehaviour
                             hand[chosenIndex] = null;
                             if (useHaptics)
                             {
-                                MMVibrationManager.Haptic(HapticTypes.MediumImpact);
+                                Haptics.PlayTransient(.5f, .5f);
                             }
                             EnterInputState(InputState.Wait);
                             waiting = 0f;
@@ -1022,7 +1047,7 @@ public class GameController : MonoBehaviour
                             Services.AudioManager.PlayPlaceSound();
                             if (useHaptics)
                             {
-                                MMVibrationManager.Haptic(HapticTypes.MediumImpact);
+                                Haptics.PlayTransient(.5f, .5f);
                             }
                             game.PlaceTokenFromHand(chosenIndex, chosenPos);
                             if (chosenIndex >= game.hand.handSize)
@@ -1063,7 +1088,7 @@ public class GameController : MonoBehaviour
                                 Services.AudioManager.PlayShearsSound();
                                 if (useHaptics)
                                 {
-                                    MMVibrationManager.Haptic(HapticTypes.MediumImpact);
+                                    Haptics.PlayTransient(.5f, .5f);
                                 }
                             }
                             if (chosenIndex >= game.hand.handSize)
@@ -1141,7 +1166,7 @@ public class GameController : MonoBehaviour
                             Services.AudioManager.PlayPlaceSound();
                             if (useHaptics)
                             {
-                                MMVibrationManager.Haptic(HapticTypes.MediumImpact);
+                                Haptics.PlayTransient(.5f, .5f);
                             }
                             if (chosenIndex >= game.hand.handSize)
                             {
@@ -1228,7 +1253,7 @@ public class GameController : MonoBehaviour
                         lastTokenPlaced = null;
                         if (useHaptics)
                         {
-                            MMVibrationManager.Haptic(HapticTypes.MediumImpact);
+                            Haptics.PlayTransient(.5f, .5f);
                         }
                         Undo();
                         break;
@@ -1289,7 +1314,7 @@ public class GameController : MonoBehaviour
                                                 tile.token = null;
                                                 if (useHaptics)
                                                 {
-                                                    MMVibrationManager.Haptic(HapticTypes.LightImpact);
+                                                    Haptics.PlayTransient(.2f, .5f);
                                                 }
                                             }
                                         }
@@ -1308,7 +1333,7 @@ public class GameController : MonoBehaviour
                                                 Services.AudioManager.PlayUpgradeTileSound();
                                                 if (useHaptics)
                                                 {
-                                                    MMVibrationManager.Haptic(HapticTypes.HeavyImpact);
+                                                    Haptics.PlayTransient(.75f, .5f);
                                                 }
                                             }
                                         }
@@ -1364,7 +1389,10 @@ public class GameController : MonoBehaviour
                         }
                         else
                         {
-
+                            EnterInputState(InputState.Choose);
+                            //save
+                            Save();
+                            waiting = waitTime * 0.01f;
                             /*score += scoreDelta;
                             scoreDelta = 0;*/
                             /*if (popupopen)
@@ -1377,9 +1405,7 @@ public class GameController : MonoBehaviour
                             }*/
                             if(dyingTokens.Count == 0)
                             {
-                                EnterInputState(InputState.Choose);
-                                //save
-                                Save();
+                                
                             }
                             else
                             {
@@ -1398,6 +1424,7 @@ public class GameController : MonoBehaviour
                                         dyingTokens[i].StartKillNumber();
                                     }
                                     dyingTokens.Clear();
+                                    
                                 }
                             }
                             
@@ -1451,14 +1478,22 @@ public class GameController : MonoBehaviour
                     shouldHover = true;
                 }
             }
-            if (draggingTile)
+            if (shouldHover)
             {
-                freeSlot.token.Draw(mousePos + Vector2.up * 0.5f, true);
+                if (draggingTile)
+                {
+                    freeSlot.token.Draw(mousePos + Vector2.up * 0.5f, true);
+                }
+                else
+                {
+                    freeSlot.token.Draw(freeSlot.transform.position + (shouldHover ? Vector3.up * 0.5f : Vector3.zero), shouldHover);
+                }
             }
             else
             {
                 freeSlot.token.Draw(freeSlot.transform.position + (shouldHover ? Vector3.up * 0.5f : Vector3.zero), shouldHover);
             }
+            
             
         }
         //draw tokens
@@ -1571,7 +1606,7 @@ public class GameController : MonoBehaviour
         do
         {
             tries++;
-            extents = new Vector2(Random.Range(total.x, total.x + total.height), Random.Range(total.y, total.y + total.height));
+            extents = new Vector2(UnityEngine.Random.Range(total.x, total.x + total.height), UnityEngine.Random.Range(total.y, total.y + total.height));
             if (tries > 20)
             {
                 Debug.Log("gave up");
@@ -1585,7 +1620,7 @@ public class GameController : MonoBehaviour
         {
             flower.Finish();
         }
-        flower.animSpeed *= Random.Range(0.9f, 1.1f);
+        flower.animSpeed *= UnityEngine.Random.Range(0.9f, 1.1f);
         if (finished)
         {
             flower.animSpeed *= 1.5f;
@@ -1623,7 +1658,7 @@ public class GameController : MonoBehaviour
                     do
                     {
                         tries++;
-                        extents = new Vector2(Random.Range(total.x, total.x + total.height), Random.Range(total.y, total.y + total.height));
+                        extents = new Vector2(UnityEngine.Random.Range(total.x, total.x + total.height), UnityEngine.Random.Range(total.y, total.y + total.height));
                         if (tries > 20)
                         {
                             Debug.Log("gave up inside");
@@ -1717,7 +1752,16 @@ public class GameController : MonoBehaviour
         }
         if (game.history.turns.Count > 1)
         {
+            bool reserveTileFull = !game.IsFreeSlotFree();
             game.Undo();
+            if (game.history.turns.Count > 2)
+            {
+                if(reserveTileFull && game.IsFreeSlotFree())
+                {
+                    game.Undo();
+                }
+                
+            }
             score = game.score;
             scoreDelta = 0;
             dyingTokens.Clear();

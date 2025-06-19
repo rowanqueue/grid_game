@@ -239,6 +239,8 @@ public class Token : MonoBehaviour
         
         textDisplay.transform.parent = transform.parent;
         textDisplay.transform.localScale = Vector3.one * 1.4f;
+        textDisplay.text = Services.GameController.ScoreToken(token.data).ToString();
+        textDisplay.text = "<size=70%><voffset=0.2em>+</voffset></size>" + textDisplay.text;
         finalPos = transform.localPosition + Vector3.up * liftHeight;
         Services.AudioManager.PlayRemoveTileSound(1);
         StartCoroutine(Dying());
@@ -301,6 +303,7 @@ public class Token : MonoBehaviour
         }
         transform.localEulerAngles = new Vector3(0f, 0f, targetAngle);
         finalPos = Vector3.up * liftHeight;
+        waitingToDie = true;
         while (Vector2.Distance(finalPos, spriteDisplay.transform.localPosition) > 0.01f)
         {
             spriteDisplay.transform.localPosition += (finalPos - spriteDisplay.transform.localPosition) * speed;
@@ -330,6 +333,7 @@ public class Token : MonoBehaviour
             
             yield return new WaitForEndOfFrame();
         }*/
+        
         while (spriteDisplay.color.a > 0.05f)
         {
             var a = (float)spriteDisplay.color.a;
@@ -339,7 +343,7 @@ public class Token : MonoBehaviour
             shadow.color = new Color(shadow.color.r, shadow.color.g, shadow.color.b, Mathf.Lerp(0, 0.5f, a));
             yield return new WaitForEndOfFrame();
         }
-        waitingToDie = true;
+        
         
         //this is right before number erases itself
         //make it so everything happens
@@ -365,9 +369,17 @@ public class Token : MonoBehaviour
         }
         //todo: make this the right amount of points
         //Services.GameController.dyingTokens.Remove(this);
-        Debug.Log("I die");
         Services.GameController.scoreDelta += Services.GameController.ScoreToken(token.data);
         GameObject.Destroy(textDisplay.gameObject);
         GameObject.Destroy(gameObject);
+    }
+    public void ShowCrunchedDisplay(int num)
+    {
+        textDisplay.transform.position -= new Vector3(0, 0.5f);
+        textDisplay.outlineWidth = 0.3f;
+        textDisplay.outlineColor = Color.black;
+        textDisplay.sortingLayerID = spriteDisplay.sortingLayerID;
+        textDisplay.sortingOrder = spriteDisplay.sortingOrder + 5;
+        textDisplay.text = num.ToString();
     }
 }
