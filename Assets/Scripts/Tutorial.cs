@@ -245,7 +245,6 @@ public class Tutorial : MonoBehaviour
                     allowedColor = Logic.TokenColor.Red;
                     allowedPlaces.Clear();
                     highlight.SetActive(false);
-                    currentStep.highlights[1].gameObject.SetActive(false);
                     currentStep.highlights[2].gameObject.SetActive(true);
                 }
                 if(stagePhase == 3)
