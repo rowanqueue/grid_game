@@ -1159,8 +1159,13 @@ public class GameController : MonoBehaviour
                             waiting = 0f;
                             break;
                         }
+                        else if (emptyTile)
+                        {
+                            Services.AudioManager.PlayInvalidToolSound();
+                        }
                     }else if (holdingSpade)
                     {
+                        bool emptyTile = game.grid.HasTile(chosenPos) && game.grid.tiles[chosenPos].IsEmpty();
                         if (game.CanPlaceHere(chosenPos, chosenToken.token.data))
                         {
                             Services.AudioManager.PlayPlaceSound();
@@ -1193,6 +1198,10 @@ public class GameController : MonoBehaviour
                             EnterInputState(InputState.Wait);
                             waiting = 0f;
                             break;
+                        }
+                        else if (emptyTile)
+                        {
+                            Services.AudioManager.PlayInvalidToolSound();
                         }
                     }
                     //are you clicking on another tile??

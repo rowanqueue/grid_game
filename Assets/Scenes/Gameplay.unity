@@ -341,7 +341,7 @@ Transform:
   m_GameObject: {fileID: 30839280}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2.4426737, y: 3.97, z: 0}
+  m_LocalPosition: {x: 9.1325245, y: 3.97, z: 0}
   m_LocalScale: {x: 0.3, y: 0.3, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -20964,6 +20964,13 @@ MonoBehaviour:
       Data3: 865576090
       Data4: -1747929229
     Path: event:/SFX_Floracotta_Tutorial_Notification
+  invalidToolSFX:
+    Guid:
+      Data1: 1804606433
+      Data2: 1178182105
+      Data3: -638534485
+      Data4: 1333776517
+    Path: event:/SFX_Floracotta_InvalidTool
   baseVolume: 1
   loudVolume: 1
   spriteRenderer: {fileID: 0}
