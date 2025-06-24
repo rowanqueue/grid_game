@@ -547,7 +547,7 @@ public class GameController : MonoBehaviour
         {
             case InputState.Choose:
                 draggingTile = false;
-                if(inputState == InputState.Place)
+                if (inputState == InputState.Place)
                 {
                     //returning
                     chosenToken.UpdateLayer("TokenHand");

@@ -18,19 +18,28 @@ public class AnchorGameObject : MonoBehaviour
     };
 
     public bool executeInUpdate;
-
+    // Has the anchor moved yet?
+    public bool moved = false;
     public AnchorType anchorType;
     public Vector3 anchorOffset;
 
     IEnumerator updateAnchorRoutine; //Coroutine handle so we don't start it if it's already running
 
+    public void OnEnable()
+    {
+        if (moved == false)
+        {
+            SetAnchor();
+        }
+    }
     // Use this for initialization
     public void SetAnchor()
     {
-        if(gameObject.activeSelf == false)
+        if (gameObject.activeInHierarchy == false || gameObject.activeSelf == false)
         {
             return;
         }
+        moved = true;
         updateAnchorRoutine = UpdateAnchorAsync();
         StartCoroutine(updateAnchorRoutine);
     }
