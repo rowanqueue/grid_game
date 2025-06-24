@@ -58,10 +58,14 @@ public class Button : MonoBehaviour
         {
             display.color = (hover ? hoverColor : Color.white);
         }
-        if (toggledDisplay != null)
+        if(type == ButtonType.Difficulty)
         {
-            toggledDisplay.enabled = !disabled;
+            if (toggledDisplay != null)
+            {
+                toggledDisplay.enabled = !disabled;
+            }
         }
+        
         
         if(hover && !disabled && Input.GetMouseButtonDown(0))
         {
