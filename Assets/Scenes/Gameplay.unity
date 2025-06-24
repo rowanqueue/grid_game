@@ -20963,6 +20963,13 @@ MonoBehaviour:
       Data3: 865576090
       Data4: -1747929229
     Path: event:/SFX_Floracotta_Tutorial_Notification
+  invalidToolSFX:
+    Guid:
+      Data1: 1804606433
+      Data2: 1178182105
+      Data3: -638534485
+      Data4: 1333776517
+    Path: event:/SFX_Floracotta_InvalidTool
   baseVolume: 1
   loudVolume: 1
   spriteRenderer: {fileID: 0}
