@@ -263,6 +263,7 @@ public class UpgradePopup : MonoBehaviour
     {
         string id = GetContentsID(contents);
         bool repeat = false;
+        Services.AudioManager.PlayTutorialNotificationSound();
         if (previousUnlocks.Contains(id))
         {
             repeat = true;
@@ -303,6 +304,8 @@ public class UpgradePopup : MonoBehaviour
     }
     public void Close()
     {
+        Services.AudioManager.PlayButtonPressSound();
+        Debug.Log("close");
         unlockParent.SetActive(false);
         for(int i = 0; i < unlockSubParents.Length;i++)
         {
