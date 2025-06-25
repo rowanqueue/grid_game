@@ -113,20 +113,31 @@ public class Token : MonoBehaviour
         {
             beingSpaded = true;
         }
+        
         StartCoroutine(ToolMovesTowards(toolToken));
     }
     IEnumerator ToolMovesTowards(Token tool)
     {
+        Token newToken = GameObject.Instantiate(this, transform.parent).GetComponent<Token>();
+        //newToken.UpdateLayer("TokenPlaced");
+        newToken.token = token;
+        newToken.SetTokenData(token.data);
+        newToken.transform.localPosition = transform.localPosition;
+        newToken.spriteDisplay.enabled = false;
+        newToken.shadow.enabled = false;
+        newToken.number.enabled = false;
+        newToken.textDisplay.transform.parent = transform.parent;
+        newToken.textDisplay.transform.localScale = Vector3.one * 1.4f;
+        newToken.textDisplay.text = Services.GameController.ScoreToken(token.data).ToString();
+        newToken.textDisplay.text = "<size=70%><voffset=0.2em>+</voffset></size>" + newToken.textDisplay.text;
+        //newToken.Die();
+        //Services.GameController.dyingTokens.Add(newToken);
         while (Vector3.Distance(transform.position, tool.transform.position) > 0.05f)
         {
             tool.transform.position += (transform.position - tool.transform.position) * 0.15f;
             yield return new WaitForEndOfFrame();
         }
-
-        if (beingSpaded)
-        {
-            Services.GameController.score += Services.GameController.ScoreToken(token.data);
-        }
+        newToken.StartKillNumber(0.05f);
         beingSpaded = false;
         GameObject.Destroy(tool.gameObject);
     }
@@ -357,12 +368,13 @@ public class Token : MonoBehaviour
 
 
     }
-    public void StartKillNumber()
+    public void StartKillNumber(float delay = 0f)
     {
-        StartCoroutine(KillNumber());
+        StartCoroutine(KillNumber(delay));
     }
-    IEnumerator KillNumber()
+    IEnumerator KillNumber(float delay)
     {
+        yield return new WaitForSeconds(delay);
         float speed = liftSpeed;
         float waitTime = Random.Range(0.1f, 0.4f);//0.33f
         yield return new WaitForSeconds(waitTime);

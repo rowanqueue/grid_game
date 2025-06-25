@@ -49,14 +49,28 @@
                 "color": "blue",
                 "number": 1
             },
-            "count": 6
+            "count": 8
         },
         {
             "token": {
                 "color": "red",
                 "number": 1
             },
+            "count": 6
+        },
+        {
+            "token": {
+                "color": "green",
+                "number": 1
+            },
             "count": 4
+        },
+        {
+            "token": {
+                "color": "purple",
+                "number": 1
+            },
+            "count": 2
         },
         {
             "token": {
@@ -64,7 +78,7 @@
                 "number": 1,
                 "temporary": true,
             },
-            "count": 1
+            "count": 2
         },
     ],
     "progress": {
@@ -279,101 +293,6 @@
                     }
                 ]
             },
-
-            {
-                "trigger": [
-                    {
-                        "token": {
-                            "color": "blue",
-                            "number": 3
-                        }
-                    },
-                    {
-                        "token": {
-                            "color": "red",
-                            "number": 3
-                        }
-                    }
-                ],
-                "reward": [
-                    {
-                        "token": {
-                            "color": "green",
-                            "number": 1
-                        },
-                        "count": 2
-                    }
-                ]
-            },
-            {
-                "trigger": [
-                    {
-                        "token": {
-                            "color": "blue",
-                            "number": 4
-                        }
-                    },
-                    {
-                        "token": {
-                            "color": "red",
-                            "number": 4
-                        }
-                    }
-                ],
-                "reward": [
-                    {
-                        "token": {
-                            "color": "purple",
-                            "number": 1
-                        },
-                        "count": 1
-                    }
-                ]
-            },
-            {
-                "trigger": [
-                    {
-                        "token": {
-                            "color": "green",
-                            "number": 4
-                        }
-                    },
-                ],
-                "reward": [
-                    {
-                        "token": {
-                            "color": "purple",
-                            "number": 1
-                        },
-                        "count": 1
-                    }
-                ]
-            },
-            {
-                "trigger": [
-                    {
-                        "token": {
-                            "color": "blue",
-                            "number": 5
-                        }
-                    },
-                    {
-                        "token": {
-                            "color": "red",
-                            "number": 5
-                        }
-                    }
-                ],
-                "reward": [
-                    {
-                        "token": {
-                            "color": "green",
-                            "number": 1
-                        },
-                        "count": 2
-                    }
-                ]
-            },
             {
                 "repeatable": true,
                 "trigger": [
@@ -455,6 +374,14 @@
                             "temporary": true,
                         },
                         "count": 1
+                    },
+                    {
+                        "token": {
+                            "color": "spade",
+                            "number": 1,
+                            "temporary": true,
+                        },
+                        "count": 1
                     }
                 ]
             },
@@ -473,6 +400,14 @@
                         "token": {
                             "color": "clipper",
                             "number": -1,
+                            "temporary": true,
+                        },
+                        "count": 1
+                    },
+                    {
+                        "token": {
+                            "color": "spade",
+                            "number": 1,
                             "temporary": true,
                         },
                         "count": 1

@@ -95,14 +95,11 @@
 		<property name="isAsync">
 			<value>true</value>
 		</property>
-		<property name="length">
-			<value>2.2000000000000002</value>
-		</property>
 		<property name="startOffset">
 			<value>9</value>
 		</property>
 		<property name="pitch">
-			<value>6</value>
+			<value>14</value>
 		</property>
 		<relationship name="fadeOutCurve">
 			<destination>{a997b59c-1263-4173-8c49-d561e578ef0d}</destination>
@@ -173,7 +170,7 @@
 	<object class="MixerBusFader" id="{2814a2eb-1d99-4e73-ae2f-dd49f913f478}" />
 	<object class="AutomationPoint" id="{b0bf015c-0330-487c-b127-ec16d1f3591b}">
 		<property name="position">
-			<value>1.2</value>
+			<value>0</value>
 		</property>
 		<property name="value">
 			<value>1</value>
@@ -184,7 +181,7 @@
 	</object>
 	<object class="AutomationPoint" id="{29f7c99e-3089-4dd7-80cc-cb111fc74b2e}">
 		<property name="position">
-			<value>2.2000000000000002</value>
+			<value>1</value>
 		</property>
 		<property name="value">
 			<value>0</value>
