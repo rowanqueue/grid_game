@@ -16,7 +16,7 @@ public class TreeShadow : MonoBehaviour
     }
     private void Update()
     {
-        transform.position += ((start + Vector3.right* Mathf.Sin(seed+ Time.time*0.1f)*0.5f)-transform.position) *0.1f;
-        child.localPosition += ((childStart + Vector3.right * Mathf.Sin(seed+Time.time * 0.33f) * 0.15f) - child.localPosition) * 0.1f;
+        transform.position += ((start + Vector3.right* Mathf.Sin(seed+ Time.time*0.2f)*0.75f)-transform.position) *0.1f;
+        child.localPosition += ((childStart + Vector3.right * Mathf.Sin(seed+Time.time * 0.33f) * 0.3f) - child.localPosition) * 0.1f;
     }
 }
