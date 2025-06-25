@@ -1002,6 +1002,7 @@ MonoBehaviour:
   shadow: {fileID: 0}
   gnome: {fileID: 0}
   textDisplay: {fileID: 1757991119}
+  placementParticles: {fileID: 0}
   liftSpeed: 0.08
   liftHeight: 0.75
   shade: {fileID: 777332240}
@@ -2434,6 +2435,7 @@ MonoBehaviour:
   shadow: {fileID: 0}
   gnome: {fileID: 0}
   textDisplay: {fileID: 1526403222}
+  placementParticles: {fileID: 0}
   liftSpeed: 0.08
   liftHeight: 0.75
   shade: {fileID: 278399874}
@@ -16034,6 +16036,7 @@ MonoBehaviour:
   shadow: {fileID: 0}
   gnome: {fileID: 0}
   textDisplay: {fileID: 191432959}
+  placementParticles: {fileID: 0}
   liftSpeed: 0.08
   liftHeight: 0.75
   shade: {fileID: 2010343693}
@@ -17199,6 +17202,7 @@ MonoBehaviour:
   shadow: {fileID: 0}
   gnome: {fileID: 0}
   textDisplay: {fileID: 1079793150}
+  placementParticles: {fileID: 0}
   liftSpeed: 0.08
   liftHeight: 0.75
   shade: {fileID: 716513205}
@@ -18555,6 +18559,7 @@ MonoBehaviour:
   shadow: {fileID: 0}
   gnome: {fileID: 0}
   textDisplay: {fileID: 1971733259}
+  placementParticles: {fileID: 0}
   liftSpeed: 0.08
   liftHeight: 0.75
   shade: {fileID: 1655863820}
