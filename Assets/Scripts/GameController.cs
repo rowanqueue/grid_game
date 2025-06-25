@@ -39,6 +39,7 @@ public class GameController : MonoBehaviour
     public int difficulty = 0;
     public List<TextAsset> difficulties = new List<TextAsset>();
     public List<string> difficultyNames = new List<string>();
+    public List<bool> difficultyUnlocked =new List<bool>();
     public TextMeshPro difficultyName;
     public List<Button> difficultyButtons = new List<Button>();
     public GameObject difficultyParent;
@@ -366,6 +367,8 @@ public class GameController : MonoBehaviour
     }
     public void GameStateSettings()
     {
+        if (inputState == InputState.Finish || inputState == InputState.TapToRestart) { return; }
+        if (inTutorial) { return; }
         if (inTutorial) { return; }
         lastState = gameState;
         gameState = GameState.Settings;
@@ -375,6 +378,7 @@ public class GameController : MonoBehaviour
     }
     public void GameStateSnapshot()
     {
+        if(inputState == InputState.Finish || inputState == InputState.TapToRestart) { return; }
         if (inTutorial) { return; }
         lastState = gameState;
         gameState = GameState.Snapshot;
@@ -386,8 +390,9 @@ public class GameController : MonoBehaviour
     }
     public void GameStateBag()
     {
-        
-        if(gameState != GameState.Gameplay) { return; } 
+        if (inputState == InputState.Finish || inputState == InputState.TapToRestart) { return; }
+        if (inTutorial) { return; }
+        if (gameState != GameState.Gameplay) { return; } 
         lastState = gameState;
         gameState = GameState.Bag;
         //stateScreens[(int)gameState].gameObject.SetActive(true);
@@ -399,6 +404,18 @@ public class GameController : MonoBehaviour
         diceMode = !diceMode;
         PlayerPrefs.SetInt("diceMode",diceMode ? 1 : 0);
         PlayerPrefs.Save();
+        foreach(Token t in hand)
+        {
+            if(t == null) { continue; }
+            t.SetTokenData(t.token.data);
+        }
+        foreach(Tile t in tiles.Values)
+        {
+            if(t.token != null)
+            {
+                t.token.SetTokenData(t.token.token.data);
+            }
+        }
     }
     public void ToggleHaptics()
     {
@@ -1159,8 +1176,13 @@ public class GameController : MonoBehaviour
                             waiting = 0f;
                             break;
                         }
+                        else if (emptyTile)
+                        {
+                            Services.AudioManager.PlayInvalidToolSound();
+                        }
                     }else if (holdingSpade)
                     {
+                        bool emptyTile = game.grid.HasTile(chosenPos) && game.grid.tiles[chosenPos].IsEmpty();
                         if (game.CanPlaceHere(chosenPos, chosenToken.token.data))
                         {
                             Services.AudioManager.PlayPlaceSound();
@@ -1193,6 +1215,10 @@ public class GameController : MonoBehaviour
                             EnterInputState(InputState.Wait);
                             waiting = 0f;
                             break;
+                        }
+                        else if (emptyTile)
+                        {
+                            Services.AudioManager.PlayInvalidToolSound();
                         }
                     }
                     //are you clicking on another tile??
@@ -1760,7 +1786,6 @@ public class GameController : MonoBehaviour
                 {
                     game.Undo();
                 }
-                
             }
             score = game.score;
             scoreDelta = 0;

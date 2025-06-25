@@ -27,6 +27,7 @@ public class AudioManager : MonoBehaviour
     public FMODUnity.EventReference menuTransitionSFX;
     public FMODUnity.EventReference startButtonSFX;
     public FMODUnity.EventReference tutorialNotificationSFX;
+    public FMODUnity.EventReference invalidToolSFX;
     FMOD.Studio.PARAMETER_ID popDepth;
     [Header("Misc")]
     public float baseVolume;
@@ -134,6 +135,11 @@ public class AudioManager : MonoBehaviour
     public void PlayBagSound()
     {
         FMODUnity.RuntimeManager.PlayOneShot(bagSFX);
+    }
+
+    public void PlayInvalidToolSound()
+    {
+        FMODUnity.RuntimeManager.PlayOneShot(invalidToolSFX);
     }
 
     public void PlayUndoSound()

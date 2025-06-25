@@ -338,10 +338,10 @@ namespace Logic
             {
                 int seed = DateTime.Today.Second;
                 UnityEngine.Random.InitState(seed);
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < 19; i++)
                 {
-                    
-                    TokenData blueToken = new TokenData((TokenColor)UnityEngine.Random.Range(0, 4), 1);
+                    int color = Mathf.FloorToInt(UnityEngine.Random.value * 4f);
+                    TokenData blueToken = new TokenData((TokenColor)color, Mathf.FloorToInt(UnityEngine.Random.value * 8f));
                     if (bagContents.ContainsKey(blueToken))
                     {
                         bagContents[blueToken] += 1;
@@ -352,6 +352,19 @@ namespace Logic
                     }
                     
                 }
+                float val = UnityEngine.Random.value;
+                if(val < 0.33f)
+                {
+                    bagContents.Add(new TokenData(TokenColor.Clipper, 0), 1);
+                }else if (val < 0.66f)
+                {
+                    bagContents.Add(new TokenData(TokenColor.Adder, 0), 1);
+                }
+                else
+                {
+                    bagContents.Add(new TokenData(TokenColor.Spade, 0), 1);
+                }
+
                 
             }
             else
@@ -1102,7 +1115,7 @@ namespace Logic
         }
         public TokenData DrawToken()
         {
-            Shuffle();
+            //Shuffle();
             TokenData tokenData = bag[bag.Count - 1];
             tilesDrawnThisBag.Add(tokenData);
             bag.RemoveAt(bag.Count - 1);
