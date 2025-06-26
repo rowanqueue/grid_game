@@ -608,7 +608,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Dumb Dice Mode
+  m_text: Pip Mode
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 52c9d90975675fb4eb4d2dc32579d50c, type: 2}
   m_sharedMaterial: {fileID: 702498762529516548, guid: 52c9d90975675fb4eb4d2dc32579d50c, type: 2}
