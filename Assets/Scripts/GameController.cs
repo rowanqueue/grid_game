@@ -1093,6 +1093,10 @@ public class GameController : MonoBehaviour
                             waiting = 0f;
                             break;
                         }
+                        else
+                        {
+                            chosenToken.StartInvalidAnim();
+                        }
                     }else if (holdingClipper || holdingAdder)
                     {
                         bool emptyTile = game.grid.HasTile(chosenPos) && game.grid.tiles[chosenPos].IsEmpty();
