@@ -40,6 +40,7 @@ public class GameController : MonoBehaviour
     public List<TextAsset> difficulties = new List<TextAsset>();
     public List<string> difficultyNames = new List<string>();
     public List<bool> difficultyUnlocked =new List<bool>();
+    public List<int> scoreNeededToUnlock = new List<int>();
     public TextMeshPro difficultyName;
     public List<Button> difficultyButtons = new List<Button>();
     public GameObject difficultyParent;
@@ -129,6 +130,22 @@ public class GameController : MonoBehaviour
     void Awake()
     {
         InitializeServices();
+        if (PlayerPrefs.HasKey("difficultyUnlock"))
+        {
+            String unlock = PlayerPrefs.GetString("difficultyUnlock");
+            for(int i = 0; i < unlock.Length; i++)
+            {
+                if (unlock[i] == '1')
+                {
+                    difficultyUnlocked[i] = true;
+                }
+            }
+        }
+        else
+        {
+            PlayerPrefs.SetString("difficultyUnlock","1000");
+            PlayerPrefs.Save();
+        }
         if (PlayerPrefs.HasKey("musicVolume") == false)
         {
             PlayerPrefs.SetFloat("musicVolume", 1.0f);
@@ -715,6 +732,10 @@ public class GameController : MonoBehaviour
         {
             difficultyName.text += "<size=50%>\nRestart to change difficulty";
         }*/
+        if (difficultyUnlocked[difficulty] == false)
+        {
+            difficultyName.text += "\nLocked! Earn " + scoreNeededToUnlock[difficulty].ToString() + " to unlock";
+        }
         difficultyButtons[0].disabled = difficulty == 0;
         difficultyButtons[1].disabled = difficulty == difficulties.Count - 1;
         DeathCheck();
@@ -976,6 +997,7 @@ public class GameController : MonoBehaviour
                     if (d < 0.5f)
                     {
                         chosenPos = tile.tile.pos;
+                        
                         break;
                     }
                 }
@@ -1093,6 +1115,10 @@ public class GameController : MonoBehaviour
                             waiting = 0f;
                             break;
                         }
+                        else
+                        {
+                            chosenToken.StartInvalidAnim();
+                        }
                     }else if (holdingClipper || holdingAdder)
                     {
                         bool emptyTile = game.grid.HasTile(chosenPos) && game.grid.tiles[chosenPos].IsEmpty();
@@ -1178,7 +1204,12 @@ public class GameController : MonoBehaviour
                         }
                         else if (emptyTile)
                         {
+                            chosenToken.StartInvalidAnim();
                             Services.AudioManager.PlayInvalidToolSound();
+                        }
+                        else
+                        {
+                            chosenToken.StartInvalidAnim();
                         }
                     }else if (holdingSpade)
                     {
@@ -1218,7 +1249,12 @@ public class GameController : MonoBehaviour
                         }
                         else if (emptyTile)
                         {
+                            chosenToken.StartInvalidAnim();
                             Services.AudioManager.PlayInvalidToolSound();
+                        }
+                        else
+                        {
+                            chosenToken.StartInvalidAnim();
                         }
                     }
                     //are you clicking on another tile??
@@ -1239,11 +1275,19 @@ public class GameController : MonoBehaviour
                         if (new_index == chosenIndex)
                         {
                             Services.AudioManager.PlayLetGoSound();
+                            if (useHaptics)
+                            {
+                                Haptics.PlayTransient(.5f, .5f);
+                            }
                             EnterInputState(InputState.Choose);
                         }
                         else
                         {
                             chosenIndex = new_index;
+                            if (useHaptics)
+                            {
+                                Haptics.PlayTransient(.5f, .5f);
+                            }
                             EnterInputState(InputState.Place);
                         }
                     }
@@ -1340,7 +1384,7 @@ public class GameController : MonoBehaviour
                                                 tile.token = null;
                                                 if (useHaptics)
                                                 {
-                                                    Haptics.PlayTransient(.2f, .5f);
+                                                    Haptics.PlayTransient(.5f, .5f);
                                                 }
                                             }
                                         }
@@ -1359,7 +1403,7 @@ public class GameController : MonoBehaviour
                                                 Services.AudioManager.PlayUpgradeTileSound();
                                                 if (useHaptics)
                                                 {
-                                                    Haptics.PlayTransient(.75f, .5f);
+                                                    Haptics.PlayTransient(1f, .5f);
                                                 }
                                             }
                                         }
@@ -1740,6 +1784,29 @@ public class GameController : MonoBehaviour
         Logic.History.Turn save = new Logic.History.Turn(game);
         currentSave = save;
         SaveLoad.Save(0,currentSave);
+        for(int i = 0; i < difficultyUnlocked.Count; i++)
+        {
+            if (difficultyUnlocked[i]) { continue; }
+            if(score >= scoreNeededToUnlock[i])
+            {
+                difficultyUnlocked[i] = true;
+            }
+        }
+        String unlock = "";
+        for (int i = 0; i < difficultyUnlocked.Count; i++)
+        {
+            if (difficultyUnlocked[i])
+            {
+                unlock = unlock + "1";
+            }
+            else
+            {
+                unlock = unlock + "0";
+            }
+        }
+        Debug.Log(unlock);
+        PlayerPrefs.SetString("difficultyUnlock", unlock);
+        PlayerPrefs.Save();
     }
     public void Mulligan()
     {

@@ -399,4 +399,50 @@ public class Token : MonoBehaviour
         textDisplay.sortingOrder = spriteDisplay.sortingOrder + 5;
         textDisplay.text = num.ToString();
     }
+    public void StartInvalidAnim()
+    {
+        if(wiggling == false)
+        {
+            StartCoroutine(InvalidWiggle());
+        }
+        
+    }
+    IEnumerator InvalidWiggle()
+    {
+        wiggling = true;
+        float speed = 0.225f * 2.3f;
+        float targetAngle = 10f;
+
+        while (Mathf.Abs(Mathf.DeltaAngle(transform.localEulerAngles.z, targetAngle)) > 0.1f)
+        {
+            float angle = transform.localEulerAngles.z;
+            angle = Mathf.LerpAngle(angle, targetAngle, speed);
+            transform.localEulerAngles = new Vector3(0f, 0f, angle);
+            yield return new WaitForEndOfFrame();
+        }
+        transform.localEulerAngles = new Vector3(0f, 0f, targetAngle);
+        for (int i = 0; i < 1; i++)
+        {
+            targetAngle *= -1f;
+            while (Mathf.Abs(Mathf.DeltaAngle(transform.localEulerAngles.z, targetAngle)) > 0.1f)
+            {
+                float angle = transform.localEulerAngles.z;
+                angle = Mathf.LerpAngle(angle, targetAngle, speed);
+                transform.localEulerAngles = new Vector3(0f, 0f, angle);
+                yield return new WaitForEndOfFrame();
+            }
+            transform.localEulerAngles = new Vector3(0f, 0f, targetAngle);
+        }
+
+        targetAngle = 0f;
+        while (Mathf.Abs(Mathf.DeltaAngle(transform.localEulerAngles.z, targetAngle)) > 0.1f)
+        {
+            float angle = transform.localEulerAngles.z;
+            angle = Mathf.LerpAngle(angle, targetAngle, speed);
+            transform.localEulerAngles = new Vector3(0f, 0f, angle);
+            yield return new WaitForEndOfFrame();
+        }
+        transform.localEulerAngles = new Vector3(0f, 0f, targetAngle);
+        wiggling = false;
+    }
 }

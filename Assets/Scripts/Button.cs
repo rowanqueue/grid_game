@@ -10,7 +10,8 @@ public enum ButtonType
     BagButton,
     Haptics,
     DiceMode,
-    Difficulty
+    Difficulty,
+    StartGame
 }
 public class Button : MonoBehaviour
 {
@@ -53,16 +54,22 @@ public class Button : MonoBehaviour
                     toggledDisplay.enabled = Services.GameController.useHaptics;
                 }
                 break;
+            case ButtonType.StartGame:
+                disabled = !Services.GameController.difficultyUnlocked[Services.GameController.difficulty];
+                break;
         }
         if(display != null)
         {
             display.color = (hover ? hoverColor : Color.white);
         }
-        if(type == ButtonType.Difficulty)
+        if(type == ButtonType.Difficulty || type == ButtonType.StartGame)
         {
             if (toggledDisplay != null)
             {
                 toggledDisplay.enabled = !disabled;
+            }
+            if(words != null) {
+                words.enabled = !disabled;
             }
         }
         
