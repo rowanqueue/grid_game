@@ -13,7 +13,9 @@ public class Token : MonoBehaviour
     public SpriteRenderer gnome;
     public TextMeshPro textDisplay;
     public ParticleSystem placementParticles;
-    public ParticleSystem scoreParticles;
+    public ParticleSystem dirtParticles;
+    public ParticleSystem sparkleParticles;
+    public FlowerBurstParticleController flowerParticles;
 
     float totalDeathMovement = 0.5f;
     Vector3 finalPos;
@@ -238,9 +240,8 @@ public class Token : MonoBehaviour
     }
     IEnumerator LowerLift()
     {
-        placementParticles.Play();
-        Debug.Log("Lowering lift");
-        yield return new WaitForSeconds(0.3f);     
+        yield return new WaitForSeconds(0.3f);
+        placementParticles.Play();     
         UpdateLayer("TokenPlaced");
     }
     public void UpdateLayer(string sortingLayer)
@@ -254,7 +255,9 @@ public class Token : MonoBehaviour
 
         textDisplay.transform.parent = transform.parent;
         textDisplay.transform.localScale = Vector3.one * 1.4f;
-        scoreParticles.Play();
+        dirtParticles.Play();
+        sparkleParticles.Play();
+        flowerParticles.PlayFlowerBurst(token.data.color);
         textDisplay.text = Services.GameController.ScoreToken(token.data).ToString();
         textDisplay.text = "<size=70%><voffset=0.2em>+</voffset></size>" + textDisplay.text;
         finalPos = transform.localPosition + Vector3.up * liftHeight;

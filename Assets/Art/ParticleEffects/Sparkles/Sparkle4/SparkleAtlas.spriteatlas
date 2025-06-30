@@ -1,0 +1,81 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: SparkleAtlas
+  m_EditorData:
+    serializedVersion: 2
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 1
+      compressionQuality: 50
+      maxTextureSize: 2048
+      textureCompression: 0
+      filterMode: 0
+      generateMipMaps: 0
+      readable: 1
+      crunchedCompression: 0
+      sRGB: 1
+    platformSettings:
+    - serializedVersion: 3
+      m_BuildTarget: DefaultTexturePlatform
+      m_MaxTextureSize: 1024
+      m_ResizeAlgorithm: 0
+      m_TextureFormat: -1
+      m_TextureCompression: 1
+      m_CompressionQuality: 50
+      m_CrunchedCompression: 0
+      m_AllowsAlphaSplitting: 0
+      m_Overridden: 0
+      m_IgnorePlatformSupport: 0
+      m_AndroidETC2FallbackOverride: 0
+      m_ForceMaximumCompressionQuality_BC6H_BC7: 0
+    packingSettings:
+      serializedVersion: 2
+      padding: 4
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 1
+      enableTightPacking: 0
+      enableAlphaDilation: 1
+    secondaryTextureSettings: {}
+    variantMultiplier: 1
+    packables:
+    - {fileID: 21300000, guid: c4d0e6612d77948ab9770a15b242994e, type: 3}
+    - {fileID: 21300000, guid: 88a25db9bd8144cd6b877780a8e14cf9, type: 3}
+    - {fileID: 21300000, guid: 6c994195f1c2449e58aac422dfb59c81, type: 3}
+    - {fileID: 21300000, guid: 5fee967ab85f34a499641d36aa624471, type: 3}
+    - {fileID: 21300000, guid: d74879040a1a3498e9c1245a5f8d9590, type: 3}
+    - {fileID: 21300000, guid: 6669e43eb35304f389474e30c577344e, type: 3}
+    bindAsDefault: 1
+    isAtlasV2: 0
+    cachedData: {fileID: 0}
+    packedSpriteRenderDataKeys:
+    - c4d0e6612d77948ab9770a15b242994e: 21300000
+    - d74879040a1a3498e9c1245a5f8d9590: 21300000
+    - 6c994195f1c2449e58aac422dfb59c81: 21300000
+    - 88a25db9bd8144cd6b877780a8e14cf9: 21300000
+    - 5fee967ab85f34a499641d36aa624471: 21300000
+    - 6669e43eb35304f389474e30c577344e: 21300000
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: 21300000, guid: c4d0e6612d77948ab9770a15b242994e, type: 3}
+  - {fileID: 21300000, guid: d74879040a1a3498e9c1245a5f8d9590, type: 3}
+  - {fileID: 21300000, guid: 6c994195f1c2449e58aac422dfb59c81, type: 3}
+  - {fileID: 21300000, guid: 88a25db9bd8144cd6b877780a8e14cf9, type: 3}
+  - {fileID: 21300000, guid: 5fee967ab85f34a499641d36aa624471, type: 3}
+  - {fileID: 21300000, guid: 6669e43eb35304f389474e30c577344e, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - Sparkle4-1
+  - Sparkle4-5
+  - Sparkle4-3
+  - Sparkle4-2
+  - Sparkle4-4
+  - Sparkle4-6
+  m_RenderDataMap: {}
+  m_Tag: SparkleAtlas
+  m_IsVariant: 0

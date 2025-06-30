@@ -1,0 +1,68 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Upgrade_Blue
+  m_EditorData:
+    serializedVersion: 2
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 1
+      compressionQuality: 50
+      maxTextureSize: 2048
+      textureCompression: 0
+      filterMode: 1
+      generateMipMaps: 0
+      readable: 1
+      crunchedCompression: 0
+      sRGB: 1
+    platformSettings: []
+    packingSettings:
+      serializedVersion: 2
+      padding: 4
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 1
+      enableTightPacking: 0
+      enableAlphaDilation: 1
+    secondaryTextureSettings: {}
+    variantMultiplier: 1
+    packables:
+    - {fileID: 21300000, guid: 4a4223beb25eb4e15b66de9a10c3b494, type: 3}
+    - {fileID: 21300000, guid: c9959d1e82be64d29972c6727eaabda5, type: 3}
+    - {fileID: 21300000, guid: e2b00ab9e4dbd47b0a9365fdc297021a, type: 3}
+    - {fileID: 21300000, guid: 451d8acb2fac54aa1923700003662188, type: 3}
+    - {fileID: 21300000, guid: abdcd3af6bbf941e987590e6315a8867, type: 3}
+    - {fileID: 21300000, guid: 39ed886da307e4642b74fce5162a077d, type: 3}
+    bindAsDefault: 1
+    isAtlasV2: 0
+    cachedData: {fileID: 0}
+    packedSpriteRenderDataKeys:
+    - e2b00ab9e4dbd47b0a9365fdc297021a: 21300000
+    - 451d8acb2fac54aa1923700003662188: 21300000
+    - 39ed886da307e4642b74fce5162a077d: 21300000
+    - c9959d1e82be64d29972c6727eaabda5: 21300000
+    - 4a4223beb25eb4e15b66de9a10c3b494: 21300000
+    - abdcd3af6bbf941e987590e6315a8867: 21300000
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: 21300000, guid: e2b00ab9e4dbd47b0a9365fdc297021a, type: 3}
+  - {fileID: 21300000, guid: 451d8acb2fac54aa1923700003662188, type: 3}
+  - {fileID: 21300000, guid: 39ed886da307e4642b74fce5162a077d, type: 3}
+  - {fileID: 21300000, guid: c9959d1e82be64d29972c6727eaabda5, type: 3}
+  - {fileID: 21300000, guid: 4a4223beb25eb4e15b66de9a10c3b494, type: 3}
+  - {fileID: 21300000, guid: abdcd3af6bbf941e987590e6315a8867, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - Particle_Upgrade_Blue3
+  - Particle_Upgrade_Blue4
+  - Particle_Upgrade_Blue6
+  - Particle_Upgrade_Blue2
+  - Particle_Upgrade_Blue1
+  - Particle_Upgrade_Blue5
+  m_RenderDataMap: {}
+  m_Tag: Upgrade_Blue
+  m_IsVariant: 0
