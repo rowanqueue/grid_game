@@ -9,8 +9,9 @@ public class FlowerBurstParticleController : MonoBehaviour
     public ParticleSystem purpleFlowerBurst;
     public ParticleSystem greenFlowerBurst;
     public ParticleSystem goldFlowerBurst;
+    public ParticleSystem spadeDirtBurst;
 
-    public void PlayFlowerBurst(Logic.TokenColor tokenColor)
+    private void PlayFlowerBurst(Logic.TokenColor tokenColor)
     {
         switch (tokenColor)
         {
@@ -19,11 +20,11 @@ public class FlowerBurstParticleController : MonoBehaviour
                 blueFlowerBurst.Play();
                 break;
             case Logic.TokenColor.Red:
-                Debug.Log("Playing red flower burst"); 
+                Debug.Log("Playing red flower burst");
                 redFlowerBurst.Play();
                 break;
             case Logic.TokenColor.Purple:
-                Debug.Log("Playing purple flower burst");   
+                Debug.Log("Playing purple flower burst");
                 purpleFlowerBurst.Play();
                 break;
             case Logic.TokenColor.Green:
@@ -31,6 +32,43 @@ public class FlowerBurstParticleController : MonoBehaviour
                 break;
             case Logic.TokenColor.Gold:
                 goldFlowerBurst.Play();
+                break;
+            case Logic.TokenColor.Spade:
+                spadeDirtBurst.Play();
+                break;
+            default:
+                Debug.LogWarning("Unknown token color: " + tokenColor);
+                break;
+        }
+    }
+
+    public IEnumerator PlayFlowerBurstCoroutine(float delay, Logic.TokenColor tokenColor)
+    {
+        yield return new WaitForSeconds(delay);
+        PlayFlowerBurst(tokenColor);
+    }
+
+    public void StopFlowerBurst(Logic.TokenColor tokenColor)
+    {
+        switch (tokenColor)
+        {
+            case Logic.TokenColor.Blue:
+                blueFlowerBurst.Stop();
+                break;
+            case Logic.TokenColor.Red:
+                redFlowerBurst.Stop();
+                break;
+            case Logic.TokenColor.Purple:
+                purpleFlowerBurst.Stop();
+                break;
+            case Logic.TokenColor.Green:
+                greenFlowerBurst.Stop();
+                break;
+            case Logic.TokenColor.Gold:
+                goldFlowerBurst.Stop();
+                break;
+            case Logic.TokenColor.Spade:
+                spadeDirtBurst.Stop();
                 break;
             default:
                 Debug.LogWarning("Unknown token color: " + tokenColor);

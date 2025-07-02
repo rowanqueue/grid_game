@@ -976,7 +976,7 @@ ParticleSystem:
     m_BurstCount: 2
     m_Bursts:
     - serializedVersion: 2
-      time: 0.4
+      time: 0
       countCurve:
         serializedVersion: 2
         minMaxState: 0
@@ -1034,7 +1034,7 @@ ParticleSystem:
       repeatInterval: 0.6
       probability: 1
     - serializedVersion: 2
-      time: 0.8
+      time: 0.4
       countCurve:
         serializedVersion: 2
         minMaxState: 0
@@ -4934,8 +4934,8 @@ ParticleSystemRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -866524337
+  m_SortingLayer: 5
   m_SortingOrder: 0
   m_RenderMode: 1
   m_MeshDistribution: 0
@@ -5945,7 +5945,7 @@ ParticleSystem:
     m_BurstCount: 2
     m_Bursts:
     - serializedVersion: 2
-      time: 0.4
+      time: 0
       countCurve:
         serializedVersion: 2
         minMaxState: 0
@@ -6003,7 +6003,7 @@ ParticleSystem:
       repeatInterval: 0.6
       probability: 1
     - serializedVersion: 2
-      time: 0.8
+      time: 0.4
       countCurve:
         serializedVersion: 2
         minMaxState: 0
@@ -9902,8 +9902,8 @@ ParticleSystemRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -866524337
+  m_SortingLayer: 5
   m_SortingOrder: 0
   m_RenderMode: 1
   m_MeshDistribution: 0
@@ -9972,6 +9972,7 @@ Transform:
   - {fileID: 8465576949365625945}
   - {fileID: 6612084772284973678}
   - {fileID: 8696773691558486189}
+  - {fileID: 8864018542872558703}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &6969412717559582218
@@ -9991,6 +9992,7 @@ MonoBehaviour:
   purpleFlowerBurst: {fileID: 4083704105103455730}
   greenFlowerBurst: {fileID: 8581885203636184048}
   goldFlowerBurst: {fileID: 1924974584991341971}
+  spadeDirtBurst: {fileID: 2879939653571223555}
 --- !u!1 &4920798431356534934
 GameObject:
   m_ObjectHideFlags: 0
@@ -10967,7 +10969,7 @@ ParticleSystem:
     m_BurstCount: 2
     m_Bursts:
     - serializedVersion: 2
-      time: 0.4
+      time: 0
       countCurve:
         serializedVersion: 2
         minMaxState: 0
@@ -11025,7 +11027,7 @@ ParticleSystem:
       repeatInterval: 0.6
       probability: 1
     - serializedVersion: 2
-      time: 0.8
+      time: 0.4
       countCurve:
         serializedVersion: 2
         minMaxState: 0
@@ -14924,8 +14926,8 @@ ParticleSystemRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -866524337
+  m_SortingLayer: 5
   m_SortingOrder: 0
   m_RenderMode: 1
   m_MeshDistribution: 0
@@ -15935,7 +15937,7 @@ ParticleSystem:
     m_BurstCount: 2
     m_Bursts:
     - serializedVersion: 2
-      time: 0.4
+      time: 0
       countCurve:
         serializedVersion: 2
         minMaxState: 0
@@ -15993,7 +15995,7 @@ ParticleSystem:
       repeatInterval: 0.6
       probability: 1
     - serializedVersion: 2
-      time: 0.8
+      time: 0.4
       countCurve:
         serializedVersion: 2
         minMaxState: 0
@@ -19892,8 +19894,8 @@ ParticleSystemRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -866524337
+  m_SortingLayer: 5
   m_SortingOrder: 0
   m_RenderMode: 1
   m_MeshDistribution: 0
@@ -20903,7 +20905,7 @@ ParticleSystem:
     m_BurstCount: 2
     m_Bursts:
     - serializedVersion: 2
-      time: 0.4
+      time: 0
       countCurve:
         serializedVersion: 2
         minMaxState: 0
@@ -20961,7 +20963,7 @@ ParticleSystem:
       repeatInterval: 0.6
       probability: 1
     - serializedVersion: 2
-      time: 0.8
+      time: 0.4
       countCurve:
         serializedVersion: 2
         minMaxState: 0
@@ -24860,8 +24862,8 @@ ParticleSystemRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -866524337
+  m_SortingLayer: 5
   m_SortingOrder: 0
   m_RenderMode: 1
   m_MeshDistribution: 0
@@ -24895,3 +24897,86 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
+--- !u!1001 &2950371380673516774
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 2004259869998388146}
+    m_Modifications:
+    - target: {fileID: 1082635192346784997, guid: ea1646d2d5a484394a3715ed4ce0be23, type: 3}
+      propertyPath: EmissionModule.m_Bursts.Array.data[0].time
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1082635192346784997, guid: ea1646d2d5a484394a3715ed4ce0be23, type: 3}
+      propertyPath: EmissionModule.m_Bursts.Array.data[1].time
+      value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 4661758837757568291, guid: ea1646d2d5a484394a3715ed4ce0be23, type: 3}
+      propertyPath: m_SortingLayer
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4661758837757568291, guid: ea1646d2d5a484394a3715ed4ce0be23, type: 3}
+      propertyPath: m_SortingLayerID
+      value: -866524337
+      objectReference: {fileID: 0}
+    - target: {fileID: 6049041032784570505, guid: ea1646d2d5a484394a3715ed4ce0be23, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6049041032784570505, guid: ea1646d2d5a484394a3715ed4ce0be23, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6049041032784570505, guid: ea1646d2d5a484394a3715ed4ce0be23, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6049041032784570505, guid: ea1646d2d5a484394a3715ed4ce0be23, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6049041032784570505, guid: ea1646d2d5a484394a3715ed4ce0be23, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6049041032784570505, guid: ea1646d2d5a484394a3715ed4ce0be23, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6049041032784570505, guid: ea1646d2d5a484394a3715ed4ce0be23, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6049041032784570505, guid: ea1646d2d5a484394a3715ed4ce0be23, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6049041032784570505, guid: ea1646d2d5a484394a3715ed4ce0be23, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6049041032784570505, guid: ea1646d2d5a484394a3715ed4ce0be23, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6722680752629390316, guid: ea1646d2d5a484394a3715ed4ce0be23, type: 3}
+      propertyPath: m_Name
+      value: DirtBurst
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: ea1646d2d5a484394a3715ed4ce0be23, type: 3}
+--- !u!198 &2879939653571223555 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 1082635192346784997, guid: ea1646d2d5a484394a3715ed4ce0be23, type: 3}
+  m_PrefabInstance: {fileID: 2950371380673516774}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &8864018542872558703 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6049041032784570505, guid: ea1646d2d5a484394a3715ed4ce0be23, type: 3}
+  m_PrefabInstance: {fileID: 2950371380673516774}
+  m_PrefabAsset: {fileID: 0}

@@ -829,6 +829,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: Sparkles
       objectReference: {fileID: 0}
+    - target: {fileID: 3821931068437095377, guid: 7c3c532a08829445399124b41c10f613, type: 3}
+      propertyPath: m_SortingLayer
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3821931068437095377, guid: 7c3c532a08829445399124b41c10f613, type: 3}
+      propertyPath: m_SortingOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3821931068437095377, guid: 7c3c532a08829445399124b41c10f613, type: 3}
+      propertyPath: m_SortingLayerID
+      value: -866524337
+      objectReference: {fileID: 0}
     - target: {fileID: 6327409522631816679, guid: 7c3c532a08829445399124b41c10f613, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -876,6 +888,18 @@ PrefabInstance:
     - target: {fileID: 8325279992893319336, guid: 7c3c532a08829445399124b41c10f613, type: 3}
       propertyPath: ShapeModule.radiusThickness
       value: 0.35
+      objectReference: {fileID: 0}
+    - target: {fileID: 8325279992893319336, guid: 7c3c532a08829445399124b41c10f613, type: 3}
+      propertyPath: InitialModule.startColor.maxColor.b
+      value: 0.759434
+      objectReference: {fileID: 0}
+    - target: {fileID: 8325279992893319336, guid: 7c3c532a08829445399124b41c10f613, type: 3}
+      propertyPath: InitialModule.startColor.maxColor.g
+      value: 0.9691504
+      objectReference: {fileID: 0}
+    - target: {fileID: 8325279992893319336, guid: 7c3c532a08829445399124b41c10f613, type: 3}
+      propertyPath: InitialModule.startColor.maxColor.r
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UIElements;
+using JetBrains.Annotations;
+using DG.Tweening;
 
 public class Token : MonoBehaviour
 {
@@ -49,8 +51,12 @@ public class Token : MonoBehaviour
     }
     IEnumerator Upgrade()
     {
-        yield return new WaitForSeconds(0.08f);
+        yield return new WaitForSeconds(0.4f);
+        yield return transform.DOScale(Vector3.one * 0.95f, 0.3f).WaitForCompletion();
+        StartCoroutine(flowerParticles.PlayFlowerBurstCoroutine(0f, token.data.color));
         SetTokenData(token.data);
+        yield return transform.DOScale(Vector3.one, 0.4f).WaitForCompletion();
+        flowerParticles.StopFlowerBurst(token.data.color);
     }
     public void SetTokenData(Logic.TokenData tokenData)
     {
@@ -115,11 +121,12 @@ public class Token : MonoBehaviour
         {
             beingSpaded = true;
         }
-        
+
         StartCoroutine(ToolMovesTowards(toolToken));
     }
     IEnumerator ToolMovesTowards(Token tool)
     {
+        print("TOOL ");
         Token newToken = GameObject.Instantiate(this, transform.parent).GetComponent<Token>();
         //newToken.UpdateLayer("TokenPlaced");
         newToken.token = token;
@@ -132,6 +139,13 @@ public class Token : MonoBehaviour
         newToken.textDisplay.transform.localScale = Vector3.one * 1.4f;
         newToken.textDisplay.text = Services.GameController.ScoreToken(token.data).ToString();
         newToken.textDisplay.text = "<size=70%><voffset=0.2em>+</voffset></size>" + newToken.textDisplay.text;
+        if (tool.token.data.color == Logic.TokenColor.Spade)
+        {
+            newToken.dirtParticles.Play();
+            newToken.sparkleParticles.Play();
+            StartCoroutine(newToken.flowerParticles.PlayFlowerBurstCoroutine(0.4f,Logic.TokenColor.Spade));
+        }
+
         //newToken.Die();
         //Services.GameController.dyingTokens.Add(newToken);
         while (Vector3.Distance(transform.position, tool.transform.position) > 0.05f)
@@ -241,7 +255,7 @@ public class Token : MonoBehaviour
     IEnumerator LowerLift()
     {
         yield return new WaitForSeconds(0.3f);
-        placementParticles.Play();     
+        placementParticles.Play();
         UpdateLayer("TokenPlaced");
     }
     public void UpdateLayer(string sortingLayer)
@@ -257,7 +271,6 @@ public class Token : MonoBehaviour
         textDisplay.transform.localScale = Vector3.one * 1.4f;
         dirtParticles.Play();
         sparkleParticles.Play();
-        flowerParticles.PlayFlowerBurst(token.data.color);
         textDisplay.text = Services.GameController.ScoreToken(token.data).ToString();
         textDisplay.text = "<size=70%><voffset=0.2em>+</voffset></size>" + textDisplay.text;
         finalPos = transform.localPosition + Vector3.up * liftHeight;
@@ -404,11 +417,11 @@ public class Token : MonoBehaviour
     }
     public void StartInvalidAnim()
     {
-        if(wiggling == false)
+        if (wiggling == false)
         {
             StartCoroutine(InvalidWiggle());
         }
-        
+
     }
     IEnumerator InvalidWiggle()
     {
