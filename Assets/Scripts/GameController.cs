@@ -130,6 +130,9 @@ public class GameController : MonoBehaviour
     void Awake()
     {
         InitializeServices();
+#if UNITY_ANDROID
+        Handheld.Vibrate();
+#endif
         if (PlayerPrefs.HasKey("difficultyUnlock"))
         {
             String unlock = PlayerPrefs.GetString("difficultyUnlock");
