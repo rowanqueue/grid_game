@@ -1413,6 +1413,25 @@ public class GameController : MonoBehaviour
                                         tutorial.IncrementStage();
                                     }
                                     break;
+                                case Logic.StatusReport.EventType.TokenAddedTo:
+                                    //waiting = 0f;
+                                    token = _event.tokens[0];
+                                    foreach (Tile tile in tiles.Values)
+                                    {
+                                        if (tile.token)
+                                        {
+                                            if (tile.token.token == token)
+                                            {
+                                                tile.token.UpgradeToken(_event.tokens[1]);
+                                                Services.AudioManager.PlayUpgradeTileSound();
+                                                if (useHaptics)
+                                                {
+                                                    Haptics.PlayTransient(1f, .5f);
+                                                }
+                                            }
+                                        }
+                                    }
+                                    break;
                                 case Logic.StatusReport.EventType.NewHand:
                                     if (inTutorial)
                                     {

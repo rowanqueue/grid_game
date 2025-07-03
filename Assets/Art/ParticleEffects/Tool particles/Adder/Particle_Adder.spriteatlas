@@ -1,0 +1,72 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Particle_Adder
+  m_EditorData:
+    serializedVersion: 2
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 1
+      compressionQuality: 50
+      maxTextureSize: 2048
+      textureCompression: 0
+      filterMode: 1
+      generateMipMaps: 0
+      readable: 1
+      crunchedCompression: 0
+      sRGB: 1
+    platformSettings: []
+    packingSettings:
+      serializedVersion: 2
+      padding: 4
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 1
+      enableTightPacking: 0
+      enableAlphaDilation: 1
+    secondaryTextureSettings: {}
+    variantMultiplier: 1
+    packables:
+    - {fileID: 2800000, guid: 1cae93c21f5a646d5bb0b8120247d1f8, type: 3}
+    - {fileID: 2800000, guid: 1741ae7a53ff8477f8045b687bb6dfa5, type: 3}
+    - {fileID: 2800000, guid: 7d6a0b9de8178441f85ca469c10dc9fa, type: 3}
+    - {fileID: 2800000, guid: 9bd99ebbdc3894baaa761b1a564fed83, type: 3}
+    - {fileID: 2800000, guid: 3a6abce2c824740e4b387a12ad70edfc, type: 3}
+    - {fileID: 2800000, guid: cf08e5bb4e0d645eab8aee3c2d3d2619, type: 3}
+    - {fileID: 2800000, guid: f79daa36f5d77476e90dc940b203b07b, type: 3}
+    bindAsDefault: 1
+    isAtlasV2: 0
+    cachedData: {fileID: 0}
+    packedSpriteRenderDataKeys:
+    - 1cae93c21f5a646d5bb0b8120247d1f8: 21300000
+    - 3a6abce2c824740e4b387a12ad70edfc: 21300000
+    - f79daa36f5d77476e90dc940b203b07b: 21300000
+    - 1741ae7a53ff8477f8045b687bb6dfa5: 21300000
+    - cf08e5bb4e0d645eab8aee3c2d3d2619: 21300000
+    - 9bd99ebbdc3894baaa761b1a564fed83: 21300000
+    - 7d6a0b9de8178441f85ca469c10dc9fa: 21300000
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: 21300000, guid: 1cae93c21f5a646d5bb0b8120247d1f8, type: 3}
+  - {fileID: 21300000, guid: 3a6abce2c824740e4b387a12ad70edfc, type: 3}
+  - {fileID: 21300000, guid: f79daa36f5d77476e90dc940b203b07b, type: 3}
+  - {fileID: 21300000, guid: 1741ae7a53ff8477f8045b687bb6dfa5, type: 3}
+  - {fileID: 21300000, guid: cf08e5bb4e0d645eab8aee3c2d3d2619, type: 3}
+  - {fileID: 21300000, guid: 9bd99ebbdc3894baaa761b1a564fed83, type: 3}
+  - {fileID: 21300000, guid: 7d6a0b9de8178441f85ca469c10dc9fa, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - Particle_Adder1
+  - Particle_Adder5
+  - Particle_Adder7
+  - Particle_Adder2
+  - Particle_Adder6
+  - Particle_Adder4
+  - Particle_Adder3
+  m_RenderDataMap: {}
+  m_Tag: Particle_Adder
+  m_IsVariant: 0

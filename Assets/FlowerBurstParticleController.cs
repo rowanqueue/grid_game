@@ -10,6 +10,7 @@ public class FlowerBurstParticleController : MonoBehaviour
     public ParticleSystem greenFlowerBurst;
     public ParticleSystem goldFlowerBurst;
     public ParticleSystem spadeDirtBurst;
+    public ParticleSystem adderBurst;
 
     private void PlayFlowerBurst(Logic.TokenColor tokenColor)
     {
@@ -35,6 +36,9 @@ public class FlowerBurstParticleController : MonoBehaviour
                 break;
             case Logic.TokenColor.Spade:
                 spadeDirtBurst.Play();
+                break;
+            case Logic.TokenColor.Adder:
+                adderBurst.Play();
                 break;
             default:
                 Debug.LogWarning("Unknown token color: " + tokenColor);
@@ -69,6 +73,9 @@ public class FlowerBurstParticleController : MonoBehaviour
                 break;
             case Logic.TokenColor.Spade:
                 spadeDirtBurst.Stop();
+                break;
+            case Logic.TokenColor.Adder:
+                adderBurst.Stop();
                 break;
             default:
                 Debug.LogWarning("Unknown token color: " + tokenColor);
