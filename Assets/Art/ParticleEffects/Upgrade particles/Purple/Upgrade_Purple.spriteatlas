@@ -1,0 +1,68 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Upgrade_Purple
+  m_EditorData:
+    serializedVersion: 2
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 1
+      compressionQuality: 50
+      maxTextureSize: 2048
+      textureCompression: 0
+      filterMode: 1
+      generateMipMaps: 0
+      readable: 1
+      crunchedCompression: 0
+      sRGB: 1
+    platformSettings: []
+    packingSettings:
+      serializedVersion: 2
+      padding: 4
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 1
+      enableTightPacking: 0
+      enableAlphaDilation: 1
+    secondaryTextureSettings: {}
+    variantMultiplier: 1
+    packables:
+    - {fileID: 21300000, guid: df8ab7275cffc4182a7baf6f176a5ce1, type: 3}
+    - {fileID: 21300000, guid: ebd497d17dfa3402e815ae3dfccaca96, type: 3}
+    - {fileID: 21300000, guid: 5e2a2e7271c1a4147a06b4f6fbaf81e4, type: 3}
+    - {fileID: 21300000, guid: 6e89aed11b2534499a2cb27ad1acfd8e, type: 3}
+    - {fileID: 21300000, guid: c0810ba3fcd7443feabdab1f028491ac, type: 3}
+    - {fileID: 21300000, guid: 3d3fb689f0ddd434ea28fd1ade1cb7ca, type: 3}
+    bindAsDefault: 1
+    isAtlasV2: 0
+    cachedData: {fileID: 0}
+    packedSpriteRenderDataKeys:
+    - ebd497d17dfa3402e815ae3dfccaca96: 21300000
+    - 6e89aed11b2534499a2cb27ad1acfd8e: 21300000
+    - 5e2a2e7271c1a4147a06b4f6fbaf81e4: 21300000
+    - c0810ba3fcd7443feabdab1f028491ac: 21300000
+    - df8ab7275cffc4182a7baf6f176a5ce1: 21300000
+    - 3d3fb689f0ddd434ea28fd1ade1cb7ca: 21300000
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: 21300000, guid: ebd497d17dfa3402e815ae3dfccaca96, type: 3}
+  - {fileID: 21300000, guid: 6e89aed11b2534499a2cb27ad1acfd8e, type: 3}
+  - {fileID: 21300000, guid: 5e2a2e7271c1a4147a06b4f6fbaf81e4, type: 3}
+  - {fileID: 21300000, guid: c0810ba3fcd7443feabdab1f028491ac, type: 3}
+  - {fileID: 21300000, guid: df8ab7275cffc4182a7baf6f176a5ce1, type: 3}
+  - {fileID: 21300000, guid: 3d3fb689f0ddd434ea28fd1ade1cb7ca, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - Particle_Upgrade_Purple2
+  - Particle_Upgrade_Purple4
+  - Particle_Upgrade_Purple3
+  - Particle_Upgrade_Purple5
+  - Particle_Upgrade_Purple1
+  - Particle_Upgrade_Purple6
+  m_RenderDataMap: {}
+  m_Tag: Upgrade_Purple
+  m_IsVariant: 0
