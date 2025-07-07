@@ -41,19 +41,43 @@ public class Token : MonoBehaviour
         SetTokenData(token.data);
         //spriteDisplay.color = Services.Visuals.tokenColors[(int)token.data.color];
     }
+    /// <summary>
+    /// Changes the display of the token to match the given data. If this change increases the token number, it will play the upgrade animation
+    /// </summary>
+    /// <param name="_token"></param>
     public void UpgradeToken(Logic.Token _token)
     {
         initialized = true;
+        Logic.Token oldToken = token;
         token = _token;
-        StartCoroutine(Upgrade());
+
+        // Animate the token only when the token's number increases
+        if (oldToken.data.num < token.data.num)
+        {
+            StartCoroutine(UpgradeRoutine());
+        }
+        else
+        {
+            SetTokenData(token.data);
+        }
     }
-    IEnumerator Upgrade()
+    /// <summary>
+    /// Plays the upgrade animation for the token
+    /// </summary>
+    /// <returns></returns>
+    IEnumerator UpgradeRoutine()
     {
-        yield return new WaitForSeconds(0.2f);
-        yield return transform.DOScale(Vector3.one * 0.95f, 0.3f).WaitForCompletion();
+        // Delay before starting the upgrade animation
+        yield return new WaitForSeconds(0.1f);
+        // Shrinking the token to be smaller
+        yield return transform.DOScale(Vector3.one * 0.95f, 0.5f).SetEase(Ease.OutCirc).WaitForCompletion();
+        // Playing the flower burst animation
         StartCoroutine(flowerParticles.PlayFlowerBurstCoroutine(0f, token.data.color));
+        // Changing token data (number)
         SetTokenData(token.data);
-        yield return transform.DOScale(Vector3.one, 0.4f).WaitForCompletion();
+        // Scaling the token back to its original size
+        yield return transform.DOScale(Vector3.one, 0.2f).SetEase(Ease.InCubic).WaitForCompletion();
+        // Ending flower burst animation
         flowerParticles.StopFlowerBurst(token.data.color);
     }
     public void SetTokenData(Logic.TokenData tokenData)
@@ -155,7 +179,14 @@ public class Token : MonoBehaviour
                 break;
         }
     }
-
+    /// <summary>
+    /// Spade animation after a target tile is selected
+    /// Moves the tool to the token, then plays effects and destroys the tool
+    /// The target token displays a score number at its original position which is then removed using the StartKillNumber method
+    /// </summary>
+    /// <param name="tool"></param>
+    /// <param name="newToken"></param>
+    /// <returns></returns>
     public IEnumerator SpadeUseAnimation(Token tool, Token newToken)
     {
         while (Vector3.Distance(transform.position, tool.transform.position) > 0.05f)
@@ -173,6 +204,13 @@ public class Token : MonoBehaviour
         beingSpaded = false;
     }
 
+    /// <summary>
+    /// Clipper animation after a target tile is selected
+    /// Moves the tool to the token, then destroys the tool
+    /// </summary>
+    /// <param name="tool"></param>
+    /// <param name="newToken"></param>
+    /// <returns></returns>
     public IEnumerator ClipperUseAnimation(Token tool, Token newToken)
     {
         while (Vector3.Distance(transform.position, tool.transform.position) > 0.05f)
@@ -186,6 +224,13 @@ public class Token : MonoBehaviour
         beingSpaded = false;
     }
 
+    /// <summary>
+    /// Adder (watering can and flower clippings) animation after a target tile is selected
+    /// Plays the adding animation, moves the tool to the token, then destroys the tool
+    /// </summary>
+    /// <param name="tool"></param>
+    /// <param name="newToken"></param>
+    /// <returns></returns>
     public IEnumerator AdderUseAnimation(Token tool, Token newToken)
     {
         if (tool.token.data.num == 0)
@@ -194,10 +239,10 @@ public class Token : MonoBehaviour
         }
         else
         {
-            print(tool.token.data.num + " " + (Logic.TokenColor) 0);
+            print(tool.token.data.num + " " + (Logic.TokenColor)0);
             StartCoroutine(newToken.flowerParticles.PlayFlowerBurstCoroutine(0.4f, newToken.token.data.color));
         }
-        
+
 
         while (Vector3.Distance(transform.position, tool.transform.position) > 0.05f)
         {
@@ -306,7 +351,7 @@ public class Token : MonoBehaviour
     }
     IEnumerator LowerLift()
     {
-        yield return new WaitForSeconds(0.3f);
+        yield return new WaitForSeconds(0.1f);
         placementParticles.Play();
         UpdateLayer("TokenPlaced");
     }
@@ -318,6 +363,7 @@ public class Token : MonoBehaviour
     }
     public void Die()
     {
+        Debug.Log("Die"); 
         textDisplay.transform.parent = transform.parent;
         textDisplay.transform.localScale = Vector3.one * 1.4f;
         dirtParticles.Play();

@@ -1400,6 +1400,7 @@ public class GameController : MonoBehaviour
                                             if (tile.token.token == token)
                                             {
                                                 tile.token.UpgradeToken(_event.tokens[1]);
+                                                // Move these to within token's upgrade coroutine 
                                                 Services.AudioManager.PlayUpgradeTileSound();
                                                 if (useHaptics)
                                                 {
@@ -1411,25 +1412,6 @@ public class GameController : MonoBehaviour
                                     if (inTutorial && (tutorial.stage == TutorialStage.Placing || tutorial.stage == TutorialStage.WeirdSet || tutorial.stage == TutorialStage.Red2 || tutorial.stage == TutorialStage.ThirdBlue2))
                                     {
                                         tutorial.IncrementStage();
-                                    }
-                                    break;
-                                case Logic.StatusReport.EventType.TokenAddedTo:
-                                    //waiting = 0f;
-                                    token = _event.tokens[0];
-                                    foreach (Tile tile in tiles.Values)
-                                    {
-                                        if (tile.token)
-                                        {
-                                            if (tile.token.token == token)
-                                            {
-                                                tile.token.UpgradeToken(_event.tokens[1]);
-                                                Services.AudioManager.PlayUpgradeTileSound();
-                                                if (useHaptics)
-                                                {
-                                                    Haptics.PlayTransient(1f, .5f);
-                                                }
-                                            }
-                                        }
                                     }
                                     break;
                                 case Logic.StatusReport.EventType.NewHand:

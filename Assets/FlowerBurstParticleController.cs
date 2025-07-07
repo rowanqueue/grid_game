@@ -29,15 +29,19 @@ public class FlowerBurstParticleController : MonoBehaviour
                 purpleFlowerBurst.Play();
                 break;
             case Logic.TokenColor.Green:
+                Debug.Log("Playing green flower burst");
                 greenFlowerBurst.Play();
                 break;
             case Logic.TokenColor.Gold:
+                Debug.Log("Playing gold flower burst");
                 goldFlowerBurst.Play();
                 break;
             case Logic.TokenColor.Spade:
+                Debug.Log("Playing spade dirt burst");
                 spadeDirtBurst.Play();
                 break;
             case Logic.TokenColor.Adder:
+                Debug.Log("Playing adder burst");
                 adderBurst.Play();
                 break;
             default:
