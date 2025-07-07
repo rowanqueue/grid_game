@@ -1414,6 +1414,24 @@ public class GameController : MonoBehaviour
                                         tutorial.IncrementStage();
                                     }
                                     break;
+                                case Logic.StatusReport.EventType.TokenAddedTo:
+                                    //waiting = 0f;
+                                    token = _event.tokens[0];
+                                    foreach (Tile tile in tiles.Values)
+                                    {
+                                        if (tile.token)
+                                        {
+                                            if (tile.token.token == token)
+                                            {
+                                                tile.token.UpgradeToken(_event.tokens[1], Logic.TokenColor.Adder, useHaptics);
+                                            }
+                                        }
+                                    }
+                                    if (inTutorial && (tutorial.stage == TutorialStage.Placing || tutorial.stage == TutorialStage.WeirdSet || tutorial.stage == TutorialStage.Red2 || tutorial.stage == TutorialStage.ThirdBlue2))
+                                    {
+                                        tutorial.IncrementStage();
+                                    }
+                                    break;
                                 case Logic.StatusReport.EventType.NewHand:
                                     if (inTutorial)
                                     {

@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using TMPro;
 using DG.Tweening;
+using EZ.Haptics;
 
 public class Token : MonoBehaviour
 {
@@ -14,6 +15,8 @@ public class Token : MonoBehaviour
     public ParticleSystem placementParticles;
     public ParticleSystem dirtParticles;
     public ParticleSystem sparkleParticles;
+    // Small droplets of water that appear when the watering can rotates
+    public ParticleSystem adderWaterSquirtParticles;
     public FlowerBurstParticleController flowerParticles;
 
     float totalDeathMovement = 0.5f;
@@ -43,18 +46,27 @@ public class Token : MonoBehaviour
     }
     /// <summary>
     /// Changes the display of the token to match the given data. If this change increases the token number, it will play the upgrade animation
+    /// A tool is passed it if it was used to change the token, so that animation timing can be changes
     /// </summary>
     /// <param name="_token"></param>
-    public void UpgradeToken(Logic.Token _token)
+    public void UpgradeToken(Logic.Token _token, Logic.TokenColor toolUsed = Logic.TokenColor.Red, bool useHaptics = false)
     {
         initialized = true;
         Logic.Token oldToken = token;
         token = _token;
 
         // Animate the token only when the token's number increases
+        print("Upgrading token from " + oldToken.data.num + " to " + token.data.num);
         if (oldToken.data.num < token.data.num)
         {
-            StartCoroutine(UpgradeRoutine());
+            if (toolUsed == Logic.TokenColor.Adder)
+            {
+                StartCoroutine(AdderUpgradeRoutine(useHaptics));
+            }
+            else
+            {
+                StartCoroutine(UpgradeRoutine());
+            }
         }
         else
         {
@@ -80,6 +92,33 @@ public class Token : MonoBehaviour
         // Ending flower burst animation
         flowerParticles.StopFlowerBurst(token.data.color);
     }
+    /// <summary>
+    /// PC - PLACE 
+    /// </summary>
+    /// <param name="useHaptics"></param>
+    /// <returns></returns>
+    IEnumerator AdderUpgradeRoutine(bool useHaptics)
+    {
+        yield return new WaitForSeconds(0.5f);
+        Services.AudioManager.PlayUpgradeTileSound();
+        if (useHaptics)
+        {
+            Haptics.PlayTransient(1f, .5f);
+        }
+                // Delay before starting the upgrade animation
+        yield return new WaitForSeconds(0.1f);
+        // Shrinking the token to be smaller
+        yield return transform.DOScale(Vector3.one * 0.9f, 0.5f).SetEase(Ease.OutCirc).WaitForCompletion();
+        // Playing the flower burst animation
+        StartCoroutine(flowerParticles.PlayFlowerBurstCoroutine(0f, Logic.TokenColor.Adder));
+        // Changing token data (number)
+        SetTokenData(token.data);
+        // Scaling the token back to its original size
+        yield return transform.DOScale(Vector3.one, 0.2f).SetEase(Ease.InCubic).WaitForCompletion();
+        // Ending flower burst animation
+        flowerParticles.StopFlowerBurst(token.data.color);
+    }
+
     public void SetTokenData(Logic.TokenData tokenData)
     {
         gnome.enabled = tokenData.color == Logic.TokenColor.Gnome;
@@ -233,22 +272,41 @@ public class Token : MonoBehaviour
     /// <returns></returns>
     public IEnumerator AdderUseAnimation(Token tool, Token newToken)
     {
-        if (tool.token.data.num == 0)
-        {
-            StartCoroutine(newToken.flowerParticles.PlayFlowerBurstCoroutine(0.4f, Logic.TokenColor.Adder));
-        }
-        else
-        {
-            print(tool.token.data.num + " " + (Logic.TokenColor)0);
-            StartCoroutine(newToken.flowerParticles.PlayFlowerBurstCoroutine(0.4f, newToken.token.data.color));
-        }
-
+        print("Adder Use Animation");
 
         while (Vector3.Distance(transform.position, tool.transform.position) > 0.05f)
         {
             tool.transform.position += (transform.position - tool.transform.position) * 0.15f;
             yield return new WaitForEndOfFrame();
         }
+
+        Sequence adderSequence = DOTween.Sequence();
+        float adderRotationTime = 0.4f;
+        float waterSquirtTime = 0.2f;
+
+        adderSequence.Append(tool.transform.DORotate(Vector3.forward * -50f, adderRotationTime).SetEase(Ease.OutCirc));
+        adderSequence.Join(tool.transform.DOMoveX(transform.position.x + -1 * 0.5f, adderRotationTime).SetEase(Ease.OutCirc));
+        adderSequence.Play();
+
+        Sequence adderDipSequence = DOTween.Sequence();
+        adderDipSequence.Append(tool.transform.DOMoveY(transform.position.y - 0.1f, adderRotationTime).SetEase(Ease.InCirc));
+        adderDipSequence.Append(tool.transform.DOMoveY(transform.position.y + 0.1f, adderRotationTime).SetEase(Ease.InOutCubic));
+        adderDipSequence.Play();
+        
+        yield return new WaitForSeconds(waterSquirtTime);
+        tool.adderWaterSquirtParticles.Play();
+        yield return new WaitForSeconds(0.5f);
+
+        if (tool.token.data.num == 0)
+        {
+            print("Adder Use Animation - Flower Burst");
+            //StartCoroutine(newToken.flowerParticles.PlayFlowerBurstCoroutine(0.2f, Logic.TokenColor.Adder));
+        }
+        else
+        {
+            StartCoroutine(newToken.flowerParticles.PlayFlowerBurstCoroutine(0.2f, newToken.token.data.color));
+        }
+
         yield return tool.ToolDyingRoutine(false);
         newToken.StartKillNumber(0.05f);
         GameObject.Destroy(tool.gameObject);
@@ -363,7 +421,7 @@ public class Token : MonoBehaviour
     }
     public void Die()
     {
-        Debug.Log("Die"); 
+        Debug.Log("Die");
         textDisplay.transform.parent = transform.parent;
         textDisplay.transform.localScale = Vector3.one * 1.4f;
         dirtParticles.Play();
