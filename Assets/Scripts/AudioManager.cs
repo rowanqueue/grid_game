@@ -77,6 +77,14 @@ public class AudioManager : MonoBehaviour
         //music.start();
         ambience.start();
     }
+
+    private void Update()
+    {
+        if (Input.GetButtonDown("Fire1"))
+        {
+            Services.AudioManager.PlayButtonPressSound();
+        }
+    }
     public void PlaySound(AudioClip clip, int depth = 0)
     {
         for (int i = 0; i < sounds.Length; i++)

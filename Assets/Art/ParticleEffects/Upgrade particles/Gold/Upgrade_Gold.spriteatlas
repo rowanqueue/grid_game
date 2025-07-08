@@ -1,0 +1,68 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Upgrade_Gold
+  m_EditorData:
+    serializedVersion: 2
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 1
+      compressionQuality: 50
+      maxTextureSize: 2048
+      textureCompression: 0
+      filterMode: 1
+      generateMipMaps: 0
+      readable: 1
+      crunchedCompression: 0
+      sRGB: 1
+    platformSettings: []
+    packingSettings:
+      serializedVersion: 2
+      padding: 4
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 1
+      enableTightPacking: 0
+      enableAlphaDilation: 1
+    secondaryTextureSettings: {}
+    variantMultiplier: 1
+    packables:
+    - {fileID: 21300000, guid: 9e98f97007e6240b88a624e402f6d796, type: 3}
+    - {fileID: 21300000, guid: 3ca2750dfdca74a1f9c37302279e820c, type: 3}
+    - {fileID: 21300000, guid: 94e95c795ce704ecd8a850269797c088, type: 3}
+    - {fileID: 21300000, guid: aba879c7faf244a82bd59ad8b7d41c2a, type: 3}
+    - {fileID: 21300000, guid: 919af714fd47b4716add545aa9ca435c, type: 3}
+    - {fileID: 21300000, guid: dd03ed12d2a544fcc84bfe37b15c2a4b, type: 3}
+    bindAsDefault: 1
+    isAtlasV2: 0
+    cachedData: {fileID: 0}
+    packedSpriteRenderDataKeys:
+    - 9e98f97007e6240b88a624e402f6d796: 21300000
+    - dd03ed12d2a544fcc84bfe37b15c2a4b: 21300000
+    - 919af714fd47b4716add545aa9ca435c: 21300000
+    - aba879c7faf244a82bd59ad8b7d41c2a: 21300000
+    - 94e95c795ce704ecd8a850269797c088: 21300000
+    - 3ca2750dfdca74a1f9c37302279e820c: 21300000
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: 21300000, guid: 9e98f97007e6240b88a624e402f6d796, type: 3}
+  - {fileID: 21300000, guid: dd03ed12d2a544fcc84bfe37b15c2a4b, type: 3}
+  - {fileID: 21300000, guid: 919af714fd47b4716add545aa9ca435c, type: 3}
+  - {fileID: 21300000, guid: aba879c7faf244a82bd59ad8b7d41c2a, type: 3}
+  - {fileID: 21300000, guid: 94e95c795ce704ecd8a850269797c088, type: 3}
+  - {fileID: 21300000, guid: 3ca2750dfdca74a1f9c37302279e820c, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - Particle_Upgrade_Gold1
+  - Particle_Upgrade_Gold6
+  - Particle_Upgrade_Gold5
+  - Particle_Upgrade_Gold4
+  - Particle_Upgrade_Gold3
+  - Particle_Upgrade_Gold2
+  m_RenderDataMap: {}
+  m_Tag: Upgrade_Gold
+  m_IsVariant: 0
