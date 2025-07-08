@@ -31,6 +31,7 @@ public class Token : MonoBehaviour
     public Vector2 handPos;
     bool initialized = false;
     bool wiggling = false;
+    bool noWiggle = false;
     Coroutine wiggleAnim;
 
     bool beingSpaded = false;
@@ -51,12 +52,14 @@ public class Token : MonoBehaviour
     }
     IEnumerator Upgrade()
     {
+        noWiggle = true;
         yield return new WaitForSeconds(0.4f);
         yield return transform.DOScale(Vector3.one * 0.95f, 0.3f).WaitForCompletion();
         StartCoroutine(flowerParticles.PlayFlowerBurstCoroutine(0f, token.data.color));
         SetTokenData(token.data);
         yield return transform.DOScale(Vector3.one, 0.4f).WaitForCompletion();
         flowerParticles.StopFlowerBurst(token.data.color);
+        noWiggle = false;
     }
     public void SetTokenData(Logic.TokenData tokenData)
     {
@@ -226,7 +229,7 @@ public class Token : MonoBehaviour
         {
             if (Services.GameController.lastTokenPlaced == this && Services.GameController.inputState != InputState.Wait)
             {
-                if (wiggling == false)
+                if (wiggling == false && noWiggle == false)
                 {
                     wiggleAnim = StartCoroutine(Wiggle());
                 }

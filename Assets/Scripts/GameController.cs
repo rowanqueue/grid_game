@@ -134,6 +134,13 @@ public class GameController : MonoBehaviour
 #if UNITY_ANDROID
         Handheld.Vibrate();
 #endif
+        if (PlayerPrefs.HasKey("difficulty"))
+        {
+            if(PlayerPrefs.GetInt("difficulty") > 0)
+            {
+                PlayerPrefs.DeleteAll();
+            }
+        }
         if (PlayerPrefs.HasKey("difficultyUnlock"))
         {
             String unlock = PlayerPrefs.GetString("difficultyUnlock");
@@ -1135,7 +1142,11 @@ public class GameController : MonoBehaviour
                         }
                         else
                         {
-                            chosenToken.StartInvalidAnim();
+                            if(chosenPos.x >= 0 && chosenPos.x <= 5)
+                            {
+                                chosenToken.StartInvalidAnim();
+                            }
+                            
                         }
                     }else if (holdingClipper || holdingAdder)
                     {
@@ -1227,7 +1238,10 @@ public class GameController : MonoBehaviour
                         }
                         else
                         {
-                            chosenToken.StartInvalidAnim();
+                            if (chosenPos.x >= 0 && chosenPos.x <= 5)
+                            {
+                                chosenToken.StartInvalidAnim();
+                            }
                         }
                     }else if (holdingSpade)
                     {
@@ -1269,10 +1283,6 @@ public class GameController : MonoBehaviour
                         {
                             chosenToken.StartInvalidAnim();
                             Services.AudioManager.PlayInvalidToolSound();
-                        }
-                        else
-                        {
-                            chosenToken.StartInvalidAnim();
                         }
                     }
                     //are you clicking on another tile??
