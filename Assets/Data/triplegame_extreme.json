@@ -1,11 +1,11 @@
 {
-    "name": "tripleTileSage",
+    "name": "tripleTileSagee",
     "version": 1,
     "gridSize": {
         "x": 5,
         "y": 5
     },
-    "handSize": 4,
+    "handSize": 1,
     "gameVariables": {
         "groupCollapseNum": 3,
         "maxTileNum": 8,
@@ -71,14 +71,6 @@
                 "number": 1
             },
             "count": 2
-        },
-        {
-            "token": {
-                "color": "gnome",
-                "number": 1,
-                "temporary": true,
-            },
-            "count": 1
         },
     ],
     "progress": {
