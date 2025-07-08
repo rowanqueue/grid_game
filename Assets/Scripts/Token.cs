@@ -3,6 +3,8 @@ using UnityEngine;
 using TMPro;
 using DG.Tweening;
 using EZ.Haptics;
+using Logic;
+using System.Collections.Generic;
 
 public class Token : MonoBehaviour
 {
@@ -18,6 +20,8 @@ public class Token : MonoBehaviour
     // Small droplets of water that appear when the watering can rotates
     public ParticleSystem adderWaterSquirtParticles;
     public FlowerBurstParticleController flowerParticles;
+    // Small burst of flowers when clippings add to a token
+    public FlowerBurstParticleController adderClippingParticles;
 
     float totalDeathMovement = 0.5f;
     Vector3 finalPos;
@@ -61,6 +65,7 @@ public class Token : MonoBehaviour
         {
             if (toolUsed == Logic.TokenColor.Adder)
             {
+                Services.GameController.waiting += 1f;
                 StartCoroutine(AdderUpgradeRoutine(useHaptics));
             }
             else
@@ -91,9 +96,10 @@ public class Token : MonoBehaviour
         yield return transform.DOScale(Vector3.one, 0.2f).SetEase(Ease.InCubic).WaitForCompletion();
         // Ending flower burst animation
         flowerParticles.StopFlowerBurst(token.data.color);
+        Services.GameController.game.status.events.Add(new Logic.StatusReport.Event(StatusReport.EventType.TokenViewAnimateDestroy, 0));
     }
     /// <summary>
-    /// PC - PLACE 
+    /// PC - PLACE UPGRADE AUDIO HERE
     /// </summary>
     /// <param name="useHaptics"></param>
     /// <returns></returns>
@@ -105,7 +111,7 @@ public class Token : MonoBehaviour
         {
             Haptics.PlayTransient(1f, .5f);
         }
-                // Delay before starting the upgrade animation
+        // Delay before starting the upgrade animation
         yield return new WaitForSeconds(0.1f);
         // Shrinking the token to be smaller
         yield return transform.DOScale(Vector3.one * 0.9f, 0.5f).SetEase(Ease.OutCirc).WaitForCompletion();
@@ -280,31 +286,51 @@ public class Token : MonoBehaviour
             yield return new WaitForEndOfFrame();
         }
 
-        Sequence adderSequence = DOTween.Sequence();
-        float adderRotationTime = 0.4f;
-        float waterSquirtTime = 0.2f;
-
-        adderSequence.Append(tool.transform.DORotate(Vector3.forward * -50f, adderRotationTime).SetEase(Ease.OutCirc));
-        adderSequence.Join(tool.transform.DOMoveX(transform.position.x + -1 * 0.5f, adderRotationTime).SetEase(Ease.OutCirc));
-        adderSequence.Play();
-
-        Sequence adderDipSequence = DOTween.Sequence();
-        adderDipSequence.Append(tool.transform.DOMoveY(transform.position.y - 0.1f, adderRotationTime).SetEase(Ease.InCirc));
-        adderDipSequence.Append(tool.transform.DOMoveY(transform.position.y + 0.1f, adderRotationTime).SetEase(Ease.InOutCubic));
-        adderDipSequence.Play();
-        
-        yield return new WaitForSeconds(waterSquirtTime);
-        tool.adderWaterSquirtParticles.Play();
-        yield return new WaitForSeconds(0.5f);
-
         if (tool.token.data.num == 0)
         {
             print("Adder Use Animation - Flower Burst");
-            //StartCoroutine(newToken.flowerParticles.PlayFlowerBurstCoroutine(0.2f, Logic.TokenColor.Adder));
+            Sequence adderSequence = DOTween.Sequence();
+            float adderRotationTime = 0.4f;
+            float waterSquirtTime = 0.2f;
+
+            adderSequence.Append(tool.transform.DORotate(Vector3.forward * -30f, adderRotationTime).SetEase(Ease.OutCirc));
+            adderSequence.Join(tool.transform.DOMoveX(transform.position.x - 0.6f, adderRotationTime).SetEase(Ease.OutSine));
+            adderSequence.Play();
+
+            Sequence adderDipSequence = DOTween.Sequence();
+            adderDipSequence.Append(tool.transform.DOMoveY(transform.position.y - 0.05f, adderRotationTime).SetEase(Ease.InCirc));
+            adderDipSequence.Append(tool.transform.DOMoveY(transform.position.y + 0.1f, adderRotationTime).SetEase(Ease.InOutCubic));
+            adderDipSequence.Play();
+
+            yield return new WaitForSeconds(waterSquirtTime);
+            tool.adderWaterSquirtParticles.Play();
+            yield return new WaitForSeconds(0.5f);
         }
         else
         {
-            StartCoroutine(newToken.flowerParticles.PlayFlowerBurstCoroutine(0.2f, newToken.token.data.color));
+
+
+            float shakeTime = 0.3f;
+            float adderDipTime = 0.4f;
+
+            Sequence adderDipSequence = DOTween.Sequence();
+            adderDipSequence.Append(tool.transform.DOMoveY(transform.position.y - 0.2f, adderDipTime).SetEase(Ease.InOutSine));
+            adderDipSequence.Append(tool.transform.DOMoveY(transform.position.y + 0.2f, adderDipTime).SetEase(Ease.InOutSine));
+            adderDipSequence.Play();
+
+            StartCoroutine(tool.adderClippingParticles.PlayFlowerBurstCoroutine(shakeTime/2, newToken.token.data.color));
+            Sequence shakeSequenceA = DOTween.Sequence();
+            shakeSequenceA.Append(tool.transform.DORotate(Vector3.forward * -20f, shakeTime).SetEase(Ease.InOutSine));
+            shakeSequenceA.Join(tool.transform.DOMoveX(transform.position.x - 0.2f, shakeTime).SetEase(Ease.InOutSine));
+            yield return shakeSequenceA.WaitForCompletion();
+
+            StartCoroutine(tool.adderClippingParticles.PlayFlowerBurstCoroutine(shakeTime/2, newToken.token.data.color));
+            Sequence shakeSequenceB = DOTween.Sequence();
+            shakeSequenceB.Append(tool.transform.DORotate(Vector3.forward * 20f, shakeTime).SetEase(Ease.InOutSine));
+            shakeSequenceB.Join(tool.transform.DOMoveX(transform.position.x + 0.2f, shakeTime).SetEase(Ease.InOutSine));
+            yield return shakeSequenceB.WaitForCompletion();
+
+            tool.transform.DORotate(Vector3.zero, 0.4f).SetEase(Ease.OutBack).Play();
         }
 
         yield return tool.ToolDyingRoutine(false);
