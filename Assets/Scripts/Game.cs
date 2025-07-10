@@ -796,7 +796,7 @@ namespace Logic
                     Token newToken = new Token(tile.token.data, false);
 
                     newToken.data.num = num;
-                    game.status.events.Add(new StatusReport.Event(StatusReport.EventType.TokenChanged, new List<Token>() { tile.token, newToken }));
+                    game.status.events.Add(new StatusReport.Event(StatusReport.EventType.TokenChanged, new List<Token>() { tile.token, newToken, token }));
                     tile.token.Destroy();
                     PlaceToken(p, newToken);
                     
@@ -826,7 +826,7 @@ namespace Logic
                 Token newToken = new Token(tile.token.data, false);
 
                 newToken.data.num = num;
-                game.status.events.Add(new StatusReport.Event(StatusReport.EventType.TokenAddedTo, new List<Token>() { tile.token, newToken }));
+                game.status.events.Add(new StatusReport.Event(StatusReport.EventType.TokenAddedTo, new List<Token>() { tile.token, newToken, token }));
                 tile.token.Destroy();
                 PlaceToken(p, newToken);
 

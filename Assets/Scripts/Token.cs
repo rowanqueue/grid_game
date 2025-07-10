@@ -19,6 +19,7 @@ public class Token : MonoBehaviour
     public ParticleSystem sparkleParticles;
     // Small droplets of water that appear when the watering can rotates
     public ParticleSystem adderWaterSquirtParticles;
+    public ParticleSystem clippingSlashParticles;
     public FlowerBurstParticleController flowerParticles;
     // Small burst of flowers when clippings add to a token
     public FlowerBurstParticleController adderClippingParticles;
@@ -41,6 +42,23 @@ public class Token : MonoBehaviour
     bool beingSpaded = false;
     public bool lifted = false;
     public bool waitingToDie = false;
+
+    [Header("Clipper Tool Animation Values")]
+    [SerializeField] private float Clipper_MoveToTileTime = 0.25f;
+    [SerializeField] private float Clipper_SlashTime = 0.25f;
+    [SerializeField] private Vector3 ClipperPositionOffset = new Vector3(0f, -0.5f, 0f);
+    [SerializeField] private float ClipperSlashXLength = 1f;
+
+    [Header("Spade Tool Animation Values")]
+    [SerializeField] private float Spade_MoveToTileTime = 0.5f;
+    [SerializeField] private float Spade_DigTime = 0.5f;
+    [SerializeField] private Vector3 Spade_PositionOffset = new Vector3(0f, -0.5f, 0f);
+    [SerializeField] private Vector3 Spade_DigDestination = new Vector3(0f, -0.5f, 0f);
+    [SerializeField] private float Spade_StartingRotation = 30f;
+    [SerializeField] private float Spade_EndRotation = 30f;
+
+
+
     public void Init(Logic.Token _token)
     {
         initialized = true;
@@ -48,81 +66,121 @@ public class Token : MonoBehaviour
         SetTokenData(token.data);
         //spriteDisplay.color = Services.Visuals.tokenColors[(int)token.data.color];
     }
+
     /// <summary>
     /// Changes the display of the token to match the given data. If this change increases the token number, it will play the upgrade animation
     /// A tool is passed it if it was used to change the token, so that animation timing can be changes
     /// </summary>
     /// <param name="_token"></param>
-    public void UpgradeToken(Logic.Token _token, Logic.TokenColor toolUsed = Logic.TokenColor.Red, bool useHaptics = false)
+    public void UpgradeToken(Logic.Token _token, Logic.Token usedTool = null, bool useHaptics = false)
     {
         initialized = true;
         Logic.Token oldToken = token;
         token = _token;
 
         // Animate the token only when the token's number increases
-        print("Upgrading token from " + oldToken.data.num + " to " + token.data.num);
-        if (oldToken.data.num < token.data.num)
+        if (usedTool != null)
         {
-            if (toolUsed == Logic.TokenColor.Adder)
+            switch (usedTool.data.color)
             {
-                Services.GameController.waiting += 1f;
-                StartCoroutine(AdderUpgradeRoutine(useHaptics));
-            }
-            else
-            {
-                StartCoroutine(UpgradeRoutine());
+                case Logic.TokenColor.Adder:
+                    print("Using adder tool to upgrade token");
+                    Services.GameController.waiting += 1f;
+                    StartCoroutine(AdderUpgradeRoutine(useHaptics, usedTool.data.num != 0));
+                    break;
+                case Logic.TokenColor.Clipper:
+                    print("Using clipper tool to upgrade token");
+                    Services.GameController.waiting += 1f;
+                    StartCoroutine(ClipperUpgradeRoutine(useHaptics));
+                    break;
             }
         }
         else
         {
-            SetTokenData(token.data);
+            StartCoroutine(UpgradeRoutine(useHaptics));
         }
     }
+
     /// <summary>
     /// Plays the upgrade animation for the token
     /// </summary>
     /// <returns></returns>
-    IEnumerator UpgradeRoutine()
+    IEnumerator UpgradeRoutine(bool useHaptics)
     {
         // Delay before starting the upgrade animation
         yield return new WaitForSeconds(0.1f);
-        // Shrinking the token to be smaller
-        yield return transform.DOScale(Vector3.one * 0.95f, 0.5f).SetEase(Ease.OutCirc).WaitForCompletion();
+
+        // Move these to within token's upgrade coroutine 
+        Services.AudioManager.PlayUpgradeTileSound();
+        if (useHaptics)
+        {
+            Haptics.PlayTransient(1f, .5f);
+        }
+
         // Playing the flower burst animation
         StartCoroutine(flowerParticles.PlayFlowerBurstCoroutine(0f, token.data.color));
+
         // Changing token data (number)
         SetTokenData(token.data);
-        // Scaling the token back to its original size
-        yield return transform.DOScale(Vector3.one, 0.2f).SetEase(Ease.InCubic).WaitForCompletion();
+
         // Ending flower burst animation
         flowerParticles.StopFlowerBurst(token.data.color);
         Services.GameController.game.status.events.Add(new Logic.StatusReport.Event(StatusReport.EventType.TokenViewAnimateDestroy, 0));
     }
+
     /// <summary>
     /// PC - PLACE UPGRADE AUDIO HERE
     /// </summary>
     /// <param name="useHaptics"></param>
     /// <returns></returns>
-    IEnumerator AdderUpgradeRoutine(bool useHaptics)
+    IEnumerator AdderUpgradeRoutine(bool useHaptics, bool isClipping)
     {
+        print("Adder Upgrade Routine - isClipping: " + (isClipping));
         yield return new WaitForSeconds(0.5f);
         Services.AudioManager.PlayUpgradeTileSound();
         if (useHaptics)
         {
             Haptics.PlayTransient(1f, .5f);
         }
+
         // Delay before starting the upgrade animation
         yield return new WaitForSeconds(0.1f);
+
         // Shrinking the token to be smaller
-        yield return transform.DOScale(Vector3.one * 0.9f, 0.5f).SetEase(Ease.OutCirc).WaitForCompletion();
+        //yield return transform.DOScale(Vector3.one * 0.9f, 0.5f).SetEase(Ease.OutCirc).WaitForCompletion();
+
         // Playing the flower burst animation
-        StartCoroutine(flowerParticles.PlayFlowerBurstCoroutine(0f, Logic.TokenColor.Adder));
+        if (isClipping)
+        {
+            yield return new WaitForSeconds(0.4f);
+            StartCoroutine(flowerParticles.PlayFlowerBurstCoroutine(0f, token.data.color));
+        }
+        else
+        {
+            StartCoroutine(flowerParticles.PlayFlowerBurstCoroutine(0f, Logic.TokenColor.Adder));
+        }
+
         // Changing token data (number)
         SetTokenData(token.data);
+
         // Scaling the token back to its original size
-        yield return transform.DOScale(Vector3.one, 0.2f).SetEase(Ease.InCubic).WaitForCompletion();
+        //yield return transform.DOScale(Vector3.one, 0.2f).SetEase(Ease.InCubic).WaitForCompletion();
+
         // Ending flower burst animation
         flowerParticles.StopFlowerBurst(token.data.color);
+    }
+
+    /// <summary>
+    /// Occurs after a clipping tool is used, which reduces the token to a lower number
+    /// </summary>
+    /// <param name="useHaptics"></param>
+    /// <returns></returns>
+    IEnumerator ClipperUpgradeRoutine(bool useHaptics)
+    {
+        yield return new WaitForSeconds(0.5f);
+
+        // Changing token data (number)
+        SetTokenData(token.data);
     }
 
     public void SetTokenData(Logic.TokenData tokenData)
@@ -177,11 +235,13 @@ public class Token : MonoBehaviour
             }
         }
     }
+
     public void PlaceInHand(int index)
     {
         transform.position = Services.GameController.firstHandPos + (index * Services.GameController.handSeparation);
         transform.localEulerAngles = new Vector3(0, 0, Random.Range(-10f, 10f));
     }
+
     public void ToolAnim(Token toolToken, int index)
     {
         if (toolToken.token.data.color == Logic.TokenColor.Spade)
@@ -191,8 +251,10 @@ public class Token : MonoBehaviour
 
         StartCoroutine(ToolMovesTowards(toolToken));
     }
+
     IEnumerator ToolMovesTowards(Token tool)
     {
+        tool.moving = true;
         Token newToken = GameObject.Instantiate(this, transform.parent).GetComponent<Token>();
         //newToken.UpdateLayer("TokenPlaced");
         newToken.token = token;
@@ -201,13 +263,7 @@ public class Token : MonoBehaviour
         newToken.spriteDisplay.enabled = false;
         newToken.shadow.enabled = false;
         newToken.number.enabled = false;
-        newToken.textDisplay.transform.parent = transform.parent;
-        newToken.textDisplay.transform.localScale = Vector3.one * 1.4f;
-        newToken.textDisplay.text = Services.GameController.ScoreToken(token.data).ToString();
-        newToken.textDisplay.text = "<size=70%><voffset=0.2em>+</voffset></size>" + newToken.textDisplay.text;
 
-        //newToken.Die();
-        //Services.GameController.dyingTokens.Add(newToken);
         switch (tool.token.data.color)
         {
             case Logic.TokenColor.Clipper:
@@ -217,13 +273,21 @@ public class Token : MonoBehaviour
                 yield return SpadeUseAnimation(tool, newToken);
                 break;
             case Logic.TokenColor.Adder:
-                yield return AdderUseAnimation(tool, newToken);
+                if (tool.token.data.num != 0)
+                {
+                    yield return AdderClippingAnimation(tool, newToken);
+                }
+                else
+                {
+                    yield return AdderUseAnimation(tool, newToken);
+                }
                 break;
             default:
                 yield return ClipperUseAnimation(tool, newToken);
                 break;
         }
     }
+
     /// <summary>
     /// Spade animation after a target tile is selected
     /// Moves the tool to the token, then plays effects and destroys the tool
@@ -234,12 +298,23 @@ public class Token : MonoBehaviour
     /// <returns></returns>
     public IEnumerator SpadeUseAnimation(Token tool, Token newToken)
     {
-        while (Vector3.Distance(transform.position, tool.transform.position) > 0.05f)
-        {
-            tool.transform.position += (transform.position - tool.transform.position) * 0.15f;
-            yield return new WaitForEndOfFrame();
-        }
-        StartCoroutine(tool.ToolDyingRoutine(true));
+        newToken.textDisplay.transform.parent = transform.parent;
+        newToken.textDisplay.transform.localScale = Vector3.one * 1.4f;
+        newToken.textDisplay.text = Services.GameController.ScoreToken(token.data).ToString();
+        newToken.textDisplay.text = "<size=70%><voffset=0.2em>+</voffset></size>" + newToken.textDisplay.text;
+
+        tool.transform.DORotate(Vector3.forward * Spade_StartingRotation, Spade_MoveToTileTime).SetEase(Ease.OutQuint).Play();
+        yield return tool.transform.DOMove(transform.position + Spade_PositionOffset, Spade_MoveToTileTime).SetEase(Ease.OutQuint).WaitForCompletion();
+
+        Sequence dyingSequence = DOTween.Sequence();
+        tool.textDisplay.gameObject.SetActive(false);
+        dyingSequence.Append(tool.spriteDisplay.DOFade(0f, Spade_DigTime + 0.5f).SetEase(Ease.InCubic));
+        dyingSequence.Join(tool.number.DOFade(0f, Spade_DigTime + 0.5f).SetEase(Ease.InCubic));
+        dyingSequence.Join(tool.shadow.DOFade(0f, Spade_DigTime + 0.5f).SetEase(Ease.InCubic));
+        dyingSequence.Play();
+
+        tool.transform.DORotate(Vector3.forward * Spade_EndRotation, Spade_DigTime).SetEase(Ease.InOutSine).Play();
+        yield return tool.transform.DOMove(transform.position + Spade_DigDestination, Spade_DigTime).SetEase(Ease.InOutSine).WaitForCompletion();
 
         newToken.dirtParticles.Play();
         newToken.sparkleParticles.Play();
@@ -247,6 +322,7 @@ public class Token : MonoBehaviour
 
         newToken.StartKillNumber(0.5f);
         beingSpaded = false;
+        GameObject.Destroy(tool.gameObject);
     }
 
     /// <summary>
@@ -258,15 +334,24 @@ public class Token : MonoBehaviour
     /// <returns></returns>
     public IEnumerator ClipperUseAnimation(Token tool, Token newToken)
     {
-        while (Vector3.Distance(transform.position, tool.transform.position) > 0.05f)
-        {
-            tool.transform.position += (transform.position - tool.transform.position) * 0.15f;
-            yield return new WaitForEndOfFrame();
-        }
-        StartCoroutine(tool.ToolDyingRoutine(true));
+        print("tile pos: " + transform.position + " tool pos: " + tool.transform.position + " sprite pos: " + tool.spriteDisplay.transform.position);
+        tool.transform.DORotate(Vector3.forward * 30f, Clipper_MoveToTileTime).SetEase(Ease.OutQuint).Play();
+        yield return tool.transform.DOMove(transform.position + ClipperPositionOffset, Clipper_MoveToTileTime).SetEase(Ease.OutQuint).WaitForCompletion();
+        tool.clippingSlashParticles.Play();
+        print("END tile pos: " + transform.position + " tool pos: " + tool.transform.position + " sprite pos: " + tool.spriteDisplay.transform.position); ;
+
+        Sequence dyingSequence = DOTween.Sequence();
+        tool.textDisplay.gameObject.SetActive(false);
+        dyingSequence.Append(tool.spriteDisplay.DOFade(0f, toolLiftSpeed * 0.5f).SetEase(Ease.InCubic));
+        dyingSequence.Join(tool.number.DOFade(0f, toolLiftSpeed * 0.5f).SetEase(Ease.InCubic));
+        dyingSequence.Join(tool.shadow.DOFade(0f, toolLiftSpeed * 0.5f).SetEase(Ease.InCubic));
+        dyingSequence.Play();
+        yield return tool.transform.DOMoveX(transform.position.x - ClipperSlashXLength, Clipper_SlashTime).SetEase(Ease.OutQuint).WaitForCompletion();
+        tool.clippingSlashParticles.Stop();
 
         newToken.StartKillNumber(0.05f);
         beingSpaded = false;
+        GameObject.Destroy(tool.gameObject);
     }
 
     /// <summary>
@@ -278,62 +363,58 @@ public class Token : MonoBehaviour
     /// <returns></returns>
     public IEnumerator AdderUseAnimation(Token tool, Token newToken)
     {
-        print("Adder Use Animation");
-
         while (Vector3.Distance(transform.position, tool.transform.position) > 0.05f)
         {
             tool.transform.position += (transform.position - tool.transform.position) * 0.15f;
             yield return new WaitForEndOfFrame();
         }
 
-        if (tool.token.data.num == 0)
-        {
-            print("Adder Use Animation - Flower Burst");
-            Sequence adderSequence = DOTween.Sequence();
-            float adderRotationTime = 0.4f;
-            float waterSquirtTime = 0.2f;
+        // Animation for watering can
+        Sequence adderSequence = DOTween.Sequence();
+        float adderRotationTime = 0.4f;
+        float waterSquirtTime = 0.2f;
 
-            adderSequence.Append(tool.transform.DORotate(Vector3.forward * -30f, adderRotationTime).SetEase(Ease.OutCirc));
-            adderSequence.Join(tool.transform.DOMoveX(transform.position.x - 0.6f, adderRotationTime).SetEase(Ease.OutSine));
-            adderSequence.Play();
+        adderSequence.Append(tool.transform.DORotate(Vector3.forward * -30f, adderRotationTime).SetEase(Ease.OutCirc));
+        adderSequence.Join(tool.transform.DOMoveX(transform.position.x - 0.6f, adderRotationTime).SetEase(Ease.OutSine));
+        adderSequence.Play();
 
-            Sequence adderDipSequence = DOTween.Sequence();
-            adderDipSequence.Append(tool.transform.DOMoveY(transform.position.y - 0.05f, adderRotationTime).SetEase(Ease.InCirc));
-            adderDipSequence.Append(tool.transform.DOMoveY(transform.position.y + 0.1f, adderRotationTime).SetEase(Ease.InOutCubic));
-            adderDipSequence.Play();
+        Sequence adderDipSequence = DOTween.Sequence();
+        adderDipSequence.Append(tool.transform.DOMoveY(transform.position.y - 0.05f, adderRotationTime).SetEase(Ease.InCirc));
+        adderDipSequence.Append(tool.transform.DOMoveY(transform.position.y + 0.1f, adderRotationTime).SetEase(Ease.InOutCubic));
+        adderDipSequence.Play();
 
-            yield return new WaitForSeconds(waterSquirtTime);
-            tool.adderWaterSquirtParticles.Play();
-            yield return new WaitForSeconds(0.5f);
-        }
-        else
-        {
-
-
-            float shakeTime = 0.3f;
-            float adderDipTime = 0.4f;
-
-            Sequence adderDipSequence = DOTween.Sequence();
-            adderDipSequence.Append(tool.transform.DOMoveY(transform.position.y - 0.2f, adderDipTime).SetEase(Ease.InOutSine));
-            adderDipSequence.Append(tool.transform.DOMoveY(transform.position.y + 0.2f, adderDipTime).SetEase(Ease.InOutSine));
-            adderDipSequence.Play();
-
-            StartCoroutine(tool.adderClippingParticles.PlayFlowerBurstCoroutine(shakeTime/2, newToken.token.data.color));
-            Sequence shakeSequenceA = DOTween.Sequence();
-            shakeSequenceA.Append(tool.transform.DORotate(Vector3.forward * -20f, shakeTime).SetEase(Ease.InOutSine));
-            shakeSequenceA.Join(tool.transform.DOMoveX(transform.position.x - 0.2f, shakeTime).SetEase(Ease.InOutSine));
-            yield return shakeSequenceA.WaitForCompletion();
-
-            StartCoroutine(tool.adderClippingParticles.PlayFlowerBurstCoroutine(shakeTime/2, newToken.token.data.color));
-            Sequence shakeSequenceB = DOTween.Sequence();
-            shakeSequenceB.Append(tool.transform.DORotate(Vector3.forward * 20f, shakeTime).SetEase(Ease.InOutSine));
-            shakeSequenceB.Join(tool.transform.DOMoveX(transform.position.x + 0.2f, shakeTime).SetEase(Ease.InOutSine));
-            yield return shakeSequenceB.WaitForCompletion();
-
-            tool.transform.DORotate(Vector3.zero, 0.4f).SetEase(Ease.OutBack).Play();
-        }
+        yield return new WaitForSeconds(waterSquirtTime);
+        tool.adderWaterSquirtParticles.Play();
+        yield return new WaitForSeconds(0.5f);
 
         yield return tool.ToolDyingRoutine(false);
+        newToken.StartKillNumber(0.05f);
+        GameObject.Destroy(tool.gameObject);
+    }
+
+    public IEnumerator AdderClippingAnimation(Token tool, Token newToken)
+    {
+        while (Vector3.Distance(transform.position, tool.transform.position) > 0.05f)
+        {
+            tool.transform.position += (transform.position - tool.transform.position) * 0.15f;
+            yield return new WaitForEndOfFrame();
+        }
+
+        float adderDipTime = 0.4f;
+
+        tool.transform.DORotate(Vector3.zero, adderDipTime).Play();
+        yield return tool.transform.DOMoveY(transform.position.y - 0.4f, adderDipTime).SetEase(Ease.InOutSine).WaitForCompletion();
+        StartCoroutine(tool.adderClippingParticles.PlayFlowerBurstCoroutine(0, newToken.token.data.color));
+
+        yield return new WaitForSeconds(0.1f);
+
+        UpdateLayer("TokenMoving");
+        Sequence dyingSequence = DOTween.Sequence();
+        tool.textDisplay.gameObject.SetActive(false);
+        dyingSequence.Append(tool.spriteDisplay.DOFade(0f, toolLiftSpeed * 0.5f).SetEase(Ease.InCubic));
+        dyingSequence.Join(tool.number.DOFade(0f, toolLiftSpeed * 0.5f).SetEase(Ease.InCubic));
+        dyingSequence.Join(tool.shadow.DOFade(0f, toolLiftSpeed * 0.5f).SetEase(Ease.InCubic));
+        yield return dyingSequence.WaitForCompletion();
         newToken.StartKillNumber(0.05f);
         GameObject.Destroy(tool.gameObject);
     }

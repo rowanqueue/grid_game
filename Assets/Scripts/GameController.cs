@@ -9,6 +9,7 @@ using Logic;
 using Save;
 using EZ.Haptics;
 using System;
+using UnityEditor;
 
 public enum GameType
 {
@@ -1405,19 +1406,19 @@ public class GameController : MonoBehaviour
                                 case Logic.StatusReport.EventType.TokenChanged:
                                     //waiting = 0f;
                                     token = _event.tokens[0];
+                                    Logic.Token toolTokenA = null;
+                                    if (_event.tokens.Count >= 3)
+                                    {
+                                        toolTokenA = _event.tokens[2];
+                                    }
+                                    
                                     foreach (Tile tile in tiles.Values)
                                     {
                                         if (tile.token)
                                         {
                                             if (tile.token.token == token)
                                             {
-                                                tile.token.UpgradeToken(_event.tokens[1]);
-                                                // Move these to within token's upgrade coroutine 
-                                                Services.AudioManager.PlayUpgradeTileSound();
-                                                if (useHaptics)
-                                                {
-                                                    Haptics.PlayTransient(1f, .5f);
-                                                }
+                                                tile.token.UpgradeToken(_event.tokens[1], toolTokenA, useHaptics);
                                             }
                                         }
                                     }
@@ -1429,13 +1430,14 @@ public class GameController : MonoBehaviour
                                 case Logic.StatusReport.EventType.TokenAddedTo:
                                     //waiting = 0f;
                                     token = _event.tokens[0];
+                                    Logic.Token toolToken = _event.tokens[2];
                                     foreach (Tile tile in tiles.Values)
                                     {
                                         if (tile.token)
                                         {
                                             if (tile.token.token == token)
                                             {
-                                                tile.token.UpgradeToken(_event.tokens[1], Logic.TokenColor.Adder, useHaptics);
+                                                tile.token.UpgradeToken(_event.tokens[1], toolToken, useHaptics);
                                             }
                                         }
                                     }
@@ -1572,11 +1574,13 @@ public class GameController : MonoBehaviour
         if (freeSlot.token)
         {
             bool shouldHover = false;
+            freeSlot.token.lifted = false;
             if (inputState == InputState.Place)
             {
                 if (chosenIndex >= game.hand.handSize)
                 {
                     shouldHover = true;
+                    freeSlot.token.lifted = true;
                 }
             }
             if (shouldHover)
