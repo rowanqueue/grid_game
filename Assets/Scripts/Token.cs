@@ -111,6 +111,7 @@ public class Token : MonoBehaviour
         yield return new WaitForSeconds(0.1f);
 
         // Move these to within token's upgrade coroutine 
+        // UPGRADE AUDIO HOOK
         Services.AudioManager.PlayUpgradeTileSound();
         if (useHaptics)
         {
@@ -128,25 +129,21 @@ public class Token : MonoBehaviour
     }
 
     /// <summary>
-    /// PC - PLACE UPGRADE AUDIO HERE
+    /// Upgrade animation for clipping and watering can 
     /// </summary>
     /// <param name="useHaptics"></param>
     /// <returns></returns>
     IEnumerator AdderUpgradeRoutine(bool useHaptics, bool isClipping)
     {
-        print("Adder Upgrade Routine - isClipping: " + (isClipping));
-        yield return new WaitForSeconds(0.5f);
+        // Delay for audio to trigger
+        yield return new WaitForSeconds(0.6f);
+
+        // UPGRADE AUDIO HOOK
         Services.AudioManager.PlayUpgradeTileSound();
         if (useHaptics)
         {
             Haptics.PlayTransient(1f, .5f);
         }
-
-        // Delay before starting the upgrade animation
-        yield return new WaitForSeconds(0.1f);
-
-        // Shrinking the token to be smaller
-        //yield return transform.DOScale(Vector3.one * 0.9f, 0.5f).SetEase(Ease.OutCirc).WaitForCompletion();
 
         // Playing the flower burst animation
         if (isClipping)
@@ -162,9 +159,6 @@ public class Token : MonoBehaviour
         // Changing token data (number)
         SetTokenData(token.data);
 
-        // Scaling the token back to its original size
-        //yield return transform.DOScale(Vector3.one, 0.2f).SetEase(Ease.InCubic).WaitForCompletion();
-
         // Ending flower burst animation
         flowerParticles.StopFlowerBurst(token.data.color);
     }
@@ -176,7 +170,7 @@ public class Token : MonoBehaviour
     /// <returns></returns>
     IEnumerator ClipperUpgradeRoutine(bool useHaptics, Logic.TokenData oldTokenData)
     {
-        print("NUM NUM NUM " + oldTokenData.num);
+        // Delay waiting for tool animations
         if (oldTokenData.num == 0)
         {
             yield return new WaitForSeconds(100);
@@ -185,6 +179,8 @@ public class Token : MonoBehaviour
         {
             yield return new WaitForSeconds(0.5f);
         }
+
+        // UPGRADE AUDIO HOOK
 
         // Changing token data (number)
         SetTokenData(token.data);
@@ -295,8 +291,8 @@ public class Token : MonoBehaviour
     /// <returns></returns>
     public IEnumerator SpadeUseAnimation(Token tool)
     {
+        // Creating new token to display score post shovel
         Token newToken = GameObject.Instantiate(this, transform.parent).GetComponent<Token>();
-        //newToken.UpdateLayer("TokenPlaced");
         newToken.token = token;
         newToken.SetTokenData(token.data);
         newToken.transform.localPosition = transform.localPosition;
@@ -304,17 +300,21 @@ public class Token : MonoBehaviour
         newToken.shadow.enabled = false;
         newToken.number.enabled = false;
 
+        // Move to tile
         tool.transform.DORotate(Vector3.forward * Spade_StartingRotation, Spade_MoveToTileTime).SetEase(Ease.OutQuint).Play();
         yield return tool.transform.DOMove(transform.position + Spade_PositionOffset, Spade_MoveToTileTime).SetEase(Ease.OutQuint).WaitForCompletion();
 
+        // Show text
         newToken.textDisplay.transform.parent = transform.parent;
         newToken.textDisplay.transform.localScale = Vector3.one * 1.4f;
         newToken.textDisplay.text = Services.GameController.ScoreToken(token.data).ToString();
         newToken.textDisplay.text = "<size=70%><voffset=0.2em>+</voffset></size>" + newToken.textDisplay.text;
 
+        // spade scoops
         tool.transform.DORotate(Vector3.forward * Spade_EndRotation, Spade_DigTime).SetEase(Ease.InOutSine).Play();
         yield return tool.transform.DOMove(transform.position + Spade_DigDestination, Spade_DigTime).SetEase(Ease.InOutSine).WaitForCompletion();
 
+        // spade fades away
         Sequence dyingSequence = DOTween.Sequence();
         tool.textDisplay.gameObject.SetActive(false);
         dyingSequence.Append(tool.spriteDisplay.DOFade(0f, Spade_DigTime + 0.5f).SetEase(Ease.InCubic));
@@ -322,10 +322,12 @@ public class Token : MonoBehaviour
         dyingSequence.Join(tool.shadow.DOFade(0f, Spade_DigTime + 0.5f).SetEase(Ease.InCubic));
         dyingSequence.Play();
 
+        // dirt particles spawn from new score
         newToken.dirtParticles.Play();
         newToken.sparkleParticles.Play();
         StartCoroutine(newToken.flowerParticles.PlayFlowerBurstCoroutine(0f, Logic.TokenColor.Spade));
 
+        // delete new token
         newToken.StartKillNumber(0.5f);
         beingSpaded = false;
         GameObject.Destroy(tool.gameObject);
