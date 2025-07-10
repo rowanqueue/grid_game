@@ -1375,6 +1375,13 @@ public class GameController : MonoBehaviour
                                     break;
                                 case Logic.StatusReport.EventType.TokenModelDestroyed:
                                     token = _event.tokens[0];
+                                    Logic.Token toolTokenDestroyer = null;
+
+                                    if (_event.tokens.Count >= 2)
+                                    {
+                                        toolTokenDestroyer = _event.tokens[1];
+                                    }
+                                    
                                     foreach (Tile tile in tiles.Values)
                                     {
                                         if (tile.token)
@@ -1385,7 +1392,7 @@ public class GameController : MonoBehaviour
                                                 {
                                                     CreateFlower(tile, tile.token.token.data.color);
                                                 }
-                                                tile.token.Die();
+                                                tile.token.Die(toolTokenDestroyer);
                                                 tile.token = null;
                                                 if (useHaptics)
                                                 {
@@ -1394,14 +1401,6 @@ public class GameController : MonoBehaviour
                                             }
                                         }
                                     }
-                                    break;
-                                case Logic.StatusReport.EventType.TokenViewAnimateDestroy:
-                                    print("TokenViewAnimateDestroy");
-                                    foreach (Tile deadTile in tokensToDestroy)
-                                    {
-
-                                    }
-                                    tokensToDestroy.Clear();
                                     break;
                                 case Logic.StatusReport.EventType.TokenChanged:
                                     //waiting = 0f;

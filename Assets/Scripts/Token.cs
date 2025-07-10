@@ -91,7 +91,7 @@ public class Token : MonoBehaviour
                 case Logic.TokenColor.Clipper:
                     print("Using clipper tool to upgrade token");
                     Services.GameController.waiting += 1f;
-                    StartCoroutine(ClipperUpgradeRoutine(useHaptics));
+                    StartCoroutine(ClipperUpgradeRoutine(useHaptics, oldToken.data));
                     break;
             }
         }
@@ -125,7 +125,6 @@ public class Token : MonoBehaviour
 
         // Ending flower burst animation
         flowerParticles.StopFlowerBurst(token.data.color);
-        Services.GameController.game.status.events.Add(new Logic.StatusReport.Event(StatusReport.EventType.TokenViewAnimateDestroy, 0));
     }
 
     /// <summary>
@@ -175,9 +174,17 @@ public class Token : MonoBehaviour
     /// </summary>
     /// <param name="useHaptics"></param>
     /// <returns></returns>
-    IEnumerator ClipperUpgradeRoutine(bool useHaptics)
+    IEnumerator ClipperUpgradeRoutine(bool useHaptics, Logic.TokenData oldTokenData)
     {
-        yield return new WaitForSeconds(0.5f);
+        print("NUM NUM NUM " + oldTokenData.num);
+        if (oldTokenData.num == 0)
+        {
+            yield return new WaitForSeconds(100);
+        }
+        else
+        {
+            yield return new WaitForSeconds(0.5f);
+        }
 
         // Changing token data (number)
         SetTokenData(token.data);
@@ -254,36 +261,26 @@ public class Token : MonoBehaviour
 
     IEnumerator ToolMovesTowards(Token tool)
     {
-        tool.moving = true;
-        Token newToken = GameObject.Instantiate(this, transform.parent).GetComponent<Token>();
-        //newToken.UpdateLayer("TokenPlaced");
-        newToken.token = token;
-        newToken.SetTokenData(token.data);
-        newToken.transform.localPosition = transform.localPosition;
-        newToken.spriteDisplay.enabled = false;
-        newToken.shadow.enabled = false;
-        newToken.number.enabled = false;
-
         switch (tool.token.data.color)
         {
             case Logic.TokenColor.Clipper:
-                yield return ClipperUseAnimation(tool, newToken);
+                yield return ClipperUseAnimation(tool);
                 break;
             case Logic.TokenColor.Spade:
-                yield return SpadeUseAnimation(tool, newToken);
+                yield return SpadeUseAnimation(tool);
                 break;
             case Logic.TokenColor.Adder:
                 if (tool.token.data.num != 0)
                 {
-                    yield return AdderClippingAnimation(tool, newToken);
+                    yield return AdderClippingAnimation(tool);
                 }
                 else
                 {
-                    yield return AdderUseAnimation(tool, newToken);
+                    yield return AdderUseAnimation(tool);
                 }
                 break;
             default:
-                yield return ClipperUseAnimation(tool, newToken);
+                yield return ClipperUseAnimation(tool);
                 break;
         }
     }
@@ -296,15 +293,27 @@ public class Token : MonoBehaviour
     /// <param name="tool"></param>
     /// <param name="newToken"></param>
     /// <returns></returns>
-    public IEnumerator SpadeUseAnimation(Token tool, Token newToken)
+    public IEnumerator SpadeUseAnimation(Token tool)
     {
+        Token newToken = GameObject.Instantiate(this, transform.parent).GetComponent<Token>();
+        //newToken.UpdateLayer("TokenPlaced");
+        newToken.token = token;
+        newToken.SetTokenData(token.data);
+        newToken.transform.localPosition = transform.localPosition;
+        newToken.spriteDisplay.enabled = false;
+        newToken.shadow.enabled = false;
+        newToken.number.enabled = false;
+
+        tool.transform.DORotate(Vector3.forward * Spade_StartingRotation, Spade_MoveToTileTime).SetEase(Ease.OutQuint).Play();
+        yield return tool.transform.DOMove(transform.position + Spade_PositionOffset, Spade_MoveToTileTime).SetEase(Ease.OutQuint).WaitForCompletion();
+
         newToken.textDisplay.transform.parent = transform.parent;
         newToken.textDisplay.transform.localScale = Vector3.one * 1.4f;
         newToken.textDisplay.text = Services.GameController.ScoreToken(token.data).ToString();
         newToken.textDisplay.text = "<size=70%><voffset=0.2em>+</voffset></size>" + newToken.textDisplay.text;
 
-        tool.transform.DORotate(Vector3.forward * Spade_StartingRotation, Spade_MoveToTileTime).SetEase(Ease.OutQuint).Play();
-        yield return tool.transform.DOMove(transform.position + Spade_PositionOffset, Spade_MoveToTileTime).SetEase(Ease.OutQuint).WaitForCompletion();
+        tool.transform.DORotate(Vector3.forward * Spade_EndRotation, Spade_DigTime).SetEase(Ease.InOutSine).Play();
+        yield return tool.transform.DOMove(transform.position + Spade_DigDestination, Spade_DigTime).SetEase(Ease.InOutSine).WaitForCompletion();
 
         Sequence dyingSequence = DOTween.Sequence();
         tool.textDisplay.gameObject.SetActive(false);
@@ -312,9 +321,6 @@ public class Token : MonoBehaviour
         dyingSequence.Join(tool.number.DOFade(0f, Spade_DigTime + 0.5f).SetEase(Ease.InCubic));
         dyingSequence.Join(tool.shadow.DOFade(0f, Spade_DigTime + 0.5f).SetEase(Ease.InCubic));
         dyingSequence.Play();
-
-        tool.transform.DORotate(Vector3.forward * Spade_EndRotation, Spade_DigTime).SetEase(Ease.InOutSine).Play();
-        yield return tool.transform.DOMove(transform.position + Spade_DigDestination, Spade_DigTime).SetEase(Ease.InOutSine).WaitForCompletion();
 
         newToken.dirtParticles.Play();
         newToken.sparkleParticles.Play();
@@ -332,13 +338,11 @@ public class Token : MonoBehaviour
     /// <param name="tool"></param>
     /// <param name="newToken"></param>
     /// <returns></returns>
-    public IEnumerator ClipperUseAnimation(Token tool, Token newToken)
+    public IEnumerator ClipperUseAnimation(Token tool)
     {
-        print("tile pos: " + transform.position + " tool pos: " + tool.transform.position + " sprite pos: " + tool.spriteDisplay.transform.position);
         tool.transform.DORotate(Vector3.forward * 30f, Clipper_MoveToTileTime).SetEase(Ease.OutQuint).Play();
         yield return tool.transform.DOMove(transform.position + ClipperPositionOffset, Clipper_MoveToTileTime).SetEase(Ease.OutQuint).WaitForCompletion();
         tool.clippingSlashParticles.Play();
-        print("END tile pos: " + transform.position + " tool pos: " + tool.transform.position + " sprite pos: " + tool.spriteDisplay.transform.position); ;
 
         Sequence dyingSequence = DOTween.Sequence();
         tool.textDisplay.gameObject.SetActive(false);
@@ -349,7 +353,6 @@ public class Token : MonoBehaviour
         yield return tool.transform.DOMoveX(transform.position.x - ClipperSlashXLength, Clipper_SlashTime).SetEase(Ease.OutQuint).WaitForCompletion();
         tool.clippingSlashParticles.Stop();
 
-        newToken.StartKillNumber(0.05f);
         beingSpaded = false;
         GameObject.Destroy(tool.gameObject);
     }
@@ -361,7 +364,7 @@ public class Token : MonoBehaviour
     /// <param name="tool"></param>
     /// <param name="newToken"></param>
     /// <returns></returns>
-    public IEnumerator AdderUseAnimation(Token tool, Token newToken)
+    public IEnumerator AdderUseAnimation(Token tool)
     {
         while (Vector3.Distance(transform.position, tool.transform.position) > 0.05f)
         {
@@ -388,11 +391,11 @@ public class Token : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
 
         yield return tool.ToolDyingRoutine(false);
-        newToken.StartKillNumber(0.05f);
+
         GameObject.Destroy(tool.gameObject);
     }
 
-    public IEnumerator AdderClippingAnimation(Token tool, Token newToken)
+    public IEnumerator AdderClippingAnimation(Token tool)
     {
         while (Vector3.Distance(transform.position, tool.transform.position) > 0.05f)
         {
@@ -404,7 +407,7 @@ public class Token : MonoBehaviour
 
         tool.transform.DORotate(Vector3.zero, adderDipTime).Play();
         yield return tool.transform.DOMoveY(transform.position.y - 0.4f, adderDipTime).SetEase(Ease.InOutSine).WaitForCompletion();
-        StartCoroutine(tool.adderClippingParticles.PlayFlowerBurstCoroutine(0, newToken.token.data.color));
+        StartCoroutine(tool.adderClippingParticles.PlayFlowerBurstCoroutine(0, token.data.color));
 
         yield return new WaitForSeconds(0.1f);
 
@@ -415,7 +418,6 @@ public class Token : MonoBehaviour
         dyingSequence.Join(tool.number.DOFade(0f, toolLiftSpeed * 0.5f).SetEase(Ease.InCubic));
         dyingSequence.Join(tool.shadow.DOFade(0f, toolLiftSpeed * 0.5f).SetEase(Ease.InCubic));
         yield return dyingSequence.WaitForCompletion();
-        newToken.StartKillNumber(0.05f);
         GameObject.Destroy(tool.gameObject);
     }
 
@@ -526,18 +528,10 @@ public class Token : MonoBehaviour
         number.sortingLayerName = sortingLayer;
         textDisplay.sortingLayerID = spriteDisplay.sortingLayerID;
     }
-    public void Die()
+    public void Die(Logic.Token toolData = null)
     {
         Debug.Log("Die");
-        textDisplay.transform.parent = transform.parent;
-        textDisplay.transform.localScale = Vector3.one * 1.4f;
-        dirtParticles.Play();
-        sparkleParticles.Play();
-        textDisplay.text = Services.GameController.ScoreToken(token.data).ToString();
-        textDisplay.text = "<size=70%><voffset=0.2em>+</voffset></size>" + textDisplay.text;
-        finalPos = transform.localPosition + Vector3.up * liftHeight;
-        Services.AudioManager.PlayRemoveTileSound(1);
-        StartCoroutine(Dying());
+        StartCoroutine(Dying(toolData));
     }
     IEnumerator Wiggle()
     {
@@ -578,7 +572,7 @@ public class Token : MonoBehaviour
         transform.localEulerAngles = new Vector3(0f, 0f, targetAngle);
         wiggling = false;
     }
-    IEnumerator Dying()
+    IEnumerator Dying(Logic.Token toolToken)
     {
         float speed = liftSpeed;
         float targetAngle = Random.Range(2.5f, 5f);
@@ -587,6 +581,21 @@ public class Token : MonoBehaviour
             targetAngle *= -1f;
         }
         Services.GameController.dyingTokens.Add(this);
+
+        if (toolToken != null && toolToken.data.color == Logic.TokenColor.Clipper)
+        {
+            yield return new WaitForSeconds(0.5f);
+        }
+
+        textDisplay.transform.parent = transform.parent;
+        textDisplay.transform.localScale = Vector3.one * 1.4f;
+        dirtParticles.Play();
+        sparkleParticles.Play();
+        textDisplay.text = Services.GameController.ScoreToken(token.data).ToString();
+        textDisplay.text = "<size=70%><voffset=0.2em>+</voffset></size>" + textDisplay.text;
+        finalPos = transform.localPosition + Vector3.up * liftHeight;
+        Services.AudioManager.PlayRemoveTileSound(1);
+
         UpdateLayer("TokenMoving");
         while (Mathf.Abs(transform.localEulerAngles.z - targetAngle) < 0.1f)
         {

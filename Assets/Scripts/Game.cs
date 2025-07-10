@@ -804,7 +804,7 @@ namespace Logic
                 }
                 else
                 {
-                    game.status.events.Add(new StatusReport.Event(StatusReport.EventType.TokenModelDestroyed,new List<Token>() { tile.token }));
+                    game.status.events.Add(new StatusReport.Event(StatusReport.EventType.TokenModelDestroyed,new List<Token>() { tile.token, token }));
                     tile.token.Destroy();
                     return null;
                 }
