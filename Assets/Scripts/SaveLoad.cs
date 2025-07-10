@@ -8,7 +8,7 @@ namespace Save
 {
     public class SaveLoad
     {
-        public static int version = 2;
+        public static int version = 3;
         public static void Save(int id,Logic.History.Turn turn)
         {
             Save save = new Save(turn);
@@ -38,6 +38,13 @@ namespace Save
             path += "/Save"+id.ToString()+".json";
             if (System.IO.File.Exists(path) == false)
             {
+                return false;
+            }
+            string json = System.IO.File.ReadAllText(path);
+            Save save = JsonUtility.FromJson(json, typeof(Save)) as Save;
+            if (save.version != version)
+            {
+                DeleteSave(id);
                 return false;
             }
             return true;

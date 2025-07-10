@@ -37,8 +37,14 @@ public class Button : MonoBehaviour
             case ButtonType.Mulligan:
                 if(Services.GameController.inTutorial == false)
                 {
-                    display.enabled = false;
-                    return;
+                    if(Services.Gems.numGems >= 2)
+                    {
+                        disabled = false;
+                    }
+                    else
+                    {
+                        disabled = true;
+                    }
                     break;
                 }
                 break;
@@ -58,7 +64,7 @@ public class Button : MonoBehaviour
                 disabled = !Services.GameController.difficultyUnlocked[Services.GameController.difficulty];
                 break;
         }
-        if(display != null)
+        if(display != null && disabled == false)
         {
             display.color = (hover ? hoverColor : Color.white);
         }
@@ -77,6 +83,10 @@ public class Button : MonoBehaviour
         if(hover && !disabled && Input.GetMouseButtonDown(0))
         {
             _event.Invoke();
+            if(type == ButtonType.Mulligan)
+            {
+                Services.Gems.SpendGems(2);
+            }
         }
     }
 

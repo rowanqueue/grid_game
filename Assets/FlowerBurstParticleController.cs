@@ -18,26 +18,29 @@ public class FlowerBurstParticleController : MonoBehaviour
         {
             case Logic.TokenColor.Blue:
                 Debug.Log("Playing blue flower burst");
+                Services.AudioManager.PlayFlowerBurstSound();
                 blueFlowerBurst.Play();
                 break;
             case Logic.TokenColor.Red:
                 Debug.Log("Playing red flower burst");
+                Services.AudioManager.PlayFlowerBurstSound();
                 redFlowerBurst.Play();
                 break;
             case Logic.TokenColor.Purple:
                 Debug.Log("Playing purple flower burst");
+                Services.AudioManager.PlayFlowerBurstSound();
                 purpleFlowerBurst.Play();
                 break;
             case Logic.TokenColor.Green:
-                Debug.Log("Playing green flower burst");
+                Services.AudioManager.PlayFlowerBurstSound();
                 greenFlowerBurst.Play();
                 break;
             case Logic.TokenColor.Gold:
-                Debug.Log("Playing gold flower burst");
+                Services.AudioManager.PlayFlowerBurstSound();
                 goldFlowerBurst.Play();
                 break;
             case Logic.TokenColor.Spade:
-                Debug.Log("Playing spade dirt burst");
+                Services.AudioManager.PlaySpadeSound();
                 spadeDirtBurst.Play();
                 break;
             case Logic.TokenColor.Adder:

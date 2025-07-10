@@ -31,6 +31,7 @@ public enum GameState
     Settings,
     Start,
     Snapshot,
+    Seeds,
     Bag,
     SelectDifficulty
 }
@@ -132,6 +133,9 @@ public class GameController : MonoBehaviour
     void Awake()
     {
         InitializeServices();
+#if UNITY_ANDROID
+        Handheld.Vibrate();
+#endif
         if (PlayerPrefs.HasKey("difficultyUnlock"))
         {
             String unlock = PlayerPrefs.GetString("difficultyUnlock");
@@ -221,6 +225,7 @@ public class GameController : MonoBehaviour
         {
             case GameState.Gameplay:
                 break;
+            case GameState.Seeds:
             case GameState.Settings:
                 cameraPos.x = 8;
                 break;
@@ -401,6 +406,18 @@ public class GameController : MonoBehaviour
         if (inTutorial) { return; }
         lastState = gameState;
         gameState = GameState.Snapshot;
+
+        stateScreens[(int)gameState].gameObject.SetActive(true);
+        stateScreens[(int)gameState].SetAnchor();
+        snapshotPreview.openScreen();
+        movingToScreen = true;
+    }
+    public void GameStateSeeds()
+    {
+        if (inputState == InputState.Finish || inputState == InputState.TapToRestart) { return; }
+        if (inTutorial) { return; }
+        lastState = gameState;
+        gameState = GameState.Seeds;
 
         stateScreens[(int)gameState].gameObject.SetActive(true);
         stateScreens[(int)gameState].SetAnchor();
@@ -753,6 +770,7 @@ public class GameController : MonoBehaviour
             {
                 case GameState.Gameplay:
                     break;
+                case GameState.Seeds:
                 case GameState.Settings:
                     cameraPos.x = 8;
                     break;

@@ -191,44 +191,6 @@
                 ]
             },
             {
-                "trigger": [
-                    {
-                        "token": {
-                            "color": "green",
-                            "number": 3
-                        }
-                    },
-                ],
-                "reward": [
-                    {
-                        "token": {
-                            "color": "adder",
-                            "number": 0
-                        },
-                        "count": 1
-                    }
-                ]
-            },
-            {
-                "trigger": [
-                    {
-                        "token": {
-                            "color": "purple",
-                            "number": 3
-                        }
-                    },
-                ],
-                "reward": [
-                    {
-                        "token": {
-                            "color": "clipper",
-                            "number": -1
-                        },
-                        "count": 1
-                    }
-                ]
-            },
-            {
                 "prototypical": true,
                 "__helper": "prototypical means that this will create this progress event for all possible number tokens of this color",
                 "trigger": [
