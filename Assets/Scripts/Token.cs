@@ -135,7 +135,6 @@ public class Token : MonoBehaviour
     /// <returns></returns>
     IEnumerator AdderUpgradeRoutine(bool useHaptics, bool isClipping)
     {
-        print("HUU??UUHH");
         // Delay for audio to trigger
         yield return new WaitForSeconds(0.6f);
 
@@ -173,7 +172,7 @@ public class Token : MonoBehaviour
         // Delay waiting for tool animations
         if (oldTokenData.num == 0)
         {
-            yield return new WaitForSeconds(100);
+            yield return new WaitForSeconds(1f);
         }
         else
         {
