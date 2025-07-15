@@ -97,7 +97,7 @@ public class Token : MonoBehaviour
         }
         else
         {
-            StartCoroutine(UpgradeRoutine(useHaptics));
+            StartCoroutine(DefaultUpgradeRoutine(useHaptics));
         }
     }
 
@@ -105,18 +105,18 @@ public class Token : MonoBehaviour
     /// Plays the upgrade animation for the token
     /// </summary>
     /// <returns></returns>
-    IEnumerator UpgradeRoutine(bool useHaptics)
+    IEnumerator DefaultUpgradeRoutine(bool useHaptics)
     {
+        print("Default");
         // Delay before starting the upgrade animation
         yield return new WaitForSeconds(0.1f);
 
-        // Move these to within token's upgrade coroutine 
-        // UPGRADE AUDIO HOOK
-        Services.AudioManager.PlayUpgradeTileSound();
+        //Services.AudioManager.PlayUpgradeTileSound();
         if (useHaptics)
         {
             Haptics.PlayTransient(1f, .5f);
         }
+        
 
         // Playing the flower burst animation
         StartCoroutine(flowerParticles.PlayFlowerBurstCoroutine(0f, token.data.color));
@@ -135,11 +135,11 @@ public class Token : MonoBehaviour
     /// <returns></returns>
     IEnumerator AdderUpgradeRoutine(bool useHaptics, bool isClipping)
     {
+        print("HUU??UUHH");
         // Delay for audio to trigger
         yield return new WaitForSeconds(0.6f);
 
-        // UPGRADE AUDIO HOOK
-        Services.AudioManager.PlayUpgradeTileSound();
+        //Services.AudioManager.PlayUpgradeTileSound();
         if (useHaptics)
         {
             Haptics.PlayTransient(1f, .5f);
@@ -179,8 +179,6 @@ public class Token : MonoBehaviour
         {
             yield return new WaitForSeconds(0.5f);
         }
-
-        // UPGRADE AUDIO HOOK
 
         // Changing token data (number)
         SetTokenData(token.data);
@@ -252,10 +250,10 @@ public class Token : MonoBehaviour
             beingSpaded = true;
         }
 
-        StartCoroutine(ToolMovesTowards(toolToken));
+        StartCoroutine(ToolUseAnimation(toolToken));
     }
 
-    IEnumerator ToolMovesTowards(Token tool)
+    IEnumerator ToolUseAnimation(Token tool)
     {
         switch (tool.token.data.color)
         {
@@ -342,10 +340,12 @@ public class Token : MonoBehaviour
     /// <returns></returns>
     public IEnumerator ClipperUseAnimation(Token tool)
     {
+        // Move towards token at an angle
         tool.transform.DORotate(Vector3.forward * 30f, Clipper_MoveToTileTime).SetEase(Ease.OutQuint).Play();
         yield return tool.transform.DOMove(transform.position + ClipperPositionOffset, Clipper_MoveToTileTime).SetEase(Ease.OutQuint).WaitForCompletion();
         tool.clippingSlashParticles.Play();
 
+        // Slash across the tile
         Sequence dyingSequence = DOTween.Sequence();
         tool.textDisplay.gameObject.SetActive(false);
         dyingSequence.Append(tool.spriteDisplay.DOFade(0f, toolLiftSpeed * 0.5f).SetEase(Ease.InCubic));
@@ -360,7 +360,7 @@ public class Token : MonoBehaviour
     }
 
     /// <summary>
-    /// Adder (watering can and flower clippings) animation after a target tile is selected
+    /// Adder (watering can) animation after a target tile is selected
     /// Plays the adding animation, moves the tool to the token, then destroys the tool
     /// </summary>
     /// <param name="tool"></param>
@@ -368,51 +368,67 @@ public class Token : MonoBehaviour
     /// <returns></returns>
     public IEnumerator AdderUseAnimation(Token tool)
     {
+        // Move tool towards the tile
         while (Vector3.Distance(transform.position, tool.transform.position) > 0.05f)
         {
             tool.transform.position += (transform.position - tool.transform.position) * 0.15f;
             yield return new WaitForEndOfFrame();
         }
 
-        // Animation for watering can
+        
         Sequence adderSequence = DOTween.Sequence();
         float adderRotationTime = 0.4f;
-        float waterSquirtTime = 0.2f;
+        float waterSquirtTime = 0.3f;
 
+        // Rotate the watering can
         adderSequence.Append(tool.transform.DORotate(Vector3.forward * -30f, adderRotationTime).SetEase(Ease.OutCirc));
         adderSequence.Join(tool.transform.DOMoveX(transform.position.x - 0.6f, adderRotationTime).SetEase(Ease.OutSine));
         adderSequence.Play();
 
+        // watering can dips down while that is happening
         Sequence adderDipSequence = DOTween.Sequence();
         adderDipSequence.Append(tool.transform.DOMoveY(transform.position.y - 0.05f, adderRotationTime).SetEase(Ease.InCirc));
         adderDipSequence.Append(tool.transform.DOMoveY(transform.position.y + 0.1f, adderRotationTime).SetEase(Ease.InOutCubic));
         adderDipSequence.Play();
 
-        yield return new WaitForSeconds(waterSquirtTime);
-        tool.adderWaterSquirtParticles.Play();
-        yield return new WaitForSeconds(0.5f);
+        // Wait for animations to finish with slight added delay
+        //tool.adderWaterSquirtParticles.Play();
+        yield return new WaitForSeconds(adderRotationTime + waterSquirtTime);
 
+        // Tool fades away
         yield return tool.ToolDyingRoutine(false);
 
         GameObject.Destroy(tool.gameObject);
     }
 
+    /// <summary>
+    /// Adder (clipping) animation after a target tile is selected
+    /// Plays the adding animation, moves the tool to the token, then destroys the tool
+    /// </summary>
+    /// <param name="tool"></param>
+    /// <param name="newToken"></param>
+    /// <returns></returns>
     public IEnumerator AdderClippingAnimation(Token tool)
     {
+        // Move tool towards the tile
         while (Vector3.Distance(transform.position, tool.transform.position) > 0.05f)
         {
             tool.transform.position += (transform.position - tool.transform.position) * 0.15f;
             yield return new WaitForEndOfFrame();
         }
 
+        // Adder clipping straightens out and dips down on to the tile
         float adderDipTime = 0.4f;
 
         tool.transform.DORotate(Vector3.zero, adderDipTime).Play();
         yield return tool.transform.DOMoveY(transform.position.y - 0.4f, adderDipTime).SetEase(Ease.InOutSine).WaitForCompletion();
+
+        // Small flower burst plays
         StartCoroutine(tool.adderClippingParticles.PlayFlowerBurstCoroutine(0, token.data.color));
 
         yield return new WaitForSeconds(0.1f);
 
+        //Token fades away 
         UpdateLayer("TokenMoving");
         Sequence dyingSequence = DOTween.Sequence();
         tool.textDisplay.gameObject.SetActive(false);
