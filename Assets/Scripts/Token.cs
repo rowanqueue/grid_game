@@ -308,6 +308,7 @@ public class Token : MonoBehaviour
         newToken.textDisplay.text = "<size=70%><voffset=0.2em>+</voffset></size>" + newToken.textDisplay.text;
 
         // spade scoops
+        Services.AudioManager.PlaySpadeSound();
         tool.transform.DORotate(Vector3.forward * Spade_EndRotation, Spade_DigTime).SetEase(Ease.InOutSine).Play();
         yield return tool.transform.DOMove(transform.position + Spade_DigDestination, Spade_DigTime).SetEase(Ease.InOutSine).WaitForCompletion();
 
@@ -351,6 +352,7 @@ public class Token : MonoBehaviour
         dyingSequence.Join(tool.number.DOFade(0f, toolLiftSpeed * 0.5f).SetEase(Ease.InCubic));
         dyingSequence.Join(tool.shadow.DOFade(0f, toolLiftSpeed * 0.5f).SetEase(Ease.InCubic));
         dyingSequence.Play();
+        Services.AudioManager.PlayShearsSound();
         yield return tool.transform.DOMoveX(transform.position.x - ClipperSlashXLength, Clipper_SlashTime).SetEase(Ease.OutQuint).WaitForCompletion();
         tool.clippingSlashParticles.Stop();
 
@@ -389,6 +391,7 @@ public class Token : MonoBehaviour
         adderDipSequence.Append(tool.transform.DOMoveY(transform.position.y - 0.05f, adderRotationTime).SetEase(Ease.InCirc));
         adderDipSequence.Append(tool.transform.DOMoveY(transform.position.y + 0.1f, adderRotationTime).SetEase(Ease.InOutCubic));
         adderDipSequence.Play();
+        Services.AudioManager.PlayWateringCanSound();
 
         // Wait for animations to finish with slight added delay
         //tool.adderWaterSquirtParticles.Play();
