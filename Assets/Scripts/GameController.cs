@@ -9,6 +9,7 @@ using Logic;
 using Save;
 using EZ.Haptics;
 using System;
+using flora;
 
 public enum GameType
 {
@@ -52,7 +53,7 @@ public class GameController : MonoBehaviour
     //once tutorial is done, it should be created from a prefab
     public Tutorial tutorial;
     public bool inTutorial => tutorial.active;
-    public List<Screen> stateScreens = new List<Screen>();
+    public List<flora.Screen> stateScreens = new List<flora.Screen>();
     bool movingToScreen = false;
     public Logic.Game game;
     //public TextInput.SimInput simInput;
@@ -127,18 +128,21 @@ public class GameController : MonoBehaviour
     public Transform bagButtonTransform;
     public bool newGame = false;
     public List<Token> dyingTokens = new List<Token>();
+
+    public GameObject loadSnapshotButton;
     // Start is called before the first frame update
     void Awake()
     {
         InitializeServices();
-#if UNITY_ANDROID
+    #if UNITY_ANDROID
         Handheld.Vibrate();
-#endif
+    #endif
         if (PlayerPrefs.HasKey("difficulty"))
         {
-            if(PlayerPrefs.GetInt("difficulty") > 0)
+            if(PlayerPrefs.GetInt("difficulty") > 3)
             {
-                PlayerPrefs.DeleteAll();
+                PlayerPrefs.DeleteKey("difficulty");
+                PlayerPrefs.DeleteKey("difficultyUnlock");
             }
         }
         if (PlayerPrefs.HasKey("difficultyUnlock"))
@@ -209,7 +213,7 @@ public class GameController : MonoBehaviour
         Json.Root root = JsonConvert.DeserializeObject<Json.Root>(gameJson.text);
         game.Initialize(root);
 
-        foreach (Screen screen in stateScreens)
+        foreach (flora.Screen screen in stateScreens)
         {
             screen.gameObject.SetActive(false);
         }
@@ -346,8 +350,29 @@ public class GameController : MonoBehaviour
 
 
     }
+    public void StartNewRun()
+    {
+        if (Services.Gems.CanAfford(1))
+        {
+            Services.Gems.SpendGems(1);
+            GameStateGameplay();
+        }
+        else
+        {
+            Debug.Log("can't afford a new game");
+        }
+        
+    }
     public void GameStateGameplay()
     {
+        if(gameState == GameState.Seeds)
+        {
+            if(lastState == GameState.SelectDifficulty)
+            {
+                GameStateSelectDifficulty();
+                return;
+            }
+        }
         if(gameState == GameState.Start)
         {
             if (newGame)
@@ -751,6 +776,7 @@ public class GameController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        loadSnapshotButton.SetActive(SaveLoad.HasSave(1));
         difficultyName.text = "Difficulty\n" + difficultyNames[difficulty];
         /*if (difficulties[difficulty] != gameJson)
         {
@@ -1569,11 +1595,13 @@ public class GameController : MonoBehaviour
         if (freeSlot.token)
         {
             bool shouldHover = false;
-            if(inputState == InputState.Place)
+            freeSlot.token.lifted = false;
+            if (inputState == InputState.Place)
             {
                 if(chosenIndex >= game.hand.handSize)
                 {
                     shouldHover = true;
+                    freeSlot.token.lifted = true;
                 }
             }
             if (shouldHover)
@@ -1789,6 +1817,11 @@ public class GameController : MonoBehaviour
     }
     public void LoadSnapshot()
     {
+        if (Services.Gems.CanAfford(3) == false)
+        {
+            return;
+        }
+        Services.Gems.SpendGems(3);
         Logic.History.Turn _save = null;
         if (SaveLoad.HasSave(1))
         {
@@ -1832,7 +1865,6 @@ public class GameController : MonoBehaviour
                 unlock = unlock + "0";
             }
         }
-        Debug.Log(unlock);
         PlayerPrefs.SetString("difficultyUnlock", unlock);
         PlayerPrefs.Save();
     }
