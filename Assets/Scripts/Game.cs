@@ -82,7 +82,7 @@ namespace Logic
                     {
                         
                         token.Destroy();
-                        status.events.Add(new StatusReport.Event(StatusReport.EventType.TokenDestroyed, token));
+                        status.events.Add(new StatusReport.Event(StatusReport.EventType.TokenModelDestroyed, token));
                         EarnPoints(token.data.num * colorScoreMulti[token.data.color]);
                     }
                 }
@@ -179,7 +179,7 @@ namespace Logic
                         score += depth;
                         shotsFired.Add(_token.tile, _token.data.color);
                         _token.Destroy();
-                        status.events.Add(new StatusReport.Event(StatusReport.EventType.TokenDestroyed, _token));
+                        status.events.Add(new StatusReport.Event(StatusReport.EventType.TokenModelDestroyed, _token));
                         status.events.Add(new StatusReport.Event(StatusReport.EventType.ScoreAdded, depth));
                         change = true;
                     }
@@ -196,7 +196,7 @@ namespace Logic
                         if (neighbor.token.data.num <= 0)
                         {
                             neighbor.token.Destroy();
-                            status.events.Add(new StatusReport.Event(StatusReport.EventType.TokenDestroyed, neighbor.token));
+                            status.events.Add(new StatusReport.Event(StatusReport.EventType.TokenModelDestroyed, neighbor.token));
                         }
                     }
                 }
@@ -238,12 +238,14 @@ namespace Logic
         {
             NewHand,
             TokenCreated,//unimplemented
-            TokenDestroyed,
+            TokenModelDestroyed,
+            TokenViewAnimateDestroy,
             TokenChanged,//tokens[0] becomes tokens[1]
             ScoreAdded,
             BagUpdated,
             BagRefill,
-            TokenWait
+            TokenWait,
+            TokenAddedTo
         }
         public class Event
         {
@@ -260,7 +262,7 @@ namespace Logic
             {
                 this.type = type;
                 this.tokens = new List<Token>();
-                foreach(Token t in _tokens)
+                foreach (Token t in _tokens)
                 {
                     this.tokens.Add(t);
                 }
@@ -277,7 +279,7 @@ namespace Logic
                 this.tokens = new List<Token>();
                 this.num = num;
             }
-            public Event(EventType type, Dictionary<TokenData,int> contents)
+            public Event(EventType type, Dictionary<TokenData, int> contents)
             {
                 this.type = type;
                 this.tokens = new List<Token>();
@@ -787,14 +789,14 @@ namespace Logic
             if (token.data.color == TokenColor.Clipper)
             {
                 game.bag.AddContents(new Dictionary<TokenData, int>() {{ new TokenData(TokenColor.Adder, game.clippingNumbers[tile.token.data.color],true),1}});
-                game.status.events.Add(new StatusReport.Event(StatusReport.EventType.TokenDestroyed, new List<Token>() { token }));
+                game.status.events.Add(new StatusReport.Event(StatusReport.EventType.TokenModelDestroyed, new List<Token>() { token }));
                 int num = tile.token.data.num - 1;
                 if(num > 0)
                 {
                     Token newToken = new Token(tile.token.data, false);
 
                     newToken.data.num = num;
-                    game.status.events.Add(new StatusReport.Event(StatusReport.EventType.TokenChanged, new List<Token>() { tile.token, newToken }));
+                    game.status.events.Add(new StatusReport.Event(StatusReport.EventType.TokenChanged, new List<Token>() { tile.token, newToken, token }));
                     tile.token.Destroy();
                     PlaceToken(p, newToken);
                     
@@ -802,7 +804,7 @@ namespace Logic
                 }
                 else
                 {
-                    game.status.events.Add(new StatusReport.Event(StatusReport.EventType.TokenDestroyed,new List<Token>() { tile.token }));
+                    game.status.events.Add(new StatusReport.Event(StatusReport.EventType.TokenModelDestroyed,new List<Token>() { tile.token, token }));
                     tile.token.Destroy();
                     return null;
                 }
@@ -819,12 +821,12 @@ namespace Logic
                     token.tile = tile;
                     return token;
                 }
-                game.status.events.Add(new StatusReport.Event(StatusReport.EventType.TokenDestroyed, new List<Token>() { token }));
+                game.status.events.Add(new StatusReport.Event(StatusReport.EventType.TokenModelDestroyed, new List<Token>() { token }));
                 int num = tile.token.data.num + 1;
                 Token newToken = new Token(tile.token.data, false);
 
                 newToken.data.num = num;
-                game.status.events.Add(new StatusReport.Event(StatusReport.EventType.TokenChanged, new List<Token>() { tile.token, newToken }));
+                game.status.events.Add(new StatusReport.Event(StatusReport.EventType.TokenAddedTo, new List<Token>() { tile.token, newToken, token }));
                 tile.token.Destroy();
                 PlaceToken(p, newToken);
 

@@ -10,6 +10,7 @@ public class FlowerBurstParticleController : MonoBehaviour
     public ParticleSystem greenFlowerBurst;
     public ParticleSystem goldFlowerBurst;
     public ParticleSystem spadeDirtBurst;
+    public ParticleSystem adderBurst;
 
     private void PlayFlowerBurst(Logic.TokenColor tokenColor)
     {
@@ -17,24 +18,34 @@ public class FlowerBurstParticleController : MonoBehaviour
         {
             case Logic.TokenColor.Blue:
                 Debug.Log("Playing blue flower burst");
+                Services.AudioManager.PlayFlowerBurstSound();
                 blueFlowerBurst.Play();
                 break;
             case Logic.TokenColor.Red:
                 Debug.Log("Playing red flower burst");
+                Services.AudioManager.PlayFlowerBurstSound();
                 redFlowerBurst.Play();
                 break;
             case Logic.TokenColor.Purple:
                 Debug.Log("Playing purple flower burst");
+                Services.AudioManager.PlayFlowerBurstSound();
                 purpleFlowerBurst.Play();
                 break;
             case Logic.TokenColor.Green:
+                Services.AudioManager.PlayFlowerBurstSound();
                 greenFlowerBurst.Play();
                 break;
             case Logic.TokenColor.Gold:
+                Services.AudioManager.PlayFlowerBurstSound();
                 goldFlowerBurst.Play();
                 break;
             case Logic.TokenColor.Spade:
+                Services.AudioManager.PlaySpadeSound();
                 spadeDirtBurst.Play();
+                break;
+            case Logic.TokenColor.Adder:
+                Debug.Log("Playing adder burst");
+                adderBurst.Play();
                 break;
             default:
                 Debug.LogWarning("Unknown token color: " + tokenColor);
@@ -69,6 +80,9 @@ public class FlowerBurstParticleController : MonoBehaviour
                 break;
             case Logic.TokenColor.Spade:
                 spadeDirtBurst.Stop();
+                break;
+            case Logic.TokenColor.Adder:
+                adderBurst.Stop();
                 break;
             default:
                 Debug.LogWarning("Unknown token color: " + tokenColor);
