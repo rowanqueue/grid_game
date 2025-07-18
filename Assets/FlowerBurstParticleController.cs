@@ -40,7 +40,6 @@ public class FlowerBurstParticleController : MonoBehaviour
                 goldFlowerBurst.Play();
                 break;
             case Logic.TokenColor.Spade:
-                Services.AudioManager.PlaySpadeSound();
                 spadeDirtBurst.Play();
                 break;
             case Logic.TokenColor.Adder:
