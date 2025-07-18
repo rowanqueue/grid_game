@@ -67,6 +67,7 @@ Frame 1 or 5 can jump straight to 11 to switch tile instead of looking/placing
         {
             if (Input.GetMouseButtonDown(0))
             {
+                Services.AudioManager.StartMusic();
                 Services.GameController.GameStateGameplay();
             }
         }
