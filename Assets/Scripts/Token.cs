@@ -488,10 +488,6 @@ public class Token : MonoBehaviour
         {
             Init(token);
         }
-
-        if (moving) { return; }
-        float shadow_scale = Mathf.InverseLerp(0f, 0.5f, spriteDisplay.transform.localPosition.y);
-        shadow.transform.localScale = Vector3.one * Mathf.Lerp(1f, 0.75f, shadow_scale);
         if (lifted)
         {
             spriteDisplay.transform.localPosition += (Vector3.up * 0.5f - spriteDisplay.transform.localPosition) * 1.5f * (Time.deltaTime / 0.16666f);
@@ -502,6 +498,10 @@ public class Token : MonoBehaviour
             spriteDisplay.transform.localPosition += (Vector3.zero - spriteDisplay.transform.localPosition) * 1.5f * (Time.deltaTime / 0.16666f);
             //shadow.transform.localPosition = Vector3.zero;
         }
+        if (moving) { return; }
+        float shadow_scale = Mathf.InverseLerp(0f, 0.5f, spriteDisplay.transform.localPosition.y);
+        shadow.transform.localScale = Vector3.one * Mathf.Lerp(1f, 0.75f, shadow_scale);
+        
         transform.position += ((Vector3)pos - transform.position) * 1.5f * (Time.deltaTime / 0.16666f);
         if (spriteDisplay.sortingLayerName == "TokenPlaced")
         {

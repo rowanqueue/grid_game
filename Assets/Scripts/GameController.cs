@@ -385,6 +385,17 @@ public class GameController : MonoBehaviour
             }
 
         }
+        if (gameState == GameState.SelectDifficulty)
+        {
+            if (Services.Gems.CanAfford(1))
+            {
+                Services.Gems.SpendGems(1);
+            }
+            else
+            {
+                return;
+            }
+        }
         difficultyParent.SetActive(false);
         if (gameState == GameState.SelectDifficulty)
         {
@@ -620,7 +631,21 @@ public class GameController : MonoBehaviour
                 }
 
                 hand[i].handPos = handTransforms[i].position;
+                if(game.hand.handSize == 1)
+                {
+                    hand[i].handPos.x = 0;
+                    hand[i].lifted = true;
+                }
                 hand[i].DrawFromBag(i);
+            }
+            else
+            {
+                if (game.hand.handSize == 1)
+                {
+                    hand[i].lifted = true;
+                    chosenIndex = 0;
+                    EnterInputState(InputState.Place);
+                }
             }
             //hand[i].PlaceInHand(i);
 
@@ -951,6 +976,11 @@ public class GameController : MonoBehaviour
                 {
                     if (hand[i] == null) { continue; }
                     Vector2 pos = firstHandPos + (i * handSeparation);
+                    if (game.hand.handSize == 1)
+                    {
+                        pos = handTransforms[i].position;
+                        pos.x = 0;
+                    }
                     float d = Vector2.Distance(mousePos, pos);
                     if (d < 0.5f)
                     {
@@ -1545,7 +1575,16 @@ public class GameController : MonoBehaviour
                         }
                         else
                         {
-                            EnterInputState(InputState.Choose);
+                            if(game.hand.handSize == 1)
+                            {
+                                chosenIndex = 0;
+                                EnterInputState(InputState.Place);
+                            }
+                            else
+                            {
+                                EnterInputState(InputState.Choose);
+                            }
+                            
                             //save
                             Save();
                             waiting = waitTime * 0.01f;
@@ -1660,6 +1699,10 @@ public class GameController : MonoBehaviour
             if (hand[i] == null) { continue; }
             hand[i].lifted = false;
             Vector2 pos = handTransforms[i].position;// firstHandPos + (i * handSeparation);
+            if(game.hand.handSize == 1)
+            {
+                pos.x = 0;
+            }
             if (i == chosenIndex)
             {
                 if (inputState == InputState.Choose)
