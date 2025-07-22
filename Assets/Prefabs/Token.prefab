@@ -5501,7 +5501,7 @@ MonoBehaviour:
   Clipper_SlashTime: 0.4
   ClipperPositionOffset: {x: 1, y: -1, z: 0}
   ClipperSlashXLength: 0.15
-  Spade_MoveToTileTime: 0.5
+  Spade_MoveToTileTime: 0.3
   Spade_DigTime: 0.3
   Spade_PositionOffset: {x: -1, y: -1, z: 0}
   Spade_DigDestination: {x: 0, y: 0, z: 0}
