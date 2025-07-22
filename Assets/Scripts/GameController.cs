@@ -9,6 +9,7 @@ using Logic;
 using Save;
 using EZ.Haptics;
 using System;
+using flora;
 using UnityEditor;
 
 public enum GameType
@@ -53,7 +54,7 @@ public class GameController : MonoBehaviour
     //once tutorial is done, it should be created from a prefab
     public Tutorial tutorial;
     public bool inTutorial => tutorial.active;
-    public List<Screen> stateScreens = new List<Screen>();
+    public List<flora.Screen> stateScreens = new List<flora.Screen>();
     bool movingToScreen = false;
     public Logic.Game game;
     //public TextInput.SimInput simInput;
@@ -128,14 +129,24 @@ public class GameController : MonoBehaviour
     public Transform bagButtonTransform;
     public bool newGame = false;
     public List<Token> dyingTokens = new List<Token>();
+
+    public GameObject loadSnapshotButton;
     public List<Tile> tokensToDestroy = new List<Tile>();
     // Start is called before the first frame update
     void Awake()
     {
         InitializeServices();
-#if UNITY_ANDROID
+    #if UNITY_ANDROID
         Handheld.Vibrate();
-#endif
+    #endif
+        if (PlayerPrefs.HasKey("difficulty"))
+        {
+            if(PlayerPrefs.GetInt("difficulty") > 3)
+            {
+                PlayerPrefs.DeleteKey("difficulty");
+                PlayerPrefs.DeleteKey("difficultyUnlock");
+            }
+        }
         if (PlayerPrefs.HasKey("difficultyUnlock"))
         {
             String unlock = PlayerPrefs.GetString("difficultyUnlock");
@@ -204,7 +215,7 @@ public class GameController : MonoBehaviour
         Json.Root root = JsonConvert.DeserializeObject<Json.Root>(gameJson.text);
         game.Initialize(root);
 
-        foreach (Screen screen in stateScreens)
+        foreach (flora.Screen screen in stateScreens)
         {
             screen.gameObject.SetActive(false);
         }
@@ -341,9 +352,30 @@ public class GameController : MonoBehaviour
 
 
     }
+    public void StartNewRun()
+    {
+        if (Services.Gems.CanAfford(1))
+        {
+            Services.Gems.SpendGems(1);
+            GameStateGameplay();
+        }
+        else
+        {
+            Debug.Log("can't afford a new game");
+        }
+        
+    }
     public void GameStateGameplay()
     {
-        if (gameState == GameState.Start)
+        if(gameState == GameState.Seeds)
+        {
+            if(lastState == GameState.SelectDifficulty)
+            {
+                GameStateSelectDifficulty();
+                return;
+            }
+        }
+        if(gameState == GameState.Start)
         {
             if (newGame)
             {
@@ -352,6 +384,17 @@ public class GameController : MonoBehaviour
                 return;
             }
 
+        }
+        if (gameState == GameState.SelectDifficulty)
+        {
+            if (Services.Gems.CanAfford(1))
+            {
+                Services.Gems.SpendGems(1);
+            }
+            else
+            {
+                return;
+            }
         }
         difficultyParent.SetActive(false);
         if (gameState == GameState.SelectDifficulty)
@@ -588,7 +631,21 @@ public class GameController : MonoBehaviour
                 }
 
                 hand[i].handPos = handTransforms[i].position;
+                if(game.hand.handSize == 1)
+                {
+                    hand[i].handPos.x = 0;
+                    hand[i].lifted = true;
+                }
                 hand[i].DrawFromBag(i);
+            }
+            else
+            {
+                if (game.hand.handSize == 1)
+                {
+                    hand[i].lifted = true;
+                    chosenIndex = 0;
+                    EnterInputState(InputState.Place);
+                }
             }
             //hand[i].PlaceInHand(i);
 
@@ -747,14 +804,7 @@ public class GameController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetMouseButton(0))
-        {
-            RaycastHit raycastHit;
-            Vector3 mousePdos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Physics.Raycast(mousePdos, Vector3.forward, out raycastHit);
-            print("Raycast at " + mousePdos + " " + (raycastHit.collider == null) + " " + raycastHit);
-            Debug.DrawRay(mousePdos, Vector3.forward * raycastHit.distance, Color.yellow);
-        }
+        loadSnapshotButton.SetActive(SaveLoad.HasSave(1));
         difficultyName.text = "Difficulty\n" + difficultyNames[difficulty];
         /*if (difficulties[difficulty] != gameJson)
         {
@@ -926,6 +976,11 @@ public class GameController : MonoBehaviour
                 {
                     if (hand[i] == null) { continue; }
                     Vector2 pos = firstHandPos + (i * handSeparation);
+                    if (game.hand.handSize == 1)
+                    {
+                        pos = handTransforms[i].position;
+                        pos.x = 0;
+                    }
                     float d = Vector2.Distance(mousePos, pos);
                     if (d < 0.5f)
                     {
@@ -1148,7 +1203,11 @@ public class GameController : MonoBehaviour
                         }
                         else
                         {
-                            chosenToken.StartInvalidAnim();
+                            if(chosenPos.x >= 0 && chosenPos.x <= 5)
+                            {
+                                chosenToken.StartInvalidAnim();
+                            }
+                            
                         }
                     }
                     else if (holdingClipper || holdingAdder)
@@ -1239,7 +1298,10 @@ public class GameController : MonoBehaviour
                         }
                         else
                         {
-                            chosenToken.StartInvalidAnim();
+                            if (chosenPos.x >= 0 && chosenPos.x <= 5)
+                            {
+                                chosenToken.StartInvalidAnim();
+                            }
                         }
                     }
                     else if (holdingSpade)
@@ -1282,10 +1344,6 @@ public class GameController : MonoBehaviour
                         {
                             chosenToken.StartInvalidAnim();
                             Services.AudioManager.PlayInvalidToolSound();
-                        }
-                        else
-                        {
-                            chosenToken.StartInvalidAnim();
                         }
                     }
                     //are you clicking on another tile??
@@ -1517,7 +1575,16 @@ public class GameController : MonoBehaviour
                         }
                         else
                         {
-                            EnterInputState(InputState.Choose);
+                            if(game.hand.handSize == 1)
+                            {
+                                chosenIndex = 0;
+                                EnterInputState(InputState.Place);
+                            }
+                            else
+                            {
+                                EnterInputState(InputState.Choose);
+                            }
+                            
                             //save
                             Save();
                             waiting = waitTime * 0.01f;
@@ -1632,6 +1699,10 @@ public class GameController : MonoBehaviour
             if (hand[i] == null) { continue; }
             hand[i].lifted = false;
             Vector2 pos = handTransforms[i].position;// firstHandPos + (i * handSeparation);
+            if(game.hand.handSize == 1)
+            {
+                pos.x = 0;
+            }
             if (i == chosenIndex)
             {
                 if (inputState == InputState.Choose)
@@ -1840,6 +1911,11 @@ public class GameController : MonoBehaviour
     }
     public void LoadSnapshot()
     {
+        if (Services.Gems.CanAfford(3) == false)
+        {
+            return;
+        }
+        Services.Gems.SpendGems(3);
         Logic.History.Turn _save = null;
         if (SaveLoad.HasSave(1))
         {
@@ -1883,7 +1959,6 @@ public class GameController : MonoBehaviour
                 unlock = unlock + "0";
             }
         }
-        Debug.Log(unlock);
         PlayerPrefs.SetString("difficultyUnlock", unlock);
         PlayerPrefs.Save();
     }

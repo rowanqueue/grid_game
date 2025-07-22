@@ -135,7 +135,6 @@ public class Token : MonoBehaviour
     /// <returns></returns>
     IEnumerator AdderUpgradeRoutine(bool useHaptics, bool isClipping)
     {
-        print("HUU??UUHH");
         // Delay for audio to trigger
         yield return new WaitForSeconds(0.6f);
 
@@ -173,7 +172,7 @@ public class Token : MonoBehaviour
         // Delay waiting for tool animations
         if (oldTokenData.num == 0)
         {
-            yield return new WaitForSeconds(100);
+            yield return new WaitForSeconds(1f);
         }
         else
         {
@@ -309,6 +308,7 @@ public class Token : MonoBehaviour
         newToken.textDisplay.text = "<size=70%><voffset=0.2em>+</voffset></size>" + newToken.textDisplay.text;
 
         // spade scoops
+        Services.AudioManager.PlaySpadeSound();
         tool.transform.DORotate(Vector3.forward * Spade_EndRotation, Spade_DigTime).SetEase(Ease.InOutSine).Play();
         yield return tool.transform.DOMove(transform.position + Spade_DigDestination, Spade_DigTime).SetEase(Ease.InOutSine).WaitForCompletion();
 
@@ -352,6 +352,7 @@ public class Token : MonoBehaviour
         dyingSequence.Join(tool.number.DOFade(0f, toolLiftSpeed * 0.5f).SetEase(Ease.InCubic));
         dyingSequence.Join(tool.shadow.DOFade(0f, toolLiftSpeed * 0.5f).SetEase(Ease.InCubic));
         dyingSequence.Play();
+        Services.AudioManager.PlayShearsSound();
         yield return tool.transform.DOMoveX(transform.position.x - ClipperSlashXLength, Clipper_SlashTime).SetEase(Ease.OutQuint).WaitForCompletion();
         tool.clippingSlashParticles.Stop();
 
@@ -390,6 +391,7 @@ public class Token : MonoBehaviour
         adderDipSequence.Append(tool.transform.DOMoveY(transform.position.y - 0.05f, adderRotationTime).SetEase(Ease.InCirc));
         adderDipSequence.Append(tool.transform.DOMoveY(transform.position.y + 0.1f, adderRotationTime).SetEase(Ease.InOutCubic));
         adderDipSequence.Play();
+        Services.AudioManager.PlayWateringCanSound();
 
         // Wait for animations to finish with slight added delay
         //tool.adderWaterSquirtParticles.Play();
@@ -489,10 +491,6 @@ public class Token : MonoBehaviour
         {
             Init(token);
         }
-
-        if (moving) { return; }
-        float shadow_scale = Mathf.InverseLerp(0f, 0.5f, spriteDisplay.transform.localPosition.y);
-        shadow.transform.localScale = Vector3.one * Mathf.Lerp(1f, 0.75f, shadow_scale);
         if (lifted)
         {
             spriteDisplay.transform.localPosition += (Vector3.up * 0.5f - spriteDisplay.transform.localPosition) * 1.5f * (Time.deltaTime / 0.16666f);
@@ -503,6 +501,10 @@ public class Token : MonoBehaviour
             spriteDisplay.transform.localPosition += (Vector3.zero - spriteDisplay.transform.localPosition) * 1.5f * (Time.deltaTime / 0.16666f);
             //shadow.transform.localPosition = Vector3.zero;
         }
+        if (moving) { return; }
+        float shadow_scale = Mathf.InverseLerp(0f, 0.5f, spriteDisplay.transform.localPosition.y);
+        shadow.transform.localScale = Vector3.one * Mathf.Lerp(1f, 0.75f, shadow_scale);
+        
         transform.position += ((Vector3)pos - transform.position) * 1.5f * (Time.deltaTime / 0.16666f);
         if (spriteDisplay.sortingLayerName == "TokenPlaced")
         {

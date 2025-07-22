@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -12,9 +13,10 @@ public class Gems : MonoBehaviour
     public GameObject fakeAdVisual;
     bool watchingFakeAd;
     float fakeAdDuration;
+    float nextSeedEarned;
+    public float secondsBetweenSeeds;
     private void Awake()
     {
-        fakeAdVisual.SetActive(false);
         if (PlayerPrefs.HasKey("gems"))
         {
             numGems = PlayerPrefs.GetInt("gems");
@@ -24,10 +26,47 @@ public class Gems : MonoBehaviour
             PlayerPrefs.SetInt("gems", numGems);
             PlayerPrefs.Save();
         }
+        if (PlayerPrefs.HasKey("whenLeft"))
+        {
+            HandleAwayTime(PlayerPrefs.GetFloat("whenLeft"));
+        }
+        TimeSpan current = ((DateTime.UtcNow - new DateTime(1970, 1, 1)));
+        float currentTime = (float)current.TotalSeconds;
+        PlayerPrefs.SetFloat("whenLeft", currentTime);
+        PlayerPrefs.Save();
+        nextSeedEarned = Time.time + secondsBetweenSeeds;
+        fakeAdVisual.SetActive(false);
+        
+    }
+    void HandleAwayTime(float timeWhenLeft)
+    {
+        TimeSpan current = ((DateTime.UtcNow - new DateTime(1970, 1, 1)));
+        float currentTime = (float)current.TotalSeconds;
+        float span = currentTime - timeWhenLeft;
+        span /= secondsBetweenSeeds;
+        EarnGems(Mathf.FloorToInt(span));
     }
     private void Update()
     {
-        foreach(var display in seedDisplays)
+        if (PlayerPrefs.HasKey("whenLeft"))
+        {
+            TimeSpan current = ((DateTime.UtcNow - new DateTime(1970, 1, 1)));
+            float currentTime = (float)current.TotalSeconds;
+            if(currentTime > PlayerPrefs.GetFloat("whenLeft") + 60)
+            {
+                SaveCurrentTime();
+            }
+        }
+        else
+        {
+            SaveCurrentTime();
+        }
+        if (Time.time > nextSeedEarned)
+        {
+            EarnGems(1);
+            nextSeedEarned = Time.time + secondsBetweenSeeds;
+        }
+        foreach (var display in seedDisplays)
         {
             display.text = numGems.ToString() + "/" + maxGems.ToString();
         }
@@ -63,14 +102,22 @@ public class Gems : MonoBehaviour
     public void SpendGems(int num)
     {
         numGems -= num;
+        numGems = Mathf.Clamp(numGems, 0, maxGems);
         PlayerPrefs.SetInt("gems", numGems);
         PlayerPrefs.Save();
     }
     public void EarnGems(int num)
     {
         numGems += num;
-        numGems %= maxGems;
+        numGems = Mathf.Clamp(numGems, 0, maxGems);
         PlayerPrefs.SetInt("gems", numGems);
+        PlayerPrefs.Save();
+    }
+    void SaveCurrentTime()
+    {
+        TimeSpan current = ((DateTime.UtcNow - new DateTime(1970, 1, 1)));
+        float currentTime = (float)current.TotalSeconds;
+        PlayerPrefs.SetFloat("whenLeft", currentTime);
         PlayerPrefs.Save();
     }
     public void WatchAd()
