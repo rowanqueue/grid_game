@@ -747,6 +747,14 @@ public class GameController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (Input.GetMouseButton(0))
+        {
+            RaycastHit raycastHit;
+            Vector3 mousePdos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            Physics.Raycast(mousePdos, Vector3.forward, out raycastHit);
+            print("Raycast at " + mousePdos + " " + (raycastHit.collider == null) + " " + raycastHit);
+            Debug.DrawRay(mousePdos, Vector3.forward * raycastHit.distance, Color.yellow);
+        }
         difficultyName.text = "Difficulty\n" + difficultyNames[difficulty];
         /*if (difficulties[difficulty] != gameJson)
         {
@@ -1399,7 +1407,7 @@ public class GameController : MonoBehaviour
                                     {
                                         toolTokenDestroyer = _event.tokens[1];
                                     }
-                                    
+
                                     foreach (Tile tile in tiles.Values)
                                     {
                                         if (tile.token)
@@ -1428,7 +1436,7 @@ public class GameController : MonoBehaviour
                                     {
                                         toolTokenA = _event.tokens[2];
                                     }
-                                    
+
                                     foreach (Tile tile in tiles.Values)
                                     {
                                         if (tile.token)
@@ -1712,6 +1720,13 @@ public class GameController : MonoBehaviour
     }
     public void CreateFlower(Tile tile, TokenColor tokenColor, bool loaded = false, bool finished = false)
     {
+        bool deactivateScene = false;
+        if (!stateScreens[(int)GameState.Gameplay].gameObject.activeSelf)
+        {
+            deactivateScene = true;
+            stateScreens[(int)GameState.Gameplay].gameObject.SetActive(true);
+        }
+
         Rect total = new Rect(-0.5f, -0.45f, 0.82f, 1.3f);
         total = new Rect(-gridSeparation.x * 0.5f, -gridSeparation.y * 0.5f, gridSeparation.x, gridSeparation.y);
         float x_dif = 0.1f;
@@ -1793,6 +1808,14 @@ public class GameController : MonoBehaviour
 
             } while (farEnough == false);
         }
+
+        Vector3 flowerPos = flower.transform.position + (Vector3.forward * -10);
+        RaycastHit hit;
+        Physics.Raycast(flowerPos, Vector3.forward, out hit);
+        flower.ChangeLayer(hit.collider != null);
+        print("Raycast at " + flowerPos + " " + (hit.collider == null) + " " + hit);
+        Debug.DrawRay(flowerPos, Vector3.forward * hit.distance, Color.yellow);
+
         numFlowers++;
         if (keepFlower)
         {
@@ -1804,7 +1827,10 @@ public class GameController : MonoBehaviour
             GameObject.Destroy(flower.gameObject);
         }
 
-
+        if (deactivateScene)
+        {
+            stateScreens[(int)GameState.Gameplay].gameObject.SetActive(false);
+        }
     }
     public void Snapshot()
     {

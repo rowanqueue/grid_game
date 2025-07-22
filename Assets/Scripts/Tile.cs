@@ -6,7 +6,7 @@ public class Tile : MonoBehaviour
 {
     public Logic.Tile tile;
     public bool freeSlot = false;
-
+    public BoxCollider tileBounds;
     public Token token;
 
     public void Draw(bool hover)

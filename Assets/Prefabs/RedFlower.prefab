@@ -72,6 +72,7 @@ MonoBehaviour:
   petals: {fileID: 2804483303164289571}
   animSpeed: 0.22
   tokenColor: 0
+  x: 0
 --- !u!1 &8886518608426438079
 GameObject:
   m_ObjectHideFlags: 0
@@ -142,8 +143,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: -760981073
-  m_SortingLayer: 1
+  m_SortingLayerID: -866524337
+  m_SortingLayer: 5
   m_SortingOrder: 20
   m_Sprite: {fileID: 21300000, guid: d40ff318fd5beb74ab55e6b44efa551e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -226,8 +227,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: -760981073
-  m_SortingLayer: 1
+  m_SortingLayerID: -866524337
+  m_SortingLayer: 5
   m_SortingOrder: 10
   m_Sprite: {fileID: 21300000, guid: 827e5f676d581894db6b915fb2fd6f20, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
