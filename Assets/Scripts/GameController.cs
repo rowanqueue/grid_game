@@ -1962,6 +1962,7 @@ public class GameController : MonoBehaviour
         PlayerPrefs.SetString("difficultyUnlock", unlock);
         PlayerPrefs.Save();
     }
+
     public void Mulligan()
     {
         //put back rest of hand and draw 4 more
@@ -1972,20 +1973,32 @@ public class GameController : MonoBehaviour
         }
         else
         {
-            if (inTutorial)
-            {
-
-            }
-            else
+            if (!inTutorial)
             {
                 game.Mulligan();
             }
 
         }
 
-        CreateHand();
+        StartCoroutine(MulliganAnim());
+    }
+
+    public IEnumerator MulliganAnim()
+    {
+        for (int i = 0; i < hand.Count; i++)
+        {
+            if (hand[i] == null) { continue; }
+            hand[i].PlaceInBag();
+            yield return new WaitForSeconds(0.1f);
+            hand[i] = null;
+        }
+        yield return new WaitForSeconds(0.5f);
+
+        CreateHand(true);
         Services.AudioManager.PlayUndoSound();
     }
+
+
     public void Undo()
     {
         if (inTutorial)

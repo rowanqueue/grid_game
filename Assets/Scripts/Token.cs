@@ -450,6 +450,7 @@ public class Token : MonoBehaviour
         transform.position = tile.transform.position;
         UpdateLayer("TokenPlaced");
     }
+
     public void DrawFromBag(int index)
     {
         moving = true;
@@ -457,6 +458,7 @@ public class Token : MonoBehaviour
         transform.position = new Vector2(-2.5f, -8f);
         StartCoroutine(BagDraw(index * 0.2f));//*(1f/1.5f)));
     }
+
     IEnumerator BagDraw(float delay)
     {
         yield return new WaitForSeconds(delay);
@@ -481,6 +483,19 @@ public class Token : MonoBehaviour
         transform.position = handPos;
         moving = false;
     }
+    
+    public void PlaceInBag()
+    {
+        moving = true;
+        StartCoroutine(PlaceInBagRoutine());
+    }
+
+    public IEnumerator PlaceInBagRoutine()
+    {
+        yield return transform.DOMove(new Vector2(-2.5f, -8f), 0.4f).SetEase(Ease.InSine).WaitForCompletion();
+        Destroy(gameObject);
+    }
+
     public void Draw(Vector2 pos, bool hover = false)
     {
         if (beingSpaded)
@@ -504,7 +519,7 @@ public class Token : MonoBehaviour
         if (moving) { return; }
         float shadow_scale = Mathf.InverseLerp(0f, 0.5f, spriteDisplay.transform.localPosition.y);
         shadow.transform.localScale = Vector3.one * Mathf.Lerp(1f, 0.75f, shadow_scale);
-        
+
         transform.position += ((Vector3)pos - transform.position) * 1.5f * (Time.deltaTime / 0.16666f);
         if (spriteDisplay.sortingLayerName == "TokenPlaced")
         {
