@@ -31,6 +31,8 @@ public class AudioManager : MonoBehaviour
     public FMODUnity.EventReference flowerBurstSFX;
     public FMODUnity.EventReference wateringCanSFX;
     public FMODUnity.EventReference spadeSFX;
+    public FMODUnity.EventReference snapshotSFX;
+    public FMODUnity.EventReference create8SFX;
 
     FMOD.Studio.PARAMETER_ID popDepth;
     [Header("Misc")]
@@ -109,6 +111,16 @@ public class AudioManager : MonoBehaviour
     {
         FMODUnity.RuntimeManager.PlayOneShot(pickUpSFX);
         //PlaySound(select);
+    }
+
+    public void PlayCreate8Sound()
+    {
+        FMODUnity.RuntimeManager.PlayOneShot(create8SFX);
+    }
+
+    public void PlaySnapshotSound()
+    {
+        FMODUnity.RuntimeManager.PlayOneShot(snapshotSFX);
     }
 
     public void PlayWateringCanSound()

@@ -501,7 +501,7 @@ Transform:
   m_GameObject: {fileID: 30839280}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2.016667, y: 3.97, z: 0}
+  m_LocalPosition: {x: 9.127778, y: 3.97, z: 0}
   m_LocalScale: {x: 0.3, y: 0.3, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -17710,11 +17710,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!4 &1462541028 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 1368436021753127967, guid: f6b1d4dc7b8364599acb3ff1d58a834d, type: 3}
-  m_PrefabInstance: {fileID: 4364317852097820625}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1463694720
 GameObject:
   m_ObjectHideFlags: 0
@@ -20379,7 +20374,7 @@ Transform:
   m_GameObject: {fileID: 1712947391}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.6666667, y: -4.5, z: 0}
+  m_LocalPosition: {x: 8.777778, y: -4.5, z: 0}
   m_LocalScale: {x: 0.5, y: 0.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -23823,6 +23818,20 @@ MonoBehaviour:
       Data3: -1083990640
       Data4: 1226320989
     Path: event:/SFX_Floracotta_Spade
+  snapshotSFX:
+    Guid:
+      Data1: 2054157621
+      Data2: 1120122075
+      Data3: 452828598
+      Data4: 1894571443
+    Path: event:/SFX_Floracotta_Snapshot
+  create8SFX:
+    Guid:
+      Data1: -59835764
+      Data2: 1156769762
+      Data3: 1652592546
+      Data4: 1337009882
+    Path: event:/SFX_Floracotta_Create8
   baseVolume: 1
   loudVolume: 1
   spriteRenderer: {fileID: 0}
@@ -26416,29 +26425,13 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 4761174784985815646, guid: 88cfb0f6bb21e4bb2985bd752966fadf, type: 3}
-      propertyPath: valA
-      value: 0.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 4761174784985815646, guid: 88cfb0f6bb21e4bb2985bd752966fadf, type: 3}
-      propertyPath: child
-      value: 
-      objectReference: {fileID: 1462541028}
-    - target: {fileID: 4761174784985815646, guid: 88cfb0f6bb21e4bb2985bd752966fadf, type: 3}
-      propertyPath: valChildA
-      value: 0.13
-      objectReference: {fileID: 0}
-    - target: {fileID: 4761174784985815646, guid: 88cfb0f6bb21e4bb2985bd752966fadf, type: 3}
-      propertyPath: valChildB
-      value: 0.2
-      objectReference: {fileID: 0}
     - target: {fileID: 5090228600076562980, guid: 88cfb0f6bb21e4bb2985bd752966fadf, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5090228600076562980, guid: 88cfb0f6bb21e4bb2985bd752966fadf, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -4.66
+      value: -4.46
       objectReference: {fileID: 0}
     - target: {fileID: 5090228600076562980, guid: 88cfb0f6bb21e4bb2985bd752966fadf, type: 3}
       propertyPath: m_LocalPosition.z
@@ -26568,7 +26561,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 619825106116128859, guid: f6b1d4dc7b8364599acb3ff1d58a834d, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 4.663
+      value: 4.57
       objectReference: {fileID: 0}
     - target: {fileID: 619825106116128859, guid: f6b1d4dc7b8364599acb3ff1d58a834d, type: 3}
       propertyPath: m_LocalPosition.z
@@ -26601,14 +26594,6 @@ PrefabInstance:
     - target: {fileID: 619825106116128859, guid: f6b1d4dc7b8364599acb3ff1d58a834d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1388842694076870432, guid: f6b1d4dc7b8364599acb3ff1d58a834d, type: 3}
-      propertyPath: valA
-      value: 0.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 1388842694076870432, guid: f6b1d4dc7b8364599acb3ff1d58a834d, type: 3}
-      propertyPath: valChildB
-      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 4731531249294859639, guid: f6b1d4dc7b8364599acb3ff1d58a834d, type: 3}
       propertyPath: m_Name

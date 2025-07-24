@@ -1905,6 +1905,7 @@ public class GameController : MonoBehaviour
     }
     public void Snapshot()
     {
+        Services.AudioManager.PlaySnapshotSound();
         SaveLoad.Save(1, currentSave);
         snapshotSave = currentSave;
         GameStateGameplay();
