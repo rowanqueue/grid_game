@@ -133,15 +133,17 @@ public class GameController : MonoBehaviour
     public GameObject loadSnapshotButton;
     public List<Tile> tokensToDestroy = new List<Tile>();
     // Start is called before the first frame update
+    private List<Vector2Int> undidTiles = new List<Vector2Int>();
+    private bool undidSlot = false;
     void Awake()
     {
         InitializeServices();
-    #if UNITY_ANDROID
+#if UNITY_ANDROID
         Handheld.Vibrate();
-    #endif
+#endif
         if (PlayerPrefs.HasKey("difficulty"))
         {
-            if(PlayerPrefs.GetInt("difficulty") > 3)
+            if (PlayerPrefs.GetInt("difficulty") > 3)
             {
                 PlayerPrefs.DeleteKey("difficulty");
                 PlayerPrefs.DeleteKey("difficultyUnlock");
@@ -363,19 +365,19 @@ public class GameController : MonoBehaviour
         {
             Debug.Log("can't afford a new game");
         }
-        
+
     }
     public void GameStateGameplay()
     {
-        if(gameState == GameState.Seeds)
+        if (gameState == GameState.Seeds)
         {
-            if(lastState == GameState.SelectDifficulty)
+            if (lastState == GameState.SelectDifficulty)
             {
                 GameStateSelectDifficulty();
                 return;
             }
         }
-        if(gameState == GameState.Start)
+        if (gameState == GameState.Start)
         {
             if (newGame)
             {
@@ -506,20 +508,73 @@ public class GameController : MonoBehaviour
     {
 
     }
-    void ClearTokensFromGrid()
+    void ClearTokensFromGrid(bool undo = false)
     {
         foreach (Tile tile in tiles.Values)
         {
             if (tile.token)
             {
-                GameObject.Destroy(tile.token.gameObject);
-                tile.token = null;
+                if (undo)
+                {
+                    // animate away any tiles that no longer exist or differ from what should be there
+                    if (tile.tile.token == null || tile.tile.token.data != tile.token.token.data)
+                    {
+                        tile.token.UndoDestroy();
+                        tile.token = null;
+                        undidTiles.Add(tile.tile.pos);
+                    }
+                    // otherwise, just instantly destroy the tokens like normal
+                    else
+                    {
+                        GameObject.Destroy(tile.token.gameObject);
+                        tile.token = null;
+                    }
+                }
+                else
+                {
+                    GameObject.Destroy(tile.token.gameObject);
+                    tile.token = null;
+                }
+            }
+            else
+            {
+                // add empty tiles to undid tiles 
+                if (undo)
+                {
+                    undidTiles.Add(tile.tile.pos);
+                }
             }
         }
+
         if (freeSlot.token)
         {
-            GameObject.Destroy(freeSlot.token.gameObject);
-            freeSlot.token = null;
+            if (undo)
+            {
+                if (game.freeSlot == null || freeSlot.token.token.data != game.freeSlot.data)
+                {
+                    freeSlot.token.UndoDestroy();
+                    freeSlot.token = null;
+                    undidSlot = true;
+                }
+                else
+                {
+                    // otherwise, just instantly destroy the tokens like normal
+                    GameObject.Destroy(freeSlot.token.gameObject);
+                    freeSlot.token = null;
+                }
+            }
+            else
+            {
+                GameObject.Destroy(freeSlot.token.gameObject);
+                freeSlot.token = null;
+            }
+        }
+        else
+        { 
+            if (undo)
+            {
+                undidSlot = true;
+            }
         }
     }
     public void ToggleBagDisplay()
@@ -549,30 +604,60 @@ public class GameController : MonoBehaviour
         //deckDisplay.gameObject.SetActive(!deckDisplay.gameObject.activeSelf);
         Services.AudioManager.PlayBagSound();
     }
-    void LoadTokensIntoGrid()
+    void LoadTokensIntoGrid(bool undo = false)
     {
         foreach (Vector2Int p in tiles.Keys)
         {
             Tile tile = tiles[p];
             Logic.Tile _tile = game.grid.tiles[p];
-            tile.tile = _tile;
-            if (tile.tile.token != null)
+            if (undo)
             {
-                Token token = GameObject.Instantiate(tokenPrefab, gridTransform).GetComponent<Token>();
-                token.token = tile.tile.token;
-                tile.token = token;
-                token.PlaceInTile(tile);
+                bool animate = undidTiles.Contains(p);
+                print("ANIMATE" + animate);
+                tile.tile = _tile;
+                if (tile.tile.token != null)
+                {
+                    Token token = GameObject.Instantiate(tokenPrefab, gridTransform).GetComponent<Token>();
+                    token.token = tile.tile.token;
+                    tile.token = token;
+                    token.PlaceInTile(tile, animate);
+                }
+            }
+            else
+            {
+                tile.tile = _tile;
+                if (tile.tile.token != null)
+                {
+                    Token token = GameObject.Instantiate(tokenPrefab, gridTransform).GetComponent<Token>();
+                    token.token = tile.tile.token;
+                    tile.token = token;
+                    token.PlaceInTile(tile);
+                }
             }
         }
-        if (game.freeSlot != null)
+        if (undo)
         {
-            Token token = GameObject.Instantiate(tokenPrefab, gridTransform).GetComponent<Token>();
-            token.token = game.freeSlot;
-            freeSlot.token = token;
-            token.PlaceInTile(freeSlot);
+            if (game.freeSlot != null)
+            {
+                Token token = GameObject.Instantiate(tokenPrefab, gridTransform).GetComponent<Token>();
+                token.token = game.freeSlot;
+                freeSlot.token = token;
+                token.PlaceInTile(freeSlot, undidSlot);
+            }
+        }
+        else
+        {
+            if (game.freeSlot != null)
+            {
+                Token token = GameObject.Instantiate(tokenPrefab, gridTransform).GetComponent<Token>();
+                token.token = game.freeSlot;
+                freeSlot.token = token;
+                token.PlaceInTile(freeSlot);
+            }
         }
     }
-    public void CreateHand(bool midgame = false)
+
+    public void CreateHand(bool midgame = false, bool undo = false)
     {
         for (int i = 0; i < game.hand.tokens.Length; i++)
         {
@@ -586,7 +671,15 @@ public class GameController : MonoBehaviour
                 {
                     if (hand[i] != null)
                     {
-                        GameObject.Destroy(hand[i].gameObject);
+                        if (undo)
+                        {
+                            hand[i].UndoDestroy();
+                        }
+                        else
+                        {
+                            // destroy the token if it exists
+                            GameObject.Destroy(hand[i].gameObject);
+                        }
                     }
                 }
                 continue;
@@ -604,14 +697,22 @@ public class GameController : MonoBehaviour
                 {
                     hand[i] = token;
                 }
-
             }
             else
             {
                 tokenAlreadyExisted = true;
                 hand[i].token = game.hand.tokens[i];
             }
-            hand[i].Init(hand[i].token);
+
+            if (undo && tokenAlreadyExisted == false)
+            {
+                hand[i].UndoInit(hand[i].token);
+            }
+            else
+            {
+                hand[i].Init(hand[i].token);
+            }
+
             hand[i].UpdateLayer("TokenHand");
             if (tokenAlreadyExisted == false)
             {
@@ -631,7 +732,7 @@ public class GameController : MonoBehaviour
                 }
 
                 hand[i].handPos = handTransforms[i].position;
-                if(game.hand.handSize == 1)
+                if (game.hand.handSize == 1)
                 {
                     hand[i].handPos.x = 0;
                     hand[i].lifted = true;
@@ -648,7 +749,6 @@ public class GameController : MonoBehaviour
                 }
             }
             //hand[i].PlaceInHand(i);
-
         }
 
     }
@@ -1203,11 +1303,11 @@ public class GameController : MonoBehaviour
                         }
                         else
                         {
-                            if(chosenPos.x >= 0 && chosenPos.x <= 5)
+                            if (chosenPos.x >= 0 && chosenPos.x <= 5)
                             {
                                 chosenToken.StartInvalidAnim();
                             }
-                            
+
                         }
                     }
                     else if (holdingClipper || holdingAdder)
@@ -1575,7 +1675,7 @@ public class GameController : MonoBehaviour
                         }
                         else
                         {
-                            if(game.hand.handSize == 1)
+                            if (game.hand.handSize == 1)
                             {
                                 chosenIndex = 0;
                                 EnterInputState(InputState.Place);
@@ -1584,7 +1684,7 @@ public class GameController : MonoBehaviour
                             {
                                 EnterInputState(InputState.Choose);
                             }
-                            
+
                             //save
                             Save();
                             waiting = waitTime * 0.01f;
@@ -1699,7 +1799,7 @@ public class GameController : MonoBehaviour
             if (hand[i] == null) { continue; }
             hand[i].lifted = false;
             Vector2 pos = handTransforms[i].position;// firstHandPos + (i * handSeparation);
-            if(game.hand.handSize == 1)
+            if (game.hand.handSize == 1)
             {
                 pos.x = 0;
             }
@@ -1884,8 +1984,6 @@ public class GameController : MonoBehaviour
         RaycastHit hit;
         Physics.Raycast(flowerPos, Vector3.forward, out hit);
         flower.ChangeLayer(hit.collider != null);
-        print("Raycast at " + flowerPos + " " + (hit.collider == null) + " " + hit);
-        Debug.DrawRay(flowerPos, Vector3.forward * hit.distance, Color.yellow);
 
         numFlowers++;
         if (keepFlower)
@@ -2025,25 +2123,11 @@ public class GameController : MonoBehaviour
             score = game.score;
             scoreDelta = 0;
             dyingTokens.Clear();
-            CreateHand();
-            ClearTokensFromGrid();
-            LoadTokensIntoGrid();
-            /*foreach (Tile tile in tiles.Values)
-            {
-                if (tile.token && tile.tile.token == null)
-                {
-                    //delete your token
-                    GameObject.Destroy(tile.token.gameObject);
-                    tile.token = null;
-                }else if (tile.token == null && tile.tile.token != null)
-                {
-                    //add the token
-                    Token token = GameObject.Instantiate(tokenPrefab, transform).GetComponent<Token>();
-                    token.token = tile.tile.token;
-                    tile.token = token;
-                    token.PlaceInTile(tile);
-                }
-            }*/
+            CreateHand(false, true);
+            ClearTokensFromGrid(true);
+            LoadTokensIntoGrid(true);
+            undidTiles.Clear();
+            undidSlot = false;
             Save();
 
         }
