@@ -166,6 +166,10 @@ public class AudioManager : MonoBehaviour
         //FMODUnity.RuntimeManager.PlayOneShot(crackSFX);
         //PlaySound(crack,depth);
     }
+    public void PlayFinalUpgradeTileSound(int depth = 0)
+    {
+
+    }
 
     public void PlayFreeSlotSound()
     {

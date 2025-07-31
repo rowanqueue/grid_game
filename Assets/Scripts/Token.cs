@@ -111,7 +111,15 @@ public class Token : MonoBehaviour
         // Delay before starting the upgrade animation
         yield return new WaitForSeconds(0.1f);
 
-        //Services.AudioManager.PlayUpgradeTileSound();
+        if(token.data.num < 8)
+        {
+            Services.AudioManager.PlayUpgradeTileSound();
+        }
+        else
+        {
+            Services.AudioManager.PlayFinalUpgradeTileSound();
+        }
+        
         if (useHaptics)
         {
             Haptics.PlayTransient(1f, .5f);
@@ -138,7 +146,14 @@ public class Token : MonoBehaviour
         // Delay for audio to trigger
         yield return new WaitForSeconds(0.6f);
 
-        //Services.AudioManager.PlayUpgradeTileSound();
+        if (token.data.num < 8)
+        {
+            Services.AudioManager.PlayUpgradeTileSound();
+        }
+        else
+        {
+            Services.AudioManager.PlayFinalUpgradeTileSound();
+        }
         if (useHaptics)
         {
             Haptics.PlayTransient(1f, .5f);
