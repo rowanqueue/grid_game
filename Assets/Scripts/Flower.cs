@@ -9,6 +9,7 @@ public class Flower : MonoBehaviour
     public SpriteRenderer stem;
     public Sprite[] petalSprites;
     public SpriteRenderer petals;
+    public SpriteRenderer shadow;
     public float animSpeed = 0.1f;
     float animIndex = 0;
     public Logic.TokenColor tokenColor;
@@ -30,14 +31,15 @@ public class Flower : MonoBehaviour
         petals.transform.localEulerAngles = new Vector3(0f, 0f, angle);
         scale = Random.Range(0.8f, 1f);
         petals.transform.localScale = Vector3.one * scale;
-        float[] values = new float[] {0.875f, 0.9f, 0.925f, 0.95f, 0.975f, 1.0f };
-        float value = values[Random.Range(0,values.Length)];
+        float[] values = new float[] { 0.875f, 0.9f, 0.925f, 0.95f, 0.975f, 1.0f };
+        float value = values[Random.Range(0, values.Length)];
         Color c = Color.HSVToRGB(0, 0, value);
         petals.color = c;
-        if(tokenColor == Logic.TokenColor.Blue)
+        if (tokenColor == Logic.TokenColor.Blue)
         {
             //petals.color = Color.blue;
-        }else if(tokenColor== Logic.TokenColor.Green)
+        }
+        else if (tokenColor == Logic.TokenColor.Green)
         {
             //petals.color = Color.green;
         }
@@ -52,26 +54,26 @@ public class Flower : MonoBehaviour
     {
         animIndex += animSpeed;
         int index = Mathf.FloorToInt(animIndex);
-        index = Mathf.Clamp(index,0,stemSprites.Length-1);
+        index = Mathf.Clamp(index, 0, stemSprites.Length - 1);
         stem.sprite = stemSprites[index];
         petals.sprite = petalSprites[index];
-        if (Mathf.Round(Time.time*3f % 15) == x)
+        if (Mathf.Round(Time.time * 3f % 15) == x)
         {
             wind = 1;
         }
         float angle = _angle;
         float scale_factor = 0.25f * (1f / transform.localScale.x);
- ;       if (wind > 0)
+        ; if (wind > 0)
         {
-            if(wind == 1)
+            if (wind == 1)
             {
-                angle -= 7.5f*scale_factor;
+                angle -= 7.5f * scale_factor;
             }
-            if(wind == 2)
+            if (wind == 2)
             {
                 angle += 7.5f * scale_factor;
             }
-            if(wind == 3)
+            if (wind == 3)
             {
                 angle -= 7.5f * 0.5f * scale_factor;
             }
@@ -88,10 +90,10 @@ public class Flower : MonoBehaviour
                 angle += 7.5f * 0.25f * scale_factor;
             }
 
-            if (Mathf.Abs(Mathf.DeltaAngle(angle,transform.localEulerAngles.z)) < 0.1f)
+            if (Mathf.Abs(Mathf.DeltaAngle(angle, transform.localEulerAngles.z)) < 0.1f)
             {
                 wind += 1;
-                if(wind > 6)
+                if (wind > 6)
                 {
                     wind = 0;
                 }
@@ -100,5 +102,23 @@ public class Flower : MonoBehaviour
         angle = Mathf.LerpAngle(transform.localEulerAngles.z, angle, 0.155f);
         transform.localEulerAngles = new Vector3(0f, 0f, angle);
 
+    }
+
+    public void ChangeLayer(bool back)
+    {
+        if (back)
+        {
+            petals.sortingLayerName = "Tile";
+            stem.sortingLayerName = "Tile";
+            if (shadow != null)
+                shadow.sortingLayerName = "Tile";
+        }
+        else
+        {
+            petals.sortingLayerName = "TokenHand";
+            stem.sortingLayerName = "TokenHand";
+            if (shadow != null)
+                shadow.sortingLayerName = "TokenHand";
+        }
     }
 }

@@ -168,24 +168,48 @@
 	</object>
 	<object class="MixerBusPanner" id="{17f17aa1-5e5e-429d-a65a-652679bb8ba9}" />
 	<object class="MultiSound" id="{2b2f32e6-a372-44cf-8b13-7ced08b16ea6}">
+		<property name="isAsync">
+			<value>true</value>
+		</property>
+		<property name="isCutoff">
+			<value>true</value>
+		</property>
 		<property name="start">
 			<value>3.4285714285714284</value>
 		</property>
 		<property name="length">
 			<value>13.714285714285714</value>
 		</property>
+		<property name="looping">
+			<value>true</value>
+		</property>
+		<relationship name="modulators">
+			<destination>{ee42290a-3269-40c4-b361-a5eccb545c0e}</destination>
+		</relationship>
 		<relationship name="sounds">
 			<destination>{8d1fde67-ebf9-4a0b-92af-a9dcc6e64e4d}</destination>
 			<destination>{449f0e39-f714-4ee0-aea7-8660cbc9e769}</destination>
 		</relationship>
 	</object>
 	<object class="SingleSound" id="{3be74691-ca69-43e4-ac40-cb66d841df65}">
+		<property name="isAsync">
+			<value>true</value>
+		</property>
+		<property name="isCutoff">
+			<value>true</value>
+		</property>
 		<property name="start">
 			<value>24</value>
 		</property>
 		<property name="length">
 			<value>13.714285714285714</value>
 		</property>
+		<property name="looping">
+			<value>true</value>
+		</property>
+		<relationship name="modulators">
+			<destination>{830dee6f-127e-4797-ae9f-12a77bf28cef}</destination>
+		</relationship>
 		<relationship name="audioFile">
 			<destination>{6d6fff50-0f4e-4b78-966e-5ec31ea232e3}</destination>
 		</relationship>
@@ -211,12 +235,24 @@
 		</relationship>
 	</object>
 	<object class="MultiSound" id="{1f9749c6-9464-4246-91ed-842adaf0471d}">
+		<property name="isAsync">
+			<value>true</value>
+		</property>
+		<property name="isCutoff">
+			<value>true</value>
+		</property>
 		<property name="start">
 			<value>3.4285714285714284</value>
 		</property>
 		<property name="length">
 			<value>13.714285714285714</value>
 		</property>
+		<property name="looping">
+			<value>true</value>
+		</property>
+		<relationship name="modulators">
+			<destination>{a33f8bd0-dac8-45a7-8c28-08947952d56f}</destination>
+		</relationship>
 		<relationship name="sounds">
 			<destination>{2b41fc87-3471-4598-b88e-80fb0337e873}</destination>
 			<destination>{a291ce03-c547-4b55-9b4c-20c72e80f6fb}</destination>
@@ -246,18 +282,36 @@
 		</relationship>
 	</object>
 	<object class="MultiSound" id="{baccc558-8ebe-4d05-a35f-2fd0b710e87f}">
+		<property name="isAsync">
+			<value>true</value>
+		</property>
+		<property name="isCutoff">
+			<value>true</value>
+		</property>
 		<property name="start">
 			<value>3.4285714285714284</value>
 		</property>
 		<property name="length">
 			<value>13.714285714285714</value>
 		</property>
+		<property name="looping">
+			<value>true</value>
+		</property>
+		<relationship name="modulators">
+			<destination>{1328a17e-ea35-4032-bb5f-136cfd034d52}</destination>
+		</relationship>
 		<relationship name="sounds">
 			<destination>{a407ff30-58e9-42f2-bec6-e3a48ca9bf1e}</destination>
 			<destination>{62bd0203-1abf-4c34-a42b-3ae4ce444586}</destination>
 		</relationship>
 	</object>
 	<object class="MultiSound" id="{3db6d76e-2351-4bf2-bd47-a230acf08679}">
+		<property name="isAsync">
+			<value>true</value>
+		</property>
+		<property name="isCutoff">
+			<value>true</value>
+		</property>
 		<property name="start">
 			<value>24</value>
 		</property>
@@ -267,6 +321,12 @@
 		<property name="volume">
 			<value>3</value>
 		</property>
+		<property name="looping">
+			<value>true</value>
+		</property>
+		<relationship name="modulators">
+			<destination>{9a986d76-3197-494b-bcb5-f737218cbca8}</destination>
+		</relationship>
 		<relationship name="sounds">
 			<destination>{6755d6ff-9cb4-4771-9800-da3ac527974b}</destination>
 			<destination>{52313691-c0fd-484a-8e12-31ce7d60bd80}</destination>
@@ -288,12 +348,24 @@
 		</relationship>
 	</object>
 	<object class="MultiSound" id="{3baffe21-5a3e-4f71-9e9a-8036984a2b24}">
+		<property name="isAsync">
+			<value>true</value>
+		</property>
+		<property name="isCutoff">
+			<value>true</value>
+		</property>
 		<property name="start">
 			<value>3.4285714285714284</value>
 		</property>
 		<property name="length">
 			<value>13.714285714285714</value>
 		</property>
+		<property name="looping">
+			<value>true</value>
+		</property>
+		<relationship name="modulators">
+			<destination>{de87ff9a-e89c-406b-8219-8b5e89e4a4af}</destination>
+		</relationship>
 		<relationship name="sounds">
 			<destination>{cb43be9a-a1f4-4b39-9740-70e9cb9c9bcd}</destination>
 			<destination>{6178f374-75ad-4bfa-87c5-59cb916e8f59}</destination>
@@ -301,12 +373,24 @@
 		</relationship>
 	</object>
 	<object class="MultiSound" id="{794ac6f7-1d03-4379-bddd-aa37c7c92ff2}">
+		<property name="isAsync">
+			<value>true</value>
+		</property>
+		<property name="isCutoff">
+			<value>true</value>
+		</property>
 		<property name="start">
 			<value>24</value>
 		</property>
 		<property name="length">
 			<value>13.714285714285714</value>
 		</property>
+		<property name="looping">
+			<value>true</value>
+		</property>
+		<relationship name="modulators">
+			<destination>{b203c759-84be-4ddf-92ab-8b864cd6eaab}</destination>
+		</relationship>
 		<relationship name="sounds">
 			<destination>{08bcc709-0f77-47bc-b850-bb4c935ff2df}</destination>
 			<destination>{7ee1dacd-9275-4f64-91a3-f90f379b69b1}</destination>
@@ -542,6 +626,23 @@
 	</object>
 	<object class="MixerBusPanner" id="{12e6ae68-7a86-4ccb-bb4f-47039d21a778}" />
 	<object class="MixerBusFader" id="{f752ac2a-062b-4b0c-8784-387297f541c6}" />
+	<object class="ADSRModulator" id="{ee42290a-3269-40c4-b361-a5eccb545c0e}">
+		<property name="nameOfPropertyBeingModulated">
+			<value>volume</value>
+		</property>
+		<property name="initialValue">
+			<value>-80</value>
+		</property>
+		<property name="attackTime">
+			<value>0</value>
+		</property>
+		<property name="releaseTime">
+			<value>2000</value>
+		</property>
+		<property name="finalValue">
+			<value>-80</value>
+		</property>
+	</object>
 	<object class="SingleSound" id="{8d1fde67-ebf9-4a0b-92af-a9dcc6e64e4d}">
 		<relationship name="audioFile">
 			<destination>{016163a5-409d-4c9c-b7ac-140ed3fbdc50}</destination>
@@ -551,6 +652,23 @@
 		<relationship name="audioFile">
 			<destination>{e9e8e1cb-3bd4-42b9-8867-d9d7fef18182}</destination>
 		</relationship>
+	</object>
+	<object class="ADSRModulator" id="{830dee6f-127e-4797-ae9f-12a77bf28cef}">
+		<property name="nameOfPropertyBeingModulated">
+			<value>volume</value>
+		</property>
+		<property name="initialValue">
+			<value>-80</value>
+		</property>
+		<property name="attackTime">
+			<value>0</value>
+		</property>
+		<property name="releaseTime">
+			<value>2000</value>
+		</property>
+		<property name="finalValue">
+			<value>-80</value>
+		</property>
 	</object>
 	<object class="SidechainModulator" id="{a23405cd-00ca-4ef5-965c-db7a420cb5c5}">
 		<property name="nameOfPropertyBeingModulated">
@@ -578,6 +696,23 @@
 		</relationship>
 	</object>
 	<object class="MixerBusPanner" id="{50e7919b-0635-4826-ab20-719c228ca7e9}" />
+	<object class="ADSRModulator" id="{a33f8bd0-dac8-45a7-8c28-08947952d56f}">
+		<property name="nameOfPropertyBeingModulated">
+			<value>volume</value>
+		</property>
+		<property name="initialValue">
+			<value>-80</value>
+		</property>
+		<property name="attackTime">
+			<value>0</value>
+		</property>
+		<property name="releaseTime">
+			<value>2000</value>
+		</property>
+		<property name="finalValue">
+			<value>-80</value>
+		</property>
+	</object>
 	<object class="SingleSound" id="{2b41fc87-3471-4598-b88e-80fb0337e873}">
 		<relationship name="audioFile">
 			<destination>{701744ef-2a89-45d3-920e-3d77f0b09789}</destination>
@@ -644,6 +779,23 @@
 		</relationship>
 	</object>
 	<object class="MixerBusPanner" id="{8ffb9d08-932c-4e79-8375-f0efbf2ea4a2}" />
+	<object class="ADSRModulator" id="{1328a17e-ea35-4032-bb5f-136cfd034d52}">
+		<property name="nameOfPropertyBeingModulated">
+			<value>volume</value>
+		</property>
+		<property name="initialValue">
+			<value>-80</value>
+		</property>
+		<property name="attackTime">
+			<value>0</value>
+		</property>
+		<property name="releaseTime">
+			<value>2000</value>
+		</property>
+		<property name="finalValue">
+			<value>-80</value>
+		</property>
+	</object>
 	<object class="SingleSound" id="{a407ff30-58e9-42f2-bec6-e3a48ca9bf1e}">
 		<relationship name="audioFile">
 			<destination>{852ffedb-c76f-45c3-aea0-f94e73b844a1}</destination>
@@ -653,6 +805,23 @@
 		<relationship name="audioFile">
 			<destination>{bd0334a5-5467-4532-88cd-b4f1e51af9a0}</destination>
 		</relationship>
+	</object>
+	<object class="ADSRModulator" id="{9a986d76-3197-494b-bcb5-f737218cbca8}">
+		<property name="nameOfPropertyBeingModulated">
+			<value>volume</value>
+		</property>
+		<property name="initialValue">
+			<value>-80</value>
+		</property>
+		<property name="attackTime">
+			<value>0</value>
+		</property>
+		<property name="releaseTime">
+			<value>2000</value>
+		</property>
+		<property name="finalValue">
+			<value>-80</value>
+		</property>
 	</object>
 	<object class="SingleSound" id="{6755d6ff-9cb4-4771-9800-da3ac527974b}">
 		<relationship name="audioFile">
@@ -676,6 +845,23 @@
 		</relationship>
 	</object>
 	<object class="MixerBusPanner" id="{1a79a5f4-5e55-4311-94e5-87fa5bcf1e01}" />
+	<object class="ADSRModulator" id="{de87ff9a-e89c-406b-8219-8b5e89e4a4af}">
+		<property name="nameOfPropertyBeingModulated">
+			<value>volume</value>
+		</property>
+		<property name="initialValue">
+			<value>-80</value>
+		</property>
+		<property name="attackTime">
+			<value>0</value>
+		</property>
+		<property name="releaseTime">
+			<value>2000</value>
+		</property>
+		<property name="finalValue">
+			<value>-80</value>
+		</property>
+	</object>
 	<object class="SingleSound" id="{cb43be9a-a1f4-4b39-9740-70e9cb9c9bcd}">
 		<relationship name="audioFile">
 			<destination>{145a9764-2f61-42e1-b8f8-caa78fb0358f}</destination>
@@ -690,6 +876,23 @@
 		<relationship name="audioFile">
 			<destination>{bad510b2-d9d8-4adb-8951-8b78de2a9af2}</destination>
 		</relationship>
+	</object>
+	<object class="ADSRModulator" id="{b203c759-84be-4ddf-92ab-8b864cd6eaab}">
+		<property name="nameOfPropertyBeingModulated">
+			<value>volume</value>
+		</property>
+		<property name="initialValue">
+			<value>-80</value>
+		</property>
+		<property name="attackTime">
+			<value>0</value>
+		</property>
+		<property name="releaseTime">
+			<value>2000</value>
+		</property>
+		<property name="finalValue">
+			<value>-80</value>
+		</property>
 	</object>
 	<object class="SingleSound" id="{08bcc709-0f77-47bc-b850-bb4c935ff2df}">
 		<relationship name="audioFile">
