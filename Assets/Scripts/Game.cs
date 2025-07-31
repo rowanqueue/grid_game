@@ -92,13 +92,14 @@ namespace Logic
                 Tile tile = tokenChanged.tile;
                 tokenChanged.Destroy();
                 grid.PlaceToken(tile.pos,newToken);
+                status.events.Add(new StatusReport.Event(StatusReport.EventType.TokenChanged, new List<Token>() { tokenChanged, newToken }));
                 List<Dictionary<TokenData, int>> updatedContents = progress.CheckProgress(newToken);
                 for (int i = 0; i < updatedContents.Count; i++)
                 {
                     status.events.Add(new StatusReport.Event(StatusReport.EventType.BagUpdated, updatedContents[i]));
                     bag.AddContents(updatedContents[i]);
                 }
-                status.events.Add(new StatusReport.Event(StatusReport.EventType.TokenChanged, new List<Token>() { tokenChanged,newToken }));
+                
                 GridChanged(newToken);
             }
             else

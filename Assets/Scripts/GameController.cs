@@ -132,6 +132,8 @@ public class GameController : MonoBehaviour
 
     public GameObject loadSnapshotButton;
     public List<Tile> tokensToDestroy = new List<Tile>();
+
+
     // Start is called before the first frame update
     void Awake()
     {
@@ -160,7 +162,7 @@ public class GameController : MonoBehaviour
         }
         else
         {
-            PlayerPrefs.SetString("difficultyUnlock", "1000");
+            PlayerPrefs.SetString("difficultyUnlock", "11000");
             PlayerPrefs.Save();
         }
         if (PlayerPrefs.HasKey("musicVolume") == false)
@@ -354,20 +356,29 @@ public class GameController : MonoBehaviour
     }
     public void StartNewRun()
     {
-        if (Services.Gems.CanAfford(1))
+        if (Services.Gems.CanAfford("newGame"))
         {
-            Services.Gems.SpendGems(1);
+            Services.Gems.SpendGems("newGame");
             GameStateGameplay();
         }
         else
         {
+            Services.Gems.TooExpensive();
             Debug.Log("can't afford a new game");
         }
         
     }
     public void GameStateGameplay()
     {
-        if(gameState == GameState.Seeds)
+        if (gameState == GameState.Settings)
+        {
+            if (lastState == GameState.SelectDifficulty)
+            {
+                GameStateSelectDifficulty();
+                return;
+            }
+        }
+        if (gameState == GameState.Seeds)
         {
             if(lastState == GameState.SelectDifficulty)
             {
@@ -387,12 +398,13 @@ public class GameController : MonoBehaviour
         }
         if (gameState == GameState.SelectDifficulty)
         {
-            if (Services.Gems.CanAfford(1))
+            if (Services.Gems.CanAfford("newGame"))
             {
-                Services.Gems.SpendGems(1);
+                Services.Gems.SpendGems("newGame");
             }
             else
             {
+                Services.Gems.TooExpensive();
                 return;
             }
         }
@@ -800,6 +812,14 @@ public class GameController : MonoBehaviour
         PlayerPrefs.SetInt("difficulty", difficulty);
         PlayerPrefs.Save();
     }
+    public void StartScoreRolling()
+    {
+
+    }
+    public void FinishScoreRolling()
+    {
+
+    }
 
     // Update is called once per frame
     void Update()
@@ -888,6 +908,10 @@ public class GameController : MonoBehaviour
             int tinyAmount = Mathf.Max(1, Mathf.CeilToInt(0.1f * scoreDelta));
             scoreDelta -= tinyAmount;
             score += tinyAmount;
+            if(scoreDelta <= 0)
+            {
+                FinishScoreRolling();
+            }
         }
         display.text += "\n<size=20%>-score-</size>";
         winScreenScore.text = "<size=35%>Your score:</size>\n" + score.ToString() + "\n<size=15%><line-height=100%>-Tap to restart-</size>"; ;
@@ -1346,6 +1370,12 @@ public class GameController : MonoBehaviour
                             Services.AudioManager.PlayInvalidToolSound();
                         }
                     }
+                    
+
+                }
+                if (Input.GetMouseButtonDown(0))
+                {
+                    Debug.Log("up");
                     //are you clicking on another tile??
                     int new_index = -1;
                     for (int i = 0; i < game.hand.tokens.Length; i++)
@@ -1372,7 +1402,9 @@ public class GameController : MonoBehaviour
                         }
                         else
                         {
+                            chosenToken.UpdateLayer("TokenHand");
                             chosenIndex = new_index;
+
                             if (useHaptics)
                             {
                                 Haptics.PlayTransient(.5f, .5f);
@@ -1387,12 +1419,12 @@ public class GameController : MonoBehaviour
                             float _dist = Vector2.Distance(mousePos, freeSlot.transform.position);
                             if (_dist < 0.5f)
                             {
+                                chosenToken.UpdateLayer("TokenHand");
                                 chosenIndex = game.hand.handSize + 2;
                                 EnterInputState(InputState.Place);
                             }
                         }
                     }
-
                 }
                 //undoing
                 if (Input.GetMouseButtonDown(0))
@@ -1893,11 +1925,12 @@ public class GameController : MonoBehaviour
     }
     public void LoadSnapshot()
     {
-        if (Services.Gems.CanAfford(3) == false)
+        if (Services.Gems.CanAfford("snapshot") == false)
         {
+            Services.Gems.TooExpensive();
             return;
         }
-        Services.Gems.SpendGems(3);
+        Services.Gems.SpendGems("snapshot");
         Logic.History.Turn _save = null;
         if (SaveLoad.HasSave(1))
         {
@@ -1956,7 +1989,7 @@ public class GameController : MonoBehaviour
         {
             if (inTutorial)
             {
-
+                return;
             }
             else
             {
@@ -1964,8 +1997,7 @@ public class GameController : MonoBehaviour
             }
 
         }
-
-        CreateHand();
+        CreateHand(true);
         Services.AudioManager.PlayUndoSound();
     }
     public void Undo()
@@ -2027,6 +2059,11 @@ public class GameController : MonoBehaviour
         PlayerPrefs.DeleteKey("tutorialComplete");
         PlayerPrefs.DeleteKey("greenLearnt");
         PlayerPrefs.DeleteKey("purpleLearnt");
+        Restart();
+    }
+    public void CompleteRestart()
+    {
+        PlayerPrefs.DeleteAll();
         Restart();
     }
 

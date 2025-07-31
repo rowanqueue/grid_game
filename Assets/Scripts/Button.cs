@@ -40,7 +40,7 @@ namespace flora
                 case ButtonType.Mulligan:
                     if (Services.GameController.inTutorial == false)
                     {
-                        if (Services.Gems.numGems >= 2)
+                        if (Services.Gems.CanAfford("mulligan"))
                         {
                             disabled = false;
                         }
@@ -84,13 +84,24 @@ namespace flora
             }
 
 
-            if (hover && !disabled && Input.GetMouseButtonDown(0))
+            if (hover && Input.GetMouseButtonDown(0))
             {
-                _event.Invoke();
-                if (type == ButtonType.Mulligan && Services.GameController.inTutorial == false)
+                if (disabled)
                 {
-                    Services.Gems.SpendGems(2);
+                    if (type == ButtonType.Mulligan && Services.GameController.inTutorial == false)
+                    {
+                        Services.Gems.TooExpensive();
+                    }
                 }
+                else
+                {
+                    _event.Invoke();
+                    if (type == ButtonType.Mulligan && Services.GameController.inTutorial == false)
+                    {
+                        Services.Gems.SpendGems("mulligan");
+                    }
+                }
+                
             }
         }
 

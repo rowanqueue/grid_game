@@ -15,6 +15,17 @@ public class Gems : MonoBehaviour
     float fakeAdDuration;
     float nextSeedEarned;
     public float secondsBetweenSeeds;
+    public SeedPopup seedPopup;
+    public Dictionary<string, int> seedCosts = new Dictionary<string, int>()
+    {
+        {"earn",4 },
+        {"newGame",5 },
+        {"snapshot",3 },
+        {"mulligan",2 },
+        {"buySpade",1 },
+        {"buyAdder",2 },
+        {"buyClipper",3 }
+    };
     private void Awake()
     {
         if (PlayerPrefs.HasKey("gems"))
@@ -23,6 +34,7 @@ public class Gems : MonoBehaviour
         }
         else
         {
+            numGems = 10;
             PlayerPrefs.SetInt("gems", numGems);
             PlayerPrefs.Save();
         }
@@ -82,7 +94,7 @@ public class Gems : MonoBehaviour
             {
                 fakeAdVisual.SetActive(false);
                 watchingFakeAd = false;
-                EarnGems(5);
+                EarnGems(seedCosts["earn"]);
             }
         }
         else
@@ -91,16 +103,22 @@ public class Gems : MonoBehaviour
         }
         
     }
-    public bool CanAfford(int num)
+    public void TooExpensive()
     {
+        seedPopup.Open();
+    }
+    public bool CanAfford(string cost)
+    {
+        int num = seedCosts[cost];
         if(numGems >= num)
         {
             return true;
         }
         return false;
     }
-    public void SpendGems(int num)
+    public void SpendGems(string cost)
     {
+        int num = seedCosts[cost];
         numGems -= num;
         numGems = Mathf.Clamp(numGems, 0, maxGems);
         PlayerPrefs.SetInt("gems", numGems);

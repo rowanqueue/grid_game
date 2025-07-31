@@ -708,6 +708,10 @@ public class Token : MonoBehaviour
         }
         //todo: make this the right amount of points
         //Services.GameController.dyingTokens.Remove(this);
+        if(Services.GameController.scoreDelta == 0)
+        {
+            Services.GameController.StartScoreRolling();
+        }
         Services.GameController.scoreDelta += Services.GameController.ScoreToken(token.data);
         GameObject.Destroy(textDisplay.gameObject);
         GameObject.Destroy(gameObject);
