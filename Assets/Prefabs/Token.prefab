@@ -5507,6 +5507,8 @@ MonoBehaviour:
   Spade_DigDestination: {x: 0, y: 0, z: 0}
   Spade_StartingRotation: -30
   Spade_EndRotation: 0
+  UndoInAnimation: 1
+  UndoOutAnimation: 1
 --- !u!1 &8600257090112988724
 GameObject:
   m_ObjectHideFlags: 0

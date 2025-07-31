@@ -13,16 +13,22 @@ public class TreeShadow : MonoBehaviour
     public float valChildA = 0.3f;
     public float valChildB = 0.3f;
 
+    public float noise;
+    public float input;
+    public float output;
+
     private void Start()
     {
         start = transform.position;
         childStart = child.localPosition;
-        seed = Random.Range(0f, 50f);
+        seed = 22;
     }
     private void Update()
     {
-        float noise = Mathf.PerlinNoise(Time.time * 0.1f + seed, 0f);
-        float offsetX = Mathf.Sin(seed + Time.time * (noise * valA)) * valB;
+        noise = Mathf.Clamp(Mathf.PerlinNoise1D(Time.time * 0.1f + seed), 0f, 0.7f);
+        input = seed + Time.time * (noise * valA);
+        output = Mathf.Sin(input) * valB;
+        float offsetX = output;
         float offsetY = Mathf.Sin(seed/2 + Time.time * (noise * valA)) * valB;
         float childOffsetX = Mathf.Sin(seed +Time.time * (noise * valChildA)) * valChildB;
         float childOffsetY = Mathf.Sin(seed/2 + Time.time * (noise * valChildA)) * valChildB;

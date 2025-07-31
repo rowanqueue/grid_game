@@ -5,6 +5,7 @@ using DG.Tweening;
 using EZ.Haptics;
 using Logic;
 using System.Collections.Generic;
+using UnityEditor;
 
 public class Token : MonoBehaviour
 {
@@ -57,15 +58,19 @@ public class Token : MonoBehaviour
     [SerializeField] private float Spade_StartingRotation = 30f;
     [SerializeField] private float Spade_EndRotation = 30f;
 
+    [Header("Undo Animation Values")]
+    [SerializeField] private float UndoInAnimation = 0.5f;
+    [SerializeField] private float UndoOutAnimation = 0.5f;
 
 
-    public void Init(Logic.Token _token)
-    {
-        initialized = true;
-        token = _token;
-        SetTokenData(token.data);
-        //spriteDisplay.color = Services.Visuals.tokenColors[(int)token.data.color];
-    }
+
+        public void Init(Logic.Token _token)
+        {
+            initialized = true;
+            token = _token;
+            SetTokenData(token.data);
+            //spriteDisplay.color = Services.Visuals.tokenColors[(int)token.data.color];
+        }
 
     /// <summary>
     /// Changes the display of the token to match the given data. If this change increases the token number, it will play the upgrade animation
@@ -124,7 +129,7 @@ public class Token : MonoBehaviour
         {
             Haptics.PlayTransient(1f, .5f);
         }
-        
+
 
         // Playing the flower burst animation
         StartCoroutine(flowerParticles.PlayFlowerBurstCoroutine(0f, token.data.color));
@@ -391,7 +396,7 @@ public class Token : MonoBehaviour
             yield return new WaitForEndOfFrame();
         }
 
-        
+
         Sequence adderSequence = DOTween.Sequence();
         float adderRotationTime = 0.4f;
         float waterSquirtTime = 0.3f;
@@ -460,11 +465,16 @@ public class Token : MonoBehaviour
     {
         shade.SetActive(true);
     }
-    public void PlaceInTile(Tile tile)
+    public void PlaceInTile(Tile tile, bool undoAnimation = false)
     {
         transform.position = tile.transform.position;
         UpdateLayer("TokenPlaced");
+        if (undoAnimation)
+        {
+            UndoSpawn();
+        }
     }
+
     public void DrawFromBag(int index)
     {
         moving = true;
@@ -472,6 +482,7 @@ public class Token : MonoBehaviour
         transform.position = new Vector2(-2.5f, -8f);
         StartCoroutine(BagDraw(index * 0.2f));//*(1f/1.5f)));
     }
+
     IEnumerator BagDraw(float delay)
     {
         yield return new WaitForSeconds(delay);
@@ -496,6 +507,19 @@ public class Token : MonoBehaviour
         transform.position = handPos;
         moving = false;
     }
+
+    public void PlaceInBag()
+    {
+        moving = true;
+        StartCoroutine(PlaceInBagRoutine());
+    }
+
+    public IEnumerator PlaceInBagRoutine()
+    {
+        yield return transform.DOMove(new Vector2(-2.5f, -8f), 0.4f).SetEase(Ease.InSine).WaitForCompletion();
+        Destroy(gameObject);
+    }
+
     public void Draw(Vector2 pos, bool hover = false)
     {
         if (beingSpaded)
@@ -519,7 +543,7 @@ public class Token : MonoBehaviour
         if (moving) { return; }
         float shadow_scale = Mathf.InverseLerp(0f, 0.5f, spriteDisplay.transform.localPosition.y);
         shadow.transform.localScale = Vector3.one * Mathf.Lerp(1f, 0.75f, shadow_scale);
-        
+
         transform.position += ((Vector3)pos - transform.position) * 1.5f * (Time.deltaTime / 0.16666f);
         if (spriteDisplay.sortingLayerName == "TokenPlaced")
         {
@@ -785,5 +809,56 @@ public class Token : MonoBehaviour
         }
         transform.localEulerAngles = new Vector3(0f, 0f, targetAngle);
         wiggling = false;
+    }
+
+    public void UndoInit(Logic.Token _token)
+    {
+        initialized = true;
+        token = _token;
+        SetTokenData(token.data);
+        UndoSpawn();
+    }
+
+    public void UndoDestroy()
+    {
+        StartCoroutine(UndoDestroyAnimation());
+    }
+
+    public IEnumerator UndoDestroyAnimation()
+    {
+        Sequence dyingSequence = DOTween.Sequence();
+        textDisplay.gameObject.SetActive(false);
+        Debug.Log("Undo Destroy Animation");
+        dyingSequence.Append(transform.DOMove(transform.position + Vector3.up * liftHeight, UndoOutAnimation).SetEase(Ease.OutCubic));
+        dyingSequence.Join(spriteDisplay.DOFade(0f, UndoOutAnimation * 0.5f).SetEase(Ease.InCubic));
+        dyingSequence.Join(number.DOFade(0f, UndoOutAnimation * 0.5f).SetEase(Ease.InCubic));
+        dyingSequence.Join(shadow.DOFade(0f, UndoOutAnimation * 0.5f).SetEase(Ease.InCubic));
+        yield return dyingSequence.WaitForCompletion();
+        Debug.Log("Undo Destroy Animation Complete");
+        GameObject.Destroy(gameObject);
+    }
+
+    public void UndoSpawn()
+    {
+        textDisplay.gameObject.SetActive(false);
+        spriteDisplay.color = new Color(spriteDisplay.color.r, spriteDisplay.color.g, spriteDisplay.color.b, 0f);
+        number.color = new Color(number.color.r, number.color.g, number.color.b, 0f);
+        shadow.color = new Color(shadow.color.r, shadow.color.g, shadow.color.b, 0f);
+        number.gameObject.SetActive(false);
+        StartCoroutine(UndoSpawnAnimation());
+    }
+
+    public IEnumerator UndoSpawnAnimation()
+    {
+        yield return new WaitForEndOfFrame();
+        number.gameObject.SetActive(true);
+        number.color = new Color(number.color.r, number.color.g, number.color.b, 0f);
+        transform.position += Vector3.up * liftHeight;
+        Sequence spawnSequence = DOTween.Sequence();
+        spawnSequence.Append(transform.DOMove(transform.position - Vector3.up * liftHeight, UndoInAnimation).SetEase(Ease.OutCubic));
+        spawnSequence.Join(spriteDisplay.DOFade(1f, UndoInAnimation * 0.5f).SetEase(Ease.InCubic));
+        spawnSequence.Join(number.DOFade(1f, UndoInAnimation * 0.5f).SetEase(Ease.InCubic));
+        spawnSequence.Join(shadow.DOFade(1f, UndoInAnimation * 0.5f).SetEase(Ease.InCubic));
+        yield return spawnSequence.WaitForCompletion();
     }
 }
