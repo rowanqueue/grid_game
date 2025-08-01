@@ -41,10 +41,10 @@ public class BagDisplay : MonoBehaviour
     }
     public void NextBag()
     {
-        if (Services.GameController.inTutorial && Services.GameController.tutorial.stage == TutorialStage.GreenBag)
+        /*if (Services.GameController.inTutorial && Services.GameController.tutorial.stage == TutorialStage.GreenBag)
         {
             Services.GameController.tutorial.IncrementStage();
-        }
+        }*/
         if (showNextBag == true) { return; }
         showNextBag = true;
         Services.AudioManager.PlayBagRustleSound();
