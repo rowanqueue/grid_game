@@ -31,10 +31,11 @@ public enum GameState
     Gameplay,
     Settings,
     Start,
-    Snapshot,
+    ToolShop,
     Seeds,
     Bag,
-    SelectDifficulty
+    SelectDifficulty,
+    Snapshot
 }
 public class GameController : MonoBehaviour
 {
@@ -164,7 +165,7 @@ public class GameController : MonoBehaviour
         }
         else
         {
-            PlayerPrefs.SetString("difficultyUnlock", "11000");
+            PlayerPrefs.SetString("difficultyUnlock", "1000");
             PlayerPrefs.Save();
         }
         if (PlayerPrefs.HasKey("musicVolume") == false)
@@ -259,6 +260,7 @@ public class GameController : MonoBehaviour
         {
             runTutorial = false;
         }
+        //runTutorial = true;
         if (runTutorial)
         {
             difficulty = 0;
@@ -467,6 +469,18 @@ public class GameController : MonoBehaviour
         stateScreens[(int)gameState].gameObject.SetActive(true);
         stateScreens[(int)gameState].SetAnchor();
         snapshotPreview.openScreen();
+        movingToScreen = true;
+    }
+    public void GameStateToolShop()
+    {
+        if (inputState == InputState.Finish || inputState == InputState.TapToRestart) { return; }
+        if (inTutorial) { return; }
+        lastState = gameState;
+        gameState = GameState.ToolShop;
+
+        stateScreens[(int)gameState].gameObject.SetActive(true);
+        stateScreens[(int)gameState].SetAnchor();
+        //todo: make toolshop open
         movingToScreen = true;
     }
     public void GameStateSeeds()
@@ -955,7 +969,7 @@ public class GameController : MonoBehaviour
                 case GameState.Start:
                     cameraPos.y = 12.33f;
                     break;
-                case GameState.Snapshot:
+                case GameState.ToolShop:
                     cameraPos.x = -8;
                     break;
                 case GameState.Bag:
@@ -2051,9 +2065,9 @@ public class GameController : MonoBehaviour
         Logic.History.Turn _save = null;
         if (SaveLoad.HasSave(1))
         {
-            gameState = GameState.Gameplay;
+            //gameState = GameState.Gameplay;
             _save = SaveLoad.Load(1);
-            gameState = GameState.Snapshot;
+            //gameState = GameState.Snapshot;
             snapshotSave = _save;
         }
         if (snapshotSave == null) { return; }

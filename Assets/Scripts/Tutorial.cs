@@ -257,7 +257,7 @@ public class Tutorial : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(active == false)
+        if(false && active == false)
         {
             if(greenLearnt == false)
             {

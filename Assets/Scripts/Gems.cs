@@ -22,9 +22,9 @@ public class Gems : MonoBehaviour
         {"newGame",5 },
         {"snapshot",3 },
         {"mulligan",2 },
-        {"buySpade",1 },
-        {"buyAdder",2 },
-        {"buyClipper",3 }
+        {"buySpade",2 },
+        {"buyAdder",3 },
+        {"buyClipper",4 }
     };
     private void Awake()
     {
