@@ -21,13 +21,13 @@ public class TreeShadow : MonoBehaviour
     {
         start = transform.position;
         childStart = child.localPosition;
-        seed = 22;
+        seed = 22 + UnityEngine.Random.Range(1,5);
     }
     private void Update()
     {
         noise = Mathf.Clamp(Mathf.PerlinNoise1D(Time.time * 0.1f + seed), 0f, 0.7f);
-        input = seed + Time.time * (noise * valA);
-        output = Mathf.Sin(input) * valB;
+        input = seed + Time.time * valA;
+        output = Mathf.Sin(input) * valB * noise;
         float offsetX = output;
         float offsetY = Mathf.Sin(seed/2 + Time.time * (noise * valA)) * valB;
         float childOffsetX = Mathf.Sin(seed +Time.time * (noise * valChildA)) * valChildB;
