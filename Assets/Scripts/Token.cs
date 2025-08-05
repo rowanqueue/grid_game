@@ -116,7 +116,15 @@ public class Token : MonoBehaviour
         // Delay before starting the upgrade animation
         yield return new WaitForSeconds(0.1f);
 
-        //Services.AudioManager.PlayUpgradeTileSound();
+        if(token.data.num < 8)
+        {
+            Services.AudioManager.PlayUpgradeTileSound();
+        }
+        else
+        {
+            Services.AudioManager.PlayFinalUpgradeTileSound();
+        }
+        
         if (useHaptics)
         {
             Haptics.PlayTransient(1f, .5f);
@@ -143,7 +151,14 @@ public class Token : MonoBehaviour
         // Delay for audio to trigger
         yield return new WaitForSeconds(0.6f);
 
-        //Services.AudioManager.PlayUpgradeTileSound();
+        if (token.data.num < 8)
+        {
+            Services.AudioManager.PlayUpgradeTileSound();
+        }
+        else
+        {
+            Services.AudioManager.PlayFinalUpgradeTileSound();
+        }
         if (useHaptics)
         {
             Haptics.PlayTransient(1f, .5f);
@@ -732,6 +747,10 @@ public class Token : MonoBehaviour
         }
         //todo: make this the right amount of points
         //Services.GameController.dyingTokens.Remove(this);
+        if(Services.GameController.scoreDelta == 0)
+        {
+            Services.GameController.StartScoreRolling();
+        }
         Services.GameController.scoreDelta += Services.GameController.ScoreToken(token.data);
         GameObject.Destroy(textDisplay.gameObject);
         GameObject.Destroy(gameObject);

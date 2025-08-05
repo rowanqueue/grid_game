@@ -31,10 +31,11 @@ public enum GameState
     Gameplay,
     Settings,
     Start,
-    Snapshot,
+    ToolShop,
     Seeds,
     Bag,
-    SelectDifficulty
+    SelectDifficulty,
+    Snapshot
 }
 public class GameController : MonoBehaviour
 {
@@ -132,6 +133,8 @@ public class GameController : MonoBehaviour
 
     public GameObject loadSnapshotButton;
     public List<Tile> tokensToDestroy = new List<Tile>();
+
+
     // Start is called before the first frame update
     private List<Vector2Int> undidTiles = new List<Vector2Int>();
     private bool undidSlot = false;
@@ -257,6 +260,7 @@ public class GameController : MonoBehaviour
         {
             runTutorial = false;
         }
+        //runTutorial = true;
         if (runTutorial)
         {
             difficulty = 0;
@@ -356,19 +360,28 @@ public class GameController : MonoBehaviour
     }
     public void StartNewRun()
     {
-        if (Services.Gems.CanAfford(1))
+        if (Services.Gems.CanAfford("newGame"))
         {
-            Services.Gems.SpendGems(1);
+            Services.Gems.SpendGems("newGame");
             GameStateGameplay();
         }
         else
         {
+            Services.Gems.TooExpensive();
             Debug.Log("can't afford a new game");
         }
 
     }
     public void GameStateGameplay()
     {
+        if (gameState == GameState.Settings)
+        {
+            if (lastState == GameState.SelectDifficulty)
+            {
+                GameStateSelectDifficulty();
+                return;
+            }
+        }
         if (gameState == GameState.Seeds)
         {
             if (lastState == GameState.SelectDifficulty)
@@ -389,12 +402,13 @@ public class GameController : MonoBehaviour
         }
         if (gameState == GameState.SelectDifficulty)
         {
-            if (Services.Gems.CanAfford(1))
+            if (Services.Gems.CanAfford("newGame"))
             {
-                Services.Gems.SpendGems(1);
+                Services.Gems.SpendGems("newGame");
             }
             else
             {
+                Services.Gems.TooExpensive();
                 return;
             }
         }
@@ -406,10 +420,10 @@ public class GameController : MonoBehaviour
             game.Initialize(root);
             CreateHand(true);
         }
-        if (inTutorial && tutorial.stage == TutorialStage.GreenNextBag)
+        /*if (inTutorial && tutorial.stage == TutorialStage.GreenNextBag)
         {
             tutorial.IncrementStage();
-        }
+        }*/
         if (gameState == GameState.Gameplay) { return; }
         lastState = gameState;
         gameState = GameState.Gameplay;
@@ -455,6 +469,18 @@ public class GameController : MonoBehaviour
         stateScreens[(int)gameState].gameObject.SetActive(true);
         stateScreens[(int)gameState].SetAnchor();
         snapshotPreview.openScreen();
+        movingToScreen = true;
+    }
+    public void GameStateToolShop()
+    {
+        if (inputState == InputState.Finish || inputState == InputState.TapToRestart) { return; }
+        if (inTutorial) { return; }
+        lastState = gameState;
+        gameState = GameState.ToolShop;
+
+        stateScreens[(int)gameState].gameObject.SetActive(true);
+        stateScreens[(int)gameState].SetAnchor();
+        //todo: make toolshop open
         movingToScreen = true;
     }
     public void GameStateSeeds()
@@ -579,10 +605,10 @@ public class GameController : MonoBehaviour
     }
     public void ToggleBagDisplay()
     {
-        if (inTutorial && tutorial.stage == TutorialStage.BagIntro)
+        /*if (inTutorial && tutorial.stage == TutorialStage.BagIntro)
         {
             tutorial.IncrementStage();
-        }
+        }*/
 
         if (movingToScreen) { return; }
         if (gameState == GameState.Bag)
@@ -593,10 +619,10 @@ public class GameController : MonoBehaviour
         }
         else
         {
-            if (inTutorial && tutorial.stage == TutorialStage.GreenStart)
+            /*if (inTutorial && tutorial.stage == TutorialStage.GreenStart)
             {
                 tutorial.IncrementStage();
-            }
+            }*/
             deckDisplay.MakeBag();
             GameStateBag();
         }
@@ -900,6 +926,14 @@ public class GameController : MonoBehaviour
         PlayerPrefs.SetInt("difficulty", difficulty);
         PlayerPrefs.Save();
     }
+    public void StartScoreRolling()
+    {
+
+    }
+    public void FinishScoreRolling()
+    {
+
+    }
 
     // Update is called once per frame
     void Update()
@@ -935,7 +969,7 @@ public class GameController : MonoBehaviour
                 case GameState.Start:
                     cameraPos.y = 12.33f;
                     break;
-                case GameState.Snapshot:
+                case GameState.ToolShop:
                     cameraPos.x = -8;
                     break;
                 case GameState.Bag:
@@ -988,6 +1022,10 @@ public class GameController : MonoBehaviour
             int tinyAmount = Mathf.Max(1, Mathf.CeilToInt(0.1f * scoreDelta));
             scoreDelta -= tinyAmount;
             score += tinyAmount;
+            if(scoreDelta <= 0)
+            {
+                FinishScoreRolling();
+            }
         }
         display.text += "\n<size=20%>-score-</size>";
         winScreenScore.text = "<size=35%>Your score:</size>\n" + score.ToString() + "\n<size=15%><line-height=100%>-Tap to restart-</size>"; ;
@@ -1200,7 +1238,7 @@ public class GameController : MonoBehaviour
                     bool _tutorialGood = false;
                     if (inTutorial)
                     {
-                        if ((tutorial.stage == TutorialStage.FreeSlot || tutorial.stage == TutorialStage.EmptyHand))
+                        if (tutorial.stage == TutorialStage.FreeSlot || (tutorial.stage == TutorialStage.Blue3 && chosenToken.token.data.color == Logic.TokenColor.Red) || (tutorial.stage == TutorialStage.CleanUp && chosenToken.token.data.color == Logic.TokenColor.Red))
                         {
                             _tutorialGood = true;
                         }
@@ -1234,9 +1272,13 @@ public class GameController : MonoBehaviour
                             }
                             EnterInputState(InputState.Wait);
                             waiting = 0f;
-                            if (inTutorial && (tutorial.stage == TutorialStage.FreeSlot || tutorial.stage == TutorialStage.EmptyHand))
+                            if (inTutorial && (tutorial.stage == TutorialStage.FreeSlot || tutorial.stage == TutorialStage.CleanUp))
                             {
                                 tutorial.IncrementStage();
+                            }
+                            if (inTutorial && (tutorial.stage == TutorialStage.Blue3))
+                            {
+                                tutorial.StageUpdate();
                             }
                             break;
                         }
@@ -1293,9 +1335,13 @@ public class GameController : MonoBehaviour
                                 lastTokenPlaced.transform.localEulerAngles = Vector3.zero;
                                 hand[chosenIndex] = null;
                             }
-                            if (inTutorial && (tutorial.stage == TutorialStage.Placing || tutorial.stage == TutorialStage.WeirdSet || tutorial.stage == TutorialStage.FirstRed || tutorial.stage == TutorialStage.EmptyHand))
+                            if (inTutorial && (tutorial.stage == TutorialStage.Placing || tutorial.stage == TutorialStage.WeirdSet || tutorial.stage == TutorialStage.FirstRed || tutorial.stage == TutorialStage.Blue3 || tutorial.stage == TutorialStage.SecondRed || tutorial.stage == TutorialStage.LearnGreen || tutorial.stage == TutorialStage.CleanUp || tutorial.stage == TutorialStage.Purple))
                             {
                                 tutorial.StageUpdate();
+                            }
+                            if(inTutorial && (tutorial.stage == TutorialStage.Undo && tutorial.stagePhase == 1))
+                            {
+                                tutorial.IncrementStage();
                             }
                             EnterInputState(InputState.Wait);
                             waiting = 0f;
@@ -1446,6 +1492,12 @@ public class GameController : MonoBehaviour
                             Services.AudioManager.PlayInvalidToolSound();
                         }
                     }
+                    
+
+                }
+                if (Input.GetMouseButtonDown(0))
+                {
+                    Debug.Log("up");
                     //are you clicking on another tile??
                     int new_index = -1;
                     for (int i = 0; i < game.hand.tokens.Length; i++)
@@ -1472,7 +1524,9 @@ public class GameController : MonoBehaviour
                         }
                         else
                         {
+                            chosenToken.UpdateLayer("TokenHand");
                             chosenIndex = new_index;
+
                             if (useHaptics)
                             {
                                 Haptics.PlayTransient(.5f, .5f);
@@ -1487,12 +1541,12 @@ public class GameController : MonoBehaviour
                             float _dist = Vector2.Distance(mousePos, freeSlot.transform.position);
                             if (_dist < 0.5f)
                             {
+                                chosenToken.UpdateLayer("TokenHand");
                                 chosenIndex = game.hand.handSize + 2;
                                 EnterInputState(InputState.Place);
                             }
                         }
                     }
-
                 }
                 //undoing
                 if (Input.GetMouseButtonDown(0))
@@ -1531,9 +1585,21 @@ public class GameController : MonoBehaviour
                 if (game.gridUpdating == false)
                 {
                     waiting -= Time.deltaTime;
-                    if (inTutorial && tutorial.stage == TutorialStage.Blue3Appears)
+                    
+                    if (inTutorial)
                     {
-                        waiting += Time.deltaTime;
+                        bool waitingStage = false;
+                        switch (tutorial.stage)
+                        {
+                            case TutorialStage.Blue2:
+                                waitingStage = true;
+                                break;
+                        }
+                        if (waitingStage)
+                        {
+                            waiting += Time.deltaTime;
+                        }
+                        
                     }
                     if (popupopen)
                     {
@@ -1605,7 +1671,7 @@ public class GameController : MonoBehaviour
                                             }
                                         }
                                     }
-                                    if (inTutorial && (tutorial.stage == TutorialStage.Placing || tutorial.stage == TutorialStage.WeirdSet || tutorial.stage == TutorialStage.Red2 || tutorial.stage == TutorialStage.ThirdBlue2))
+                                    if (inTutorial && (tutorial.stage == TutorialStage.Placing || tutorial.stage == TutorialStage.Green2))
                                     {
                                         tutorial.IncrementStage();
                                     }
@@ -1624,18 +1690,27 @@ public class GameController : MonoBehaviour
                                             }
                                         }
                                     }
-                                    if (inTutorial && (tutorial.stage == TutorialStage.Placing || tutorial.stage == TutorialStage.WeirdSet || tutorial.stage == TutorialStage.Red2 || tutorial.stage == TutorialStage.ThirdBlue2))
-                                    {
-                                        tutorial.IncrementStage();
-                                    }
                                     break;
                                 case Logic.StatusReport.EventType.NewHand:
                                     if (inTutorial)
                                     {
-                                        if (tutorial.stage == TutorialStage.HandRefill)
+                                        if (tutorial.stage == TutorialStage.HandRefill || tutorial.stage == TutorialStage.FirstRed)
                                         {
                                             game.SecondTutorialHand();
                                         }
+                                        if(tutorial.stage == TutorialStage.Blue3)
+                                        {
+                                            game.ThirdTutorialHand();
+                                        }
+                                        if(tutorial.stage == TutorialStage.LearnGreen || tutorial.stage == TutorialStage.Green2)
+                                        {
+                                            game.FourthTutorialHand();
+                                        }
+                                        if(tutorial.stage == TutorialStage.CleanUp || tutorial.stage == TutorialStage.Purple)
+                                        {
+                                            game.FifthTutorialHand();
+                                        }
+                                        /*
                                         if (tutorial.stage == TutorialStage.BagIntro || tutorial.stage == TutorialStage.Red2)
                                         {
                                             game.SecondTutorialHand();
@@ -1643,7 +1718,7 @@ public class GameController : MonoBehaviour
                                         if (tutorial.stage == TutorialStage.TeachMulligan)
                                         {
                                             game.FourthTutorialHand();
-                                        }
+                                        }*/
                                     }
 
                                     CreateHand(true);
@@ -2010,17 +2085,18 @@ public class GameController : MonoBehaviour
     }
     public void LoadSnapshot()
     {
-        if (Services.Gems.CanAfford(3) == false)
+        if (Services.Gems.CanAfford("snapshot") == false)
         {
+            Services.Gems.TooExpensive();
             return;
         }
-        Services.Gems.SpendGems(3);
+        Services.Gems.SpendGems("snapshot");
         Logic.History.Turn _save = null;
         if (SaveLoad.HasSave(1))
         {
-            gameState = GameState.Gameplay;
+            //gameState = GameState.Gameplay;
             _save = SaveLoad.Load(1);
-            gameState = GameState.Snapshot;
+            //gameState = GameState.Snapshot;
             snapshotSave = _save;
         }
         if (snapshotSave == null) { return; }
@@ -2065,18 +2141,9 @@ public class GameController : MonoBehaviour
     public void Mulligan()
     {
         //put back rest of hand and draw 4 more
-        if (inTutorial && tutorial.stage == TutorialStage.TeachMulligan)
+        if (!inTutorial)
         {
-            game.FifthTutorialHand();
-            tutorial.IncrementStage();
-        }
-        else
-        {
-            if (!inTutorial)
-            {
-                game.Mulligan();
-            }
-
+            game.Mulligan();
         }
 
         StartCoroutine(MulliganAnim());
@@ -2100,7 +2167,11 @@ public class GameController : MonoBehaviour
 
     public void Undo()
     {
-        if (inTutorial)
+        if (inTutorial && (tutorial.stage == TutorialStage.Undo))
+        {
+            tutorial.StageUpdate();
+        }
+        if (inTutorial && tutorial.stage != TutorialStage.Undo)
         {
             return;
         }
@@ -2143,6 +2214,11 @@ public class GameController : MonoBehaviour
         PlayerPrefs.DeleteKey("tutorialComplete");
         PlayerPrefs.DeleteKey("greenLearnt");
         PlayerPrefs.DeleteKey("purpleLearnt");
+        Restart();
+    }
+    public void CompleteRestart()
+    {
+        PlayerPrefs.DeleteAll();
         Restart();
     }
 

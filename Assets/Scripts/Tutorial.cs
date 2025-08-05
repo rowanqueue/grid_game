@@ -2,8 +2,32 @@ using Logic;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
 public enum TutorialStage
+{
+    Intro,//1hand: 4 blues
+    Placing,//3 places until you make Blue2
+    Blue2,
+    FreeSlot,
+    HandRefill,//2hand: 2 blues 2 reds
+    WeirdSet,//leading up to undo
+    Undo,
+    FirstRed,//3hand: 2 reds 2 blues
+    RedScoring,
+    Blue3,//place 2 blues, then reserve 1 red 4hand: blue,red,2 greens
+    SecondRed,
+    LearnGreen,//5hand: blue,red,green,red
+    Green2,
+    GreenScoring,
+    CleanUp,
+    Purple, //6hand: blue,red,green,purple
+    Shop,
+    Snapshot,
+    Mulligan,
+    HighestScore,
+    ActuallyFinishDefault
+    
+}
+public enum TutStage
 {
     Intro,
     Shelf,
@@ -87,20 +111,6 @@ public class Tutorial : MonoBehaviour
             ExitTutorial();
             return;
         }
-        if(stage == TutorialStage.GreenFinish)
-        {
-            active = false;
-            PlayerPrefs.SetInt("greenLearnt", 1);
-            greenLearnt = true;
-            return;
-        }
-        if(stage == TutorialStage.PurpleFinish)
-        {
-            active = false;
-            PlayerPrefs.SetInt("purpleLearnt", 1);
-            purpleLearnt = true;
-            return;
-        }
         stageParents[(int)stage].SetActive(true);
         stagePhase = 0;
         placingRule = true;
@@ -122,9 +132,6 @@ public class Tutorial : MonoBehaviour
                 };
                 Services.GameController.CreateHand();
                 break;
-            case TutorialStage.HandRefill:
-                choosingRule = true;
-                break;
             case TutorialStage.FreeSlot:
                 placingRule = true;
                 choosingRule = false;
@@ -135,61 +142,159 @@ public class Tutorial : MonoBehaviour
                 highlight = currentStep.highlights[0].gameObject;
                 highlight.SetActive(true);
                 allowedPlaces = new List<Vector2Int>()
-                {
-                    new Vector2Int(0,3),
-                    new Vector2Int(1,3),
-                };
+                    {
+                        new Vector2Int(0,3),
+                        new Vector2Int(1,3),
+                    };
                 choosingRule = true;
                 allowedColor = Logic.TokenColor.Blue;
+                break;
+            case TutorialStage.Undo:
+                currentStep = stageParent.GetComponent<TutorialStep>();
+                highlight = currentStep.highlights[0].gameObject;
+                highlight.SetActive(true);
                 break;
             case TutorialStage.FirstRed:
                 placingRule = true;
                 allowedPlaces = new List<Vector2Int>()
-                {
-                    new Vector2Int(4,2),
-                    new Vector2Int(4,1)
-                };
+                        {
+                            new Vector2Int(4,2),
+                            new Vector2Int(4,1)
+                        };
                 choosingRule = true;
                 allowedColor = Logic.TokenColor.Red;
+                currentStep = stageParent.GetComponent<TutorialStep>();
+                highlight = currentStep.highlights[0].gameObject;
+                highlight.SetActive(true);
                 break;
-            case TutorialStage.Red2:
-                placingRule = true;
-                allowedPlaces = new List<Vector2Int>()
-                {
-                    new Vector2Int(4,3)
-                };
-                choosingRule = true;
-                allowedColor = Logic.TokenColor.Red;
-                break;
-            case TutorialStage.EmptyHand:
+            case TutorialStage.Blue3:
                 placingRule = true;
                 currentStep = stageParent.GetComponent<TutorialStep>();
                 highlight = currentStep.highlights[0].gameObject;
                 highlight.SetActive(true);
                 allowedPlaces = new List<Vector2Int>()
-                {
-                    new Vector2Int(0,3),
-                    new Vector2Int(1,3),
-                };
+                    {
+                        new Vector2Int(0,3),
+                        new Vector2Int(1,3),
+                    };
                 choosingRule = true;
                 allowedColor = Logic.TokenColor.Blue;
                 break;
-            case TutorialStage.ThirdBlue2:
+            case TutorialStage.SecondRed:
+                placingRule = true;
+                allowedPlaces = new List<Vector2Int>()
+                        {
+                            new Vector2Int(2,4),
+                            new Vector2Int(2,3)
+                        };
+                choosingRule = true;
+                allowedColor = Logic.TokenColor.Red;
+                currentStep = stageParent.GetComponent<TutorialStep>();
+                highlight = currentStep.highlights[0].gameObject;
+                highlight.SetActive(true);
+                break;
+            case TutorialStage.LearnGreen:
+                placingRule = true;
+                allowedPlaces = new List<Vector2Int>()
+                        {
+                            new Vector2Int(3,3),
+                            new Vector2Int(4,3)
+                        };
+                choosingRule = true;
+                allowedColor = Logic.TokenColor.Green;
+                currentStep = stageParent.GetComponent<TutorialStep>();
+                highlight = currentStep.highlights[0].gameObject;
+                highlight.SetActive(true);
+                break;
+            case TutorialStage.Green2:
                 placingRule = true;
                 allowedPlaces = new List<Vector2Int>()
                 {
-                    new Vector2Int(2,3),
+                    new Vector2Int(4,4)
                 };
                 choosingRule = true;
-                allowedColor = Logic.TokenColor.Blue;
+                allowedColor = TokenColor.Green;
+
                 break;
-            case TutorialStage.GreenStart:
-            case TutorialStage.GreenBag:
-            case TutorialStage.GreenNextBag:
-            case TutorialStage.PurpleStart:
+            case TutorialStage.CleanUp:
                 placingRule = true;
+                allowedPlaces = new List<Vector2Int>()
+                {
+                    new Vector2Int(0,1)
+                };
                 choosingRule = true;
+                allowedColor = TokenColor.Blue;
+                currentStep = stageParent.GetComponent<TutorialStep>();
+                highlight = currentStep.highlights[0].gameObject;
+                highlight.SetActive(true);
                 break;
+            case TutorialStage.Purple:
+                placingRule = true;
+                allowedPlaces = new List<Vector2Int>()
+                {
+                    new Vector2Int(1,1)
+                };
+                choosingRule = true;
+                allowedColor = TokenColor.Red;
+                currentStep = stageParent.GetComponent<TutorialStep>();
+                highlight = currentStep.highlights[0].gameObject;
+                highlight.SetActive(true);
+                break;
+                /*
+                    case TutorialStage.HandRefill:
+                        choosingRule = true;
+                        break;
+
+
+                    case TutorialStage.FirstRed:
+                        placingRule = true;
+                        allowedPlaces = new List<Vector2Int>()
+                        {
+                            new Vector2Int(4,2),
+                            new Vector2Int(4,1)
+                        };
+                        choosingRule = true;
+                        allowedColor = Logic.TokenColor.Red;
+                        break;
+                    case TutorialStage.Red2:
+                        placingRule = true;
+                        allowedPlaces = new List<Vector2Int>()
+                        {
+                            new Vector2Int(4,3)
+                        };
+                        choosingRule = true;
+                        allowedColor = Logic.TokenColor.Red;
+                        break;
+                    case TutorialStage.EmptyHand:
+                        placingRule = true;
+                        currentStep = stageParent.GetComponent<TutorialStep>();
+                        highlight = currentStep.highlights[0].gameObject;
+                        highlight.SetActive(true);
+                        allowedPlaces = new List<Vector2Int>()
+                        {
+                            new Vector2Int(0,3),
+                            new Vector2Int(1,3),
+                        };
+                        choosingRule = true;
+                        allowedColor = Logic.TokenColor.Blue;
+                        break;
+                    case TutorialStage.ThirdBlue2:
+                        placingRule = true;
+                        allowedPlaces = new List<Vector2Int>()
+                        {
+                            new Vector2Int(2,3),
+                        };
+                        choosingRule = true;
+                        allowedColor = Logic.TokenColor.Blue;
+                        break;
+                    case TutorialStage.GreenStart:
+                    case TutorialStage.GreenBag:
+                    case TutorialStage.GreenNextBag:
+                    case TutorialStage.PurpleStart:
+                        placingRule = true;
+                        choosingRule = true;
+                        break;
+                    */
         }
     }
     void ExitStage()
@@ -199,10 +304,10 @@ public class Tutorial : MonoBehaviour
     public void IncrementStage()
     {
         TutorialStage newStage = (TutorialStage)((int)stage + 1);
-        if(newStage == TutorialStage.BagIntro)
+        /*if(newStage == TutorialStage.BagIntro)
         {
             newStage = (TutorialStage)((int)newStage + 1);
-        }
+        }*/
         EnterStage(newStage);
     }
     public void StageUpdate()
@@ -227,37 +332,131 @@ public class Tutorial : MonoBehaviour
                 if(stagePhase == 2)
                 {
                     allowedPlaces.Clear();
-                    allowedPlaces.Add(new Vector2Int(1, 2));
+                    allowedPlaces.Add(new Vector2Int(1, 1));
                     highlight.SetActive(false);
                     highlight = currentStep.highlights[1].gameObject;
                     highlight.SetActive(true);
-                }
-                break;
-            case TutorialStage.FirstRed:
-                if(stagePhase == 2)
-                {
-                    IncrementStage();
-                }
-                break;
-            case TutorialStage.EmptyHand:
-                if (stagePhase == 2)
-                {
-                    allowedColor = Logic.TokenColor.Red;
-                    allowedPlaces.Clear();
-                    highlight.SetActive(false);
-                    currentStep.highlights[2].gameObject.SetActive(true);
                 }
                 if(stagePhase == 3)
                 {
                     IncrementStage();
                 }
                 break;
+            case TutorialStage.Undo:
+                if(stagePhase == 1)
+                {
+                    placingRule = true;
+                    allowedColor = Logic.TokenColor.Blue;
+                    allowedPlaces.Clear();
+                    allowedPlaces.Add(new Vector2Int(1, 2));
+                    highlight.SetActive(false);
+                    highlight = currentStep.highlights[2].gameObject;
+                    highlight.SetActive(true);
+                }
+                break;
+            case TutorialStage.FirstRed:
+                if (stagePhase == 2)
+                {
+                    allowedPlaces.Clear();
+                    allowedPlaces.Add(new Vector2Int(3, 2));
+                    highlight.SetActive(false);
+                    highlight = currentStep.highlights[1].gameObject;
+                    highlight.SetActive(true);
+                }
+                if(stagePhase == 3)
+                {
+                    IncrementStage();
+                }
+                break;
+            case TutorialStage.Blue3:
+                if (stagePhase == 2)
+                {
+                    allowedPlaces.Clear();
+                    allowedPlaces.Add(new Vector2Int(0, 2));
+                    highlight.SetActive(false);
+                    highlight = currentStep.highlights[1].gameObject;
+                    allowedColor = Logic.TokenColor.Red;
+                    placingRule = false;
+                }
+                if (stagePhase == 3)
+                {
+                    placingRule = true;
+                    allowedPlaces.Clear();
+                    allowedPlaces.Add(new Vector2Int(0, 2));
+                    highlight.SetActive(true);
+                    allowedColor = Logic.TokenColor.Blue;
+                }
+                if(stagePhase == 4)
+                {
+                    IncrementStage();
+                }
+                break;
+            case TutorialStage.SecondRed:
+                if (stagePhase == 2)
+                {
+                    IncrementStage();
+                }
+                break;
+            case TutorialStage.LearnGreen:
+                if (stagePhase == 2)
+                {
+                    IncrementStage();
+                }
+                break;
+            case TutorialStage.CleanUp:
+                if(stagePhase == 1)
+                {
+                    allowedPlaces[0] = new Vector2Int(2, 2);
+                    allowedColor = TokenColor.Red;
+                    highlight.SetActive(false);
+                    highlight = currentStep.highlights[1].gameObject;
+                    highlight.SetActive(true);
+                }
+                if(stagePhase == 2)
+                {
+                    allowedPlaces.Clear();
+                    highlight.SetActive(false);
+                }
+                if(stagePhase == 3)
+                {
+                    IncrementStage();
+                }
+                break;
+            case TutorialStage.Purple:
+                if (stagePhase == 1)
+                {
+                    allowedPlaces[0] = new Vector2Int(1, 2);
+                    allowedColor = TokenColor.Purple;
+                    highlight.SetActive(false);
+                    highlight = currentStep.highlights[1].gameObject;
+                    highlight.SetActive(true);
+                }
+                if (stagePhase == 2)
+                {
+                    IncrementStage();
+                }
+                break;
+                /*
+                case TutorialStage.EmptyHand:
+                    if (stagePhase == 2)
+                    {
+                        allowedColor = Logic.TokenColor.Red;
+                        allowedPlaces.Clear();
+                        highlight.SetActive(false);
+                        currentStep.highlights[2].gameObject.SetActive(true);
+                    }
+                    if(stagePhase == 3)
+                    {
+                        IncrementStage();
+                    }
+                    break;
+                */
         }
     }
     // Update is called once per frame
     void Update()
     {
-        if(active == false)
+        if(false && active == false)
         {
             if(greenLearnt == false)
             {
@@ -276,7 +475,7 @@ public class Tutorial : MonoBehaviour
             }
             if (purpleLearnt == false)
             {
-                for (int i = 0; i < Services.GameController.hand.Count; i++)
+                /*for (int i = 0; i < Services.GameController.hand.Count; i++)
                 {
                     Token t = Services.GameController.hand[i];
                     if (t != null)
@@ -288,7 +487,7 @@ public class Tutorial : MonoBehaviour
                             return;
                         }
                     }
-                }
+                }*/
             }
         }
         
@@ -304,15 +503,14 @@ public class Tutorial : MonoBehaviour
                 case TutorialStage.Placing:
                 case TutorialStage.FreeSlot:
                 case TutorialStage.WeirdSet:
+                case TutorialStage.Undo:
                 case TutorialStage.FirstRed:
-                case TutorialStage.BagIntro:
-                case TutorialStage.Red2:
-                case TutorialStage.EmptyHand:
-                case TutorialStage.TeachMulligan:
-                case TutorialStage.ThirdBlue2:
-                case TutorialStage.GreenStart:
-                case TutorialStage.GreenBag:
-                case TutorialStage.GreenNextBag:
+                case TutorialStage.Blue3:
+                case TutorialStage.SecondRed:
+                case TutorialStage.LearnGreen:
+                case TutorialStage.Green2:
+                case TutorialStage.CleanUp:
+                case TutorialStage.Purple:
                     break;
                 default:
                     if (Input.anyKeyDown)

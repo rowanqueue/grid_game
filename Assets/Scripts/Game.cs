@@ -92,13 +92,14 @@ namespace Logic
                 Tile tile = tokenChanged.tile;
                 tokenChanged.Destroy();
                 grid.PlaceToken(tile.pos,newToken);
+                status.events.Add(new StatusReport.Event(StatusReport.EventType.TokenChanged, new List<Token>() { tokenChanged, newToken }));
                 List<Dictionary<TokenData, int>> updatedContents = progress.CheckProgress(newToken);
                 for (int i = 0; i < updatedContents.Count; i++)
                 {
                     status.events.Add(new StatusReport.Event(StatusReport.EventType.BagUpdated, updatedContents[i]));
                     bag.AddContents(updatedContents[i]);
                 }
-                status.events.Add(new StatusReport.Event(StatusReport.EventType.TokenChanged, new List<Token>() { tokenChanged,newToken }));
+                
                 GridChanged(newToken);
             }
             else
@@ -448,17 +449,17 @@ namespace Logic
         public void ThirdTutorialHand()
         {
             hand.ReturnHand(bag);
-            hand.TutorialHand(1, bag);
+            hand.TutorialHand(2, bag);
         }
         public void FourthTutorialHand()
         {
             hand.ReturnHand(bag);
-            hand.TutorialHand(4, bag);
+            hand.TutorialHand(3, bag);
         }
         public void FifthTutorialHand()
         {
             hand.ReturnHand(bag);
-            hand.TutorialHand(1, bag);
+            hand.TutorialHand(4, bag);
         }
         public TokenData ConvertJsonToken(Json.Token token)
         {
@@ -1414,12 +1415,64 @@ namespace Logic
                     bag.bag.Remove(new TokenData(TokenColor.Blue, 1));
                 }
             }
-            if(num == 4)
+            if(num == 2)
             {
-                for (int i = 0; i < handSize; i++)
+                for (int i = 0; i < 1; i++)
                 {
-                    tokens[i] = new Token(new TokenData(TokenColor.Red, 1), true);
-                    bag.bag.Remove(new TokenData(TokenColor.Red, 1));
+                    tokens[i] = new Token(new TokenData(TokenColor.Blue, 1), true);
+                    bag.bag.Remove(new TokenData(TokenColor.Blue, 1));
+                }
+                for (int i = 0; i < 1; i++)
+                {
+                    tokens[i + 1] = new Token(new TokenData(TokenColor.Red, 1), true);
+                    bag.bag.Remove(new TokenData(TokenColor.Blue, 1));
+                }
+                for (int i = 0; i < 2; i++)
+                {
+                    tokens[i+2] = new Token(new TokenData(TokenColor.Green, 1), true);
+                    bag.bag.Remove(new TokenData(TokenColor.Green, 1));
+                }
+            }
+            if(num == 3)
+            {
+                //blue,red,green,red
+                for (int i = 0; i < 1; i++)
+                {
+                    tokens[i] = new Token(new TokenData(TokenColor.Blue, 1), true);
+                    bag.bag.Remove(new TokenData(TokenColor.Blue, 1));
+                }
+                for (int i = 0; i < 2; i++)
+                {
+                    tokens[i + 1] = new Token(new TokenData(TokenColor.Red, 1), true);
+                    bag.bag.Remove(new TokenData(TokenColor.Blue, 1));
+                }
+                for (int i = 0; i < 1; i++)
+                {
+                    tokens[i + 3] = new Token(new TokenData(TokenColor.Green, 1), true);
+                    bag.bag.Remove(new TokenData(TokenColor.Green, 1));
+                }
+            }
+            if (num == 4)
+            {
+                for (int i = 0; i < 1; i++)
+                {
+                    tokens[i] = new Token(new TokenData(TokenColor.Blue, 1), true);
+                    bag.bag.Remove(new TokenData(TokenColor.Blue, 1));
+                }
+                for (int i = 0; i < 1; i++)
+                {
+                    tokens[i + 1] = new Token(new TokenData(TokenColor.Red, 1), true);
+                    bag.bag.Remove(new TokenData(TokenColor.Blue, 1));
+                }
+                for (int i = 0; i < 1; i++)
+                {
+                    tokens[i +2] = new Token(new TokenData(TokenColor.Green, 1), true);
+                    bag.bag.Remove(new TokenData(TokenColor.Green, 1));
+                }
+                for (int i = 0; i < 1; i++)
+                {
+                    tokens[i + 3] = new Token(new TokenData(TokenColor.Purple, 1), true);
+                    bag.bag.Remove(new TokenData(TokenColor.Green, 1));
                 }
             }
             
