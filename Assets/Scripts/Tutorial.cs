@@ -25,7 +25,7 @@ public enum TutorialStage
     Mulligan,
     HighestScore,
     ActuallyFinishDefault
-    
+
 }
 public enum TutStage
 {
@@ -69,6 +69,7 @@ public class Tutorial : MonoBehaviour
     public bool choosingRule = false;
     public Logic.TokenColor allowedColor;
     GameObject highlight;
+    GameObject arrow;
     TutorialStep currentStep;
     bool greenLearnt;
     bool purpleLearnt;
@@ -125,6 +126,7 @@ public class Tutorial : MonoBehaviour
                 choosingRule = false;
                 currentStep = stageParent.GetComponent<TutorialStep>();
                 highlight = currentStep.highlights[0].gameObject;
+                arrow = currentStep.arrows[0];
                 highlight.SetActive(true);
                 allowedPlaces = new List<Vector2Int>()
                 {
@@ -316,34 +318,41 @@ public class Tutorial : MonoBehaviour
         switch (stage)
         {
             case TutorialStage.Placing:
-                
+
                 if (stagePhase < 3)
                 {
                     allowedPlaces[0] = new Vector2Int(stagePhase, 2);
-                    highlight.transform.position += Vector3.right*Services.GameController.gridSeparation.x;
+                    highlight.transform.position += Vector3.right * Services.GameController.gridSeparation.x;
+                    arrow.transform.position += Vector3.right * Services.GameController.gridSeparation.x;
                 }
                 else
                 {
                     allowedPlaces.Clear();
                     highlight.SetActive(false);
+                    arrow.SetActive(false);
                 }
                 break;
             case TutorialStage.WeirdSet:
-                if(stagePhase == 2)
+                if (stagePhase == 2)
                 {
                     allowedPlaces.Clear();
                     allowedPlaces.Add(new Vector2Int(1, 1));
                     highlight.SetActive(false);
                     highlight = currentStep.highlights[1].gameObject;
                     highlight.SetActive(true);
+                    arrow.SetActive(false);
+                    currentStep.arrows[0].gameObject.SetActive(false);
+                    arrow = currentStep.arrows[1].gameObject;
+                    arrow.SetActive(true);
+                    print("Poop");
                 }
-                if(stagePhase == 3)
+                if (stagePhase == 3)
                 {
                     IncrementStage();
                 }
                 break;
             case TutorialStage.Undo:
-                if(stagePhase == 1)
+                if (stagePhase == 1)
                 {
                     placingRule = true;
                     allowedColor = Logic.TokenColor.Blue;
@@ -352,6 +361,9 @@ public class Tutorial : MonoBehaviour
                     highlight.SetActive(false);
                     highlight = currentStep.highlights[2].gameObject;
                     highlight.SetActive(true);
+                    arrow = currentStep.arrows[0].gameObject;
+                    arrow.SetActive(true);
+
                 }
                 break;
             case TutorialStage.FirstRed:
@@ -362,8 +374,11 @@ public class Tutorial : MonoBehaviour
                     highlight.SetActive(false);
                     highlight = currentStep.highlights[1].gameObject;
                     highlight.SetActive(true);
+                    currentStep.arrows[0].gameObject.SetActive(false);
+                    arrow = currentStep.arrows[1].gameObject;
+                    arrow.SetActive(true);
                 }
-                if(stagePhase == 3)
+                if (stagePhase == 3)
                 {
                     IncrementStage();
                 }
@@ -377,6 +392,9 @@ public class Tutorial : MonoBehaviour
                     highlight = currentStep.highlights[1].gameObject;
                     allowedColor = Logic.TokenColor.Red;
                     placingRule = false;
+                    currentStep.arrows[0].gameObject.SetActive(false);
+                    arrow = currentStep.arrows[1].gameObject;
+                    arrow.SetActive(true);
                 }
                 if (stagePhase == 3)
                 {
@@ -385,8 +403,11 @@ public class Tutorial : MonoBehaviour
                     allowedPlaces.Add(new Vector2Int(0, 2));
                     highlight.SetActive(true);
                     allowedColor = Logic.TokenColor.Blue;
+                    arrow.SetActive(false);
+                    arrow = currentStep.arrows[2].gameObject;
+                    arrow.SetActive(true);
                 }
-                if(stagePhase == 4)
+                if (stagePhase == 4)
                 {
                     IncrementStage();
                 }
@@ -404,7 +425,7 @@ public class Tutorial : MonoBehaviour
                 }
                 break;
             case TutorialStage.CleanUp:
-                if(stagePhase == 1)
+                if (stagePhase == 1)
                 {
                     allowedPlaces[0] = new Vector2Int(2, 2);
                     allowedColor = TokenColor.Red;
@@ -412,12 +433,12 @@ public class Tutorial : MonoBehaviour
                     highlight = currentStep.highlights[1].gameObject;
                     highlight.SetActive(true);
                 }
-                if(stagePhase == 2)
+                if (stagePhase == 2)
                 {
                     allowedPlaces.Clear();
                     highlight.SetActive(false);
                 }
-                if(stagePhase == 3)
+                if (stagePhase == 3)
                 {
                     IncrementStage();
                 }
@@ -456,11 +477,11 @@ public class Tutorial : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(false && active == false)
+        if (false && active == false)
         {
-            if(greenLearnt == false)
+            if (greenLearnt == false)
             {
-                if(Services.GameController.inputState == InputState.Choose)
+                if (Services.GameController.inputState == InputState.Choose)
                 {
                     foreach (TokenData token in Services.GameController.game.bag.bagContents.Keys)
                     {
@@ -471,7 +492,7 @@ public class Tutorial : MonoBehaviour
                         }
                     }
                 }
-                
+
             }
             if (purpleLearnt == false)
             {
@@ -490,7 +511,7 @@ public class Tutorial : MonoBehaviour
                 }*/
             }
         }
-        
+
         if (changed)
         {
             changed = false;
@@ -521,7 +542,7 @@ public class Tutorial : MonoBehaviour
                     }
                     break;
             }
-            
+
         }
     }
 }
