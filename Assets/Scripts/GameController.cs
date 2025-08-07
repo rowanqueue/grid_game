@@ -928,11 +928,11 @@ public class GameController : MonoBehaviour
     }
     public void StartScoreRolling()
     {
-
+        Services.AudioManager.PlayScoreLoop();
     }
     public void FinishScoreRolling()
     {
-
+        Services.AudioManager.StopScoreLoop();
     }
 
     // Update is called once per frame
@@ -2207,6 +2207,7 @@ public class GameController : MonoBehaviour
     {
         SaveLoad.DeleteSave(0);
         Services.AudioManager.StopMusic();
+        Services.AudioManager.StopScoreLoop();
         SceneManager.LoadScene(0);
     }
     public void RestartWithTutorial()
