@@ -2,6 +2,9 @@ using Logic;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
+using UnityEngine.UI;
+
 public enum TutorialStage
 {
     Intro,//1hand: 4 blues
@@ -70,7 +73,7 @@ public class Tutorial : MonoBehaviour
     public Logic.TokenColor allowedColor;
     GameObject highlight;
     GameObject arrow;
-    TutorialStep currentStep;
+    TutorialStageData currentStageData;
     bool greenLearnt;
     bool purpleLearnt;
     public List<Transform> tokenTransforms;
@@ -104,7 +107,7 @@ public class Tutorial : MonoBehaviour
     }
     void EnterStage(TutorialStage newStage)
     {
-        currentStep = null;
+        currentStageData = null;
         ExitStage();
         stage = newStage;
         if (stage == TutorialStage.ActuallyFinishDefault)
@@ -118,16 +121,22 @@ public class Tutorial : MonoBehaviour
         choosingRule = true;
         allowedColor = Logic.TokenColor.Gold;
         changed = true;
+        if (!stageParent.TryGetComponent<TutorialStageData>(out currentStageData))
+        {
+            currentStageData = null;
+            print("nope");
+        }
+        
         //create a bunch
         switch (stage)
         {
             case TutorialStage.Placing:
                 placingRule = true;
                 choosingRule = false;
-                currentStep = stageParent.GetComponent<TutorialStep>();
-                highlight = currentStep.highlights[0].gameObject;
-                arrow = currentStep.arrows[0];
-                highlight.SetActive(true);
+                currentStageData.PrepStage(0);
+                StartCoroutine(currentStageData.StepStartAnimation());
+                highlight = currentStageData.stagePhase[0].highlights[0].gameObject;
+                arrow = currentStageData.stagePhase[0].arrows[0].gameObject;
                 allowedPlaces = new List<Vector2Int>()
                 {
                     new Vector2Int(0,2),
@@ -137,11 +146,12 @@ public class Tutorial : MonoBehaviour
             case TutorialStage.FreeSlot:
                 placingRule = true;
                 choosingRule = false;
+
                 break;
             case TutorialStage.WeirdSet:
                 placingRule = true;
-                currentStep = stageParent.GetComponent<TutorialStep>();
-                highlight = currentStep.highlights[0].gameObject;
+                currentStageData = stageParent.GetComponent<TutorialStageData>();
+                //highlight = currentStep.highlights[0].gameObject;
                 highlight.SetActive(true);
                 allowedPlaces = new List<Vector2Int>()
                     {
@@ -152,8 +162,8 @@ public class Tutorial : MonoBehaviour
                 allowedColor = Logic.TokenColor.Blue;
                 break;
             case TutorialStage.Undo:
-                currentStep = stageParent.GetComponent<TutorialStep>();
-                highlight = currentStep.highlights[0].gameObject;
+                currentStageData = stageParent.GetComponent<TutorialStageData>();
+                //highlight = currentStep.highlights[0].gameObject;
                 highlight.SetActive(true);
                 break;
             case TutorialStage.FirstRed:
@@ -165,14 +175,14 @@ public class Tutorial : MonoBehaviour
                         };
                 choosingRule = true;
                 allowedColor = Logic.TokenColor.Red;
-                currentStep = stageParent.GetComponent<TutorialStep>();
-                highlight = currentStep.highlights[0].gameObject;
+                currentStageData = stageParent.GetComponent<TutorialStageData>();
+                //highlight = currentStep.highlights[0].gameObject;
                 highlight.SetActive(true);
                 break;
             case TutorialStage.Blue3:
                 placingRule = true;
-                currentStep = stageParent.GetComponent<TutorialStep>();
-                highlight = currentStep.highlights[0].gameObject;
+                currentStageData = stageParent.GetComponent<TutorialStageData>();
+                //highlight = currentStep.highlights[0].gameObject;
                 highlight.SetActive(true);
                 allowedPlaces = new List<Vector2Int>()
                     {
@@ -191,8 +201,8 @@ public class Tutorial : MonoBehaviour
                         };
                 choosingRule = true;
                 allowedColor = Logic.TokenColor.Red;
-                currentStep = stageParent.GetComponent<TutorialStep>();
-                highlight = currentStep.highlights[0].gameObject;
+                currentStageData = stageParent.GetComponent<TutorialStageData>();
+                //highlight = currentStep.highlights[0].gameObject;
                 highlight.SetActive(true);
                 break;
             case TutorialStage.LearnGreen:
@@ -204,8 +214,8 @@ public class Tutorial : MonoBehaviour
                         };
                 choosingRule = true;
                 allowedColor = Logic.TokenColor.Green;
-                currentStep = stageParent.GetComponent<TutorialStep>();
-                highlight = currentStep.highlights[0].gameObject;
+                currentStageData = stageParent.GetComponent<TutorialStageData>();
+                //highlight = currentStep.highlights[0].gameObject;
                 highlight.SetActive(true);
                 break;
             case TutorialStage.Green2:
@@ -226,8 +236,8 @@ public class Tutorial : MonoBehaviour
                 };
                 choosingRule = true;
                 allowedColor = TokenColor.Blue;
-                currentStep = stageParent.GetComponent<TutorialStep>();
-                highlight = currentStep.highlights[0].gameObject;
+                currentStageData = stageParent.GetComponent<TutorialStageData>();
+                //highlight = currentStep.highlights[0].gameObject;
                 highlight.SetActive(true);
                 break;
             case TutorialStage.Purple:
@@ -238,8 +248,8 @@ public class Tutorial : MonoBehaviour
                 };
                 choosingRule = true;
                 allowedColor = TokenColor.Red;
-                currentStep = stageParent.GetComponent<TutorialStep>();
-                highlight = currentStep.highlights[0].gameObject;
+                currentStageData = stageParent.GetComponent<TutorialStageData>();
+                //highlight = currentStep.highlights[0].gameObject;
                 highlight.SetActive(true);
                 break;
                 /*
@@ -337,14 +347,8 @@ public class Tutorial : MonoBehaviour
                 {
                     allowedPlaces.Clear();
                     allowedPlaces.Add(new Vector2Int(1, 1));
-                    highlight.SetActive(false);
-                    highlight = currentStep.highlights[1].gameObject;
-                    highlight.SetActive(true);
-                    arrow.SetActive(false);
-                    currentStep.arrows[0].gameObject.SetActive(false);
-                    arrow = currentStep.arrows[1].gameObject;
-                    arrow.SetActive(true);
-                    print("Poop");
+                    currentStageData.ActivateStage(0,false);
+                    currentStageData.ActivateStage(1,true);
                 }
                 if (stagePhase == 3)
                 {
@@ -358,12 +362,8 @@ public class Tutorial : MonoBehaviour
                     allowedColor = Logic.TokenColor.Blue;
                     allowedPlaces.Clear();
                     allowedPlaces.Add(new Vector2Int(1, 2));
-                    highlight.SetActive(false);
-                    highlight = currentStep.highlights[2].gameObject;
-                    highlight.SetActive(true);
-                    arrow = currentStep.arrows[0].gameObject;
-                    arrow.SetActive(true);
-
+                    currentStageData.ActivateStage(0,false);
+                    currentStageData.ActivateStage(1,true);
                 }
                 break;
             case TutorialStage.FirstRed:
@@ -371,12 +371,8 @@ public class Tutorial : MonoBehaviour
                 {
                     allowedPlaces.Clear();
                     allowedPlaces.Add(new Vector2Int(3, 2));
-                    highlight.SetActive(false);
-                    highlight = currentStep.highlights[1].gameObject;
-                    highlight.SetActive(true);
-                    currentStep.arrows[0].gameObject.SetActive(false);
-                    arrow = currentStep.arrows[1].gameObject;
-                    arrow.SetActive(true);
+                    currentStageData.ActivateStage(0,false);
+                    currentStageData.ActivateStage(1,true);
                 }
                 if (stagePhase == 3)
                 {
@@ -388,24 +384,19 @@ public class Tutorial : MonoBehaviour
                 {
                     allowedPlaces.Clear();
                     allowedPlaces.Add(new Vector2Int(0, 2));
-                    highlight.SetActive(false);
-                    highlight = currentStep.highlights[1].gameObject;
                     allowedColor = Logic.TokenColor.Red;
                     placingRule = false;
-                    currentStep.arrows[0].gameObject.SetActive(false);
-                    arrow = currentStep.arrows[1].gameObject;
-                    arrow.SetActive(true);
+                    currentStageData.ActivateStage(0,false);
+                    currentStageData.ActivateStage(1,true);
                 }
                 if (stagePhase == 3)
                 {
                     placingRule = true;
                     allowedPlaces.Clear();
                     allowedPlaces.Add(new Vector2Int(0, 2));
-                    highlight.SetActive(true);
                     allowedColor = Logic.TokenColor.Blue;
-                    arrow.SetActive(false);
-                    arrow = currentStep.arrows[2].gameObject;
-                    arrow.SetActive(true);
+                    currentStageData.ActivateStage(1,false);
+                    currentStageData.ActivateStage(2,true);
                 }
                 if (stagePhase == 4)
                 {
@@ -429,14 +420,14 @@ public class Tutorial : MonoBehaviour
                 {
                     allowedPlaces[0] = new Vector2Int(2, 2);
                     allowedColor = TokenColor.Red;
-                    highlight.SetActive(false);
-                    highlight = currentStep.highlights[1].gameObject;
-                    highlight.SetActive(true);
+                    currentStageData.ActivateStage(0,false);
+                    currentStageData.ActivateStage(1,true);
                 }
                 if (stagePhase == 2)
                 {
                     allowedPlaces.Clear();
-                    highlight.SetActive(false);
+                    currentStageData.ActivateStage(1,false);
+                    currentStageData.ActivateStage(2,true);
                 }
                 if (stagePhase == 3)
                 {
@@ -448,9 +439,8 @@ public class Tutorial : MonoBehaviour
                 {
                     allowedPlaces[0] = new Vector2Int(1, 2);
                     allowedColor = TokenColor.Purple;
-                    highlight.SetActive(false);
-                    highlight = currentStep.highlights[1].gameObject;
-                    highlight.SetActive(true);
+                    currentStageData.ActivateStage(0,false);
+                    currentStageData.ActivateStage(1,true);
                 }
                 if (stagePhase == 2)
                 {
