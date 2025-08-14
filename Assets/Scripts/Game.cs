@@ -1433,7 +1433,7 @@ namespace Logic
                     bag.bag.Remove(new TokenData(TokenColor.Green, 1));
                 }
             }
-            if(num == 3)
+            if (num == 3)
             {
                 //blue,red,green,red
                 for (int i = 0; i < 1; i++)
@@ -1441,10 +1441,15 @@ namespace Logic
                     tokens[i] = new Token(new TokenData(TokenColor.Blue, 1), true);
                     bag.bag.Remove(new TokenData(TokenColor.Blue, 1));
                 }
-                for (int i = 0; i < 2; i++)
+                for (int i = 0; i < 1; i++)
                 {
                     tokens[i + 1] = new Token(new TokenData(TokenColor.Red, 1), true);
                     bag.bag.Remove(new TokenData(TokenColor.Blue, 1));
+                }
+                for (int i = 0; i < 1; i++)
+                {
+                    tokens[i + 2] = new Token(new TokenData(TokenColor.Purple, 1), true);
+                    bag.bag.Remove(new TokenData(TokenColor.Green, 1));
                 }
                 for (int i = 0; i < 1; i++)
                 {

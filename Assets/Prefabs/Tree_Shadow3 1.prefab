@@ -200,10 +200,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   child: {fileID: 8531690150876045509}
-  valA: 0.05
-  valB: 0.1
-  valChildA: 0.05
-  valChildB: 0.1
+  valA: 0.01
+  valB: 0.05
+  valChildA: 0.01
+  valChildB: 0.05
   noise: 0
   input: 0
   output: 0
