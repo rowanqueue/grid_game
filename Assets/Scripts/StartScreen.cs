@@ -17,6 +17,10 @@ public class StartScreen : MonoBehaviour
         new List<int>(){6,7,8,9,10,11,12,13,14},
 
     };
+    List<int> frameDurations = new List<int>
+    {
+        6,1,3,1,4,1,1,6,1,5,1,1,1,1
+    };
     // Start is called before the first frame update
     /*
      * 
@@ -29,6 +33,20 @@ place tile 6,7,8,9,10,11,12,13,14,1
 
 Frame 1 or 5 can jump straight to 11 to switch tile instead of looking/placing
 1 and 5 are essentially the same frame, 14 can go to either 1 or 5
+    Frame 1 - 6x
+Frame 2 - 1x
+Frame 3 - 3x
+Frame 4 - 1x
+Frame 5 - 4x
+Frame 6 - 1x
+Frame 7 - 1x
+Frame 8 - 6x
+Frame 9 - 1x
+Frame 10 - 5x
+Frame 11 - 1x
+Frame 12 - 1x
+Frame 13 - 1x
+Frame 14 - 1x
      */
     void Start()
     {
@@ -39,11 +57,12 @@ Frame 1 or 5 can jump straight to 11 to switch tile instead of looking/placing
     void Update()
     {
         int index = 1;
-        currentIndex += animSpeed * (Time.deltaTime * (1f / 60f));
+        
        
         if (currentAnim == -1)
         {
-            if(currentIndex > 1f && currentIndex > (Random.value * 4f))
+            currentIndex += (animSpeed * (Time.deltaTime * (1f / 60f)));
+            if (currentIndex > 1f && currentIndex > (Random.value * 4f))
             {
                 currentAnim = Random.Range(0, anims.Count);
                 currentIndex = 0;
@@ -51,6 +70,8 @@ Frame 1 or 5 can jump straight to 11 to switch tile instead of looking/placing
         }
         else
         {
+            float animTotal = frameDurations[anims[currentAnim][Mathf.FloorToInt(currentIndex)]-1];
+            currentIndex += (animSpeed * (Time.deltaTime * (1f / 60f))) / animTotal;
             if (Mathf.FloorToInt(currentIndex) > anims[currentAnim].Count-1)
             {
                 currentAnim = -1;

@@ -130,6 +130,8 @@ public class Tutorial : MonoBehaviour
                 {
                     new Vector2Int(0,2),
                 };
+                //arrow.SetHandPos(0)
+                //arrow.SetTargetPoint( new Vector2Int(0,2))
                 Services.GameController.CreateHand();
                 break;
             case TutorialStage.FreeSlot:
@@ -240,61 +242,6 @@ public class Tutorial : MonoBehaviour
                 highlight = currentStep.highlights[0].gameObject;
                 highlight.SetActive(true);
                 break;
-                /*
-                    case TutorialStage.HandRefill:
-                        choosingRule = true;
-                        break;
-
-
-                    case TutorialStage.FirstRed:
-                        placingRule = true;
-                        allowedPlaces = new List<Vector2Int>()
-                        {
-                            new Vector2Int(4,2),
-                            new Vector2Int(4,1)
-                        };
-                        choosingRule = true;
-                        allowedColor = Logic.TokenColor.Red;
-                        break;
-                    case TutorialStage.Red2:
-                        placingRule = true;
-                        allowedPlaces = new List<Vector2Int>()
-                        {
-                            new Vector2Int(4,3)
-                        };
-                        choosingRule = true;
-                        allowedColor = Logic.TokenColor.Red;
-                        break;
-                    case TutorialStage.EmptyHand:
-                        placingRule = true;
-                        currentStep = stageParent.GetComponent<TutorialStep>();
-                        highlight = currentStep.highlights[0].gameObject;
-                        highlight.SetActive(true);
-                        allowedPlaces = new List<Vector2Int>()
-                        {
-                            new Vector2Int(0,3),
-                            new Vector2Int(1,3),
-                        };
-                        choosingRule = true;
-                        allowedColor = Logic.TokenColor.Blue;
-                        break;
-                    case TutorialStage.ThirdBlue2:
-                        placingRule = true;
-                        allowedPlaces = new List<Vector2Int>()
-                        {
-                            new Vector2Int(2,3),
-                        };
-                        choosingRule = true;
-                        allowedColor = Logic.TokenColor.Blue;
-                        break;
-                    case TutorialStage.GreenStart:
-                    case TutorialStage.GreenBag:
-                    case TutorialStage.GreenNextBag:
-                    case TutorialStage.PurpleStart:
-                        placingRule = true;
-                        choosingRule = true;
-                        break;
-                    */
         }
     }
     void ExitStage()
