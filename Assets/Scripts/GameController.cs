@@ -1191,6 +1191,7 @@ public class GameController : MonoBehaviour
                         {
                             Haptics.PlayTransient(.5f, .5f);
                         }
+                        Services.AudioManager.PlayUndoSound();
                         Undo();
                     }
                 }
