@@ -83,8 +83,5 @@ public class UpgradeTab : MonoBehaviour
             Deactivate();
             popup.TabClosed(this);
         }
-
-
-
     }
 }

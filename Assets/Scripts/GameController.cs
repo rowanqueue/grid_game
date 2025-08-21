@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
-using UnityEngine.XR;
 using UnityEngine.SceneManagement;
 using Newtonsoft.Json;
 using Logic;
@@ -10,7 +9,6 @@ using Save;
 using EZ.Haptics;
 using System;
 using flora;
-using UnityEditor;
 
 public enum GameType
 {
@@ -524,16 +522,14 @@ public class GameController : MonoBehaviour
             }
         }
     }
+
     public void ToggleHaptics()
     {
         useHaptics = !useHaptics;
         PlayerPrefs.SetInt("useHaptics", useHaptics ? 1 : 0);
         PlayerPrefs.Save();
     }
-    void ClearTokensFromGridThatNoLongerExist()
-    {
 
-    }
     void ClearTokensFromGrid(bool undo = false)
     {
         foreach (Tile tile in tiles.Values)
@@ -687,19 +683,23 @@ public class GameController : MonoBehaviour
     {
         for (int i = 0; i < game.hand.tokens.Length; i++)
         {
+            // If there isnt any token data for this index
             if (game.hand.tokens[i] == null)
             {
+                // If there isn't a token view for this index, add a null entry to the hand list
                 if (hand.Count < game.hand.tokens.Length)
                 {
                     hand.Add(null);
                 }
                 else
                 {
+                    // Destroy the token views that are currently in the hand
                     if (hand[i] != null)
                     {
                         if (undo)
                         {
                             hand[i].UndoDestroy();
+                            hand[i] = null;
                         }
                         else
                         {
@@ -710,7 +710,10 @@ public class GameController : MonoBehaviour
                 }
                 continue;
             }
+
             bool tokenAlreadyExisted = false;
+
+            // If there is a token view missing for this index, create a new one 
             if (hand.Count < game.hand.tokens.Length || hand[i] == null)
             {
                 Token token = GameObject.Instantiate(tokenPrefab, handTransforms[i]).GetComponent<Token>();
