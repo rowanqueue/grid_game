@@ -1482,6 +1482,10 @@ namespace Logic
             }
             
         }
+        public void AddTokenToHand(int slot,TokenData tokenData)
+        {
+            tokens[slot] = new Token(tokenData, true);
+        }
         public void ReturnHand(Bag bag)
         {
             for(int i = 0; i < tokens.Length; i++)

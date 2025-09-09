@@ -143,6 +143,7 @@ public class GameController : MonoBehaviour
         InitializeServices();
 #if UNITY_ANDROID
         Handheld.Vibrate();
+        UnityEngine.Screen.sleepTimeout = SleepTimeout.NeverSleep;
 #endif
         if (PlayerPrefs.HasKey("difficulty"))
         {
@@ -455,6 +456,7 @@ public class GameController : MonoBehaviour
         if (inTutorial) { return; }
         lastState = gameState;
         gameState = GameState.Settings;
+
         stateScreens[(int)gameState].gameObject.SetActive(true);
         stateScreens[(int)gameState].SetAnchor();
         movingToScreen = true;
@@ -969,9 +971,6 @@ public class GameController : MonoBehaviour
                 case GameState.Start:
                     cameraPos.y = 12.33f;
                     break;
-                case GameState.ToolShop:
-                    cameraPos.x = -8;
-                    break;
                 case GameState.Bag:
                     cameraPos.y = -8;
                     break;
@@ -987,7 +986,7 @@ public class GameController : MonoBehaviour
             {
                 movingToScreen = false;
                 Camera.main.transform.position = cameraPos;
-                if (gameState != GameState.Bag && gameState != GameState.SelectDifficulty)
+                if (gameState != GameState.Bag && gameState != GameState.SelectDifficulty && gameState != GameState.ToolShop)
                 {
                     for (int i = 0; i < stateScreens.Count; i++)
                     {
@@ -2078,6 +2077,11 @@ public class GameController : MonoBehaviour
     }
     public void Snapshot()
     {
+        if(Services.Gems.CanAfford("takeSnapshot") == false)
+        {
+            return;
+        }
+        Services.Gems.SpendGems("takeSnapshot");
         Services.AudioManager.PlaySnapshotSound();
         SaveLoad.Save(1, currentSave);
         snapshotSave = currentSave;

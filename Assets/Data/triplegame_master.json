@@ -43,6 +43,22 @@
             "gold": 10,
         }
     },
+    "startingHand":[
+      {
+      },
+      {
+          "color": "gnome",
+          "number": 1,
+          "temporary": true,
+      },
+      {
+          "color": "gnome",
+          "number": 1,
+          "temporary": true,
+      },
+      {
+      },
+    ],
     "startingBag": [
         {
             "token": {
@@ -79,6 +95,13 @@
                 "temporary": true,
             },
             "count": 2
+        },
+        {
+          "token": {
+              "color": "spade",
+              "number": 0
+          },
+          "count": 1
         },
     ],
     "progress": {

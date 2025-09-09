@@ -20,7 +20,8 @@ public class Gems : MonoBehaviour
     {
         {"earn",4 },
         {"newGame",5 },
-        {"snapshot",3 },
+        {"snapshot",5 },
+        {"takeSnapshot", 2},
         {"mulligan",2 },
         {"buySpade",2 },
         {"buyAdder",3 },
