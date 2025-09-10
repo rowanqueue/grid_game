@@ -492,7 +492,7 @@ public class GameController : MonoBehaviour
 
         stateScreens[(int)gameState].gameObject.SetActive(true);
         stateScreens[(int)gameState].SetAnchor();
-        snapshotPreview.openScreen();
+        //snapshotPreview.openScreen();
         movingToScreen = true;
     }
     public void GameStateBag()
