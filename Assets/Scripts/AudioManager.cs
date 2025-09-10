@@ -33,6 +33,7 @@ public class AudioManager : MonoBehaviour
     public FMODUnity.EventReference spadeSFX;
     public FMODUnity.EventReference snapshotSFX;
     public FMODUnity.EventReference create8SFX;
+    public FMODUnity.EventReference scoreLoopSFX;
 
     FMOD.Studio.PARAMETER_ID popDepth;
     [Header("Misc")]
@@ -46,6 +47,7 @@ public class AudioManager : MonoBehaviour
 
     FMOD.Studio.EventInstance music;
     FMOD.Studio.EventInstance ambience;
+    FMOD.Studio.EventInstance scoreLoop;
 
     FMOD.Studio.Bus musicBus;
     FMOD.Studio.Bus soundBus;
@@ -80,6 +82,8 @@ public class AudioManager : MonoBehaviour
 
         music = FMODUnity.RuntimeManager.CreateInstance(musicRef);
         ambience = FMODUnity.RuntimeManager.CreateInstance(ambienceRef);
+        scoreLoop = FMODUnity.RuntimeManager.CreateInstance(scoreLoopSFX);
+
         //music.start();
         ambience.start();
     }
@@ -111,6 +115,16 @@ public class AudioManager : MonoBehaviour
     {
         FMODUnity.RuntimeManager.PlayOneShot(pickUpSFX);
         //PlaySound(select);
+    }
+
+    public void PlayScoreLoop()
+    {
+        scoreLoop.start();
+    }
+
+    public void StopScoreLoop()
+    {
+        scoreLoop.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
     }
 
     public void PlayCreate8Sound()
@@ -168,7 +182,7 @@ public class AudioManager : MonoBehaviour
     }
     public void PlayFinalUpgradeTileSound(int depth = 0)
     {
-
+        FMODUnity.RuntimeManager.PlayOneShot(create8SFX);
     }
 
     public void PlayFreeSlotSound()
