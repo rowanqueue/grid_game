@@ -33,6 +33,7 @@ public enum GameState
     Seeds,
     Credits,
     HighScore,
+    Help,
     Bag,
     SelectDifficulty,
     Snapshot,
@@ -533,6 +534,18 @@ public class GameController : MonoBehaviour
         //todo: make toolshop open
         movingToScreen = true;
     }
+    public void GameStateHelp()
+    {
+        if (inputState == InputState.Finish || inputState == InputState.TapToRestart) { return; }
+        if (inTutorial) { return; }
+        lastState = gameState;
+        gameState = GameState.Help;
+
+        stateScreens[(int)gameState].gameObject.SetActive(true);
+        stateScreens[(int)gameState].SetAnchor();
+        //snapshotPreview.openScreen();
+        movingToScreen = true;
+    }
     public void ToggleDiceMode()
     {
         diceMode = !diceMode;
@@ -999,6 +1012,9 @@ public class GameController : MonoBehaviour
                 case GameState.Seeds:
                 case GameState.Settings:
                     cameraPos.x = 8;
+                    break;
+                case GameState.Help:
+                    cameraPos.x = -8;
                     break;
                 case GameState.Start:
                     cameraPos.y = 12.33f;

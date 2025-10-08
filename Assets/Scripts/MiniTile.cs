@@ -40,7 +40,7 @@ public class MiniTile : MonoBehaviour
         {
             backColor.enabled = false;
             edgeColor.enabled = false;
-            number.text = "<u>" + number.text + "</u>";
+            number.text = "<size=35%>x</size><u>" + number.text + "</u>";
         }
 
     }

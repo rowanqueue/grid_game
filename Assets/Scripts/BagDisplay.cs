@@ -203,22 +203,23 @@ public class BagDisplay : MonoBehaviour
         foreach (Logic.TokenData tokenData in uniqueTokens)
         {
             MiniTile token = GameObject.Instantiate(Services.GameController.miniTilePrefab, tokenParent).GetComponent<MiniTile>();
-            token.SetTile(new TokenData(Logic.TokenColor.Display, bagContents[tokenData].x));
+            token.SetTile(tokenData);
             token.gameObject.SetActive(true);
             Vector2 move = new Vector2(i % miniTilePerRow * miniTileSeparation.x, i / miniTilePerRow * miniTileSeparation.y);
             //token.Draw(firstGridPos + move + (Vector2)transform.position);
             token.transform.position = miniTilePos + move + (Vector2)transform.position;
             i++;
             numTokens = i;
-
-            token = GameObject.Instantiate(Services.GameController.miniTilePrefab, tokenParent).GetComponent<MiniTile>();
-            token.SetTile(tokenData);
+             token = GameObject.Instantiate(Services.GameController.miniTilePrefab, tokenParent).GetComponent<MiniTile>();
+            token.SetTile(new TokenData(Logic.TokenColor.Display, bagContents[tokenData].x));
             token.gameObject.SetActive(true);
-            move = new Vector2(i % miniTilePerRow * miniTileSeparation.x, i / miniTilePerRow * miniTileSeparation.y);
+             move = new Vector2(i % miniTilePerRow * miniTileSeparation.x, i / miniTilePerRow * miniTileSeparation.y);
             //token.Draw(firstGridPos + move + (Vector2)transform.position);
             token.transform.position = miniTilePos + move + (Vector2)transform.position;
             i++;
             numTokens = i;
+
+            
 
             /*for (int j = 0; j < bagContents[tokenData].x; j++)
             {
