@@ -62,7 +62,9 @@ namespace Json
         public ScoreVariables scoreVariables { get; set; }
         public List<StartingBag> startingBag { get; set; }
         public Progress progress { get; set; }
+        public List<string> startingHand { get; set; }
     }
+
     [System.Serializable]
     public class ScoreVariables
     {

@@ -44,19 +44,7 @@
         }
     },
     "startingHand":[
-      {
-          "color": "spade",
-          "number": 0
-      },
-      {
-          "color": "wildcard",
-      },
-      {
-          "color": "wildcard",
-      },
-      {
-          "color": "wildcard",
-      },
+      "spade","*","*","*"
     ],
     "startingBag": [
         {

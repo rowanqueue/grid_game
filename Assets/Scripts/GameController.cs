@@ -31,9 +31,12 @@ public enum GameState
     Start,
     ToolShop,
     Seeds,
+    Credits,
+    HighScore,
     Bag,
     SelectDifficulty,
-    Snapshot
+    Snapshot,
+    
 }
 public class GameController : MonoBehaviour
 {
@@ -506,6 +509,30 @@ public class GameController : MonoBehaviour
         //stateScreens[(int)gameState].SetAnchor();
         movingToScreen = true;
     }
+    public void GameStateCredits()
+    {
+        if (inputState == InputState.Finish || inputState == InputState.TapToRestart) { return; }
+        if (inTutorial) { return; }
+        lastState = gameState;
+        gameState = GameState.Credits;
+
+        stateScreens[(int)gameState].gameObject.SetActive(true);
+        stateScreens[(int)gameState].SetAnchor();
+        //todo: make toolshop open
+        movingToScreen = true;
+    }
+    public void GameStateHighScore()
+    {
+        if (inputState == InputState.Finish || inputState == InputState.TapToRestart) { return; }
+        if (inTutorial) { return; }
+        lastState = gameState;
+        gameState = GameState.HighScore;
+
+        stateScreens[(int)gameState].gameObject.SetActive(true);
+        stateScreens[(int)gameState].SetAnchor();
+        //todo: make toolshop open
+        movingToScreen = true;
+    }
     public void ToggleDiceMode()
     {
         diceMode = !diceMode;
@@ -951,7 +978,9 @@ public class GameController : MonoBehaviour
         }*/
         if (difficultyUnlocked[difficulty] == false)
         {
-            difficultyName.text += "\nLocked! Earn " + scoreNeededToUnlock[difficulty].ToString() + " to unlock";
+            difficultyName.text += "\nLocked! Earn " + scoreNeededToUnlock[difficulty].ToString() + " in ";
+            string actualName = difficultyNames[difficulty - 1].Split('<')[0];
+            difficultyName.text += actualName + " to unlock";
         }
         difficultyButtons[0].disabled = difficulty == 0;
         difficultyButtons[1].disabled = difficulty == difficulties.Count - 1;
@@ -972,6 +1001,11 @@ public class GameController : MonoBehaviour
                     cameraPos.x = 8;
                     break;
                 case GameState.Start:
+                    cameraPos.y = 12.33f;
+                    break;
+                case GameState.Credits:
+                case GameState.HighScore:
+                    cameraPos.x = 8;
                     cameraPos.y = 12.33f;
                     break;
                 case GameState.Bag:
@@ -2124,6 +2158,7 @@ public class GameController : MonoBehaviour
         for (int i = 0; i < difficultyUnlocked.Count; i++)
         {
             if (difficultyUnlocked[i]) { continue; }
+            if(difficulty != i - 1) { continue; }//only unlock on previous
             if (score >= scoreNeededToUnlock[i])
             {
                 difficultyUnlocked[i] = true;

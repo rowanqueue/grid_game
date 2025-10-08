@@ -44,20 +44,7 @@
         }
     },
     "startingHand":[
-      {
-      },
-      {
-          "color": "gnome",
-          "number": 1,
-          "temporary": true,
-      },
-      {
-          "color": "gnome",
-          "number": 1,
-          "temporary": true,
-      },
-      {
-      },
+      "","gnome","gnome",""
     ],
     "startingBag": [
         {
