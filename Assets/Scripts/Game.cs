@@ -431,7 +431,14 @@ namespace Logic
             status = new StatusReport();
             bag = new Bag(this,bagContents);
             hand = new Hand(handSize, handChoices);
-            hand.FillHand(bag);
+            if(root.startingHand.Count > 0)
+            {
+                hand.FillStartingHand(bag, root.startingHand);
+            }
+            else
+            {
+                hand.FillHand(bag);
+            }
             history = new History(this);
             history.turns.Add(new History.Turn(this));
             
@@ -984,6 +991,7 @@ namespace Logic
             RefillBag();
 
         }
+
         public Dictionary<TokenData,Vector2Int> GetCurrentBag()
         {
             //vector2: x is how many you currently have, y is how many you're supposed to have
@@ -1214,7 +1222,8 @@ namespace Logic
         Gold,
         Spade,
         Adder,
-        Gnome
+        Gnome,
+        Display
     }
     public class Token
     {
@@ -1383,6 +1392,44 @@ namespace Logic
             this.handChoices = -1;
             tokens = new Token[handSize];
         }
+        public void FillStartingHand(Bag bag, List<string> startingHand)
+        {
+            if (startingHand.Count > 0)
+            {
+                for(int i = 0; i < handSize; i++)
+                {
+                    string symbol = startingHand[i];
+                    TokenData tokenData = new TokenData();
+                    bool removeSelf = false;
+                    bool skip = false;
+                    switch (symbol)
+                    {
+                        case "gnome":
+                            tokenData = new TokenData(TokenColor.Gnome, 1, true);
+                            break;
+                        case "spade":
+                            tokenData = new TokenData(TokenColor.Spade, 0);
+                            break;
+                        case "*":
+                            tokenData = bag.DrawToken();
+                            removeSelf = true;
+                            break;
+                        case "":
+                            skip = true;
+                            break;
+                    }
+                    if (skip)
+                    {
+                        continue;
+                    }
+                    tokens[i] = new Token(tokenData, true);
+                    if(removeSelf == false)
+                    {
+                        bag.bag.Remove(tokenData);
+                    }
+                }
+            }
+        }
         public void FillHand(Bag bag)
         {
             tokensTaken = 0;
@@ -1481,6 +1528,10 @@ namespace Logic
                 }
             }
             
+        }
+        public void AddTokenToHand(int slot,TokenData tokenData)
+        {
+            tokens[slot] = new Token(tokenData, true);
         }
         public void ReturnHand(Bag bag)
         {

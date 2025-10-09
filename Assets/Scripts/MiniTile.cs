@@ -25,6 +25,7 @@ public class MiniTile : MonoBehaviour
         }
         backColor.enabled = true;
         edgeColor.enabled = true;
+        
         Color c = Services.Visuals.tokenColors[(int)token.color];
         backColor.color = c;
         edgeColor.color = Color.white;
@@ -35,6 +36,12 @@ public class MiniTile : MonoBehaviour
         number.color = c;
         number.text = token.num.ToString();
         spriteDisplay.enabled = false;
+        if (token.color == Logic.TokenColor.Display)
+        {
+            backColor.enabled = false;
+            edgeColor.enabled = false;
+            number.text = "<size=35%>x</size><u>" + number.text + "</u>";
+        }
 
     }
     void SetTileWeird(TokenData token)

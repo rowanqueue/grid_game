@@ -87,6 +87,45 @@ public class BagDisplay : MonoBehaviour
         uniqueTokens.Sort((t1,t2) => t1.CompareTo(t2));
         int i = 0;
         int splitter = 4;
+        int totalUniqueTokens = 0;
+        int usedTokens = 0;
+        foreach (Logic.TokenData tokenData in uniqueTokens)
+        {
+            if (bagContents[tokenData].x > splitter)
+            {
+                totalUniqueTokens += 1;
+            }
+            else
+            {
+                totalUniqueTokens += bagContents[tokenData].x;
+            }
+            int leftover = bagContents[tokenData].y - bagContents[tokenData].x;
+            if(leftover > splitter)
+            {
+                totalUniqueTokens += 1;
+                usedTokens += 1;
+            }
+            else
+            {
+                totalUniqueTokens += leftover;
+                usedTokens += leftover;
+            }
+        }
+        int actualPerRow = perRow;
+        Vector2 realFirstPos = firstGridPos;
+        Vector2 realGridSeperation = gridSeparation;
+        bool showUsed = true;
+        if(totalUniqueTokens > 7*4)
+        {
+            showUsed = false;
+            totalUniqueTokens -= usedTokens;
+        }
+        if(totalUniqueTokens > 5*4)
+        {
+            actualPerRow = 7;
+            realFirstPos.x -= gridSeparation.x * 0.75f;
+            realGridSeperation.x = 0.85f;
+        }
         foreach (Logic.TokenData tokenData in uniqueTokens)
         {
             int amountTokens = bagContents[tokenData].x;
@@ -111,41 +150,45 @@ public class BagDisplay : MonoBehaviour
                 {
                     token.ShowCrunchedDisplay(bagContents[tokenData].x);
                 }
-                Vector2 move = new Vector2(i % perRow * gridSeparation.x, i / perRow * gridSeparation.y);
-                token.Draw(firstGridPos + move + (Vector2)transform.position);
-                token.transform.position = firstGridPos + move + (Vector2)transform.position;
+                Vector2 move = new Vector2(i % actualPerRow * realGridSeperation.x, i / actualPerRow * realGridSeperation.y);
+                token.Draw(realFirstPos + move + (Vector2)transform.position);
+                token.transform.position = realFirstPos + move + (Vector2)transform.position;
                 i++;
                 numTokens = i;
             }
         }
-        foreach (Logic.TokenData tokenData in uniqueTokens)
+        if (showUsed)
         {
-            
-            
-            int leftover = bagContents[tokenData].y - bagContents[tokenData].x;
-            int amountTokens = leftover;
-            if (amountTokens > splitter)
+            foreach (Logic.TokenData tokenData in uniqueTokens)
             {
-                amountTokens = 1;
-            }
-            for (int j = 0; j < amountTokens; j++)
-            {
-                Token token = GameObject.Instantiate(Services.GameController.tokenPrefab, tokenParent).GetComponent<Token>();
-                token.Init(new Logic.Token(tokenData, true));
-                token.gameObject.SetActive(true);
-                token.UpdateLayer("UIToken");
-                token.TurnShade();
-                if (leftover > splitter)
+
+
+                int leftover = bagContents[tokenData].y - bagContents[tokenData].x;
+                int amountTokens = leftover;
+                if (amountTokens > splitter)
                 {
-                    token.ShowCrunchedDisplay(leftover);
+                    amountTokens = 1;
                 }
-                Vector2 move = new Vector2(i % perRow * gridSeparation.x, i / perRow * gridSeparation.y);
-                token.Draw(firstGridPos + move + (Vector2)transform.position);
-                token.transform.position = firstGridPos + move + (Vector2)transform.position;
-                i++;
-                numTokens = i;
+                for (int j = 0; j < amountTokens; j++)
+                {
+                    Token token = GameObject.Instantiate(Services.GameController.tokenPrefab, tokenParent).GetComponent<Token>();
+                    token.Init(new Logic.Token(tokenData, true));
+                    token.gameObject.SetActive(true);
+                    token.UpdateLayer("UIToken");
+                    token.TurnShade();
+                    if (leftover > splitter)
+                    {
+                        token.ShowCrunchedDisplay(leftover);
+                    }
+                    Vector2 move = new Vector2(i % actualPerRow * realGridSeperation.x, i / actualPerRow * realGridSeperation.y);
+                    token.Draw(realFirstPos + move + (Vector2)transform.position);
+                    token.transform.position = realFirstPos + move + (Vector2)transform.position;
+                    i++;
+                    numTokens = i;
+                }
             }
         }
+
         if (showNextBag == false)
         {
             
@@ -157,10 +200,28 @@ public class BagDisplay : MonoBehaviour
         Vector2 miniTilePos = new Vector2(-2.25f, -2.5f);
         Vector2 miniTileSeparation = new Vector2(0.5f, -0.55f);
         int miniTilePerRow = 10;
-;        foreach (Logic.TokenData tokenData in uniqueTokens)
+        foreach (Logic.TokenData tokenData in uniqueTokens)
         {
+            MiniTile token = GameObject.Instantiate(Services.GameController.miniTilePrefab, tokenParent).GetComponent<MiniTile>();
+            token.SetTile(tokenData);
+            token.gameObject.SetActive(true);
+            Vector2 move = new Vector2(i % miniTilePerRow * miniTileSeparation.x, i / miniTilePerRow * miniTileSeparation.y);
+            //token.Draw(firstGridPos + move + (Vector2)transform.position);
+            token.transform.position = miniTilePos + move + (Vector2)transform.position;
+            i++;
+            numTokens = i;
+             token = GameObject.Instantiate(Services.GameController.miniTilePrefab, tokenParent).GetComponent<MiniTile>();
+            token.SetTile(new TokenData(Logic.TokenColor.Display, bagContents[tokenData].x));
+            token.gameObject.SetActive(true);
+             move = new Vector2(i % miniTilePerRow * miniTileSeparation.x, i / miniTilePerRow * miniTileSeparation.y);
+            //token.Draw(firstGridPos + move + (Vector2)transform.position);
+            token.transform.position = miniTilePos + move + (Vector2)transform.position;
+            i++;
+            numTokens = i;
 
-            for (int j = 0; j < bagContents[tokenData].x; j++)
+            
+
+            /*for (int j = 0; j < bagContents[tokenData].x; j++)
             {
                 MiniTile token = GameObject.Instantiate(Services.GameController.miniTilePrefab, tokenParent).GetComponent<MiniTile>();
                 token.SetTile(tokenData);
@@ -172,7 +233,7 @@ public class BagDisplay : MonoBehaviour
                 token.transform.position = miniTilePos + move + (Vector2)transform.position;
                 i++;
                 numTokens = i;
-            }
+            }*/
         }
 
     }

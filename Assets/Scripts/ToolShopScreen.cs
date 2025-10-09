@@ -29,7 +29,7 @@ public class ToolShopScreen : MonoBehaviour
             token.token = new Logic.Token(tokenData,true);
             tokensToBuy.Add(token);
             tokensToBuy[i].Init(token.token);
-            tokensToBuy[i].UpdateLayer("TokenHand");
+            tokensToBuy[i].UpdateLayer("UIToken");
             tokensToBuy[i].transform.position = handTransforms[i].position;
         }
     }
@@ -41,31 +41,58 @@ public class ToolShopScreen : MonoBehaviour
     {
 
     }
+    public bool FreeSpaceInHands()
+    {
+        for (int i = 0; i < Services.GameController.hand.Count; i++)
+        {
+            if (Services.GameController.hand[i] == null)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+    void BuyToken(Logic.TokenData tokenData)
+    {
+        for (int i = 0; i < Services.GameController.hand.Count; i++)
+        {
+            if (Services.GameController.hand[i] == null)
+            {
+                Services.GameController.game.hand.AddTokenToHand(i, tokenData);
+                Services.GameController.CreateHand(false, false);
+                break;
+            }
+        }
+    }
     public void BuySpade()
     {
+        if(FreeSpaceInHands() == false) { return; }
         if(Services.Gems.CanAfford("buySpade") == false)
         {
             return;
         }
         Services.Gems.SpendGems("buySpade");
-        Services.GameController.game.bag.nextBagsTemporary.Add(tokensToBuy[0].token.data);
+        BuyToken(tokensToBuy[0].token.data);
+        //Services.GameController.game.bag.nextBagsTemporary.Add(tokensToBuy[0].token.data);
     }
     public void BuyAdder()
     {
+        if (FreeSpaceInHands() == false) { return; }
         if (Services.Gems.CanAfford("buyAdder") == false)
         {
             return;
         }
         Services.Gems.SpendGems("buyAdder");
-        Services.GameController.game.bag.nextBagsTemporary.Add(tokensToBuy[1].token.data);
+        BuyToken(tokensToBuy[1].token.data);
     }
     public void BuyClipper()
     {
+        if (FreeSpaceInHands() == false) { return; }
         if (Services.Gems.CanAfford("buyClipper") == false)
         {
             return;
         }
         Services.Gems.SpendGems("buyClipper");
-        Services.GameController.game.bag.nextBagsTemporary.Add(tokensToBuy[2].token.data);
+        BuyToken(tokensToBuy[2].token.data);
     }
 }

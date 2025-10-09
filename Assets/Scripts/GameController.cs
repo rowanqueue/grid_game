@@ -32,9 +32,13 @@ public enum GameState
     Start,
     ToolShop,
     Seeds,
+    Credits,
+    HighScore,
+    Help,
     Bag,
     SelectDifficulty,
-    Snapshot
+    Snapshot,
+    
 }
 public class GameController : MonoBehaviour
 {
@@ -142,6 +146,7 @@ public class GameController : MonoBehaviour
         InitializeServices();
 #if UNITY_ANDROID
         Handheld.Vibrate();
+        UnityEngine.Screen.sleepTimeout = SleepTimeout.NeverSleep;
 #endif
         if (PlayerPrefs.HasKey("difficulty"))
         {
@@ -458,6 +463,7 @@ public class GameController : MonoBehaviour
         if (inTutorial) { return; }
         lastState = gameState;
         gameState = GameState.Settings;
+
         stateScreens[(int)gameState].gameObject.SetActive(true);
         stateScreens[(int)gameState].SetAnchor();
         movingToScreen = true;
@@ -495,7 +501,7 @@ public class GameController : MonoBehaviour
 
         stateScreens[(int)gameState].gameObject.SetActive(true);
         stateScreens[(int)gameState].SetAnchor();
-        snapshotPreview.openScreen();
+        //snapshotPreview.openScreen();
         movingToScreen = true;
     }
     public void GameStateBag()
@@ -507,6 +513,42 @@ public class GameController : MonoBehaviour
         gameState = GameState.Bag;
         //stateScreens[(int)gameState].gameObject.SetActive(true);
         //stateScreens[(int)gameState].SetAnchor();
+        movingToScreen = true;
+    }
+    public void GameStateCredits()
+    {
+        if (inputState == InputState.Finish || inputState == InputState.TapToRestart) { return; }
+        if (inTutorial) { return; }
+        lastState = gameState;
+        gameState = GameState.Credits;
+
+        stateScreens[(int)gameState].gameObject.SetActive(true);
+        stateScreens[(int)gameState].SetAnchor();
+        //todo: make toolshop open
+        movingToScreen = true;
+    }
+    public void GameStateHighScore()
+    {
+        if (inputState == InputState.Finish || inputState == InputState.TapToRestart) { return; }
+        if (inTutorial) { return; }
+        lastState = gameState;
+        gameState = GameState.HighScore;
+
+        stateScreens[(int)gameState].gameObject.SetActive(true);
+        stateScreens[(int)gameState].SetAnchor();
+        //todo: make toolshop open
+        movingToScreen = true;
+    }
+    public void GameStateHelp()
+    {
+        if (inputState == InputState.Finish || inputState == InputState.TapToRestart) { return; }
+        if (inTutorial) { return; }
+        lastState = gameState;
+        gameState = GameState.Help;
+
+        stateScreens[(int)gameState].gameObject.SetActive(true);
+        stateScreens[(int)gameState].SetAnchor();
+        //snapshotPreview.openScreen();
         movingToScreen = true;
     }
     public void ToggleDiceMode()
@@ -954,7 +996,9 @@ public class GameController : MonoBehaviour
         }*/
         if (difficultyUnlocked[difficulty] == false)
         {
-            difficultyName.text += "\nLocked! Earn " + scoreNeededToUnlock[difficulty].ToString() + " to unlock";
+            difficultyName.text += "\nLocked! Earn " + scoreNeededToUnlock[difficulty].ToString() + " in ";
+            string actualName = difficultyNames[difficulty - 1].Split('<')[0];
+            difficultyName.text += actualName + " to unlock";
         }
         difficultyButtons[0].disabled = difficulty == 0;
         difficultyButtons[1].disabled = difficulty == difficulties.Count - 1;
@@ -974,11 +1018,16 @@ public class GameController : MonoBehaviour
                 case GameState.Settings:
                     cameraPos.x = 8;
                     break;
+                case GameState.Help:
+                    cameraPos.x = -8;
+                    break;
                 case GameState.Start:
                     cameraPos.y = 12.33f;
                     break;
-                case GameState.ToolShop:
-                    cameraPos.x = -8;
+                case GameState.Credits:
+                case GameState.HighScore:
+                    cameraPos.x = 8;
+                    cameraPos.y = 12.33f;
                     break;
                 case GameState.Bag:
                     cameraPos.y = -8;
@@ -995,7 +1044,7 @@ public class GameController : MonoBehaviour
             {
                 movingToScreen = false;
                 Camera.main.transform.position = cameraPos;
-                if (gameState != GameState.Bag && gameState != GameState.SelectDifficulty)
+                if (gameState != GameState.Bag && gameState != GameState.SelectDifficulty && gameState != GameState.ToolShop)
                 {
                     for (int i = 0; i < stateScreens.Count; i++)
                     {
@@ -2093,6 +2142,11 @@ public class GameController : MonoBehaviour
     }
     public void Snapshot()
     {
+        if(Services.Gems.CanAfford("takeSnapshot") == false)
+        {
+            return;
+        }
+        Services.Gems.SpendGems("takeSnapshot");
         Services.AudioManager.PlaySnapshotSound();
         SaveLoad.Save(1, currentSave);
         snapshotSave = currentSave;
@@ -2134,6 +2188,7 @@ public class GameController : MonoBehaviour
         for (int i = 0; i < difficultyUnlocked.Count; i++)
         {
             if (difficultyUnlocked[i]) { continue; }
+            if(difficulty != i - 1) { continue; }//only unlock on previous
             if (score >= scoreNeededToUnlock[i])
             {
                 difficultyUnlocked[i] = true;
