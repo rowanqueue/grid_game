@@ -21,6 +21,7 @@ public enum InputState
     Place,//waiting to place a token
     Wait,// waiting for game to update
     Popup,
+    Snapshot, //waiting to dismiss snapshot
     Finish,
     TapToRestart
 }
@@ -131,7 +132,7 @@ public class GameController : MonoBehaviour
 
     public GameObject loadSnapshotButton;
     public List<Tile> tokensToDestroy = new List<Tile>();
-
+    public PolaroidDisplay polaroidDisplay;
 
     // Start is called before the first frame update
     private List<Vector2Int> undidTiles = new List<Vector2Int>();
@@ -370,6 +371,10 @@ public class GameController : MonoBehaviour
         }
 
     }
+
+    /// <summary>
+    /// Sets game state to gameplay, unless coming from settings or seeds, in which case it goes to select difficulty
+    /// </summary>
     public void GameStateGameplay()
     {
         if (gameState == GameState.Settings)
@@ -1342,7 +1347,7 @@ public class GameController : MonoBehaviour
                             {
                                 tutorial.StageUpdate();
                             }
-                            if(inTutorial && (tutorial.stage == TutorialStage.Undo && tutorial.stagePhase == 1))
+                            if (inTutorial && (tutorial.stage == TutorialStage.Undo && tutorial.stagePhase == 1))
                             {
                                 tutorial.IncrementStage();
                             }
@@ -1495,7 +1500,7 @@ public class GameController : MonoBehaviour
                             Services.AudioManager.PlayInvalidToolSound();
                         }
                     }
-                    
+
 
                 }
                 if (Input.GetMouseButtonDown(0))
@@ -1588,7 +1593,7 @@ public class GameController : MonoBehaviour
                 if (game.gridUpdating == false)
                 {
                     waiting -= Time.deltaTime;
-                    
+
                     if (inTutorial)
                     {
                         bool waitingStage = false;
@@ -1602,7 +1607,7 @@ public class GameController : MonoBehaviour
                         {
                             waiting += Time.deltaTime;
                         }
-                        
+
                     }
                     if (popupopen)
                     {
@@ -1701,15 +1706,15 @@ public class GameController : MonoBehaviour
                                         {
                                             game.SecondTutorialHand();
                                         }
-                                        if(tutorial.stage == TutorialStage.Blue3)
+                                        if (tutorial.stage == TutorialStage.Blue3)
                                         {
                                             game.ThirdTutorialHand();
                                         }
-                                        if(tutorial.stage == TutorialStage.LearnGreen || tutorial.stage == TutorialStage.Green2)
+                                        if (tutorial.stage == TutorialStage.LearnGreen || tutorial.stage == TutorialStage.Green2)
                                         {
                                             game.FourthTutorialHand();
                                         }
-                                        if(tutorial.stage == TutorialStage.CleanUp || tutorial.stage == TutorialStage.Purple)
+                                        if (tutorial.stage == TutorialStage.CleanUp || tutorial.stage == TutorialStage.Purple)
                                         {
                                             game.FifthTutorialHand();
                                         }
@@ -1811,6 +1816,13 @@ public class GameController : MonoBehaviour
                 {
                     upgradePopup.Close();
                     popupopen = false;
+                    EnterInputState(InputState.Choose);
+                }
+                break;
+            case InputState.Snapshot:
+                if (Input.anyKeyDown)
+                {
+                    StartCoroutine(polaroidDisplay.HideSnapshotRoutine());
                     EnterInputState(InputState.Choose);
                 }
                 break;
@@ -2084,6 +2096,8 @@ public class GameController : MonoBehaviour
         Services.AudioManager.PlaySnapshotSound();
         SaveLoad.Save(1, currentSave);
         snapshotSave = currentSave;
+        StartCoroutine(polaroidDisplay.ShowSnapshotRoutine(game.grid.tiles));
+        inputState = InputState.Snapshot;
         GameStateGameplay();
     }
     public void LoadSnapshot()
