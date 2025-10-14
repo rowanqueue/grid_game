@@ -18,13 +18,13 @@ MonoBehaviour:
     value: 1
   intensity:
     overrideState: 1
-    value: 0.308
+    value: 0.137
   pixelScale:
     overrideState: 1
-    value: 2
+    value: 1
   pattern:
     overrideState: 1
-    value: {fileID: 2800000, guid: e93a8fd2c6f834a4db0b63332be0e388, type: 3}
+    value: {fileID: 2800000, guid: 85ddff4e0ef71ed4eacad79c8468a044, type: 3}
     defaultState: 1
   primary:
     overrideState: 1
@@ -36,7 +36,7 @@ MonoBehaviour:
     defaultState: 1
   noiseIntensity:
     overrideState: 1
-    value: 0.385
+    value: 0
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0

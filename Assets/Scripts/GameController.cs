@@ -38,7 +38,7 @@ public enum GameState
     Bag,
     SelectDifficulty,
     Snapshot,
-    
+
 }
 public class GameController : MonoBehaviour
 {
@@ -250,7 +250,7 @@ public class GameController : MonoBehaviour
                 cameraPos.x = 8;
                 break;
             case GameState.Start:
-                cameraPos.y = 12.33f;
+                cameraPos.y = -15.33f;
                 break;
         }
         /*
@@ -400,6 +400,8 @@ public class GameController : MonoBehaviour
         }
         if (gameState == GameState.Start)
         {
+            bagDisplay.gameObject.SetActive(true);
+
             if (newGame)
             {
                 //if new game
@@ -639,7 +641,7 @@ public class GameController : MonoBehaviour
             }
         }
         else
-        { 
+        {
             if (undo)
             {
                 undidSlot = true;
@@ -648,6 +650,8 @@ public class GameController : MonoBehaviour
     }
     public void ToggleBagDisplay()
     {
+        deckDisplay.gameObject.SetActive(true);
+
         /*if (inTutorial && tutorial.stage == TutorialStage.BagIntro)
         {
             tutorial.IncrementStage();
@@ -1022,7 +1026,8 @@ public class GameController : MonoBehaviour
                     cameraPos.x = -8;
                     break;
                 case GameState.Start:
-                    cameraPos.y = 12.33f;
+                    cameraPos.y = -15.3f;
+                    bagDisplay.gameObject.SetActive(false);
                     break;
                 case GameState.Credits:
                 case GameState.HighScore:
@@ -1033,7 +1038,13 @@ public class GameController : MonoBehaviour
                     cameraPos.y = -8;
                     break;
             }
-            float cameraSpeed = 0.125f;
+
+            if (gameState != GameState.Start)
+            {
+                bagDisplay.gameObject.SetActive(true);
+            }
+
+            float cameraSpeed = 0.1f;
             if (gameState == GameState.Bag)
             {
                 cameraSpeed *= 1.5f;
@@ -1079,7 +1090,7 @@ public class GameController : MonoBehaviour
             int tinyAmount = Mathf.Max(1, Mathf.CeilToInt(0.1f * scoreDelta));
             scoreDelta -= tinyAmount;
             score += tinyAmount;
-            if(scoreDelta <= 0)
+            if (scoreDelta <= 0)
             {
                 FinishScoreRolling();
             }
@@ -2142,7 +2153,7 @@ public class GameController : MonoBehaviour
     }
     public void Snapshot()
     {
-        if(Services.Gems.CanAfford("takeSnapshot") == false)
+        if (Services.Gems.CanAfford("takeSnapshot") == false)
         {
             return;
         }
@@ -2188,7 +2199,7 @@ public class GameController : MonoBehaviour
         for (int i = 0; i < difficultyUnlocked.Count; i++)
         {
             if (difficultyUnlocked[i]) { continue; }
-            if(difficulty != i - 1) { continue; }//only unlock on previous
+            if (difficulty != i - 1) { continue; }//only unlock on previous
             if (score >= scoreNeededToUnlock[i])
             {
                 difficultyUnlocked[i] = true;

@@ -60,6 +60,7 @@ public class BagDisplay : MonoBehaviour
     }
     public void ClearBagAfterDelay()
     {
+        gameObject.SetActive(true);
         StartCoroutine(EmptyBag());
     }
     IEnumerator EmptyBag()
