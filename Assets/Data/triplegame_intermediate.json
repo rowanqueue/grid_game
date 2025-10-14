@@ -43,6 +43,7 @@
             "gold": 10,
         }
     },
+    "startingHand":[],
     "startingBag": [
         {
             "token": {
