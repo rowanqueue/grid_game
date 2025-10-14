@@ -89,7 +89,6 @@ public class PolaroidDisplay : MonoBehaviour
 
     private int PositionToIndex(Vector2Int pos)
     {
-        print($"TILE POSITION: {pos.x}, {pos.y} INDEX: {pos.x + ((5 - pos.y) * 5)}");
         return pos.x + ((4 - pos.y) * 5);
     }
 }

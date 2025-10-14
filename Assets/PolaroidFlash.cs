@@ -7,13 +7,14 @@ using DG.Tweening;
 public class PolaroidFlash : MonoBehaviour
 {
     [SerializeField] private SpriteRenderer flash;
+    [SerializeField] private float flashDuration = 0.2f;
 
     public IEnumerator FlashRoutine()
     {
         ResetFlash();
         flash.gameObject.SetActive(true);
-        yield return flash.transform.DOScale(200f, 0.3f).SetEase(Ease.OutQuad).WaitForCompletion();
-        yield return flash.DOFade(0, 0.3f).SetEase(Ease.OutQuad).WaitForCompletion();
+        yield return flash.transform.DOScale(200f, flashDuration).SetEase(Ease.InQuad).WaitForCompletion();
+        yield return flash.DOFade(0, flashDuration).SetEase(Ease.InQuad).WaitForCompletion();
         flash.gameObject.SetActive(false);
     }
 
