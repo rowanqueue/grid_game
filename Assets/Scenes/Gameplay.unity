@@ -29614,29 +29614,9 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1411271980296065504, guid: 9d154b23538b74f66adfc02bf3c9f5e7, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 2274522451783962142, guid: 9d154b23538b74f66adfc02bf3c9f5e7, type: 3}
       propertyPath: m_Name
       value: Main Camera
-      objectReference: {fileID: 0}
-    - target: {fileID: 2959971429143996914, guid: 9d154b23538b74f66adfc02bf3c9f5e7, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 150.48
-      objectReference: {fileID: 0}
-    - target: {fileID: 2959971429143996914, guid: 9d154b23538b74f66adfc02bf3c9f5e7, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 138.6
-      objectReference: {fileID: 0}
-    - target: {fileID: 4316833510450781541, guid: 9d154b23538b74f66adfc02bf3c9f5e7, type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4379591277398035784, guid: 9d154b23538b74f66adfc02bf3c9f5e7, type: 3}
-      propertyPath: m_Enabled
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4827371347935875493, guid: 9d154b23538b74f66adfc02bf3c9f5e7, type: 3}
       propertyPath: m_LocalPosition.x
