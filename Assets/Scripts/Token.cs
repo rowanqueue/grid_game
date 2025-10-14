@@ -62,7 +62,8 @@ public class Token : MonoBehaviour
     [SerializeField] private float UndoInAnimation = 0.5f;
     [SerializeField] private float UndoOutAnimation = 0.5f;
 
-
+    public SpriteRenderer crunchCircle;
+    public TextMeshPro crunchText;
 
         public void Init(Logic.Token _token)
         {
@@ -757,12 +758,17 @@ public class Token : MonoBehaviour
     }
     public void ShowCrunchedDisplay(int num)
     {
-        textDisplay.transform.position -= new Vector3(0, 0.5f);
+        crunchCircle.enabled = true;
+        crunchText.enabled = true;
+
+        crunchText.text = $"x{num}";
+        crunchCircle.color = Services.Visuals.tokenColors[(int)token.data.color];
+        /*textDisplay.transform.position -= new Vector3(0, 0.5f);
         textDisplay.outlineWidth = 0.3f;
         textDisplay.outlineColor = Color.black;
         textDisplay.sortingLayerID = spriteDisplay.sortingLayerID;
         textDisplay.sortingOrder = spriteDisplay.sortingOrder + 5;
-        textDisplay.text = num.ToString();
+        textDisplay.text = num.ToString();*/
     }
     public void StartInvalidAnim()
     {
