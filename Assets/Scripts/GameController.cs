@@ -486,6 +486,11 @@ public class GameController : MonoBehaviour
     {
         if (inputState == InputState.Finish || inputState == InputState.TapToRestart) { return; }
         if (inTutorial) { return; }
+        if(gameState == GameState.ToolShop)
+        {
+            GameStateGameplay();
+            return;
+        }
         lastState = gameState;
         gameState = GameState.ToolShop;
 
@@ -1097,7 +1102,7 @@ public class GameController : MonoBehaviour
         }
         display.text += "\n<size=20%>-score-</size>";
         winScreenScore.text = "<size=35%>Your score:</size>\n" + score.ToString() + "\n<size=15%><line-height=100%>-Tap to restart-</size>"; ;
-        bagDisplay.text = game.bag.ToString();
+        bagDisplay.text = " "; game.bag.ToString();
         Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         if (gameState == GameState.Bag)
         {
