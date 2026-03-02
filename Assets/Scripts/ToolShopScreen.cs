@@ -7,6 +7,17 @@ public class ToolShopScreen : MonoBehaviour
     List<Token> tokensToBuy = new List<Token>();
     public List<Transform> handTransforms = new List<Transform>();
 
+    [Tooltip("Transform to slide in from the edge. If null, uses this object.")]
+    public Transform slideRoot;
+    [Tooltip("World units to offset the panel when off-screen (positive = from right).")]
+    public float slideOffset = 8f;
+    [Tooltip("Duration of the slide-in/out animation in seconds.")]
+    public float slideDuration = 0.35f;
+
+    Vector3 restPosition;
+    bool restPositionValid;
+    Coroutine slideCoroutine;
+
     private void Start()
     {
         for(int i = 0; i < 3; i++)
@@ -35,11 +46,49 @@ public class ToolShopScreen : MonoBehaviour
     }
     public void OpenScreen()
     {
-        
+        Transform root = slideRoot != null ? slideRoot : transform;
+        if (slideCoroutine != null)
+        {
+            StopCoroutine(slideCoroutine);
+        }
+        if (!restPositionValid)
+        {
+            restPosition = root.position;
+            restPositionValid = true;
+        }
+        root.position = restPosition + Vector3.right * slideOffset;
+        slideCoroutine = StartCoroutine(SlideTo(restPosition));
     }
+
     public void CloseScreen()
     {
+        Transform root = slideRoot != null ? slideRoot : transform;
+        if (slideCoroutine != null)
+        {
+            StopCoroutine(slideCoroutine);
+        }
+        Vector3 start = root.position;
+        Vector3 offScreen = start + Vector3.right * slideOffset;
+        slideCoroutine = StartCoroutine(SlideTo(offScreen));
+    }
 
+    IEnumerator SlideTo(Vector3 targetPos)
+    {
+        Transform root = slideRoot != null ? slideRoot : transform;
+        Vector3 start = root.position;
+        float elapsed = 0f;
+
+        while (elapsed < slideDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / slideDuration);
+            t = 1f - (1f - t) * (1f - t); // ease-out quadratic
+            root.position = Vector3.Lerp(start, targetPos, t);
+            yield return null;
+        }
+
+        root.position = targetPos;
+        slideCoroutine = null;
     }
     public bool FreeSpaceInHands()
     {

@@ -8,15 +8,23 @@ public class CameraViewportHandler : MonoBehaviour
 
     #region FIELDS
     public Color wireColor = Color.white;
-    public float UnitsSize = 1; // size of your scene in unity units
+    [Tooltip("Design height (Portrait) or width (Landscape) of the visible area in Unity units.")]
+    public float UnitsSize = 1;
     public Constraint constraint = Constraint.Portrait;
+    [Tooltip("When true, exposes Safe* anchor points inset from notches/home indicator via Screen.safeArea.")]
+    public bool useSafeArea = true;
+    [Tooltip("Manual safe area inset for Editor testing when Screen.safeArea is fullscreen (e.g. 0.05 = 5% inset).")]
+    public Vector4 manualSafeAreaInset = Vector4.zero; // left, right, bottom, top (0-1 normalized)
     public static CameraViewportHandler Instance;
+    public static System.Action OnResolutionChanged;
     public new Camera camera;
 
     public bool executeInUpdate;
 
     private float _width;
     private float _height;
+    private int _lastScreenWidth;
+    private int _lastScreenHeight;
     //*** bottom screen
     private Vector3 _bl;
     private Vector3 _bc;
@@ -29,6 +37,8 @@ public class CameraViewportHandler : MonoBehaviour
     private Vector3 _tl;
     private Vector3 _tc;
     private Vector3 _tr;
+    //*** safe area insets in world units
+    private float _safeLeftX, _safeRightX, _safeBottomY, _safeTopY;
     #endregion
 
     #region PROPERTIES
@@ -111,6 +121,17 @@ public class CameraViewportHandler : MonoBehaviour
             return _tr;
         }
     }
+
+    public float SafeLeftX => _safeLeftX;
+    public float SafeRightX => _safeRightX;
+    public float SafeBottomY => _safeBottomY;
+    public float SafeTopY => _safeTopY;
+    public Vector3 SafeBottomLeft => new Vector3(_safeLeftX, _safeBottomY, 0);
+    public Vector3 SafeBottomCenter => new Vector3((_safeLeftX + _safeRightX) * 0.5f, _safeBottomY, 0);
+    public Vector3 SafeBottomRight => new Vector3(_safeRightX, _safeBottomY, 0);
+    public Vector3 SafeTopLeft => new Vector3(_safeLeftX, _safeTopY, 0);
+    public Vector3 SafeTopCenter => new Vector3((_safeLeftX + _safeRightX) * 0.5f, _safeTopY, 0);
+    public Vector3 SafeTopRight => new Vector3(_safeRightX, _safeTopY, 0);
     #endregion
 
     #region METHODS
@@ -118,7 +139,15 @@ public class CameraViewportHandler : MonoBehaviour
     {
         camera = GetComponent<Camera>();
         Instance = this;
+        _lastScreenWidth = Screen.width;
+        _lastScreenHeight = Screen.height;
         ComputeResolution();
+    }
+
+    private void OnEnable()
+    {
+        _lastScreenWidth = Screen.width;
+        _lastScreenHeight = Screen.height;
     }
 
     private void ComputeResolution()
@@ -148,6 +177,33 @@ public class CameraViewportHandler : MonoBehaviour
         topY = cameraY + _height / 2;
         bottomY = cameraY - _height / 2;
 
+        //*** safe area
+        float safeLeftNorm = 0, safeRightNorm = 0, safeBottomNorm = 0, safeTopNorm = 0;
+        if (useSafeArea)
+        {
+            Rect safe = Screen.safeArea;
+            float pw = Screen.width;
+            float ph = Screen.height;
+            if (pw > 0 && ph > 0 && (safe.x > 0 || safe.y > 0 || safe.width < pw || safe.height < ph))
+            {
+                safeLeftNorm = safe.x / pw;
+                safeRightNorm = 1f - (safe.x + safe.width) / pw;
+                safeBottomNorm = safe.y / ph;
+                safeTopNorm = 1f - (safe.y + safe.height) / ph;
+            }
+            if (manualSafeAreaInset.sqrMagnitude > 0.0001f)
+            {
+                safeLeftNorm = Mathf.Max(safeLeftNorm, manualSafeAreaInset.x);
+                safeRightNorm = Mathf.Max(safeRightNorm, manualSafeAreaInset.y);
+                safeBottomNorm = Mathf.Max(safeBottomNorm, manualSafeAreaInset.z);
+                safeTopNorm = Mathf.Max(safeTopNorm, manualSafeAreaInset.w);
+            }
+        }
+        _safeLeftX = leftX + _width * safeLeftNorm;
+        _safeRightX = rightX - _width * safeRightNorm;
+        _safeBottomY = bottomY + _height * safeBottomNorm;
+        _safeTopY = topY - _height * safeTopNorm;
+
         //*** bottom
         _bl = new Vector3(leftX, bottomY, 0);
         _bc = new Vector3(cameraX, bottomY, 0);
@@ -164,11 +220,18 @@ public class CameraViewportHandler : MonoBehaviour
 
     private void Update()
     {
-#if UNITY_EDITOR
-
-        if (executeInUpdate)
+        if (Screen.width != _lastScreenWidth || Screen.height != _lastScreenHeight)
+        {
+            _lastScreenWidth = Screen.width;
+            _lastScreenHeight = Screen.height;
             ComputeResolution();
-
+            OnResolutionChanged?.Invoke();
+        }
+#if UNITY_EDITOR
+        else if (executeInUpdate)
+        {
+            ComputeResolution();
+        }
 #endif
     }
 

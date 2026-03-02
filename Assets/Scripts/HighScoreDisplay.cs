@@ -11,6 +11,12 @@ public class HighScoreDisplay : MonoBehaviour
     int spaces = 25;
     public void Start()
     {
+        SetScore(score);
+    }
+
+    public void SetScore(int newScore)
+    {
+        score = newScore;
         int sofar = spaces;
         textDisplay.text = "<mspace=0em>";
         textDisplay.text += place.ToString() + ".";
@@ -23,6 +29,18 @@ public class HighScoreDisplay : MonoBehaviour
         }
         textDisplay.text += num;
     }
+
+    /// <summary>
+    /// Clears the display when there is no high score entry for this rank.
+    /// </summary>
+    public void SetEmpty()
+    {
+        if (textDisplay != null)
+        {
+            textDisplay.text = "";
+        }
+    }
+
     string FancyNum(int num)
     {
         string s = string.Empty;

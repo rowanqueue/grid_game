@@ -250,6 +250,8 @@ public class Tutorial : MonoBehaviour
                 };
                 choosingRule = true;
                 allowedColor = TokenColor.Red;
+                allowedPlaces[0] = new Vector2Int(1, 1);
+                allowedColor = TokenColor.Purple;
                 currentStageData = stageParent.GetComponent<TutorialStageData>();
                 //highlight = currentStep.highlights[0].gameObject;
                 highlight.SetActive(true);
@@ -365,7 +367,7 @@ public class Tutorial : MonoBehaviour
             case TutorialStage.CleanUp:
                 if (stagePhase == 1)
                 {
-                    allowedPlaces[0] = new Vector2Int(2, 2);
+                    allowedPlaces[0] = new Vector2Int(2, 1);
                     allowedColor = TokenColor.Red;
                     currentStageData.ActivateStage(0,false);
                     currentStageData.ActivateStage(1,true);
@@ -374,25 +376,11 @@ public class Tutorial : MonoBehaviour
                 {
                     allowedPlaces.Clear();
                     currentStageData.ActivateStage(1,false);
-                    currentStageData.ActivateStage(2,true);
-                }
-                if (stagePhase == 3)
-                {
                     IncrementStage();
                 }
                 break;
             case TutorialStage.Purple:
-                if (stagePhase == 1)
-                {
-                    allowedPlaces[0] = new Vector2Int(1, 2);
-                    allowedColor = TokenColor.Purple;
-                    currentStageData.ActivateStage(0,false);
-                    currentStageData.ActivateStage(1,true);
-                }
-                if (stagePhase == 2)
-                {
-                    IncrementStage();
-                }
+                IncrementStage();
                 break;
                 /*
                 case TutorialStage.EmptyHand:

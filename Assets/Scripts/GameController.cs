@@ -121,6 +121,7 @@ public class GameController : MonoBehaviour
     public List<Transform> handTransforms = new List<Transform>();
 
     public SnapshotScreen snapshotPreview;
+    public ToolShopScreen toolShopScreen;
 
     public int finishCount = 0;
     Vector2Int finishTokenPos;
@@ -145,7 +146,6 @@ public class GameController : MonoBehaviour
     {
         InitializeServices();
 #if UNITY_ANDROID
-        Handheld.Vibrate();
         UnityEngine.Screen.sleepTimeout = SleepTimeout.NeverSleep;
 #endif
         if (PlayerPrefs.HasKey("difficulty"))
@@ -331,6 +331,20 @@ public class GameController : MonoBehaviour
             hand.Add(null);
             hand.Add(null);
         }
+        CameraViewportHandler.OnResolutionChanged += RefreshAnchorsOnResolutionChange;
+    }
+
+    void OnDestroy()
+    {
+        CameraViewportHandler.OnResolutionChanged -= RefreshAnchorsOnResolutionChange;
+    }
+
+    void RefreshAnchorsOnResolutionChange()
+    {
+        if (stateScreens != null && (int)gameState < stateScreens.Count && stateScreens[(int)gameState] != null)
+        {
+            stateScreens[(int)gameState].SetAnchor();
+        }
     }
 
     void InitializeServices()
@@ -429,12 +443,18 @@ public class GameController : MonoBehaviour
             Json.Root root = JsonConvert.DeserializeObject<Json.Root>(gameJson.text);
             game.Initialize(root);
             CreateHand(true);
+            Save();
         }
         /*if (inTutorial && tutorial.stage == TutorialStage.GreenNextBag)
         {
             tutorial.IncrementStage();
         }*/
         if (gameState == GameState.Gameplay) { return; }
+        if (gameState == GameState.ToolShop)
+        {
+            var shop = toolShopScreen ?? stateScreens[(int)GameState.ToolShop].GetComponentInChildren<ToolShopScreen>();
+            shop?.CloseScreen();
+        }
         lastState = gameState;
         gameState = GameState.Gameplay;
         stateScreens[(int)gameState].gameObject.SetActive(true);
@@ -496,7 +516,8 @@ public class GameController : MonoBehaviour
 
         stateScreens[(int)gameState].gameObject.SetActive(true);
         stateScreens[(int)gameState].SetAnchor();
-        //todo: make toolshop open
+        var shop = toolShopScreen ?? stateScreens[(int)gameState].GetComponentInChildren<ToolShopScreen>();
+        shop?.OpenScreen();
         movingToScreen = true;
     }
     public void GameStateSeeds()
@@ -540,6 +561,11 @@ public class GameController : MonoBehaviour
         if (inTutorial) { return; }
         lastState = gameState;
         gameState = GameState.HighScore;
+
+        if (HighScoreManager.Instance != null)
+        {
+            HighScoreManager.Instance.RefreshUI();
+        }
 
         stateScreens[(int)gameState].gameObject.SetActive(true);
         stateScreens[(int)gameState].SetAnchor();
@@ -966,6 +992,11 @@ public class GameController : MonoBehaviour
         dyingTokens.Clear();
         yield return new WaitForSeconds(1.2f);
         SaveLoad.DeleteSave(0);
+        // Submit the final score to the local high score table, if a manager exists.
+        if (HighScoreManager.Instance != null)
+        {
+            HighScoreManager.Instance.SubmitScore(score, difficulty);
+        }
         winScreen.SetActive(true);
         EnterInputState(InputState.TapToRestart);
 
@@ -1141,7 +1172,7 @@ public class GameController : MonoBehaviour
         switch (inputState)
         {
             case InputState.TapToRestart:
-                if (Input.anyKeyDown)
+                if (Input.anyKeyDown || Input.GetMouseButtonDown(0) || (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began))
                 {
                     Services.AudioManager.StopMusic();
                     SceneManager.LoadScene(0);

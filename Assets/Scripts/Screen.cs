@@ -9,6 +9,8 @@ namespace flora
     {
         public bool findChildren;
         public List<AnchorGameObject> anchoreds = new List<AnchorGameObject>();
+        [Tooltip("Optional offset applied to all anchored children (for per-screen layout tweaks).")]
+        public Vector3 screenAnchorOffset;
         public bool setAnchor;
         // Start is called before the first frame update
         void Start()
@@ -19,7 +21,7 @@ namespace flora
         {
             foreach (AnchorGameObject a in anchoreds)
             {
-                a.SetAnchor();
+                a.SetAnchor(screenAnchorOffset);
             }
         }
 
