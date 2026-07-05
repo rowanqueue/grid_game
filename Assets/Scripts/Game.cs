@@ -214,7 +214,7 @@ namespace Logic
                     s += t.ToString();
                 }
             }
-            Debug.Log(s);
+            GameLog.Log(s);
             if (change)
             {
                 depth += 1;
@@ -299,6 +299,10 @@ namespace Logic
         public Grid grid;
         public Bag bag;
         public Hand hand;
+        /// <summary>When true, an empty hand stays empty until GameController applies a scripted tutorial hand.</summary>
+        public bool skipAutoHandFillOnEmpty;
+        /// <summary>Optional tutorial gate: return false to block queuing NewHand (e.g. logic empty but hand UI still shows tiles).</summary>
+        public System.Func<bool> tutorialNewHandGate;
         public Token freeSlot;
         public int score = 0;
         uint turn = 0;//counts placed tokens
@@ -330,7 +334,7 @@ namespace Logic
 
         public virtual void Initialize(Json.Root root)
         {
-            Debug.Log(root.name);
+            GameLog.Log(root.name);
             //gridSize
             gridSize = new Vector2Int(root.gridSize.x, root.gridSize.y);
             //handSize
@@ -680,10 +684,18 @@ namespace Logic
         {
             //this has to be called
             
-            if (hand.IsHandEmpty())
+            bool dealNewHand = skipAutoHandFillOnEmpty ? hand.AllSlotsEmpty() : hand.IsHandEmpty();
+            if (dealNewHand && tutorialNewHandGate != null && !tutorialNewHandGate())
+            {
+                dealNewHand = false;
+            }
+            if (dealNewHand)
             {
                 hand.EmptyHand();
-                hand.FillHand(bag);
+                if (!skipAutoHandFillOnEmpty)
+                {
+                    hand.FillHand(bag);
+                }
                 status.events.Add(new StatusReport.Event(StatusReport.EventType.NewHand,hand.tokens));
             }
             gridUpdating = false;
@@ -1441,6 +1453,7 @@ namespace Logic
         }
         public void TutorialHand(int num,Bag bag)
         {
+            tokensTaken = 0;
             if(num == 0)
             {
                 for (int i = 0; i < handSize; i++)
@@ -1459,73 +1472,47 @@ namespace Logic
                 for (int i = 0; i < 2; i++)
                 {
                     tokens[i+2] = new Token(new TokenData(TokenColor.Red, 1), true);
-                    bag.bag.Remove(new TokenData(TokenColor.Blue, 1));
+                    bag.bag.Remove(new TokenData(TokenColor.Red, 1));
                 }
             }
             if(num == 2)
             {
-                for (int i = 0; i < 1; i++)
+                // Hand 3: blue, blue, red, red
+                for (int i = 0; i < 2; i++)
                 {
                     tokens[i] = new Token(new TokenData(TokenColor.Blue, 1), true);
-                    bag.bag.Remove(new TokenData(TokenColor.Blue, 1));
-                }
-                for (int i = 0; i < 1; i++)
-                {
-                    tokens[i + 1] = new Token(new TokenData(TokenColor.Red, 1), true);
                     bag.bag.Remove(new TokenData(TokenColor.Blue, 1));
                 }
                 for (int i = 0; i < 2; i++)
                 {
-                    tokens[i+2] = new Token(new TokenData(TokenColor.Green, 1), true);
-                    bag.bag.Remove(new TokenData(TokenColor.Green, 1));
+                    tokens[i + 2] = new Token(new TokenData(TokenColor.Red, 1), true);
+                    bag.bag.Remove(new TokenData(TokenColor.Red, 1));
                 }
             }
             if (num == 3)
             {
-                //blue,red,green,red
-                for (int i = 0; i < 1; i++)
+                // Hand 4: blue, red, green, green
+                tokens[0] = new Token(new TokenData(TokenColor.Blue, 1), true);
+                bag.bag.Remove(new TokenData(TokenColor.Blue, 1));
+                tokens[1] = new Token(new TokenData(TokenColor.Red, 1), true);
+                bag.bag.Remove(new TokenData(TokenColor.Red, 1));
+                for (int i = 0; i < 2; i++)
                 {
-                    tokens[i] = new Token(new TokenData(TokenColor.Blue, 1), true);
-                    bag.bag.Remove(new TokenData(TokenColor.Blue, 1));
-                }
-                for (int i = 0; i < 1; i++)
-                {
-                    tokens[i + 1] = new Token(new TokenData(TokenColor.Red, 1), true);
-                    bag.bag.Remove(new TokenData(TokenColor.Blue, 1));
-                }
-                for (int i = 0; i < 1; i++)
-                {
-                    tokens[i + 2] = new Token(new TokenData(TokenColor.Purple, 1), true);
-                    bag.bag.Remove(new TokenData(TokenColor.Green, 1));
-                }
-                for (int i = 0; i < 1; i++)
-                {
-                    tokens[i + 3] = new Token(new TokenData(TokenColor.Green, 1), true);
+                    tokens[i + 2] = new Token(new TokenData(TokenColor.Green, 1), true);
                     bag.bag.Remove(new TokenData(TokenColor.Green, 1));
                 }
             }
             if (num == 4)
             {
-                for (int i = 0; i < 1; i++)
-                {
-                    tokens[i] = new Token(new TokenData(TokenColor.Blue, 1), true);
-                    bag.bag.Remove(new TokenData(TokenColor.Blue, 1));
-                }
-                for (int i = 0; i < 1; i++)
-                {
-                    tokens[i + 1] = new Token(new TokenData(TokenColor.Red, 1), true);
-                    bag.bag.Remove(new TokenData(TokenColor.Blue, 1));
-                }
-                for (int i = 0; i < 1; i++)
-                {
-                    tokens[i +2] = new Token(new TokenData(TokenColor.Green, 1), true);
-                    bag.bag.Remove(new TokenData(TokenColor.Green, 1));
-                }
-                for (int i = 0; i < 1; i++)
-                {
-                    tokens[i + 3] = new Token(new TokenData(TokenColor.Purple, 1), true);
-                    bag.bag.Remove(new TokenData(TokenColor.Green, 1));
-                }
+                // Hand 5: blue, red, purple, green
+                tokens[0] = new Token(new TokenData(TokenColor.Blue, 1), true);
+                bag.bag.Remove(new TokenData(TokenColor.Blue, 1));
+                tokens[1] = new Token(new TokenData(TokenColor.Red, 1), true);
+                bag.bag.Remove(new TokenData(TokenColor.Red, 1));
+                tokens[2] = new Token(new TokenData(TokenColor.Purple, 1), true);
+                bag.bag.Remove(new TokenData(TokenColor.Purple, 1));
+                tokens[3] = new Token(new TokenData(TokenColor.Green, 1), true);
+                bag.bag.Remove(new TokenData(TokenColor.Green, 1));
             }
             
         }
@@ -1547,6 +1534,7 @@ namespace Logic
         public void EmptyHand()
         {
             tokens = new Token[handSize];
+            tokensTaken = 0;
         }
         public Token TakeToken(int _index)
         {
@@ -1555,18 +1543,23 @@ namespace Logic
             tokens[_index] = null;
             return token;
         }
+        public bool AllSlotsEmpty()
+        {
+            foreach (Token token in tokens)
+            {
+                if (token != null)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         public bool IsHandEmpty()
         {
             if (handChoices == -1)
             {
-                foreach(Token token in tokens)
-                {
-                    if(token != null)
-                    {
-                        return false;
-                    }
-                }
-                return true;
+                return AllSlotsEmpty();
             }
             else
             {

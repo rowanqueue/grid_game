@@ -2343,7 +2343,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   executeInUpdate: 1
   moved: 1
-  anchorType: 8
+  anchorType: 14
   anchorOffset: {x: -0.65, y: -1.53, z: 0}
 --- !u!1 &502655330550461411
 GameObject:
@@ -6033,7 +6033,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   executeInUpdate: 1
   moved: 1
-  anchorType: 6
+  anchorType: 12
   anchorOffset: {x: 0.65, y: -1.53, z: 0}
 --- !u!1 &1117509749605967121
 GameObject:
@@ -17125,7 +17125,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   executeInUpdate: 1
   moved: 1
-  anchorType: 6
+  anchorType: 12
   anchorOffset: {x: 0.65, y: -1.53, z: 0}
 --- !u!1 &3712418384391744733
 GameObject:
@@ -38793,7 +38793,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   executeInUpdate: 1
   moved: 1
-  anchorType: 8
+  anchorType: 14
   anchorOffset: {x: -0.65, y: -1.53, z: 0}
 --- !u!1 &7679007686499073968
 GameObject:

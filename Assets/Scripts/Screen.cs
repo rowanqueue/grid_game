@@ -19,9 +19,12 @@ namespace flora
         }
         public void SetAnchor()
         {
+            if (anchoreds == null)
+                return;
             foreach (AnchorGameObject a in anchoreds)
             {
-                a.SetAnchor(screenAnchorOffset);
+                if (a != null)
+                    a.SetAnchor(screenAnchorOffset, forceInactive: true);
             }
         }
 

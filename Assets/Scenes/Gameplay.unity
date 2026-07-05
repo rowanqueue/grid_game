@@ -445,7 +445,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   executeInUpdate: 1
   moved: 1
-  anchorType: 8
+  anchorType: 14
   anchorOffset: {x: -0.65, y: -1.53, z: 0}
 --- !u!61 &30839282
 BoxCollider2D:
@@ -536,6 +536,8 @@ MonoBehaviour:
   toggledDisplay: {fileID: 0}
   words: {fileID: 0}
   hoverColor: {r: 0.7529412, g: 0.7529412, b: 0.7529412, a: 1}
+  pressScale: 0.95
+  pressDuration: 0.08
   disabled: 0
 --- !u!4 &30839284
 Transform:
@@ -819,6 +821,8 @@ MonoBehaviour:
   toggledDisplay: {fileID: 0}
   words: {fileID: 0}
   hoverColor: {r: 0.7529412, g: 0.7529412, b: 0.7529412, a: 1}
+  pressScale: 0.95
+  pressDuration: 0.08
   disabled: 0
 --- !u!4 &52254145
 Transform:
@@ -1527,6 +1531,11 @@ MonoBehaviour:
   Spade_EndRotation: 30
   UndoInAnimation: 0.5
   UndoOutAnimation: 0.5
+  upgradePresentationHold: 0.4
+  bagDrawStaggerSeconds: 0.2
+  placementSettleSeconds: 0.12
+  killNumberWaitMin: 0.1
+  killNumberWaitMax: 0.4
   crunchCircle: {fileID: 0}
   crunchText: {fileID: 0}
 --- !u!4 &71062472
@@ -2652,6 +2661,8 @@ MonoBehaviour:
   toggledDisplay: {fileID: 0}
   words: {fileID: 0}
   hoverColor: {r: 0, g: 0, b: 0, a: 0}
+  pressScale: 0.95
+  pressDuration: 0.08
   disabled: 0
 --- !u!1 &156174256
 GameObject:
@@ -3164,6 +3175,11 @@ MonoBehaviour:
   Spade_EndRotation: 30
   UndoInAnimation: 0.5
   UndoOutAnimation: 0.5
+  upgradePresentationHold: 0.4
+  bagDrawStaggerSeconds: 0.2
+  placementSettleSeconds: 0.12
+  killNumberWaitMin: 0.1
+  killNumberWaitMax: 0.4
   crunchCircle: {fileID: 0}
   crunchText: {fileID: 0}
 --- !u!1 &178084817
@@ -3330,6 +3346,8 @@ MonoBehaviour:
   toggledDisplay: {fileID: 1344660160}
   words: {fileID: 0}
   hoverColor: {r: 0.7529412, g: 0.7529412, b: 0.7529412, a: 1}
+  pressScale: 0.95
+  pressDuration: 0.08
   disabled: 0
 --- !u!1 &180287938
 GameObject:
@@ -3888,7 +3906,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   executeInUpdate: 0
   moved: 1
-  anchorType: 6
+  anchorType: 12
   anchorOffset: {x: 0.6, y: -1.08, z: 0}
 --- !u!1 &207015906
 GameObject:
@@ -4735,6 +4753,8 @@ MonoBehaviour:
   toggledDisplay: {fileID: 0}
   words: {fileID: 0}
   hoverColor: {r: 0.7529412, g: 0.7529412, b: 0.7529412, a: 1}
+  pressScale: 0.95
+  pressDuration: 0.08
   disabled: 0
 --- !u!1 &260108877
 GameObject:
@@ -5033,6 +5053,8 @@ MonoBehaviour:
   toggledDisplay: {fileID: 0}
   words: {fileID: 0}
   hoverColor: {r: 0.7529412, g: 0.7529412, b: 0.7529412, a: 1}
+  pressScale: 0.95
+  pressDuration: 0.08
   disabled: 0
 --- !u!1 &278124841
 GameObject:
@@ -5945,7 +5967,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   executeInUpdate: 0
   moved: 1
-  anchorType: 6
+  anchorType: 12
   anchorOffset: {x: 0.5, y: -0.5, z: 0}
 --- !u!61 &300880910
 BoxCollider2D:
@@ -6048,6 +6070,8 @@ MonoBehaviour:
   toggledDisplay: {fileID: 0}
   words: {fileID: 0}
   hoverColor: {r: 0.7529412, g: 0.7529412, b: 0.7529412, a: 1}
+  pressScale: 0.95
+  pressDuration: 0.08
   disabled: 0
 --- !u!1 &302808058
 GameObject:
@@ -6495,7 +6519,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &317441740
 Transform:
   m_ObjectHideFlags: 0
@@ -6589,6 +6613,8 @@ MonoBehaviour:
   toggledDisplay: {fileID: 0}
   words: {fileID: 0}
   hoverColor: {r: 0.7529412, g: 0.7529412, b: 0.7529412, a: 1}
+  pressScale: 0.95
+  pressDuration: 0.08
   disabled: 0
 --- !u!1 &321249651
 GameObject:
@@ -6703,6 +6729,8 @@ MonoBehaviour:
   toggledDisplay: {fileID: 0}
   words: {fileID: 0}
   hoverColor: {r: 0.7529412, g: 0.7529412, b: 0.7529412, a: 1}
+  pressScale: 0.95
+  pressDuration: 0.08
   disabled: 0
 --- !u!1 &328762364
 GameObject:
@@ -8524,6 +8552,8 @@ MonoBehaviour:
   toggledDisplay: {fileID: 0}
   words: {fileID: 0}
   hoverColor: {r: 0.7529412, g: 0.7529412, b: 0.7529412, a: 1}
+  pressScale: 0.95
+  pressDuration: 0.08
   disabled: 0
 --- !u!1 &461891527
 GameObject:
@@ -8745,6 +8775,8 @@ MonoBehaviour:
   toggledDisplay: {fileID: 0}
   words: {fileID: 0}
   hoverColor: {r: 0.7529412, g: 0.7529412, b: 0.7529412, a: 1}
+  pressScale: 0.95
+  pressDuration: 0.08
   disabled: 0
 --- !u!4 &462623252
 Transform:
@@ -10200,7 +10232,7 @@ MonoBehaviour:
   _iOSGameId: 6056952
   _androidAdUnitId: Rewarded_Android
   _iOSAdUnitId: Rewarded_iOS
-  _testMode: 1
+  _testMode: 0
 --- !u!1 &599808890
 GameObject:
   m_ObjectHideFlags: 0
@@ -10489,6 +10521,8 @@ MonoBehaviour:
   toggledDisplay: {fileID: 0}
   words: {fileID: 0}
   hoverColor: {r: 0.7529412, g: 0.7529412, b: 0.7529412, a: 1}
+  pressScale: 0.95
+  pressDuration: 0.08
   disabled: 0
 --- !u!4 &606761154
 Transform:
@@ -10521,7 +10555,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   executeInUpdate: 0
   moved: 1
-  anchorType: 8
+  anchorType: 14
   anchorOffset: {x: -0.5, y: -0.5, z: 0}
 --- !u!1 &609348308
 GameObject:
@@ -11929,6 +11963,7 @@ MonoBehaviour:
   - {fileID: 1124677824}
   - {fileID: 203339603}
   - {fileID: 1760662595}
+  - {fileID: 867720748}
   - {fileID: 1602828304}
   - {fileID: 1116499837}
   - {fileID: 2097492127}
@@ -13147,6 +13182,8 @@ MonoBehaviour:
   toggledDisplay: {fileID: 0}
   words: {fileID: 0}
   hoverColor: {r: 0.7529412, g: 0.7529412, b: 0.7529412, a: 1}
+  pressScale: 0.95
+  pressDuration: 0.08
   disabled: 0
 --- !u!114 &782117028
 MonoBehaviour:
@@ -13764,7 +13801,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   executeInUpdate: 0
   moved: 1
-  anchorType: 6
+  anchorType: 12
   anchorOffset: {x: 0.5, y: -0.5, z: 0}
 --- !u!61 &827620666
 BoxCollider2D:
@@ -13867,6 +13904,8 @@ MonoBehaviour:
   toggledDisplay: {fileID: 0}
   words: {fileID: 0}
   hoverColor: {r: 0.7529412, g: 0.7529412, b: 0.7529412, a: 1}
+  pressScale: 0.95
+  pressDuration: 0.08
   disabled: 0
 --- !u!1 &829361400
 GameObject:
@@ -13919,7 +13958,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   executeInUpdate: 0
   moved: 1
-  anchorType: 6
+  anchorType: 12
   anchorOffset: {x: 0.5, y: -0.5, z: 0}
 --- !u!61 &829361403
 BoxCollider2D:
@@ -14022,6 +14061,8 @@ MonoBehaviour:
   toggledDisplay: {fileID: 0}
   words: {fileID: 0}
   hoverColor: {r: 0.7529412, g: 0.7529412, b: 0.7529412, a: 1}
+  pressScale: 0.95
+  pressDuration: 0.08
   disabled: 0
 --- !u!1001 &836732580
 PrefabInstance:
@@ -14547,6 +14588,7 @@ GameObject:
   m_Component:
   - component: {fileID: 867720747}
   - component: {fileID: 867720746}
+  - component: {fileID: 867720748}
   m_Layer: 0
   m_Name: Popup
   m_TagString: Untagged
@@ -14588,6 +14630,12 @@ MonoBehaviour:
   - {fileID: 1961899771}
   type: 0
   previousUnlocks: []
+  slideInFromX: -6
+  slideOpenX: 0
+  slideOutToX: 6
+  slideInDuration: 0.35
+  slideOutDuration: 0.25
+  popupAnchorOffset: {x: 0, y: -4, z: 0}
   tinyTabs:
   - {fileID: 149334495}
   - {fileID: 417408779}
@@ -14607,13 +14655,29 @@ Transform:
   m_GameObject: {fileID: 867720745}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.84000015, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 825430881}
   m_Father: {fileID: 703125198}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &867720748
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 867720745}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 847f198395993764dbb57aaae42b58da, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  executeInUpdate: 0
+  moved: 1
+  anchorType: 13
+  anchorOffset: {x: 0, y: -4, z: 0}
 --- !u!1 &868420536
 GameObject:
   m_ObjectHideFlags: 0
@@ -16240,7 +16304,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   executeInUpdate: 0
   moved: 1
-  anchorType: 6
+  anchorType: 12
   anchorOffset: {x: 0.5, y: -0.5, z: 0}
 --- !u!61 &1006548440
 BoxCollider2D:
@@ -16307,6 +16371,8 @@ MonoBehaviour:
   toggledDisplay: {fileID: 0}
   words: {fileID: 0}
   hoverColor: {r: 0.7529412, g: 0.7529412, b: 0.7529412, a: 1}
+  pressScale: 0.95
+  pressDuration: 0.08
   disabled: 1
 --- !u!1 &1007532720
 GameObject:
@@ -17023,6 +17089,11 @@ MonoBehaviour:
   freeSlotVisual: {fileID: 723642967}
   chosenPos: {x: -1, y: 0}
   waitTime: 0.25
+  tokenWaitMultiplier: 1.5
+  winHoldDuration: 1.2
+  cameraPanDuration: 0.45
+  mulliganStaggerSeconds: 0.1
+  mulliganPauseBeforeDraw: 0.5
   waiting: 0
   lastTokenPlaced: {fileID: 0}
   holdingClipper: 0
@@ -18600,7 +18671,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   executeInUpdate: 0
   moved: 1
-  anchorType: 6
+  anchorType: 12
   anchorOffset: {x: 0.6, y: -1.74, z: 0}
 --- !u!1 &1125671038
 GameObject:
@@ -18902,6 +18973,8 @@ MonoBehaviour:
   toggledDisplay: {fileID: 0}
   words: {fileID: 0}
   hoverColor: {r: 0.754717, g: 0.754717, b: 0.754717, a: 1}
+  pressScale: 0.95
+  pressDuration: 0.08
   disabled: 0
 --- !u!4 &1135808323
 Transform:
@@ -19574,7 +19647,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   executeInUpdate: 0
   moved: 1
-  anchorType: 6
+  anchorType: 12
   anchorOffset: {x: 1.78, y: -1.73, z: 0}
 --- !u!61 &1200760945
 BoxCollider2D:
@@ -19677,6 +19750,8 @@ MonoBehaviour:
   toggledDisplay: {fileID: 0}
   words: {fileID: 0}
   hoverColor: {r: 0.7529412, g: 0.7529412, b: 0.7529412, a: 1}
+  pressScale: 0.95
+  pressDuration: 0.08
   disabled: 0
 --- !u!1 &1203821707
 GameObject:
@@ -20733,6 +20808,8 @@ MonoBehaviour:
   toggledDisplay: {fileID: 1885034655}
   words: {fileID: 1222590103}
   hoverColor: {r: 0.7529412, g: 0.7529412, b: 0.7529412, a: 1}
+  pressScale: 0.95
+  pressDuration: 0.08
   disabled: 0
 --- !u!1 &1256667082
 GameObject:
@@ -20929,6 +21006,8 @@ MonoBehaviour:
   toggledDisplay: {fileID: 0}
   words: {fileID: 0}
   hoverColor: {r: 0.7529412, g: 0.7529412, b: 0.7529412, a: 1}
+  pressScale: 0.95
+  pressDuration: 0.08
   disabled: 0
 --- !u!1 &1259055194
 GameObject:
@@ -21602,6 +21681,8 @@ MonoBehaviour:
   toggledDisplay: {fileID: 0}
   words: {fileID: 0}
   hoverColor: {r: 0.7529412, g: 0.7529412, b: 0.7529412, a: 1}
+  pressScale: 0.95
+  pressDuration: 0.08
   disabled: 0
 --- !u!4 &1282894539
 Transform:
@@ -21939,6 +22020,8 @@ MonoBehaviour:
   toggledDisplay: {fileID: 0}
   words: {fileID: 0}
   hoverColor: {r: 0.7529412, g: 0.7529412, b: 0.7529412, a: 1}
+  pressScale: 0.95
+  pressDuration: 0.08
   disabled: 0
 --- !u!1 &1318847424
 GameObject:
@@ -22958,8 +23041,8 @@ Transform:
   m_GameObject: {fileID: 1425638307}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2, y: 2, z: 1}
+  m_LocalPosition: {x: 4.47, y: 6.26, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 500277782}
@@ -23940,7 +24023,8 @@ MonoBehaviour:
   - {fileID: 1316500649}
   slideRoot: {fileID: 0}
   slideOffset: 8
-  slideDuration: 0.35
+  slideInDuration: 0.35
+  slideOutDuration: 0.55
 --- !u!1001 &1487046066
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -24563,6 +24647,10 @@ PrefabInstance:
       propertyPath: stagePhase.Array.data[1].highlightBorder.Array.data[1]
       value: 
       objectReference: {fileID: 1547128951}
+    - target: {fileID: 4982396978781951114, guid: 48f6905d65ab74227b0211213aeffa4e, type: 3}
+      propertyPath: introSettleTime
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4982396978781951114, guid: 48f6905d65ab74227b0211213aeffa4e, type: 3}
       propertyPath: stageTransitionDelay
       value: 0.5
@@ -25565,6 +25653,8 @@ MonoBehaviour:
   toggledDisplay: {fileID: 0}
   words: {fileID: 0}
   hoverColor: {r: 0.7529412, g: 0.7529412, b: 0.7529412, a: 1}
+  pressScale: 0.95
+  pressDuration: 0.08
   disabled: 0
 --- !u!4 &1566271052
 Transform:
@@ -26273,6 +26363,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c93d92a5ed9ed640a8563d25ef9d81d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  fadeInDuration: 0.15
+  fadeOutDuration: 0.15
+  clickDebounce: 0.1
 --- !u!1 &1638341353
 GameObject:
   m_ObjectHideFlags: 0
@@ -26692,6 +26785,8 @@ MonoBehaviour:
   toggledDisplay: {fileID: 61892996}
   words: {fileID: 0}
   hoverColor: {r: 0.7529412, g: 0.7529412, b: 0.7529412, a: 1}
+  pressScale: 0.95
+  pressDuration: 0.08
   disabled: 0
 --- !u!1 &1645019532
 GameObject:
@@ -27713,6 +27808,8 @@ MonoBehaviour:
   toggledDisplay: {fileID: 0}
   words: {fileID: 0}
   hoverColor: {r: 0.754717, g: 0.754717, b: 0.754717, a: 1}
+  pressScale: 0.95
+  pressDuration: 0.08
   disabled: 0
 --- !u!4 &1712947395
 Transform:
@@ -27723,7 +27820,7 @@ Transform:
   m_GameObject: {fileID: 1712947391}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2.0915034, y: -4.5, z: 0}
+  m_LocalPosition: {x: 2.0908544, y: -4.5, z: 0}
   m_LocalScale: {x: 0.5, y: 0.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -27959,6 +28056,11 @@ MonoBehaviour:
   Spade_EndRotation: 30
   UndoInAnimation: 0.5
   UndoOutAnimation: 0.5
+  upgradePresentationHold: 0.4
+  bagDrawStaggerSeconds: 0.2
+  placementSettleSeconds: 0.12
+  killNumberWaitMin: 0.1
+  killNumberWaitMax: 0.4
   crunchCircle: {fileID: 0}
   crunchText: {fileID: 0}
 --- !u!1 &1734439566
@@ -28113,6 +28215,8 @@ MonoBehaviour:
   toggledDisplay: {fileID: 0}
   words: {fileID: 0}
   hoverColor: {r: 0, g: 0, b: 0, a: 0}
+  pressScale: 0.95
+  pressDuration: 0.08
   disabled: 0
 --- !u!1 &1736435859
 GameObject:
@@ -28584,6 +28688,8 @@ MonoBehaviour:
   toggledDisplay: {fileID: 0}
   words: {fileID: 0}
   hoverColor: {r: 0.7529412, g: 0.7529412, b: 0.7529412, a: 1}
+  pressScale: 0.95
+  pressDuration: 0.08
   disabled: 0
 --- !u!4 &1753067384
 Transform:
@@ -28594,7 +28700,7 @@ Transform:
   m_GameObject: {fileID: 1753067381}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.5800004, y: -1.45, z: -1.2725486}
+  m_LocalPosition: {x: 0, y: -1.45, z: -1.2725486}
   m_LocalScale: {x: 0.45, y: 0.45, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -28819,7 +28925,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   executeInUpdate: 0
   moved: 1
-  anchorType: 6
+  anchorType: 12
   anchorOffset: {x: 0.6, y: -0.42, z: 0}
 --- !u!1 &1761147675
 GameObject:
@@ -28932,6 +29038,8 @@ MonoBehaviour:
   toggledDisplay: {fileID: 0}
   words: {fileID: 0}
   hoverColor: {r: 0.7529412, g: 0.7529412, b: 0.7529412, a: 1}
+  pressScale: 0.95
+  pressDuration: 0.08
   disabled: 0
 --- !u!1001 &1762507673
 PrefabInstance:
@@ -30227,6 +30335,11 @@ MonoBehaviour:
   Spade_EndRotation: 30
   UndoInAnimation: 0.5
   UndoOutAnimation: 0.5
+  upgradePresentationHold: 0.4
+  bagDrawStaggerSeconds: 0.2
+  placementSettleSeconds: 0.12
+  killNumberWaitMin: 0.1
+  killNumberWaitMax: 0.4
   crunchCircle: {fileID: 0}
   crunchText: {fileID: 0}
 --- !u!4 &1835835139
@@ -30581,6 +30694,8 @@ MonoBehaviour:
   toggledDisplay: {fileID: 1203821709}
   words: {fileID: 0}
   hoverColor: {r: 0.7529412, g: 0.7529412, b: 0.7529412, a: 1}
+  pressScale: 0.95
+  pressDuration: 0.08
   disabled: 0
 --- !u!1 &1855940839
 GameObject:
@@ -30912,6 +31027,8 @@ MonoBehaviour:
   toggledDisplay: {fileID: 0}
   words: {fileID: 0}
   hoverColor: {r: 0.7529412, g: 0.7529412, b: 0.7529412, a: 1}
+  pressScale: 0.95
+  pressDuration: 0.08
   disabled: 0
 --- !u!1 &1907669573
 GameObject:
@@ -31508,6 +31625,8 @@ MonoBehaviour:
   toggledDisplay: {fileID: 1463694722}
   words: {fileID: 0}
   hoverColor: {r: 0.7529412, g: 0.7529412, b: 0.7529412, a: 1}
+  pressScale: 0.95
+  pressDuration: 0.08
   disabled: 0
 --- !u!1 &1943094243
 GameObject:
@@ -31645,6 +31764,8 @@ MonoBehaviour:
   toggledDisplay: {fileID: 0}
   words: {fileID: 0}
   hoverColor: {r: 0.7529412, g: 0.7529412, b: 0.7529412, a: 1}
+  pressScale: 0.95
+  pressDuration: 0.08
   disabled: 0
 --- !u!4 &1943094247
 Transform:
@@ -31996,6 +32117,8 @@ MonoBehaviour:
   toggledDisplay: {fileID: 0}
   words: {fileID: 0}
   hoverColor: {r: 0.7529412, g: 0.7529412, b: 0.7529412, a: 1}
+  pressScale: 0.95
+  pressDuration: 0.08
   disabled: 0
 --- !u!114 &1961899771 stripped
 MonoBehaviour:
@@ -32331,6 +32454,8 @@ MonoBehaviour:
   toggledDisplay: {fileID: 0}
   words: {fileID: 0}
   hoverColor: {r: 0.7529412, g: 0.7529412, b: 0.7529412, a: 1}
+  pressScale: 0.95
+  pressDuration: 0.08
   disabled: 0
 --- !u!1 &1975847286
 GameObject:
@@ -32606,6 +32731,11 @@ MonoBehaviour:
   Spade_EndRotation: 30
   UndoInAnimation: 0.5
   UndoOutAnimation: 0.5
+  upgradePresentationHold: 0.4
+  bagDrawStaggerSeconds: 0.2
+  placementSettleSeconds: 0.12
+  killNumberWaitMin: 0.1
+  killNumberWaitMax: 0.4
   crunchCircle: {fileID: 0}
   crunchText: {fileID: 0}
 --- !u!4 &1983541268
@@ -34250,6 +34380,8 @@ MonoBehaviour:
   toggledDisplay: {fileID: 0}
   words: {fileID: 0}
   hoverColor: {r: 0.7529412, g: 0.7529412, b: 0.7529412, a: 1}
+  pressScale: 0.95
+  pressDuration: 0.08
   disabled: 0
 --- !u!1001 &2066350759
 PrefabInstance:
@@ -34725,7 +34857,7 @@ Transform:
   m_GameObject: {fileID: 2087381415}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.5800004, y: -2.46, z: -1.2725486}
+  m_LocalPosition: {x: 0, y: -2.46, z: -1.2725486}
   m_LocalScale: {x: 0.45, y: 0.45, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -34809,6 +34941,8 @@ MonoBehaviour:
   toggledDisplay: {fileID: 0}
   words: {fileID: 0}
   hoverColor: {r: 0.7529412, g: 0.7529412, b: 0.7529412, a: 1}
+  pressScale: 0.95
+  pressDuration: 0.08
   disabled: 0
 --- !u!114 &2097492127 stripped
 MonoBehaviour:
@@ -35200,7 +35334,7 @@ Transform:
   m_GameObject: {fileID: 2136098567}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.49, y: -1.45, z: -1.2725486}
+  m_LocalPosition: {x: 0, y: -3.49, z: -1.2725486}
   m_LocalScale: {x: 0.45, y: 0.45, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -35284,6 +35418,8 @@ MonoBehaviour:
   toggledDisplay: {fileID: 0}
   words: {fileID: 0}
   hoverColor: {r: 0.7529412, g: 0.7529412, b: 0.7529412, a: 1}
+  pressScale: 0.95
+  pressDuration: 0.08
   disabled: 0
 --- !u!1 &2144743667
 GameObject:
@@ -35528,11 +35664,11 @@ PrefabInstance:
       objectReference: {fileID: 1959469644}
     - target: {fileID: 3546795605185898949, guid: 7c892abf3aef94db488afc305c949b82, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 2.7915034
+      value: 2.6672204
       objectReference: {fileID: 0}
     - target: {fileID: 3546795605185898949, guid: 7c892abf3aef94db488afc305c949b82, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 5
+      value: 4.34
       objectReference: {fileID: 0}
     - target: {fileID: 3546795605185898949, guid: 7c892abf3aef94db488afc305c949b82, type: 3}
       propertyPath: m_LocalPosition.z
@@ -35603,6 +35739,18 @@ PrefabInstance:
       propertyPath: m_FlipY
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3616581597237116324, guid: 07d38621b575e4312843548b3c0a328c, type: 3}
+      propertyPath: anchorOffset.y
+      value: 4.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 3616581597237116324, guid: 07d38621b575e4312843548b3c0a328c, type: 3}
+      propertyPath: executeInUpdate
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3661889725536721637, guid: 07d38621b575e4312843548b3c0a328c, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 10.2
+      objectReference: {fileID: 0}
     - target: {fileID: 4498743249455688582, guid: 07d38621b575e4312843548b3c0a328c, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -35642,6 +35790,10 @@ PrefabInstance:
     - target: {fileID: 4498743249455688582, guid: 07d38621b575e4312843548b3c0a328c, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4619502839137357975, guid: 07d38621b575e4312843548b3c0a328c, type: 3}
+      propertyPath: anchorOffset.y
+      value: 5.79
       objectReference: {fileID: 0}
     - target: {fileID: 4662361212341210295, guid: 07d38621b575e4312843548b3c0a328c, type: 3}
       propertyPath: m_LocalPosition.x
@@ -35690,6 +35842,10 @@ PrefabInstance:
     - target: {fileID: 8578610507428904055, guid: 07d38621b575e4312843548b3c0a328c, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 69.609
+      objectReference: {fileID: 0}
+    - target: {fileID: 8993201837554989517, guid: 07d38621b575e4312843548b3c0a328c, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -4.5
       objectReference: {fileID: 0}
     - target: {fileID: 9004759962245909287, guid: 07d38621b575e4312843548b3c0a328c, type: 3}
       propertyPath: m_LocalPosition.x

@@ -5504,7 +5504,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 140710249
   m_SortingLayer: 7
-  m_SortingOrder: 10
+  m_SortingOrder: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 48e93eef0688c4a259cb0eddcd8661f7, type: 3}
   m_Color: {r: 0, g: 0, b: 0, a: 0.56078434}
   m_FlipX: 0
@@ -5770,6 +5770,11 @@ MonoBehaviour:
   Spade_EndRotation: 0
   UndoInAnimation: 1
   UndoOutAnimation: 1
+  upgradePresentationHold: 0.4
+  bagDrawStaggerSeconds: 0.2
+  placementSettleSeconds: 0.12
+  killNumberWaitMin: 0.1
+  killNumberWaitMax: 0.4
   crunchCircle: {fileID: 4709330090078239351}
   crunchText: {fileID: 4836911429955404793}
 --- !u!1 &8600257090112988724

@@ -7,63 +7,192 @@ using UnityEngine.UI;
 
 public class TutorialStageData : MonoBehaviour
 {
+    [Header("Presentation Timing")]
     public float dimTime = 0.5f;
     public float endFade = 0.73f;
     public Image dim;
     public List<StagePhase> stagePhase;
 
-    public IEnumerator StepStartAnimation()
+    public float PresentationDuration => dimTime + GetMaxArrowFadeTime();
+
+    public bool HasPhase(int index) => stagePhase != null && index >= 0 && index < stagePhase.Count;
+
+    float GetMaxArrowFadeTime()
     {
-        AnimateInStage(0);
-        dim.color = new Color(dim.color.r, dim.color.g, dim.color.b, 0);
-        yield return dim.DOFade(endFade, dimTime).WaitForCompletion();
+        float max = 0f;
+        foreach (StagePhase phase in stagePhase)
+        {
+            foreach (TutorialArrow arrow in phase.arrows)
+            {
+                if (arrow != null && arrow.fadeTime > max)
+                {
+                    max = arrow.fadeTime;
+                }
+            }
+        }
+        return max;
     }
 
-    public void ActivateStage(int tuStageindex, bool activate)
+    public IEnumerator RunEnterPresentation()
     {
-        StagePhase stage = stagePhase[tuStageindex];
+        if (!HasPhase(0)) { yield break; }
+        PrepStage(0);
+        ActivateStage(0, true);
+        yield return StepStartAnimation();
+    }
+
+    public IEnumerator StepStartAnimation()
+    {
+        Tween dimTween = null;
+        if (dim != null)
+        {
+            dim.gameObject.SetActive(true);
+            dim.DOKill();
+            dim.color = new Color(dim.color.r, dim.color.g, dim.color.b, 0);
+            dimTween = dim.DOFade(endFade, dimTime);
+        }
+
+        yield return AnimateInStageCoroutine(0);
+
+        if (dimTween != null && dimTween.IsActive())
+        {
+            yield return dimTween.WaitForCompletion();
+        }
+    }
+
+    public IEnumerator AnimateInStageCoroutine(int tuStageIndex)
+    {
+        if (!HasPhase(tuStageIndex)) { yield break; }
+        StagePhase stage = stagePhase[tuStageIndex];
         foreach (RectTransform highlight in stage.highlights)
         {
-            highlight.gameObject.SetActive(activate); 
+            if (highlight != null)
+            {
+                highlight.gameObject.SetActive(true);
+            }
         }
-        
+
         foreach (Image border in stage.highlightBorder)
         {
-            border.gameObject.SetActive(activate); 
+            if (border == null) { continue; }
+            border.gameObject.SetActive(true);
+            border.color = new Color(border.color.r, border.color.g, border.color.b, 0);
+            border.DOFade(1, dimTime);
+        }
+
+        float maxArrowTime = 0f;
+        foreach (TutorialArrow arrow in stage.arrows)
+        {
+            if (arrow == null) { continue; }
+            arrow.gameObject.SetActive(true);
+            arrow.PrepArrow();
+            StartCoroutine(arrow.FadeInArrow());
+            if (arrow.fadeTime > maxArrowTime)
+            {
+                maxArrowTime = arrow.fadeTime;
+            }
+        }
+
+        if (stage.highlightBorder.Count > 0)
+        {
+            yield return new WaitForSeconds(dimTime);
+        }
+        if (maxArrowTime > 0f)
+        {
+            yield return new WaitForSeconds(maxArrowTime);
+        }
+    }
+
+    public IEnumerator AnimateOutStageCoroutine(int tuStageIndex)
+    {
+        if (!HasPhase(tuStageIndex)) { yield break; }
+        StagePhase stage = stagePhase[tuStageIndex];
+        float maxDuration = 0f;
+
+        foreach (Image border in stage.highlightBorder)
+        {
+            if (border == null || !border.gameObject.activeInHierarchy) { continue; }
+            border.DOFade(0, dimTime);
+            maxDuration = Mathf.Max(maxDuration, dimTime);
         }
 
         foreach (TutorialArrow arrow in stage.arrows)
         {
-            arrow.gameObject.SetActive(activate);
+            if (arrow == null || !arrow.gameObject.activeInHierarchy) { continue; }
+            StartCoroutine(arrow.FadeOutArrow());
+            maxDuration = Mathf.Max(maxDuration, arrow.fadeTime);
+        }
+
+        if (maxDuration > 0f)
+        {
+            yield return new WaitForSeconds(maxDuration);
+        }
+
+        ActivateStage(tuStageIndex, false);
+    }
+
+    public IEnumerator TransitionPhase(int fromIndex, int toIndex)
+    {
+        if (fromIndex >= 0 && fromIndex < stagePhase.Count)
+        {
+            yield return AnimateOutStageCoroutine(fromIndex);
+        }
+
+        PrepStage(toIndex);
+        ActivateStage(toIndex, true);
+        yield return AnimateInStageCoroutine(toIndex);
+    }
+
+    public void ActivateStage(int tuStageindex, bool activate)
+    {
+        if (!HasPhase(tuStageindex)) { return; }
+        StagePhase stage = stagePhase[tuStageindex];
+        foreach (RectTransform highlight in stage.highlights)
+        {
+            if (highlight != null)
+            {
+                highlight.gameObject.SetActive(activate);
+            }
+        }
+
+        foreach (Image border in stage.highlightBorder)
+        {
+            if (border != null)
+            {
+                border.gameObject.SetActive(activate);
+            }
+        }
+
+        foreach (TutorialArrow arrow in stage.arrows)
+        {
+            if (arrow != null)
+            {
+                arrow.gameObject.SetActive(activate);
+            }
         }
     }
 
     public void AnimateInStage(int tuStageIndex)
     {
-        StagePhase stage = stagePhase[tuStageIndex];
-        foreach (Image border in stage.highlightBorder)
-        {
-            border.color = new Color(border.color.r, border.color.g, border.color.b, 0);
-            border.DOFade(1, dimTime);
-        }
-
-        foreach (TutorialArrow arrow in stage.arrows)
-        {
-            StartCoroutine(arrow.FadeInArrow());
-        }
+        StartCoroutine(AnimateInStageCoroutine(tuStageIndex));
     }
 
     public void PrepStage(int tutorialStageIndex)
     {
+        if (!HasPhase(tutorialStageIndex)) { return; }
         StagePhase stage = stagePhase[tutorialStageIndex];
         foreach (Image border in stage.highlightBorder)
         {
+            if (border == null) { continue; }
             border.color = new Color(border.color.r, border.color.g, border.color.b, 0);
         }
 
         foreach (TutorialArrow arrow in stage.arrows)
         {
-            arrow.PrepArrow();
+            if (arrow != null)
+            {
+                arrow.PrepArrow();
+            }
         }
     }
 }

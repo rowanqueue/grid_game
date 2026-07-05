@@ -86,7 +86,7 @@ Frame 14 - 1x
         sr.sprite = sprites[index-1];
         if(Services.GameController.gameState == GameState.Start)
         {
-            if (Input.GetMouseButtonDown(0))
+            if (InputHelper.GetPrimaryPressBegan())
             {
                 Services.AudioManager.StartMusic();
                 Services.GameController.GameStateGameplay();

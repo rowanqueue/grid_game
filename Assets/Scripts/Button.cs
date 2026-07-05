@@ -24,15 +24,18 @@ namespace flora
         public SpriteRenderer toggledDisplay;
         public TextMeshPro words;
         public Color hoverColor;
+        [SerializeField] float pressScale = 0.95f;
+        [SerializeField] float pressDuration = 0.08f;
         bool hover = false;
         public bool disabled = false;
-        // Start is called before the first frame update
+        Vector3 baseScale;
+        Coroutine pressRoutine;
+
         void Start()
         {
-
+            baseScale = transform.localScale;
         }
 
-        // Update is called once per frame
         void Update()
         {
             switch (type)
@@ -40,15 +43,7 @@ namespace flora
                 case ButtonType.Mulligan:
                     if (Services.GameController.inTutorial == false)
                     {
-                        if (Services.Gems.CanAfford("mulligan"))
-                        {
-                            disabled = false;
-                        }
-                        else
-                        {
-                            disabled = true;
-                        }
-                        break;
+                        disabled = !Services.Gems.CanAfford("mulligan");
                     }
                     break;
                 case ButtonType.DiceMode:
@@ -82,37 +77,55 @@ namespace flora
                     words.enabled = !disabled;
                 }
             }
+        }
 
+        void OnMouseDown()
+        {
+            TryActivate();
+        }
 
-            if (hover && Input.GetMouseButtonDown(0))
+        void TryActivate()
+        {
+            if (disabled)
             {
-                if (disabled)
+                if (type == ButtonType.Mulligan && Services.GameController.inTutorial == false)
                 {
-                    if (type == ButtonType.Mulligan && Services.GameController.inTutorial == false)
-                    {
-                        Services.Gems.TooExpensive();
-                    }
+                    Services.Gems.TooExpensive();
                 }
-                else
-                {
-                    _event.Invoke();
-                    if (type == ButtonType.Mulligan && Services.GameController.inTutorial == false)
-                    {
-                        Services.Gems.SpendGems("mulligan");
-                    }
-                }
-                
+                return;
+            }
+
+            PlayPressFeedback();
+            _event.Invoke();
+            if (type == ButtonType.Mulligan && Services.GameController.inTutorial == false)
+            {
+                Services.Gems.SpendGems("mulligan");
             }
         }
 
-        private void OnMouseEnter()
+        void OnMouseEnter()
         {
             hover = true;
         }
-        private void OnMouseExit()
+
+        void OnMouseExit()
         {
             hover = false;
         }
+
+        void PlayPressFeedback()
+        {
+            if (pressRoutine != null)
+                StopCoroutine(pressRoutine);
+            pressRoutine = StartCoroutine(PressFeedbackRoutine());
+        }
+
+        IEnumerator PressFeedbackRoutine()
+        {
+            transform.localScale = baseScale * pressScale;
+            yield return new WaitForSeconds(pressDuration);
+            transform.localScale = baseScale;
+            pressRoutine = null;
+        }
     }
 }
-

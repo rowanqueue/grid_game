@@ -58,6 +58,10 @@ public class GameController : MonoBehaviour
     //once tutorial is done, it should be created from a prefab
     public Tutorial tutorial;
     public bool inTutorial => tutorial.active;
+    public bool IsTutorialSession => runTutorial || pendingTutorialStart || inTutorial;
+    bool pendingTutorialStart;
+    bool introTutorialInputEnabled;
+    public bool CanProcessIntroTutorialInput => introTutorialInputEnabled;
     public List<flora.Screen> stateScreens = new List<flora.Screen>();
     bool movingToScreen = false;
     public Logic.Game game;
@@ -96,6 +100,11 @@ public class GameController : MonoBehaviour
     public GameObject freeSlotVisual;
     public Vector2Int chosenPos = Vector2Int.left;
     public float waitTime = 0.1f;
+    [SerializeField] float tokenWaitMultiplier = 1.5f;
+    [SerializeField] float winHoldDuration = 1.2f;
+    [SerializeField] float cameraPanDuration = 0.45f;
+    [SerializeField] float mulliganStaggerSeconds = 0.1f;
+    [SerializeField] float mulliganPauseBeforeDraw = 0.5f;
     public float waiting = 0f;
     public Token lastTokenPlaced;
     public bool holdingClipper = false;
@@ -127,6 +136,10 @@ public class GameController : MonoBehaviour
     Vector2Int finishTokenPos;
     public GameObject winScreen;
     public TextMeshPro winScreenScore;
+    WinScreenDisplay winScreenDisplay;
+    bool dismissingPopup;
+    Vector3 cameraPanStart;
+    float cameraPanElapsed = -1f;
 
     public bool diceMode = false;
     public bool useHaptics = false;
@@ -202,6 +215,7 @@ public class GameController : MonoBehaviour
         }
         Application.targetFrameRate = 60;
         winScreen.SetActive(false);
+        EnsureWinScreenDisplay();
         switch (whichGame)
         {
             case GameType.Triple:
@@ -272,11 +286,14 @@ public class GameController : MonoBehaviour
             root = JsonConvert.DeserializeObject<Json.Root>(gameJson.text);
             game.Initialize(root);
             game.StartTutorial();
-            tutorial.StartTutorial();
+            tutorialHandsDrawn = 1;
+            game.skipAutoHandFillOnEmpty = true;
+            pendingTutorialStart = true;
         }
         else
         {
             tutorial.ExitTutorial();
+            game.skipAutoHandFillOnEmpty = false;
         }
         Camera.main.transform.position = cameraPos;
 
@@ -285,18 +302,18 @@ public class GameController : MonoBehaviour
         CreateGrid();
         hand = new List<Token>();
         newGame = false;
-        if (inTutorial)
+        if (IsTutorialSession)
         {
-
             hand.Add(null);
             hand.Add(null);
             hand.Add(null);
             hand.Add(null);
+            newGame = true;
         }
 
         deckDisplay.game = game;
 
-        if (inTutorial == false)
+        if (!IsTutorialSession)
         {
             if (SaveLoad.HasSave(0))
             {
@@ -320,18 +337,93 @@ public class GameController : MonoBehaviour
                 newGame = true;
             }
         }
-        if (newGame == false)
+        if (!IsTutorialSession)
         {
-            CreateHand();
-        }
-        else if (inTutorial == false)
-        {
-            hand.Add(null);
-            hand.Add(null);
-            hand.Add(null);
-            hand.Add(null);
+            if (newGame == false)
+            {
+                CreateHand();
+            }
+            else
+            {
+                hand.Add(null);
+                hand.Add(null);
+                hand.Add(null);
+                hand.Add(null);
+            }
         }
         CameraViewportHandler.OnResolutionChanged += RefreshAnchorsOnResolutionChange;
+        StartCoroutine(RefreshAllScreenAnchorsAfterStartup());
+    }
+
+    void Start()
+    {
+        if (pendingTutorialStart && gameState == GameState.Gameplay)
+        {
+            BeginTutorialSession();
+        }
+    }
+
+    public void BeginTutorialSession()
+    {
+        if (!pendingTutorialStart)
+        {
+            return;
+        }
+        pendingTutorialStart = false;
+        introTutorialInputEnabled = false;
+        tutorial.StartTutorial();
+        SyncTutorialHandFillMode();
+        EnterInputState(InputState.Choose);
+        StartCoroutine(EnableIntroTutorialInputNextFrame());
+    }
+
+    IEnumerator EnableIntroTutorialInputNextFrame()
+    {
+        yield return null;
+        introTutorialInputEnabled = true;
+    }
+
+    IEnumerator TutorialCombineStageAdvanceRoutine(Token visualToken, Logic.Token newToken, Logic.Token toolToken, bool useHaptics)
+    {
+        if (visualToken != null)
+        {
+            yield return visualToken.WaitForPlacementComplete();
+        }
+
+        bool upgradePresentationDone = false;
+        if (visualToken != null)
+        {
+            visualToken.UpgradeToken(newToken, toolToken, useHaptics, () => upgradePresentationDone = true);
+        }
+        else
+        {
+            upgradePresentationDone = true;
+        }
+
+        while (!upgradePresentationDone)
+        {
+            yield return null;
+        }
+
+        if (inTutorial && tutorial.stage == TutorialStage.Blue3 && tutorial.Blue3FormViewHold > 0f)
+        {
+            yield return new WaitForSeconds(tutorial.Blue3FormViewHold);
+        }
+
+        if (inTutorial && (tutorial.stage == TutorialStage.Placing
+            || tutorial.stage == TutorialStage.Blue3
+            || tutorial.stage == TutorialStage.Green2))
+        {
+            tutorial.RequestIncrementStage(IncrementTrigger.AfterUpgrade);
+        }
+    }
+
+    void LateUpdate()
+    {
+        if (inTutorial && introTutorialInputEnabled && gameState == GameState.Gameplay)
+        {
+            tutorial.TryHandleIntroAdvanceInput();
+        }
     }
 
     void OnDestroy()
@@ -341,10 +433,30 @@ public class GameController : MonoBehaviour
 
     void RefreshAnchorsOnResolutionChange()
     {
-        if (stateScreens != null && (int)gameState < stateScreens.Count && stateScreens[(int)gameState] != null)
+        RefreshAllScreenAnchors();
+    }
+
+    void RefreshAllScreenAnchors()
+    {
+        if (stateScreens == null)
+            return;
+        foreach (flora.Screen screen in stateScreens)
         {
-            stateScreens[(int)gameState].SetAnchor();
+            if (screen != null)
+                screen.SetAnchor();
         }
+    }
+
+    IEnumerator RefreshAllScreenAnchorsAfterStartup()
+    {
+        int waitFrames = 0;
+        while (CameraViewportHandler.Instance == null && waitFrames < 120)
+        {
+            waitFrames++;
+            yield return null;
+        }
+        yield return null;
+        RefreshAllScreenAnchors();
     }
 
     void InitializeServices()
@@ -386,7 +498,7 @@ public class GameController : MonoBehaviour
         else
         {
             Services.Gems.TooExpensive();
-            Debug.Log("can't afford a new game");
+            GameLog.Log("can't afford a new game");
         }
 
     }
@@ -396,6 +508,7 @@ public class GameController : MonoBehaviour
     /// </summary>
     public void GameStateGameplay()
     {
+        bool beginTutorialAfterTransition = pendingTutorialStart;
         if (gameState == GameState.Settings)
         {
             if (lastState == GameState.SelectDifficulty)
@@ -416,7 +529,7 @@ public class GameController : MonoBehaviour
         {
             bagDisplay.gameObject.SetActive(true);
 
-            if (newGame)
+            if (newGame && !IsTutorialSession)
             {
                 //if new game
                 GameStateSelectDifficulty();
@@ -437,7 +550,7 @@ public class GameController : MonoBehaviour
             }
         }
         difficultyParent.SetActive(false);
-        if (gameState == GameState.SelectDifficulty)
+        if (gameState == GameState.SelectDifficulty && !IsTutorialSession)
         {
             gameJson = difficulties[difficulty];
             Json.Root root = JsonConvert.DeserializeObject<Json.Root>(gameJson.text);
@@ -460,6 +573,10 @@ public class GameController : MonoBehaviour
         stateScreens[(int)gameState].gameObject.SetActive(true);
         stateScreens[(int)gameState].SetAnchor();
         movingToScreen = true;
+        if (beginTutorialAfterTransition)
+        {
+            BeginTutorialSession();
+        }
     }
     public void GameStateSelectDifficulty()
     {
@@ -520,6 +637,10 @@ public class GameController : MonoBehaviour
         shop?.OpenScreen();
         movingToScreen = true;
     }
+    public void DeactivateToolShopScreen()
+    {
+        stateScreens[(int)GameState.ToolShop].gameObject.SetActive(false);
+    }
     public void GameStateSeeds()
     {
         if (inputState == InputState.Finish || inputState == InputState.TapToRestart) { return; }
@@ -552,7 +673,6 @@ public class GameController : MonoBehaviour
 
         stateScreens[(int)gameState].gameObject.SetActive(true);
         stateScreens[(int)gameState].SetAnchor();
-        //todo: make toolshop open
         movingToScreen = true;
     }
     public void GameStateHighScore()
@@ -569,7 +689,6 @@ public class GameController : MonoBehaviour
 
         stateScreens[(int)gameState].gameObject.SetActive(true);
         stateScreens[(int)gameState].SetAnchor();
-        //todo: make toolshop open
         movingToScreen = true;
     }
     public void GameStateHelp()
@@ -714,51 +833,265 @@ public class GameController : MonoBehaviour
         {
             Tile tile = tiles[p];
             Logic.Tile _tile = game.grid.tiles[p];
-            if (undo)
+            tile.tile = _tile;
+            if (tile.tile.token != null)
             {
-                bool animate = undidTiles.Contains(p);
-                print("ANIMATE" + animate);
-                tile.tile = _tile;
-                if (tile.tile.token != null)
+                Token token = GameObject.Instantiate(tokenPrefab, gridTransform).GetComponent<Token>();
+                bool animate = undo && undidTiles.Contains(p);
+                token.transform.position = tile.transform.position;
+                token.UpdateLayer("TokenPlaced");
+                if (animate)
                 {
-                    Token token = GameObject.Instantiate(tokenPrefab, gridTransform).GetComponent<Token>();
-                    token.token = tile.tile.token;
-                    tile.token = token;
-                    token.PlaceInTile(tile, animate);
+                    token.UndoInit(tile.tile.token);
                 }
+                else
+                {
+                    token.Init(tile.tile.token);
+                }
+                tile.token = token;
+            }
+        }
+        if (game.freeSlot != null)
+        {
+            Token token = GameObject.Instantiate(tokenPrefab, gridTransform).GetComponent<Token>();
+            bool animateSlot = undo && undidSlot;
+            token.transform.position = freeSlot.transform.position;
+            token.UpdateLayer("TokenPlaced");
+            if (animateSlot)
+            {
+                token.UndoInit(game.freeSlot);
             }
             else
             {
-                tile.tile = _tile;
-                if (tile.tile.token != null)
-                {
-                    Token token = GameObject.Instantiate(tokenPrefab, gridTransform).GetComponent<Token>();
-                    token.token = tile.tile.token;
-                    tile.token = token;
-                    token.PlaceInTile(tile);
-                }
+                token.Init(game.freeSlot);
             }
+            freeSlot.token = token;
         }
-        if (undo)
+    }
+
+    int tutorialHandsDrawn = 0;
+    Coroutine tutorialHandRefreshCoroutine;
+
+    public int CurrentTutorialScriptIndex => tutorialHandsDrawn - 1;
+
+    public void ApplyTutorialHandLogic(int scriptIndex)
+    {
+        switch (scriptIndex)
         {
-            if (game.freeSlot != null)
-            {
-                Token token = GameObject.Instantiate(tokenPrefab, gridTransform).GetComponent<Token>();
-                token.token = game.freeSlot;
-                freeSlot.token = token;
-                token.PlaceInTile(freeSlot, undidSlot);
-            }
+            case 0:
+                game.StartTutorial();
+                break;
+            case 1:
+                game.SecondTutorialHand();
+                break;
+            case 2:
+                game.ThirdTutorialHand();
+                break;
+            case 3:
+                game.FourthTutorialHand();
+                break;
+            case 4:
+                game.FifthTutorialHand();
+                break;
+            default:
+                GameLog.LogError($"Unknown tutorial hand script index: {scriptIndex}");
+                return;
         }
-        else
+    }
+
+    public void DrawNextTutorialScriptHand(bool animateFromBag)
+    {
+        int scriptIndex = tutorialHandsDrawn;
+        if (scriptIndex >= 5)
         {
-            if (game.freeSlot != null)
+            CreateHand(true);
+            return;
+        }
+#if UNITY_EDITOR
+        GameLog.Log($"Tutorial hand draw: scriptIndex={scriptIndex}, handsDrawn={tutorialHandsDrawn}, stage={tutorial.stage}");
+#endif
+        ApplyTutorialHandLogic(scriptIndex);
+        tutorialHandsDrawn++;
+        if (tutorialHandRefreshCoroutine != null)
+        {
+            StopCoroutine(tutorialHandRefreshCoroutine);
+            tutorialHandRefreshCoroutine = null;
+        }
+        RefreshTutorialHandViews(animateFromBag);
+    }
+
+    bool IsHandDrawInProgress()
+    {
+        for (int i = 0; i < hand.Count; i++)
+        {
+            if (hand[i] != null && hand[i].IsMoving)
             {
-                Token token = GameObject.Instantiate(tokenPrefab, gridTransform).GetComponent<Token>();
-                token.token = game.freeSlot;
-                freeSlot.token = token;
-                token.PlaceInTile(freeSlot);
+                return true;
             }
         }
+        return false;
+    }
+
+    IEnumerator TutorialHandRefreshRoutine()
+    {
+        while (IsHandDrawInProgress())
+        {
+            yield return null;
+        }
+        RefreshTutorialHandViews(animateFromBag: true);
+        tutorialHandRefreshCoroutine = null;
+    }
+
+    public void RefreshTutorialHandViews(bool animateFromBag = true)
+    {
+        for (int i = 0; i < hand.Count; i++)
+        {
+            if (hand[i] == null) { continue; }
+            GameObject.Destroy(hand[i].gameObject);
+            hand[i] = null;
+        }
+        tempDeckNumberForAnim = 0;
+        CreateHand(animateFromBag);
+    }
+
+    public void RequestTutorialHandRefresh()
+    {
+        if (tutorialHandRefreshCoroutine != null)
+        {
+            return;
+        }
+        if (IsHandDrawInProgress())
+        {
+            tutorialHandRefreshCoroutine = StartCoroutine(TutorialHandRefreshRoutine());
+            return;
+        }
+        RefreshTutorialHandViews(animateFromBag: true);
+    }
+
+    bool HandViewsMatchLogic()
+    {
+        if (game?.hand?.tokens == null)
+        {
+            return hand.Count == 0;
+        }
+        for (int i = 0; i < game.hand.tokens.Length; i++)
+        {
+            bool logicHasToken = game.hand.tokens[i] != null;
+            bool viewHasToken = i < hand.Count && hand[i] != null;
+            if (logicHasToken != viewHasToken)
+            {
+                return false;
+            }
+            if (logicHasToken && hand[i].token != game.hand.tokens[i])
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    void SyncTutorialHandViewsIfNeeded()
+    {
+        if (IsTutorialHandLogicEmpty() || HandViewsMatchLogic())
+        {
+            return;
+        }
+        RefreshTutorialHandViews(animateFromBag: false);
+    }
+
+    public void PresentPreparedTutorialHand()
+    {
+        if (tutorialHandsDrawn < 1)
+        {
+            return;
+        }
+        if (!IsTutorialHandLogicEmpty() && HandViewsMatchLogic())
+        {
+            return;
+        }
+        if (tutorialHandRefreshCoroutine != null)
+        {
+            StopCoroutine(tutorialHandRefreshCoroutine);
+            tutorialHandRefreshCoroutine = null;
+        }
+        RefreshTutorialHandViews(animateFromBag: true);
+    }
+
+    public void PresentTutorialHandAfterIntro()
+    {
+        if (!IsTutorialHandLogicEmpty())
+        {
+            if (!HandViewsMatchLogic())
+            {
+                PresentPreparedTutorialHand();
+            }
+            return;
+        }
+
+        DrawNextTutorialScriptHand(animateFromBag: true);
+    }
+
+    public void OnTutorialEnded()
+    {
+        game.skipAutoHandFillOnEmpty = false;
+        game.tutorialNewHandGate = null;
+        tutorialHandsDrawn = 0;
+        if (tutorialHandRefreshCoroutine != null)
+        {
+            StopCoroutine(tutorialHandRefreshCoroutine);
+            tutorialHandRefreshCoroutine = null;
+        }
+    }
+
+    int CountVisibleHandTokens()
+    {
+        int count = 0;
+        for (int i = 0; i < hand.Count; i++)
+        {
+            if (hand[i] != null)
+            {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    void SyncTutorialHandFillMode()
+    {
+        game.skipAutoHandFillOnEmpty = inTutorial;
+        game.tutorialNewHandGate = null;
+    }
+
+    bool IsTutorialHandLogicEmpty()
+    {
+        if (game?.hand?.tokens == null)
+        {
+            return true;
+        }
+        foreach (Logic.Token token in game.hand.tokens)
+        {
+            if (token != null)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    void HandleTutorialNewHand()
+    {
+        if (!IsTutorialHandLogicEmpty())
+        {
+            return;
+        }
+
+        if (tutorialHandsDrawn >= 5)
+        {
+            CreateHand(true);
+            return;
+        }
+
+        DrawNextTutorialScriptHand(animateFromBag: true);
     }
 
     public void CreateHand(bool midgame = false, bool undo = false)
@@ -959,6 +1292,38 @@ public class GameController : MonoBehaviour
         }
         debugBagDisplay.text = s;
     }
+    void EnsureWinScreenDisplay()
+    {
+        if (winScreen == null)
+            return;
+
+        winScreenDisplay = winScreen.GetComponent<WinScreenDisplay>();
+        if (winScreenDisplay == null)
+            winScreenDisplay = winScreen.AddComponent<WinScreenDisplay>();
+        winScreenDisplay.SetScoreText(winScreenScore);
+    }
+
+    string FormatWinScreenScore()
+    {
+        return "<size=35%>Your score:</size>\n" + score.ToString() + "\n<size=15%><line-height=100%>-Tap to restart-</size>";
+    }
+
+    IEnumerator DismissUpgradePopupRoutine()
+    {
+        if (dismissingPopup || upgradePopup == null)
+            yield break;
+
+        dismissingPopup = true;
+        upgradePopup.Close();
+        while (upgradePopup.IsAnimatingClose)
+            yield return null;
+
+        popupopen = false;
+        dismissingPopup = false;
+        waiting = waitTime;
+        EnterInputState(InputState.Wait);
+    }
+
     void DeathCheck()
     {
         bool emptyTile = false;
@@ -990,17 +1355,22 @@ public class GameController : MonoBehaviour
             dyingTokens[i].StartKillNumber();
         }
         dyingTokens.Clear();
-        yield return new WaitForSeconds(1.2f);
+        yield return new WaitForSeconds(winHoldDuration);
         SaveLoad.DeleteSave(0);
         // Submit the final score to the local high score table, if a manager exists.
         if (HighScoreManager.Instance != null)
         {
             HighScoreManager.Instance.SubmitScore(score, difficulty);
         }
-        winScreen.SetActive(true);
+        EnsureWinScreenDisplay();
+        if (winScreenDisplay != null)
+            yield return winScreenDisplay.ShowRoutine(FormatWinScreenScore());
+        else
+        {
+            winScreen.SetActive(true);
+            winScreenScore.text = FormatWinScreenScore();
+        }
         EnterInputState(InputState.TapToRestart);
-
-
     }
     public void HigherDifficulty()
     {
@@ -1080,16 +1450,22 @@ public class GameController : MonoBehaviour
                 bagDisplay.gameObject.SetActive(true);
             }
 
-            float cameraSpeed = 0.1f;
-            if (gameState == GameState.Bag)
+            if (cameraPanElapsed < 0f)
             {
-                cameraSpeed *= 1.5f;
+                cameraPanStart = Camera.main.transform.position;
+                cameraPanElapsed = 0f;
             }
 
-            Camera.main.transform.position += (cameraPos - Camera.main.transform.position) * cameraSpeed; ;
-            if (Vector2.Distance(Camera.main.transform.position, cameraPos) < 0.03f)
+            cameraPanElapsed += Time.deltaTime;
+            float panT = SlideHelper.ApplyEase(
+                Mathf.Clamp01(cameraPanElapsed / cameraPanDuration),
+                SlideHelper.EaseType.EaseInOutQuad);
+            Camera.main.transform.position = Vector3.Lerp(cameraPanStart, cameraPos, panT);
+
+            if (cameraPanElapsed >= cameraPanDuration || Vector2.Distance(Camera.main.transform.position, cameraPos) < 0.03f)
             {
                 movingToScreen = false;
+                cameraPanElapsed = -1f;
                 Camera.main.transform.position = cameraPos;
                 if (gameState != GameState.Bag && gameState != GameState.SelectDifficulty && gameState != GameState.ToolShop)
                 {
@@ -1097,6 +1473,12 @@ public class GameController : MonoBehaviour
                     {
                         if ((int)gameState != i)
                         {
+                            if (i == (int)GameState.ToolShop)
+                            {
+                                var shop = toolShopScreen ?? stateScreens[i].GetComponentInChildren<ToolShopScreen>();
+                                if (shop != null && shop.IsAnimating)
+                                    continue;
+                            }
                             stateScreens[i].gameObject.SetActive(false);
                         }
                     }
@@ -1108,7 +1490,7 @@ public class GameController : MonoBehaviour
 
         if (game.isGameover())
         {
-            //Debug.Log("game over");
+            //GameLog.Log("game over");
         }
         DebugBagDisplay();
         //save stuff
@@ -1132,12 +1514,13 @@ public class GameController : MonoBehaviour
             }
         }
         display.text += "\n<size=20%>-score-</size>";
-        winScreenScore.text = "<size=35%>Your score:</size>\n" + score.ToString() + "\n<size=15%><line-height=100%>-Tap to restart-</size>"; ;
+        if (winScreenDisplay != null && winScreen.activeSelf)
+            winScreenScore.text = FormatWinScreenScore();
         bagDisplay.text = " "; game.bag.ToString();
-        Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 mousePos = InputHelper.GetPointerWorldPosition();
         if (gameState == GameState.Bag)
         {
-            if (Input.GetMouseButtonDown(0))
+            if (InputHelper.GetPrimaryPressBegan())
             {
                 if (mousePos.y >= -13.0f)
                 {
@@ -1172,7 +1555,7 @@ public class GameController : MonoBehaviour
         switch (inputState)
         {
             case InputState.TapToRestart:
-                if (Input.anyKeyDown || Input.GetMouseButtonDown(0) || (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began))
+                if (InputHelper.GetAnyPressBegan())
                 {
                     Services.AudioManager.StopMusic();
                     SceneManager.LoadScene(0);
@@ -1241,10 +1624,14 @@ public class GameController : MonoBehaviour
                         color = freeSlot.token.token.data.color;
                     }
                 }
-                if (Input.GetMouseButtonDown(0))
+                if (InputHelper.GetPrimaryPressBegan())
                 {
                     bool tutorialCanChoose = false;
-                    if (inTutorial)
+                    if (inTutorial && !tutorial.CanAcceptTutorialInput)
+                    {
+                        tutorialCanChoose = false;
+                    }
+                    else if (inTutorial)
                     {
                         if (tutorial.choosingRule)
                         {
@@ -1276,7 +1663,7 @@ public class GameController : MonoBehaviour
                     }
                 }
                 //undoing
-                if (Input.GetMouseButtonDown(0))
+                if (InputHelper.GetPrimaryPressBegan())
                 {
                     chosenPos = Vector2Int.one * -5;
                     foreach (Tile tile in tiles.Values)
@@ -1308,7 +1695,7 @@ public class GameController : MonoBehaviour
                     {
                         draggingTile = true;
                     }
-                    if (Input.GetMouseButtonUp(0))
+                    if (InputHelper.GetPrimaryPressEnded())
                     {
                         holdingClick = false;
                     }
@@ -1337,8 +1724,12 @@ public class GameController : MonoBehaviour
                 {
                     EnterInputState(InputState.Choose);
                 }
-                else if (Input.GetMouseButtonDown(0) || (draggingTile && Input.GetMouseButtonUp(0)))
+                else if (InputHelper.GetPrimaryPressBegan() || (draggingTile && InputHelper.GetPrimaryPressEnded()))
                 {//clicking
+                    if (inTutorial && !tutorial.CanAcceptTutorialInput)
+                    {
+                        break;
+                    }
                     bool _tutorialGood = false;
                     if (inTutorial)
                     {
@@ -1366,9 +1757,10 @@ public class GameController : MonoBehaviour
                         else if (game.IsFreeSlotFree() && _tutorialGood)
                         {
                             Services.AudioManager.PlayFreeSlotSound();
+                            Token placedToken = hand[chosenIndex];
                             game.PlaceTokenInFreeSlot(chosenIndex);
-                            freeSlot.token = hand[chosenIndex];
-                            hand[chosenIndex].UpdateLayer("TokenMoving");
+                            freeSlot.token = placedToken;
+                            placedToken.UpdateLayer("TokenMoving");
                             hand[chosenIndex] = null;
                             if (useHaptics)
                             {
@@ -1378,11 +1770,11 @@ public class GameController : MonoBehaviour
                             waiting = 0f;
                             if (inTutorial && (tutorial.stage == TutorialStage.FreeSlot || tutorial.stage == TutorialStage.CleanUp))
                             {
-                                tutorial.IncrementStage();
+                                tutorial.RequestIncrementStageAfterPlacement(placedToken, IncrementTrigger.AfterPlace);
                             }
                             if (inTutorial && (tutorial.stage == TutorialStage.Blue3))
                             {
-                                tutorial.StageUpdate();
+                                tutorial.RequestStageUpdateAfterPlacement(placedToken);
                             }
                             break;
                         }
@@ -1421,31 +1813,34 @@ public class GameController : MonoBehaviour
                                 Haptics.PlayTransient(.5f, .5f);
                             }
                             game.PlaceTokenFromHand(chosenIndex, chosenPos);
+                            Token placedToken;
                             if (chosenIndex >= game.hand.handSize)
                             {
                                 //freeSlot
-                                tiles[chosenPos].token = freeSlot.token;
-                                lastTokenPlaced = freeSlot.token;
+                                placedToken = freeSlot.token;
+                                tiles[chosenPos].token = placedToken;
+                                lastTokenPlaced = placedToken;
                                 lastTokenPlaced.transform.localEulerAngles = Vector3.zero;
-                                freeSlot.token.UpdateLayer("TokenMoving");
+                                placedToken.UpdateLayer("TokenMoving");
                                 freeSlot.token = null;
 
                             }
                             else
                             {
-                                tiles[chosenPos].token = hand[chosenIndex];
-                                hand[chosenIndex].UpdateLayer("TokenMoving");
-                                lastTokenPlaced = hand[chosenIndex];
+                                placedToken = hand[chosenIndex];
+                                tiles[chosenPos].token = placedToken;
+                                placedToken.UpdateLayer("TokenMoving");
+                                lastTokenPlaced = placedToken;
                                 lastTokenPlaced.transform.localEulerAngles = Vector3.zero;
                                 hand[chosenIndex] = null;
                             }
                             if (inTutorial && (tutorial.stage == TutorialStage.Placing || tutorial.stage == TutorialStage.WeirdSet || tutorial.stage == TutorialStage.FirstRed || tutorial.stage == TutorialStage.Blue3 || tutorial.stage == TutorialStage.SecondRed || tutorial.stage == TutorialStage.LearnGreen || tutorial.stage == TutorialStage.CleanUp || tutorial.stage == TutorialStage.Purple))
                             {
-                                tutorial.StageUpdate();
+                                tutorial.RequestStageUpdateAfterPlacement(placedToken);
                             }
                             if (inTutorial && (tutorial.stage == TutorialStage.Undo && tutorial.stagePhase == 1))
                             {
-                                tutorial.IncrementStage();
+                                tutorial.RequestIncrementStageAfterPlacement(placedToken, IncrementTrigger.AfterPlace);
                             }
                             EnterInputState(InputState.Wait);
                             waiting = 0f;
@@ -1599,9 +1994,9 @@ public class GameController : MonoBehaviour
 
 
                 }
-                if (Input.GetMouseButtonDown(0))
+                if (InputHelper.GetPrimaryPressBegan())
                 {
-                    Debug.Log("up");
+                    GameLog.Log("up");
                     //are you clicking on another tile??
                     int new_index = -1;
                     for (int i = 0; i < game.hand.tokens.Length; i++)
@@ -1653,7 +2048,7 @@ public class GameController : MonoBehaviour
                     }
                 }
                 //undoing
-                if (Input.GetMouseButtonDown(0))
+                if (InputHelper.GetPrimaryPressBegan())
                 {
                     chosenPos = Vector2Int.one * -5;
                     foreach (Tile tile in tiles.Values)
@@ -1690,30 +2085,6 @@ public class GameController : MonoBehaviour
                 {
                     waiting -= Time.deltaTime;
 
-                    if (inTutorial)
-                    {
-                        bool waitingStage = false;
-                        switch (tutorial.stage)
-                        {
-                            case TutorialStage.Blue2:
-                                waitingStage = true;
-                                break;
-                        }
-                        if (waitingStage)
-                        {
-                            waiting += Time.deltaTime;
-                        }
-
-                    }
-                    if (popupopen)
-                    {
-                        waiting += Time.deltaTime;
-                        if (Input.anyKeyDown)
-                        {
-                            upgradePopup.Close();
-                            popupopen = false;
-                        }
-                    }
                     if (waiting <= 0f)
                     {
                         waiting = waitTime;
@@ -1725,7 +2096,7 @@ public class GameController : MonoBehaviour
                             switch (_event.type)
                             {
                                 case Logic.StatusReport.EventType.TokenWait:
-                                    waiting *= 1.5f;
+                                    waiting *= tokenWaitMultiplier;
                                     break;
                                 case Logic.StatusReport.EventType.TokenModelDestroyed:
                                     token = _event.tokens[0];
@@ -1771,13 +2142,19 @@ public class GameController : MonoBehaviour
                                         {
                                             if (tile.token.token == token)
                                             {
-                                                tile.token.UpgradeToken(_event.tokens[1], toolTokenA, useHaptics);
+                                                if (inTutorial && (tutorial.stage == TutorialStage.Placing
+                                                    || tutorial.stage == TutorialStage.Blue3
+                                                    || tutorial.stage == TutorialStage.Green2))
+                                                {
+                                                    StartCoroutine(TutorialCombineStageAdvanceRoutine(
+                                                        tile.token, _event.tokens[1], toolTokenA, useHaptics));
+                                                }
+                                                else
+                                                {
+                                                    tile.token.UpgradeToken(_event.tokens[1], toolTokenA, useHaptics);
+                                                }
                                             }
                                         }
-                                    }
-                                    if (inTutorial && (tutorial.stage == TutorialStage.Placing || tutorial.stage == TutorialStage.Green2))
-                                    {
-                                        tutorial.IncrementStage();
                                     }
                                     break;
                                 case Logic.StatusReport.EventType.TokenAddedTo:
@@ -1798,34 +2175,12 @@ public class GameController : MonoBehaviour
                                 case Logic.StatusReport.EventType.NewHand:
                                     if (inTutorial)
                                     {
-                                        if (tutorial.stage == TutorialStage.HandRefill || tutorial.stage == TutorialStage.FirstRed)
-                                        {
-                                            game.SecondTutorialHand();
-                                        }
-                                        if (tutorial.stage == TutorialStage.Blue3)
-                                        {
-                                            game.ThirdTutorialHand();
-                                        }
-                                        if (tutorial.stage == TutorialStage.LearnGreen || tutorial.stage == TutorialStage.Green2)
-                                        {
-                                            game.FourthTutorialHand();
-                                        }
-                                        if (tutorial.stage == TutorialStage.CleanUp || tutorial.stage == TutorialStage.Purple)
-                                        {
-                                            game.FifthTutorialHand();
-                                        }
-                                        /*
-                                        if (tutorial.stage == TutorialStage.BagIntro || tutorial.stage == TutorialStage.Red2)
-                                        {
-                                            game.SecondTutorialHand();
-                                        }
-                                        if (tutorial.stage == TutorialStage.TeachMulligan)
-                                        {
-                                            game.FourthTutorialHand();
-                                        }*/
+                                        HandleTutorialNewHand();
                                     }
-
-                                    CreateHand(true);
+                                    else
+                                    {
+                                        CreateHand(true);
+                                    }
                                     deckNumberDisplay.text = (game.bag.bag.Count + tempDeckNumberForAnim).ToString();
                                     break;
                                 case Logic.StatusReport.EventType.BagRefill:
@@ -1845,16 +2200,23 @@ public class GameController : MonoBehaviour
                                         if (madePopup)
                                         {
                                             popupopen = true;
+                                            EnterInputState(InputState.Popup);
                                         }
                                     }
 
                                     waiting = waitTime * 0.01f;
+                                    if (popupopen)
+                                        break;
                                     break;
                             }
                         }
                         else
                         {
-                            if (game.hand.handSize == 1)
+                            if (popupopen)
+                            {
+                                EnterInputState(InputState.Popup);
+                            }
+                            else if (game.hand.handSize == 1)
                             {
                                 chosenIndex = 0;
                                 EnterInputState(InputState.Place);
@@ -1864,19 +2226,8 @@ public class GameController : MonoBehaviour
                                 EnterInputState(InputState.Choose);
                             }
 
-                            //save
                             Save();
                             waiting = waitTime * 0.01f;
-                            /*score += scoreDelta;
-                            scoreDelta = 0;*/
-                            /*if (popupopen)
-                            {
-                                EnterInputState(InputState.Popup);
-                            }
-                            else
-                            {
-                                EnterInputState(InputState.Choose);
-                            }*/
                             if (dyingTokens.Count == 0)
                             {
 
@@ -1908,15 +2259,13 @@ public class GameController : MonoBehaviour
                 }
                 break;
             case InputState.Popup:
-                if (Input.anyKeyDown)
+                if (InputHelper.GetAnyPressBegan() && !dismissingPopup && upgradePopup != null && !upgradePopup.IsAnimatingClose)
                 {
-                    upgradePopup.Close();
-                    popupopen = false;
-                    EnterInputState(InputState.Choose);
+                    StartCoroutine(DismissUpgradePopupRoutine());
                 }
                 break;
             case InputState.Snapshot:
-                if (Input.anyKeyDown)
+                if (InputHelper.GetAnyPressBegan())
                 {
                     StartCoroutine(polaroidDisplay.HideSnapshotRoutine());
                     EnterInputState(InputState.Choose);
@@ -1952,7 +2301,15 @@ public class GameController : MonoBehaviour
         if (freeSlot.token)
         {
             bool shouldHover = false;
-            freeSlot.token.lifted = false;
+            // Reserve placement uses TokenMoving + LowerLift; clearing lifted every frame prevented that from finishing.
+            if (freeSlot.token.IsPlacementAnimating)
+            {
+                freeSlot.token.lifted = true;
+            }
+            else
+            {
+                freeSlot.token.lifted = false;
+            }
             if (inputState == InputState.Place)
             {
                 if (chosenIndex >= game.hand.handSize)
@@ -2104,7 +2461,7 @@ public class GameController : MonoBehaviour
             extents = new Vector2(UnityEngine.Random.Range(total.x, total.x + total.height), UnityEngine.Random.Range(total.y, total.y + total.height));
             if (tries > 20)
             {
-                Debug.Log("gave up");
+                GameLog.Log("gave up");
                 break;
             }
         } while (notAllowed.Contains(extents));
@@ -2134,7 +2491,7 @@ public class GameController : MonoBehaviour
                 count++;
                 if (count > 20)
                 {
-                    Debug.Log("gave up for this reason");
+                    GameLog.Log("gave up for this reason");
                     //todo: boost the flower you hit last
                     keepFlower = false;
                     break;
@@ -2156,7 +2513,7 @@ public class GameController : MonoBehaviour
                         extents = new Vector2(UnityEngine.Random.Range(total.x, total.x + total.height), UnityEngine.Random.Range(total.y, total.y + total.height));
                         if (tries > 20)
                         {
-                            Debug.Log("gave up inside");
+                            GameLog.Log("gave up inside");
                             break;
                         }
                     } while (notAllowed.Contains(extents));
@@ -2229,6 +2586,10 @@ public class GameController : MonoBehaviour
     }
     public void Save()
     {
+        if (IsTutorialSession)
+        {
+            return;
+        }
         Logic.History.Turn save = new Logic.History.Turn(game);
         currentSave = save;
         SaveLoad.Save(0, currentSave);
@@ -2274,10 +2635,10 @@ public class GameController : MonoBehaviour
         {
             if (hand[i] == null) { continue; }
             hand[i].PlaceInBag();
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(mulliganStaggerSeconds);
             hand[i] = null;
         }
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(mulliganPauseBeforeDraw);
 
         CreateHand(true);
         Services.AudioManager.PlayUndoSound();
@@ -2288,7 +2649,7 @@ public class GameController : MonoBehaviour
     {
         if (inTutorial && (tutorial.stage == TutorialStage.Undo))
         {
-            tutorial.StageUpdate();
+            tutorial.RequestStageUpdate();
         }
         if (inTutorial && tutorial.stage != TutorialStage.Undo)
         {

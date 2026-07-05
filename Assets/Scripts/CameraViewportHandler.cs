@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[DefaultExecutionOrder(-100)]
 [ExecuteInEditMode]
 [RequireComponent(typeof(Camera))]
 public class CameraViewportHandler : MonoBehaviour
@@ -25,6 +26,7 @@ public class CameraViewportHandler : MonoBehaviour
     private float _height;
     private int _lastScreenWidth;
     private int _lastScreenHeight;
+    private bool _firedStartupLayoutEvent;
     //*** bottom screen
     private Vector3 _bl;
     private Vector3 _bc;
@@ -42,85 +44,18 @@ public class CameraViewportHandler : MonoBehaviour
     #endregion
 
     #region PROPERTIES
-    public float Width
-    {
-        get
-        {
-            return _width;
-        }
-    }
-    public float Height
-    {
-        get
-        {
-            return _height;
-        }
-    }
+    public float Width => _width;
+    public float Height => _height;
 
-    // helper points:
-    public Vector3 BottomLeft
-    {
-        get
-        {
-            return _bl;
-        }
-    }
-    public Vector3 BottomCenter
-    {
-        get
-        {
-            return _bc;
-        }
-    }
-    public Vector3 BottomRight
-    {
-        get
-        {
-            return _br;
-        }
-    }
-    public Vector3 MiddleLeft
-    {
-        get
-        {
-            return _ml;
-        }
-    }
-    public Vector3 MiddleCenter
-    {
-        get
-        {
-            return _mc;
-        }
-    }
-    public Vector3 MiddleRight
-    {
-        get
-        {
-            return _mr;
-        }
-    }
-    public Vector3 TopLeft
-    {
-        get
-        {
-            return _tl;
-        }
-    }
-    public Vector3 TopCenter
-    {
-        get
-        {
-            return _tc;
-        }
-    }
-    public Vector3 TopRight
-    {
-        get
-        {
-            return _tr;
-        }
-    }
+    public Vector3 BottomLeft => _bl;
+    public Vector3 BottomCenter => _bc;
+    public Vector3 BottomRight => _br;
+    public Vector3 MiddleLeft => _ml;
+    public Vector3 MiddleCenter => _mc;
+    public Vector3 MiddleRight => _mr;
+    public Vector3 TopLeft => _tl;
+    public Vector3 TopCenter => _tc;
+    public Vector3 TopRight => _tr;
 
     public float SafeLeftX => _safeLeftX;
     public float SafeRightX => _safeRightX;
@@ -142,12 +77,29 @@ public class CameraViewportHandler : MonoBehaviour
         _lastScreenWidth = Screen.width;
         _lastScreenHeight = Screen.height;
         ComputeResolution();
+        FireStartupLayoutEventIfNeeded();
     }
 
     private void OnEnable()
     {
         _lastScreenWidth = Screen.width;
         _lastScreenHeight = Screen.height;
+        if (Instance == null)
+            Instance = this;
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+            Instance = null;
+    }
+
+    private void FireStartupLayoutEventIfNeeded()
+    {
+        if (!Application.isPlaying || _firedStartupLayoutEvent)
+            return;
+        _firedStartupLayoutEvent = true;
+        OnResolutionChanged?.Invoke();
     }
 
     private void ComputeResolution()
@@ -166,18 +118,14 @@ public class CameraViewportHandler : MonoBehaviour
         _height = 2f * camera.orthographicSize;
         _width = _height * camera.aspect;
 
-        float cameraX, cameraY;
-        cameraX = camera.transform.position.x;
-        cameraY = camera.transform.position.y;
-        cameraX = 0;
-        cameraY = 0;
+        float cameraX = 0;
+        float cameraY = 0;
 
         leftX = cameraX - _width / 2;
         rightX = cameraX + _width / 2;
         topY = cameraY + _height / 2;
         bottomY = cameraY - _height / 2;
 
-        //*** safe area
         float safeLeftNorm = 0, safeRightNorm = 0, safeBottomNorm = 0, safeTopNorm = 0;
         if (useSafeArea)
         {
@@ -204,15 +152,12 @@ public class CameraViewportHandler : MonoBehaviour
         _safeBottomY = bottomY + _height * safeBottomNorm;
         _safeTopY = topY - _height * safeTopNorm;
 
-        //*** bottom
         _bl = new Vector3(leftX, bottomY, 0);
         _bc = new Vector3(cameraX, bottomY, 0);
         _br = new Vector3(rightX, bottomY, 0);
-        //*** middle
         _ml = new Vector3(leftX, cameraY, 0);
         _mc = new Vector3(cameraX, cameraY, 0);
         _mr = new Vector3(rightX, cameraY, 0);
-        //*** top
         _tl = new Vector3(leftX, topY, 0);
         _tc = new Vector3(cameraX, topY, 0);
         _tr = new Vector3(rightX, topY, 0);
@@ -220,6 +165,7 @@ public class CameraViewportHandler : MonoBehaviour
 
     private void Update()
     {
+#if UNITY_EDITOR
         if (Screen.width != _lastScreenWidth || Screen.height != _lastScreenHeight)
         {
             _lastScreenWidth = Screen.width;
@@ -227,7 +173,6 @@ public class CameraViewportHandler : MonoBehaviour
             ComputeResolution();
             OnResolutionChanged?.Invoke();
         }
-#if UNITY_EDITOR
         else if (executeInUpdate)
         {
             ComputeResolution();
@@ -237,6 +182,11 @@ public class CameraViewportHandler : MonoBehaviour
 
     void OnDrawGizmos()
     {
+        if (camera == null)
+            camera = GetComponent<Camera>();
+        if (camera == null)
+            return;
+
         Gizmos.color = wireColor;
 
         Matrix4x4 temp = Gizmos.matrix;
@@ -246,6 +196,23 @@ public class CameraViewportHandler : MonoBehaviour
             float spread = camera.farClipPlane - camera.nearClipPlane;
             float center = (camera.farClipPlane + camera.nearClipPlane) * 0.5f;
             Gizmos.DrawWireCube(new Vector3(0, 0, center), new Vector3(camera.orthographicSize * 2 * camera.aspect, camera.orthographicSize * 2, spread));
+
+            if (useSafeArea && _width > 0 && _height > 0)
+            {
+                Color safeColor = wireColor;
+                safeColor.a *= 0.65f;
+                Gizmos.color = safeColor;
+                float z = center;
+                Vector3 safeCenter = new Vector3(
+                    (_safeLeftX + _safeRightX) * 0.5f,
+                    (_safeBottomY + _safeTopY) * 0.5f,
+                    z);
+                Vector3 safeSize = new Vector3(
+                    _safeRightX - _safeLeftX,
+                    _safeTopY - _safeBottomY,
+                    spread * 0.01f);
+                Gizmos.DrawWireCube(safeCenter, safeSize);
+            }
         }
         else
         {
@@ -255,4 +222,4 @@ public class CameraViewportHandler : MonoBehaviour
     }
     #endregion
 
-} // class
+}

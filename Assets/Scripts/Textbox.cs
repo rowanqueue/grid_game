@@ -7,15 +7,15 @@ public class Textbox : MonoBehaviour
 {
     public TextMeshPro textDisplay;
     public SpriteRenderer background;
-    // Start is called before the first frame update
-    void Start()
+
+    public void SetText(string text)
     {
-        
+        if (textDisplay != null)
+            textDisplay.text = text;
     }
 
-    // Update is called once per frame
-    void Update()
+    public void SetVisible(bool visible)
     {
-        
+        gameObject.SetActive(visible);
     }
 }

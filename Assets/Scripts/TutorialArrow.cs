@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class TutorialArrow : MonoBehaviour
 {
+    [Header("Presentation Timing")]
     public float fadeTime = 0.5f;
     public SpriteRenderer arrowEnd;
     public List<SpriteRenderer> arrowLines;

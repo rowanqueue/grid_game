@@ -166,6 +166,8 @@ MonoBehaviour:
   wireColor: {r: 1, g: 1, b: 1, a: 1}
   UnitsSize: 11
   constraint: 1
+  useSafeArea: 1
+  manualSafeAreaInset: {x: 0.02, y: 0.02, z: 0, w: 0.06}
   camera: {fileID: 164338377278537098}
   executeInUpdate: 1
 --- !u!114 &4379591277398035784

@@ -62,6 +62,13 @@ public class Token : MonoBehaviour
     [SerializeField] private float UndoInAnimation = 0.5f;
     [SerializeField] private float UndoOutAnimation = 0.5f;
 
+    [Header("Tutorial")]
+    [SerializeField] private float upgradePresentationHold = 0.4f;
+    [SerializeField] private float bagDrawStaggerSeconds = 0.2f;
+    [SerializeField] private float placementSettleSeconds = 0.12f;
+    [SerializeField] private float killNumberWaitMin = 0.1f;
+    [SerializeField] private float killNumberWaitMax = 0.4f;
+
     public SpriteRenderer crunchCircle;
     public TextMeshPro crunchText;
 
@@ -78,7 +85,7 @@ public class Token : MonoBehaviour
     /// A tool is passed it if it was used to change the token, so that animation timing can be changes
     /// </summary>
     /// <param name="_token"></param>
-    public void UpgradeToken(Logic.Token _token, Logic.Token usedTool = null, bool useHaptics = false)
+    public void UpgradeToken(Logic.Token _token, Logic.Token usedTool = null, bool useHaptics = false, System.Action onPresentationComplete = null)
     {
         initialized = true;
         Logic.Token oldToken = token;
@@ -103,7 +110,7 @@ public class Token : MonoBehaviour
         }
         else
         {
-            StartCoroutine(DefaultUpgradeRoutine(useHaptics));
+            StartCoroutine(DefaultUpgradeRoutine(useHaptics, onPresentationComplete));
         }
     }
 
@@ -111,7 +118,7 @@ public class Token : MonoBehaviour
     /// Plays the upgrade animation for the token
     /// </summary>
     /// <returns></returns>
-    IEnumerator DefaultUpgradeRoutine(bool useHaptics)
+    IEnumerator DefaultUpgradeRoutine(bool useHaptics, System.Action onPresentationComplete = null)
     {
         print("Default");
         // Delay before starting the upgrade animation
@@ -140,6 +147,9 @@ public class Token : MonoBehaviour
 
         // Ending flower burst animation
         flowerParticles.StopFlowerBurst(token.data.color);
+
+        yield return new WaitForSeconds(upgradePresentationHold);
+        onPresentationComplete?.Invoke();
     }
 
     /// <summary>
@@ -481,7 +491,7 @@ public class Token : MonoBehaviour
         moving = true;
         transform.position = Services.GameController.bagButtonTransform.position;
         transform.position = new Vector2(-2.5f, -8f);
-        StartCoroutine(BagDraw(index * 0.2f));//*(1f/1.5f)));
+        StartCoroutine(BagDraw(index * bagDrawStaggerSeconds));
     }
 
     IEnumerator BagDraw(float delay)
@@ -582,6 +592,19 @@ public class Token : MonoBehaviour
         placementParticles.Play();
         UpdateLayer("TokenPlaced");
     }
+
+    public bool IsPlacementAnimating => spriteDisplay.sortingLayerName == "TokenMoving";
+
+    public bool IsMoving => moving;
+
+    public IEnumerator WaitForPlacementComplete()
+    {
+        while (IsPlacementAnimating)
+        {
+            yield return null;
+        }
+        yield return new WaitForSeconds(placementSettleSeconds);
+    }
     public void UpdateLayer(string sortingLayer)
     {
         spriteDisplay.sortingLayerName = sortingLayer;
@@ -590,7 +613,7 @@ public class Token : MonoBehaviour
     }
     public void Die(Logic.Token toolData = null)
     {
-        Debug.Log("Die");
+        GameLog.Log("Die");
         StartCoroutine(Dying(toolData));
     }
     IEnumerator Wiggle()
@@ -738,7 +761,7 @@ public class Token : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
         float speed = liftSpeed;
-        float waitTime = Random.Range(0.1f, 0.4f);//0.33f
+        float waitTime = Random.Range(killNumberWaitMin, killNumberWaitMax);
         yield return new WaitForSeconds(waitTime);
         while (textDisplay.transform.localScale.x > 0.2f)
         {
@@ -834,13 +857,13 @@ public class Token : MonoBehaviour
     {
         Sequence dyingSequence = DOTween.Sequence();
         textDisplay.gameObject.SetActive(false);
-        Debug.Log("Undo Destroy Animation");
+        GameLog.Log("Undo Destroy Animation");
         dyingSequence.Append(transform.DOMove(transform.position + Vector3.up * liftHeight, UndoOutAnimation).SetEase(Ease.OutCubic));
         dyingSequence.Join(spriteDisplay.DOFade(0f, UndoOutAnimation * 0.5f).SetEase(Ease.InCubic));
         dyingSequence.Join(number.DOFade(0f, UndoOutAnimation * 0.5f).SetEase(Ease.InCubic));
         dyingSequence.Join(shadow.DOFade(0f, UndoOutAnimation * 0.5f).SetEase(Ease.InCubic));
         yield return dyingSequence.WaitForCompletion();
-        Debug.Log("Undo Destroy Animation Complete");
+        GameLog.Log("Undo Destroy Animation Complete");
         GameObject.Destroy(gameObject);
     }
 
@@ -866,5 +889,7 @@ public class Token : MonoBehaviour
         spawnSequence.Join(number.DOFade(1f, UndoInAnimation * 0.5f).SetEase(Ease.InCubic));
         spawnSequence.Join(shadow.DOFade(1f, UndoInAnimation * 0.5f).SetEase(Ease.InCubic));
         yield return spawnSequence.WaitForCompletion();
+        textDisplay.gameObject.SetActive(true);
+        textDisplay.transform.localScale = Vector3.one * 1.4f;
     }
 }

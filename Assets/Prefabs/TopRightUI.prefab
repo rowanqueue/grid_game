@@ -815,7 +815,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   executeInUpdate: 1
   moved: 1
-  anchorType: 8
+  anchorType: 14
   anchorOffset: {x: -0.3, y: -0.5, z: 0}
 --- !u!1 &7696419808433623704
 GameObject:

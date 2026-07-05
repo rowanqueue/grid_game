@@ -69,7 +69,7 @@ public class SnapshotScreen : MonoBehaviour
         }
         if (game.freeSlot != null)
         {
-            Debug.Log("load in freeslot");
+            GameLog.Log("load in freeslot");
             Token token = GameObject.Instantiate(tokenPrefab, gridTransform).GetComponent<Token>();
             token.token = game.freeSlot;
             freeSlot.token = token;
@@ -174,7 +174,7 @@ public class SnapshotScreen : MonoBehaviour
         }
         if (freeSlot.token)
         {
-            Debug.Log("remove free slot");
+            GameLog.Log("remove free slot");
             GameObject.Destroy(freeSlot.token.gameObject);
             freeSlot.token = null;
         }
