@@ -30,6 +30,8 @@ public class Token : MonoBehaviour
 
     public float liftSpeed = 0.9f;
     public float liftHeight = 0.75f;
+    public const float DrawFollowSpeed = 1.5f;
+    public const float DragDrawFollowSpeed = DrawFollowSpeed * 1.25f;
     public float toolLiftSpeed = 0.5f;
 
     public GameObject shade;
@@ -225,6 +227,8 @@ public class Token : MonoBehaviour
                 number.sprite = Services.Visuals.altNumberSprites[(int)tokenData.num];
             }
             number.enabled = false;
+            HideScoreLabel();
+            return;
         }
         else
         {
@@ -252,6 +256,7 @@ public class Token : MonoBehaviour
             number.enabled = false;
             if (tokenData.color == Logic.TokenColor.Clipper || tokenData.color == Logic.TokenColor.Spade || tokenData.color == Logic.TokenColor.Adder || tokenData.color == Logic.TokenColor.Gnome)
             {
+                HideScoreLabel();
                 return;
             }
             if (tokenData.num >= 0)
@@ -264,6 +269,15 @@ public class Token : MonoBehaviour
                 }
 
             }
+        }
+        HideScoreLabel();
+    }
+
+    void HideScoreLabel()
+    {
+        if (textDisplay != null)
+        {
+            textDisplay.gameObject.SetActive(false);
         }
     }
 
@@ -333,6 +347,7 @@ public class Token : MonoBehaviour
         yield return tool.transform.DOMove(transform.position + Spade_PositionOffset, Spade_MoveToTileTime).SetEase(Ease.OutQuint).WaitForCompletion();
 
         // Show text
+        newToken.textDisplay.gameObject.SetActive(true);
         newToken.textDisplay.transform.parent = transform.parent;
         newToken.textDisplay.transform.localScale = Vector3.one * 1.4f;
         newToken.textDisplay.text = Services.GameController.ScoreToken(token.data).ToString();
@@ -531,7 +546,9 @@ public class Token : MonoBehaviour
         Destroy(gameObject);
     }
 
-    public void Draw(Vector2 pos, bool hover = false)
+    bool placementSettling;
+
+    public void Draw(Vector2 pos, bool hover = false, float followSpeed = DrawFollowSpeed)
     {
         if (beingSpaded)
         {
@@ -543,19 +560,19 @@ public class Token : MonoBehaviour
         }
         if (lifted)
         {
-            spriteDisplay.transform.localPosition += (Vector3.up * 0.5f - spriteDisplay.transform.localPosition) * 1.5f * (Time.deltaTime / 0.16666f);
+            spriteDisplay.transform.localPosition += (Vector3.up * 0.5f - spriteDisplay.transform.localPosition) * followSpeed * (Time.deltaTime / 0.16666f);
             //shadow.transform.localPosition = new Vector2(0, -0.5f);
         }
         else
         {
-            spriteDisplay.transform.localPosition += (Vector3.zero - spriteDisplay.transform.localPosition) * 1.5f * (Time.deltaTime / 0.16666f);
+            spriteDisplay.transform.localPosition += (Vector3.zero - spriteDisplay.transform.localPosition) * followSpeed * (Time.deltaTime / 0.16666f);
             //shadow.transform.localPosition = Vector3.zero;
         }
         if (moving) { return; }
         float shadow_scale = Mathf.InverseLerp(0f, 0.5f, spriteDisplay.transform.localPosition.y);
         shadow.transform.localScale = Vector3.one * Mathf.Lerp(1f, 0.75f, shadow_scale);
 
-        transform.position += ((Vector3)pos - transform.position) * 1.5f * (Time.deltaTime / 0.16666f);
+        transform.position += ((Vector3)pos - transform.position) * followSpeed * (Time.deltaTime / 0.16666f);
         if (spriteDisplay.sortingLayerName == "TokenPlaced")
         {
             if (Services.GameController.lastTokenPlaced == this && Services.GameController.inputState != InputState.Wait)
@@ -579,8 +596,10 @@ public class Token : MonoBehaviour
         //border.enabled = hover;
         if (spriteDisplay.sortingLayerName == "TokenMoving")
         {
-            if (Vector2.Distance(pos, transform.position) < 0.1f && lifted)
+            float dist = Vector2.Distance(pos, transform.position);
+            if (dist < 0.1f && !placementSettling)
             {
+                placementSettling = true;
                 lifted = false;
                 StartCoroutine(LowerLift());
             }
@@ -607,6 +626,10 @@ public class Token : MonoBehaviour
     }
     public void UpdateLayer(string sortingLayer)
     {
+        if (sortingLayer == "TokenMoving")
+        {
+            placementSettling = false;
+        }
         spriteDisplay.sortingLayerName = sortingLayer;
         number.sortingLayerName = sortingLayer;
         textDisplay.sortingLayerID = spriteDisplay.sortingLayerID;
@@ -670,6 +693,7 @@ public class Token : MonoBehaviour
             yield return new WaitForSeconds(0.5f);
         }
 
+        textDisplay.gameObject.SetActive(true);
         textDisplay.transform.parent = transform.parent;
         textDisplay.transform.localScale = Vector3.one * 1.4f;
         dirtParticles.Play();
@@ -889,7 +913,5 @@ public class Token : MonoBehaviour
         spawnSequence.Join(number.DOFade(1f, UndoInAnimation * 0.5f).SetEase(Ease.InCubic));
         spawnSequence.Join(shadow.DOFade(1f, UndoInAnimation * 0.5f).SetEase(Ease.InCubic));
         yield return spawnSequence.WaitForCompletion();
-        textDisplay.gameObject.SetActive(true);
-        textDisplay.transform.localScale = Vector3.one * 1.4f;
     }
 }

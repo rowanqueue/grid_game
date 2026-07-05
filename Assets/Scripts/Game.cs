@@ -292,6 +292,8 @@ namespace Logic
     }
     public class Game
     {
+        public const int MaxMulliganUses = 3;
+
         public Json.Root root;
         public string name;
         public int version;
@@ -305,6 +307,7 @@ namespace Logic
         public System.Func<bool> tutorialNewHandGate;
         public Token freeSlot;
         public int score = 0;
+        public int mulliganUsesRemaining;
         uint turn = 0;//counts placed tokens
         public Progress progress;
         public History history;
@@ -444,6 +447,7 @@ namespace Logic
                 hand.FillHand(bag);
             }
             history = new History(this);
+            mulliganUsesRemaining = MaxMulliganUses;
             history.turns.Add(new History.Turn(this));
             
         }
@@ -562,6 +566,8 @@ namespace Logic
         }
         public void Mulligan()
         {
+            if (mulliganUsesRemaining <= 0) { return; }
+            mulliganUsesRemaining--;
             hand.ReturnHand(bag);
             hand.FillHand(bag);
         }
@@ -1910,10 +1916,12 @@ namespace Logic
             public List<TokenData> playedTokens;
             //state of progress
             public string unlocked;
+            public int mulliganUsesRemaining;
 
             public Turn(Game game)
             {
                 score = game.score;
+                mulliganUsesRemaining = game.mulliganUsesRemaining;
                 grid = new List<TokenData>();
                 for (int y = 0; y < game.grid.gridSize.y; y++)
                 {
@@ -1960,6 +1968,7 @@ namespace Logic
             public void Load(Game game)
             {
                 game.score = score;
+                game.mulliganUsesRemaining = mulliganUsesRemaining;
                 //make sure the grid is clear before this
                 game.grid.Clear();
                 //grid

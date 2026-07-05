@@ -43,7 +43,7 @@ namespace flora
                 case ButtonType.Mulligan:
                     if (Services.GameController.inTutorial == false)
                     {
-                        disabled = !Services.Gems.CanAfford("mulligan");
+                        disabled = Services.GameController.game.mulliganUsesRemaining <= 0;
                     }
                     break;
                 case ButtonType.DiceMode:
@@ -88,19 +88,11 @@ namespace flora
         {
             if (disabled)
             {
-                if (type == ButtonType.Mulligan && Services.GameController.inTutorial == false)
-                {
-                    Services.Gems.TooExpensive();
-                }
                 return;
             }
 
             PlayPressFeedback();
             _event.Invoke();
-            if (type == ButtonType.Mulligan && Services.GameController.inTutorial == false)
-            {
-                Services.Gems.SpendGems("mulligan");
-            }
         }
 
         void OnMouseEnter()

@@ -8,7 +8,7 @@ namespace Save
 {
     public class SaveLoad
     {
-        public static int version = 3;
+        public static int version = 4;
         public static void Save(int id,Logic.History.Turn turn)
         {
             Save save = new Save(turn);

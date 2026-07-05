@@ -105,6 +105,9 @@ public class GameController : MonoBehaviour
     [SerializeField] float cameraPanDuration = 0.45f;
     [SerializeField] float mulliganStaggerSeconds = 0.1f;
     [SerializeField] float mulliganPauseBeforeDraw = 0.5f;
+    [SerializeField] float placementSnapRadiusScale = 0.5f;
+    [SerializeField] float tapPlacementSnapRadiusScale = 0.72f;
+    [SerializeField] bool snapDragVisualToTile = true;
     public float waiting = 0f;
     public Token lastTokenPlaced;
     public bool holdingClipper = false;
@@ -155,6 +158,7 @@ public class GameController : MonoBehaviour
     // Start is called before the first frame update
     private List<Vector2Int> undidTiles = new List<Vector2Int>();
     private bool undidSlot = false;
+    bool ignoreBagCloseInputThisFrame = false;
     void Awake()
     {
         InitializeServices();
@@ -663,6 +667,7 @@ public class GameController : MonoBehaviour
         //stateScreens[(int)gameState].gameObject.SetActive(true);
         //stateScreens[(int)gameState].SetAnchor();
         movingToScreen = true;
+        ignoreBagCloseInputThisFrame = true;
     }
     public void GameStateCredits()
     {
@@ -1031,7 +1036,7 @@ public class GameController : MonoBehaviour
         DrawNextTutorialScriptHand(animateFromBag: true);
     }
 
-    public void OnTutorialEnded()
+    public void OnTutorialEnded(bool refillHand = false)
     {
         game.skipAutoHandFillOnEmpty = false;
         game.tutorialNewHandGate = null;
@@ -1041,6 +1046,15 @@ public class GameController : MonoBehaviour
             StopCoroutine(tutorialHandRefreshCoroutine);
             tutorialHandRefreshCoroutine = null;
         }
+        if (!refillHand)
+        {
+            return;
+        }
+        if (game.hand.AllSlotsEmpty())
+        {
+            game.hand.FillHand(game.bag);
+        }
+        CreateHand(true);
     }
 
     int CountVisibleHandTokens()
@@ -1222,6 +1236,67 @@ public class GameController : MonoBehaviour
         inputState = newState;
 
     }
+
+    float PlacementSnapRadius(float snapRadiusScale) =>
+        snapRadiusScale * Mathf.Min(Mathf.Abs(gridSeparation.x), Mathf.Abs(gridSeparation.y));
+
+    bool ResolvePlacementTarget(Vector2 pointer, out Vector2Int pos, float snapRadiusScale)
+    {
+        pos = Vector2Int.one * -5;
+        float bestDist = float.MaxValue;
+        Vector2Int bestGridPos = pos;
+        bool bestIsFreeSlot = false;
+
+        foreach (Tile tile in tiles.Values)
+        {
+            float d = Vector2.Distance(pointer, tile.transform.position);
+            if (d < bestDist)
+            {
+                bestDist = d;
+                bestGridPos = tile.tile.pos;
+                bestIsFreeSlot = false;
+            }
+        }
+
+        if (freeSlot != null)
+        {
+            float freeDist = Vector2.Distance(pointer, freeSlot.transform.position);
+            if (freeDist < bestDist)
+            {
+                bestDist = freeDist;
+                bestIsFreeSlot = true;
+            }
+        }
+
+        if (bestDist > PlacementSnapRadius(snapRadiusScale))
+        {
+            return false;
+        }
+
+        pos = bestIsFreeSlot ? freeSlotChoice : bestGridPos;
+        return true;
+    }
+
+    float ActivePlacementSnapRadiusScale() =>
+        draggingTile ? placementSnapRadiusScale : tapPlacementSnapRadiusScale;
+
+    Vector2 GetDragDrawPosition()
+    {
+        if (!snapDragVisualToTile)
+        {
+            return InputHelper.GetPointerWorldPosition();
+        }
+        if (chosenPos == freeSlotChoice && freeSlot != null)
+        {
+            return freeSlot.transform.position;
+        }
+        if (tiles.ContainsKey(chosenPos))
+        {
+            return tiles[chosenPos].transform.position;
+        }
+        return InputHelper.GetPointerWorldPosition();
+    }
+
     void DebugBagDisplay()
     {
         string s = "";
@@ -1520,7 +1595,7 @@ public class GameController : MonoBehaviour
         Vector2 mousePos = InputHelper.GetPointerWorldPosition();
         if (gameState == GameState.Bag)
         {
-            if (InputHelper.GetPrimaryPressBegan())
+            if (InputHelper.GetPrimaryPressBegan() && !ignoreBagCloseInputThisFrame)
             {
                 if (mousePos.y >= -13.0f)
                 {
@@ -1529,6 +1604,7 @@ public class GameController : MonoBehaviour
                 }
             }
         }
+        ignoreBagCloseInputThisFrame = false;
         if (inputState != InputState.Wait && inputState != InputState.Finish)
         {
             if (dyingTokens.Count > 0)
@@ -1665,16 +1741,7 @@ public class GameController : MonoBehaviour
                 //undoing
                 if (InputHelper.GetPrimaryPressBegan())
                 {
-                    chosenPos = Vector2Int.one * -5;
-                    foreach (Tile tile in tiles.Values)
-                    {
-                        float d = Vector2.Distance(mousePos, tile.transform.position);
-                        if (d < 0.5f)
-                        {
-                            chosenPos = tile.tile.pos;
-                            break;
-                        }
-                    }
+                    ResolvePlacementTarget(mousePos, out chosenPos, tapPlacementSnapRadiusScale);
                     if (tiles.ContainsKey(chosenPos) && tiles[chosenPos].token != null && tiles[chosenPos].token == lastTokenPlaced)
                     {
                         lastTokenPlaced = null;
@@ -1703,22 +1770,7 @@ public class GameController : MonoBehaviour
                 holdingClipper = chosenToken.token.data.color == Logic.TokenColor.Clipper;
                 holdingSpade = chosenToken.token.data.color == Logic.TokenColor.Spade;
                 holdingAdder = chosenToken.token.data.color == Logic.TokenColor.Adder;
-                chosenPos = Vector2Int.one * -5;
-                foreach (Tile tile in tiles.Values)
-                {
-                    float d = Vector2.Distance(mousePos, tile.transform.position);
-                    if (d < 0.5f)
-                    {
-                        chosenPos = tile.tile.pos;
-
-                        break;
-                    }
-                }
-                float dist = Vector2.Distance(mousePos, freeSlot.transform.position);
-                if (dist < 0.5f)
-                {
-                    chosenPos = freeSlotChoice;
-                }
+                ResolvePlacementTarget(mousePos, out chosenPos, ActivePlacementSnapRadiusScale());
                 //let go
                 if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Z))
                 {
@@ -2050,16 +2102,7 @@ public class GameController : MonoBehaviour
                 //undoing
                 if (InputHelper.GetPrimaryPressBegan())
                 {
-                    chosenPos = Vector2Int.one * -5;
-                    foreach (Tile tile in tiles.Values)
-                    {
-                        float d = Vector2.Distance(mousePos, tile.transform.position);
-                        if (d < 0.5f)
-                        {
-                            chosenPos = tile.tile.pos;
-                            break;
-                        }
-                    }
+                    ResolvePlacementTarget(mousePos, out chosenPos, tapPlacementSnapRadiusScale);
                     if (tiles.ContainsKey(chosenPos) && tiles[chosenPos].token != null && tiles[chosenPos].token == lastTokenPlaced)
                     {
                         lastTokenPlaced = null;
@@ -2301,12 +2344,7 @@ public class GameController : MonoBehaviour
         if (freeSlot.token)
         {
             bool shouldHover = false;
-            // Reserve placement uses TokenMoving + LowerLift; clearing lifted every frame prevented that from finishing.
-            if (freeSlot.token.IsPlacementAnimating)
-            {
-                freeSlot.token.lifted = true;
-            }
-            else
+            if (!freeSlot.token.IsPlacementAnimating)
             {
                 freeSlot.token.lifted = false;
             }
@@ -2315,14 +2353,17 @@ public class GameController : MonoBehaviour
                 if (chosenIndex >= game.hand.handSize)
                 {
                     shouldHover = true;
-                    freeSlot.token.lifted = true;
+                    if (!draggingTile)
+                    {
+                        freeSlot.token.lifted = true;
+                    }
                 }
             }
             if (shouldHover)
             {
                 if (draggingTile)
                 {
-                    freeSlot.token.Draw(mousePos + Vector2.up * 0.5f, true);
+                    freeSlot.token.Draw(GetDragDrawPosition(), true, Token.DragDrawFollowSpeed);
                 }
                 else
                 {
@@ -2354,10 +2395,10 @@ public class GameController : MonoBehaviour
                 }
                 else if (inputState == InputState.Place)
                 {
-                    hand[i].lifted = true;
+                    hand[i].lifted = !draggingTile;
                     if (draggingTile)
                     {
-                        hand[i].Draw(mousePos, true);
+                        hand[i].Draw(GetDragDrawPosition(), true, Token.DragDrawFollowSpeed);
                     }
                     else
                     {
@@ -2642,6 +2683,10 @@ public class GameController : MonoBehaviour
 
         CreateHand(true);
         Services.AudioManager.PlayUndoSound();
+        if (!inTutorial)
+        {
+            Save();
+        }
     }
 
 

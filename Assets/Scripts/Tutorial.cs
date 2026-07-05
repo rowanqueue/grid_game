@@ -227,13 +227,13 @@ public class Tutorial : MonoBehaviour
         EnterStage(TutorialStage.Intro);
     }
 
-    public void ExitTutorial()
+    public void ExitTutorial(bool refillHand = false)
     {
         active = false;
         isPresenting = false;
         StopActivePresentation();
         ExitStage();
-        Services.GameController.OnTutorialEnded();
+        Services.GameController.OnTutorialEnded(refillHand);
         PlayerPrefs.SetInt("tutorialComplete", 1);
     }
 
@@ -419,7 +419,7 @@ public class Tutorial : MonoBehaviour
         stage = newStage;
         if (stage == TutorialStage.ActuallyFinishDefault)
         {
-            ExitTutorial();
+            ExitTutorial(refillHand: true);
             return;
         }
         int stageIndex = (int)stage;

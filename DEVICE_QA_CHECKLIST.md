@@ -46,7 +46,7 @@ Run this on **at least 2 Android and 2 iOS devices** before store submission (in
 | # | Test | Pass | Notes |
 |---|------|------|-------|
 | 19 | Passive seed earn over time | ☐ | |
-| 20 | Spend seeds (e.g. mulligan when unaffordable shows popup) | ☐ | |
+| 20 | Mulligan disables at 0 uses; uses persist across save/load | ☐ | |
 | 21 | Rewarded ad plays → seeds granted | ☐ | |
 | 22 | Airplane mode → ad shows “unavailable”, **no** reward | ☐ | |
 
