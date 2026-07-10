@@ -84,6 +84,25 @@ public class HighScoreManager : MonoBehaviour
         RefreshUI();
     }
 
+    public bool WouldBeNewBest(int score, int difficulty)
+    {
+        if (score <= 0)
+        {
+            return false;
+        }
+        if (data == null || data.entries == null || data.entries.Count == 0)
+        {
+            return true;
+        }
+
+        int bestForDifficulty = data.entries
+            .Where(e => e.difficulty == difficulty)
+            .Select(e => e.score)
+            .DefaultIfEmpty(0)
+            .Max();
+        return score > bestForDifficulty;
+    }
+
     public void RefreshUI()
     {
         if (displays == null || displays.Count == 0)

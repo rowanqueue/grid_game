@@ -102,6 +102,15 @@ public class GameController : MonoBehaviour
     public float waitTime = 0.1f;
     [SerializeField] float tokenWaitMultiplier = 1.5f;
     [SerializeField] float winHoldDuration = 1.2f;
+    [Header("Finish Sequence")]
+    [SerializeField] float finishBaseDelay = 0.08f;
+    [SerializeField] float finishDelayPerScore = 0.003f;
+    [SerializeField] int finishLastTileCount = 3;
+    [SerializeField] float finishLastTileSlowdown = 1.6f;
+    [SerializeField] int finishFlowerBase = 3;
+    [SerializeField] int finishFlowerPerNum = 2;
+    [SerializeField] float finishScoreHoldBase = 0.12f;
+    public float finishLiftSpeedMultiplier = 2f;
     [SerializeField] float cameraPanDuration = 0.45f;
     [SerializeField] float mulliganStaggerSeconds = 0.1f;
     [SerializeField] float mulliganPauseBeforeDraw = 0.5f;
@@ -136,10 +145,15 @@ public class GameController : MonoBehaviour
     public ToolShopScreen toolShopScreen;
 
     public int finishCount = 0;
-    Vector2Int finishTokenPos;
     public GameObject winScreen;
-    public TextMeshPro winScreenScore;
+    public TMP_Text winScreenScore;
     WinScreenDisplay winScreenDisplay;
+    int scoreBeforeFinish;
+    bool finishRoutineRunning;
+    bool pendingFinishStart;
+    public bool winScreenAccelerateRequested;
+    public bool winScreenShowing;
+    public float winScreenAnimSpeed = 1f;
     bool dismissingPopup;
     Vector3 cameraPanStart;
     float cameraPanElapsed = -1f;
@@ -152,6 +166,7 @@ public class GameController : MonoBehaviour
     public List<Token> dyingTokens = new List<Token>();
 
     public GameObject loadSnapshotButton;
+    [SerializeField] GameObject debugNearEndGameButton;
     public List<Tile> tokensToDestroy = new List<Tile>();
     public PolaroidDisplay polaroidDisplay;
 
@@ -357,6 +372,12 @@ public class GameController : MonoBehaviour
         }
         CameraViewportHandler.OnResolutionChanged += RefreshAnchorsOnResolutionChange;
         StartCoroutine(RefreshAllScreenAnchorsAfterStartup());
+#if !UNITY_EDITOR && !DEVELOPMENT_BUILD
+        if (debugNearEndGameButton != null)
+        {
+            debugNearEndGameButton.SetActive(false);
+        }
+#endif
     }
 
     void Start()
@@ -1226,8 +1247,14 @@ public class GameController : MonoBehaviour
                 chosenToken.UpdateLayer("TokenHeld");
                 break;
             case InputState.Finish:
-                finishCount = 0;
-                finishTokenPos = new Vector2Int(0, 4);
+                lastTokenPlaced = null;
+                scoreBeforeFinish = score;
+                EnsureWinScreenDisplay();
+                if (!finishRoutineRunning)
+                {
+                    finishRoutineRunning = true;
+                    StartCoroutine(FinishBoardRoutine());
+                }
                 break;
             case InputState.Wait:
                 dyingTokens.Clear();
@@ -1383,6 +1410,166 @@ public class GameController : MonoBehaviour
         return "<size=35%>Your score:</size>\n" + score.ToString() + "\n<size=15%><line-height=100%>-Tap to restart-</size>";
     }
 
+    float GetFinishStepDelay(Logic.TokenData data, int index, int total)
+    {
+        float delay = finishBaseDelay + finishDelayPerScore * ScoreToken(data);
+        if (IsLastFinishTiles(index, total))
+        {
+            delay *= finishLastTileSlowdown;
+        }
+        return delay;
+    }
+
+    int GetFinishFlowerCount(Logic.TokenData data) => finishFlowerBase + finishFlowerPerNum * data.num;
+
+    bool IsLastFinishTiles(int index, int total) => index >= total - finishLastTileCount;
+
+    List<(Vector2Int pos, Tile tile)> BuildFinishTileOrder()
+    {
+        List<(Vector2Int, Tile)> ordered = new List<(Vector2Int, Tile)>();
+        Vector2Int gridSize = game.grid.gridSize;
+        for (int y = gridSize.y - 1; y >= 0; y--)
+        {
+            for (int x = 0; x < gridSize.x; x++)
+            {
+                Vector2Int pos = new Vector2Int(x, y);
+                if (tiles.TryGetValue(pos, out Tile tile) && tile.token != null)
+                {
+                    ordered.Add((pos, tile));
+                }
+            }
+        }
+        return ordered;
+    }
+
+    IEnumerator FlushScoreDeltaImmediate()
+    {
+        if (scoreDelta > 0)
+        {
+            score += scoreDelta;
+            scoreDelta = 0;
+            FinishScoreRolling();
+        }
+        yield return null;
+    }
+
+    public void SpawnWinConfetti()
+    {
+        List<Tile> gridTiles = new List<Tile>(tiles.Values);
+        if (gridTiles.Count == 0)
+        {
+            return;
+        }
+
+        int count = UnityEngine.Random.Range(15, 21);
+        for (int i = 0; i < count; i++)
+        {
+            Tile tile = gridTiles[UnityEngine.Random.Range(0, gridTiles.Count)];
+            TokenColor color = (TokenColor)UnityEngine.Random.Range(0, flowerPrefabs.Count);
+            CreateFlower(tile, color, false, true);
+        }
+    }
+
+    void PrepareAllTokensForFinish()
+    {
+        foreach (Tile tile in tiles.Values)
+        {
+            if (tile.token != null)
+            {
+                tile.token.PrepareForFinishParade();
+            }
+        }
+        if (freeSlot != null && freeSlot.token != null)
+        {
+            freeSlot.token.PrepareForFinishParade();
+        }
+        for (int i = 0; i < hand.Count; i++)
+        {
+            if (hand[i] != null)
+            {
+                hand[i].PrepareForFinishParade();
+            }
+        }
+    }
+
+    IEnumerator FinishBoardRoutine()
+    {
+        PrepareAllTokensForFinish();
+
+        List<(Vector2Int pos, Tile tile)> finishTiles = BuildFinishTileOrder();
+        int total = finishTiles.Count;
+
+        for (int i = 0; i < total; i++)
+        {
+            Tile tile = finishTiles[i].tile;
+            Token token = tile.token;
+            if (token == null)
+            {
+                continue;
+            }
+
+            Logic.TokenData data = token.token.data;
+            int points = ScoreToken(data);
+
+            yield return new WaitForSeconds(GetFinishStepDelay(data, i, total));
+
+            int flowerCount = GetFinishFlowerCount(data);
+            for (int f = 0; f < flowerCount; f++)
+            {
+                CreateFlower(tile, data.color, false, true);
+            }
+
+            FinishTilePacing pacing = new FinishTilePacing
+            {
+                scoreHoldDuration = finishScoreHoldBase + finishDelayPerScore * points
+            };
+            bool isLastTile = i == total - 1;
+            yield return token.PlayFinishTileRoutine(pacing, isLastTile);
+            tile.token = null;
+        }
+
+        yield return FlushScoreDeltaImmediate();
+        yield return ShowWinScreenSequence();
+        finishRoutineRunning = false;
+        EnterInputState(InputState.TapToRestart);
+    }
+
+    IEnumerator ShowWinScreenSequence()
+    {
+        winScreenAccelerateRequested = false;
+        winScreenAnimSpeed = 1f;
+        winScreenShowing = true;
+        bool isNewHighScore = HighScoreManager.Instance != null && HighScoreManager.Instance.WouldBeNewBest(score, difficulty);
+        SaveLoad.DeleteSave(0);
+        if (HighScoreManager.Instance != null)
+        {
+            HighScoreManager.Instance.SubmitScore(score, difficulty);
+        }
+
+        SpawnWinConfetti();
+        EnsureWinScreenDisplay();
+        winScreen.SetActive(true);
+
+        if (winScreenDisplay != null)
+        {
+            WinScreenPayload payload = new WinScreenPayload
+            {
+                fromScore = scoreBeforeFinish,
+                toScore = score,
+                isNewHighScore = isNewHighScore
+            };
+            yield return winScreenDisplay.ShowRoutine(payload);
+        }
+        else
+        {
+            winScreen.SetActive(true);
+            winScreenScore.text = FormatWinScreenScore();
+        }
+        winScreenShowing = false;
+        winScreenAccelerateRequested = false;
+        winScreenAnimSpeed = 1f;
+    }
+
     IEnumerator DismissUpgradePopupRoutine()
     {
         if (dismissingPopup || upgradePopup == null)
@@ -1399,54 +1586,94 @@ public class GameController : MonoBehaviour
         EnterInputState(InputState.Wait);
     }
 
+    bool AnyGridTokenStillPlacing(float snapDistance)
+    {
+        foreach (Tile tile in tiles.Values)
+        {
+            if (tile.token == null)
+            {
+                continue;
+            }
+            if (tile.token.IsPlacementAnimating)
+            {
+                return true;
+            }
+            if (Vector2.Distance(tile.token.transform.position, tile.transform.position) > snapDistance)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    IEnumerator WaitForBoardSettledThenFinish()
+    {
+        const float snapDistance = 0.02f;
+
+        while (game.gridUpdating)
+        {
+            yield return null;
+        }
+
+        while (AnyGridTokenStillPlacing(snapDistance))
+        {
+            yield return null;
+        }
+
+        if (lastTokenPlaced != null)
+        {
+            yield return lastTokenPlaced.WaitForPlacementComplete();
+        }
+
+        pendingFinishStart = false;
+        lastTokenPlaced = null;
+        EnterInputState(InputState.Finish);
+    }
+
     void DeathCheck()
     {
-        bool emptyTile = false;
-        if (inputState == InputState.Choose)
-        {
-            foreach (Tile tile in tiles.Values)
-            {
-                if (tile.token == null)
-                {
-                    emptyTile = true;
-                    break;
-                }
-            }
-            if (emptyTile == false)
-            {
-                EnterInputState(InputState.Finish);
-            }
-        }
-    }
-    void WaitToFinish()
-    {
-        StartCoroutine(Finishing());
+        if (inputState == InputState.Finish || inputState == InputState.TapToRestart) { return; }
+        if (inputState == InputState.Wait && game.gridUpdating) { return; }
 
+        bool emptyTile = false;
+        foreach (Tile tile in tiles.Values)
+        {
+            if (tile.token == null)
+            {
+                emptyTile = true;
+                break;
+            }
+        }
+        if (emptyTile) { return; }
+
+        if (finishRoutineRunning || pendingFinishStart) { return; }
+
+        pendingFinishStart = true;
+        StartCoroutine(WaitForBoardSettledThenFinish());
     }
-    IEnumerator Finishing()
+
+    public void RequestWinScreenAccelerate()
     {
-        for (int i = dyingTokens.Count - 1; i >= 0; i--)
+        if (winScreenAnimSpeed >= 2f)
         {
-            dyingTokens[i].StartKillNumber();
+            return;
         }
-        dyingTokens.Clear();
-        yield return new WaitForSeconds(winHoldDuration);
-        SaveLoad.DeleteSave(0);
-        // Submit the final score to the local high score table, if a manager exists.
-        if (HighScoreManager.Instance != null)
-        {
-            HighScoreManager.Instance.SubmitScore(score, difficulty);
-        }
-        EnsureWinScreenDisplay();
-        if (winScreenDisplay != null)
-            yield return winScreenDisplay.ShowRoutine(FormatWinScreenScore());
-        else
-        {
-            winScreen.SetActive(true);
-            winScreenScore.text = FormatWinScreenScore();
-        }
-        EnterInputState(InputState.TapToRestart);
+        winScreenAccelerateRequested = true;
+        winScreenAnimSpeed = 2f;
     }
+
+    void PollWinScreenAccelerate()
+    {
+        if (!winScreenShowing)
+        {
+            return;
+        }
+        if (InputHelper.GetPrimaryPressBegan() || InputHelper.GetAnyPressBegan())
+        {
+            RequestWinScreenAccelerate();
+        }
+    }
+
     public void HigherDifficulty()
     {
         difficulty++;
@@ -1487,6 +1714,7 @@ public class GameController : MonoBehaviour
         }
         difficultyButtons[0].disabled = difficulty == 0;
         difficultyButtons[1].disabled = difficulty == difficulties.Count - 1;
+        PollWinScreenAccelerate();
         DeathCheck();
 
         Services.AudioManager.SetVolume(0, PlayerPrefs.GetFloat("musicVolume"));
@@ -1589,7 +1817,7 @@ public class GameController : MonoBehaviour
             }
         }
         display.text += "\n<size=20%>-score-</size>";
-        if (winScreenDisplay != null && winScreen.activeSelf)
+        if (winScreenDisplay == null && winScreen.activeSelf)
             winScreenScore.text = FormatWinScreenScore();
         bagDisplay.text = " "; game.bag.ToString();
         Vector2 mousePos = InputHelper.GetPointerWorldPosition();
@@ -1636,38 +1864,6 @@ public class GameController : MonoBehaviour
                     Services.AudioManager.StopMusic();
                     SceneManager.LoadScene(0);
                 }
-                break;
-            case InputState.Finish:
-                waiting -= Time.deltaTime;
-                if (waiting <= 0f)
-                {
-                    waiting = waitTime;
-                    finishCount++;
-                    if (tiles[finishTokenPos].token != null)
-                    {
-                        //next pos
-                        for (int i = 0; i < tiles[finishTokenPos].token.token.data.num * 10; i++)
-                        {
-                            CreateFlower(tiles[finishTokenPos], tiles[finishTokenPos].token.token.data.color, false, true);
-                        }
-                        //score += tiles[finishTokenPos].token.token.data.num * ((TripleGame)game).colorScoreMulti[tiles[finishTokenPos].token.token.data.color];
-
-                        tiles[finishTokenPos].token.Die();
-                        tiles[finishTokenPos].token = null;
-                    }
-                    finishTokenPos.x += 1;
-                    if (finishTokenPos.x > 4)
-                    {
-                        finishTokenPos.x = 0;
-                        finishTokenPos.y -= 1;
-                    }
-                    if (finishTokenPos.y < 0)
-                    {
-                        WaitToFinish();
-                        EnterInputState(InputState.Choose);
-                    }
-                }
-
                 break;
             case InputState.Choose:
                 chosenIndex = -1;
@@ -1739,7 +1935,7 @@ public class GameController : MonoBehaviour
                     }
                 }
                 //undoing
-                if (InputHelper.GetPrimaryPressBegan())
+                if (InputHelper.GetPrimaryPressBegan() && !game.isGameover())
                 {
                     ResolvePlacementTarget(mousePos, out chosenPos, tapPlacementSnapRadiusScale);
                     if (tiles.ContainsKey(chosenPos) && tiles[chosenPos].token != null && tiles[chosenPos].token == lastTokenPlaced)
@@ -2100,7 +2296,7 @@ public class GameController : MonoBehaviour
                     }
                 }
                 //undoing
-                if (InputHelper.GetPrimaryPressBegan())
+                if (InputHelper.GetPrimaryPressBegan() && !game.isGameover())
                 {
                     ResolvePlacementTarget(mousePos, out chosenPos, tapPlacementSnapRadiusScale);
                     if (tiles.ContainsKey(chosenPos) && tiles[chosenPos].token != null && tiles[chosenPos].token == lastTokenPlaced)
@@ -2216,6 +2412,7 @@ public class GameController : MonoBehaviour
                                     }
                                     break;
                                 case Logic.StatusReport.EventType.NewHand:
+                                    if (game.isGameover()) { break; }
                                     if (inTutorial)
                                     {
                                         HandleTutorialNewHand();
@@ -2327,7 +2524,7 @@ public class GameController : MonoBehaviour
             {
                 tile.Draw(false);
             }
-            if (tile.token)
+            if (tile.token && inputState != InputState.Finish && inputState != InputState.TapToRestart)
             {
                 tile.token.Draw(tile.transform.position);
             }
@@ -2601,12 +2798,12 @@ public class GameController : MonoBehaviour
     }
     public void LoadSnapshot()
     {
-        if (Services.Gems.CanAfford("snapshot") == false)
+        if (Services.Gems.CanAfford("newGame") == false)
         {
             Services.Gems.TooExpensive();
             return;
         }
-        Services.Gems.SpendGems("snapshot");
+        Services.Gems.SpendGems("newGame");
         Logic.History.Turn _save = null;
         if (SaveLoad.HasSave(1))
         {
@@ -2692,6 +2889,7 @@ public class GameController : MonoBehaviour
 
     public void Undo()
     {
+        if (game.isGameover()) { return; }
         if (inTutorial && (tutorial.stage == TutorialStage.Undo))
         {
             tutorial.RequestStageUpdate();
@@ -2746,6 +2944,26 @@ public class GameController : MonoBehaviour
     {
         PlayerPrefs.DeleteAll();
         Restart();
+    }
+
+    public void DebugNearEndGame()
+    {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (IsTutorialSession) { return; }
+        if (inputState == InputState.Finish || inputState == InputState.TapToRestart) { return; }
+
+        game.SetupNearEndGameDebug();
+        score = game.score;
+        scoreDelta = 0;
+        dyingTokens.Clear();
+        CreateHand();
+        ClearTokensFromGrid();
+        LoadTokensIntoGrid();
+        EnterInputState(InputState.Choose);
+        GameStateGameplay();
+        Save();
+        GameLog.Log("Debug: near end-game board loaded.");
+#endif
     }
 
 }

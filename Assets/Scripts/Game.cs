@@ -695,6 +695,10 @@ namespace Logic
             {
                 dealNewHand = false;
             }
+            if (grid.isFull())
+            {
+                dealNewHand = false;
+            }
             if (dealNewHand)
             {
                 hand.EmptyHand();
@@ -721,6 +725,120 @@ namespace Logic
             turn.Load(this);
             history.turns.Add(new History.Turn(this));
         }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        static TokenData[] BuildDebugTokenCandidates()
+        {
+            var list = new List<TokenData>();
+            TokenColor[] colors = { TokenColor.Blue, TokenColor.Red, TokenColor.Green, TokenColor.Purple };
+            for (int n = 1; n <= 3; n++)
+            {
+                foreach (TokenColor color in colors)
+                {
+                    list.Add(new TokenData(color, n));
+                }
+            }
+            return list.ToArray();
+        }
+
+        int GetGroupCollapseNum()
+        {
+            return (this is TripleGame triple) ? triple.groupCollapseNum : 3;
+        }
+
+        int CountMatchGroupIfPlaced(Vector2Int pos, TokenData data)
+        {
+            Tile tile = grid.tiles[pos];
+            Token fakeToken = new Token(data, false);
+            tile.token = fakeToken;
+            fakeToken.tile = tile;
+            List<Token> group = new List<Token>();
+            tile.CheckNeighbors(Check.Equals, group, 0, fakeToken);
+            tile.token = null;
+            return group.Count;
+        }
+
+        bool WouldCreateMatch(Vector2Int pos, TokenData data)
+        {
+            return CountMatchGroupIfPlaced(pos, data) >= GetGroupCollapseNum();
+        }
+
+        TokenData PickSafeFillToken(Vector2Int pos)
+        {
+            foreach (TokenData candidate in BuildDebugTokenCandidates())
+            {
+                if (!WouldCreateMatch(pos, candidate))
+                {
+                    return candidate;
+                }
+            }
+            return new TokenData(TokenColor.Blue, 1);
+        }
+
+        TokenData PickSafeHandToken(Vector2Int emptyPos)
+        {
+            foreach (TokenData candidate in BuildDebugTokenCandidates())
+            {
+                if (!WouldCreateMatch(emptyPos, candidate))
+                {
+                    return candidate;
+                }
+            }
+            return new TokenData(TokenColor.Blue, 1);
+        }
+
+        public void SetupNearEndGameDebug()
+        {
+            Vector2Int emptyPos = new Vector2Int(gridSize.x / 2, gridSize.y / 2);
+            if (!grid.HasTile(emptyPos))
+            {
+                emptyPos = new Vector2Int(0, 0);
+            }
+
+            Vector2Int secondEmptyPos = emptyPos + Vector2Int.right;
+            if (!grid.HasTile(secondEmptyPos))
+            {
+                secondEmptyPos = emptyPos + Vector2Int.up;
+            }
+            if (!grid.HasTile(secondEmptyPos))
+            {
+                secondEmptyPos = emptyPos + Vector2Int.left;
+            }
+            if (!grid.HasTile(secondEmptyPos))
+            {
+                secondEmptyPos = emptyPos + Vector2Int.down;
+            }
+
+            grid.Clear();
+            status.events.Clear();
+
+            for (int x = 0; x < gridSize.x; x++)
+            {
+                for (int y = 0; y < gridSize.y; y++)
+                {
+                    Vector2Int pos = new Vector2Int(x, y);
+                    if (pos == emptyPos || pos == secondEmptyPos) { continue; }
+                    TokenData data = PickSafeFillToken(pos);
+                    grid.PlaceToken(pos, new Token(data, false));
+                }
+            }
+
+            for (int i = 0; i < hand.handSize; i++)
+            {
+                hand.tokens[i] = null;
+            }
+            hand.tokens[0] = new Token(new TokenData(TokenColor.Gnome, 1), true);
+            hand.tokens[1] = new Token(PickSafeHandToken(secondEmptyPos), true);
+            hand.tokensTaken = 2;
+            freeSlot = null;
+
+            score = 500;
+            gridUpdating = false;
+
+            history.turns.Clear();
+            history.turns.Add(new History.Turn(this));
+        }
+#endif
     }
     public class Grid
     {

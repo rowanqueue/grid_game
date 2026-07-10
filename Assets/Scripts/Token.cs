@@ -7,6 +7,11 @@ using Logic;
 using System.Collections.Generic;
 using UnityEditor;
 
+public struct FinishTilePacing
+{
+    public float scoreHoldDuration;
+}
+
 public class Token : MonoBehaviour
 {
     public Logic.Token token;
@@ -43,6 +48,7 @@ public class Token : MonoBehaviour
     Coroutine wiggleAnim;
 
     bool beingSpaded = false;
+    bool finishDying = false;
     public bool lifted = false;
     public bool waitingToDie = false;
 
@@ -70,6 +76,8 @@ public class Token : MonoBehaviour
     [SerializeField] private float placementSettleSeconds = 0.12f;
     [SerializeField] private float killNumberWaitMin = 0.1f;
     [SerializeField] private float killNumberWaitMax = 0.4f;
+    [SerializeField] private float gnomeFinishHoldDuration = 0.55f;
+    [SerializeField] private float lastTileHoldBonus = 0.15f;
 
     public SpriteRenderer crunchCircle;
     public TextMeshPro crunchText;
@@ -218,7 +226,7 @@ public class Token : MonoBehaviour
 
     public void SetTokenData(Logic.TokenData tokenData)
     {
-        gnome.enabled = tokenData.color == Logic.TokenColor.Gnome;
+        HideGnomeRevealSprite();
         if (tokenData.num >= ((Logic.TripleGame)Services.GameController.game).maxTileNum)
         {
             spriteDisplay.sprite = Services.Visuals.tokenMax[(int)tokenData.color];
@@ -279,6 +287,30 @@ public class Token : MonoBehaviour
         {
             textDisplay.gameObject.SetActive(false);
         }
+    }
+
+    bool IsGnomeToken => token != null && token.data.color == Logic.TokenColor.Gnome;
+
+    void HideGnomeRevealSprite()
+    {
+        if (gnome != null)
+        {
+            gnome.enabled = false;
+        }
+    }
+
+    void ShowGnomeRevealForScoring()
+    {
+        if (gnome == null || !IsGnomeToken)
+        {
+            return;
+        }
+
+        gnome.enabled = true;
+        gnome.transform.SetParent(transform.parent, true);
+        gnome.transform.localScale = Vector3.one * 1.4f;
+        gnome.transform.localRotation = Quaternion.identity;
+        gnome.color = Color.white;
     }
 
     public void PlaceInHand(int index)
@@ -550,6 +582,10 @@ public class Token : MonoBehaviour
 
     public void Draw(Vector2 pos, bool hover = false, float followSpeed = DrawFollowSpeed)
     {
+        if (finishDying)
+        {
+            return;
+        }
         if (beingSpaded)
         {
             return;
@@ -575,7 +611,7 @@ public class Token : MonoBehaviour
         transform.position += ((Vector3)pos - transform.position) * followSpeed * (Time.deltaTime / 0.16666f);
         if (spriteDisplay.sortingLayerName == "TokenPlaced")
         {
-            if (Services.GameController.lastTokenPlaced == this && Services.GameController.inputState != InputState.Wait)
+            if (Services.GameController.lastTokenPlaced == this && Services.GameController.inputState == InputState.Choose)
             {
                 if (wiggling == false)
                 {
@@ -634,11 +670,59 @@ public class Token : MonoBehaviour
         number.sortingLayerName = sortingLayer;
         textDisplay.sortingLayerID = spriteDisplay.sortingLayerID;
     }
+
+    public void PrepareForFinishParade()
+    {
+        if (wiggling)
+        {
+            wiggling = false;
+            if (wiggleAnim != null)
+            {
+                StopCoroutine(wiggleAnim);
+                wiggleAnim = null;
+            }
+        }
+        finishDying = false;
+        lifted = false;
+        placementSettling = true;
+        transform.localEulerAngles = Vector3.zero;
+        if (token != null && Services.GameController.tiles.TryGetValue(token.pos, out Tile gridTile))
+        {
+            transform.position = gridTile.transform.position;
+        }
+        if (spriteDisplay != null)
+        {
+            spriteDisplay.transform.localPosition = Vector3.zero;
+        }
+        if (shadow != null)
+        {
+            shadow.transform.localScale = Vector3.one;
+        }
+        UpdateLayer("TokenPlaced");
+    }
+
     public void Die(Logic.Token toolData = null)
     {
         GameLog.Log("Die");
-        StartCoroutine(Dying(toolData));
+        StartCoroutine(Dying(toolData, forFinish: false));
     }
+
+    public IEnumerator PlayFinishTileRoutine(FinishTilePacing pacing, bool isLastTile)
+    {
+        finishDying = true;
+        yield return Dying(null, forFinish: true);
+        float hold = pacing.scoreHoldDuration;
+        if (IsGnomeToken)
+        {
+            hold = Mathf.Max(hold, gnomeFinishHoldDuration);
+        }
+        if (isLastTile)
+        {
+            hold += lastTileHoldBonus;
+        }
+        yield return FinishKillNumber(hold);
+    }
+
     IEnumerator Wiggle()
     {
         wiggling = true;
@@ -678,42 +762,74 @@ public class Token : MonoBehaviour
         transform.localEulerAngles = new Vector3(0f, 0f, targetAngle);
         wiggling = false;
     }
-    IEnumerator Dying(Logic.Token toolToken)
+    IEnumerator Dying(Logic.Token toolToken, bool forFinish)
     {
-        float speed = liftSpeed;
+        float speed = forFinish
+            ? liftSpeed * Services.GameController.finishLiftSpeedMultiplier
+            : liftSpeed;
+        float fadeSpeed = forFinish
+            ? liftSpeed * Services.GameController.finishLiftSpeedMultiplier
+            : liftSpeed;
         float targetAngle = Random.Range(2.5f, 5f);
         if (Random.value < 0.5f)
         {
             targetAngle *= -1f;
         }
-        Services.GameController.dyingTokens.Add(this);
+        if (!forFinish)
+        {
+            Services.GameController.dyingTokens.Add(this);
+        }
 
         if (toolToken != null && toolToken.data.color == Logic.TokenColor.Clipper)
         {
             yield return new WaitForSeconds(0.5f);
         }
 
-        textDisplay.gameObject.SetActive(true);
         textDisplay.transform.parent = transform.parent;
-        textDisplay.transform.localScale = Vector3.one * 1.4f;
         dirtParticles.Play();
         sparkleParticles.Play();
-        textDisplay.text = Services.GameController.ScoreToken(token.data).ToString();
-        textDisplay.text = "<size=70%><voffset=0.2em>+</voffset></size>" + textDisplay.text;
-        finalPos = transform.localPosition + Vector3.up * liftHeight;
+        if (IsGnomeToken)
+        {
+            ShowGnomeRevealForScoring();
+            if (forFinish)
+            {
+                sparkleParticles.Play();
+                if (Services.GameController.useHaptics)
+                {
+                    Haptics.PlayTransient(1f, 0.5f);
+                }
+            }
+        }
+        else
+        {
+            textDisplay.gameObject.SetActive(true);
+            textDisplay.transform.localScale = Vector3.one * 1.4f;
+            textDisplay.text = Services.GameController.ScoreToken(token.data).ToString();
+            textDisplay.text = "<size=70%><voffset=0.2em>+</voffset></size>" + textDisplay.text;
+        }
         Services.AudioManager.PlayRemoveTileSound(1);
 
         UpdateLayer("TokenMoving");
-        while (Mathf.Abs(transform.localEulerAngles.z - targetAngle) < 0.1f)
+        if (forFinish)
         {
-            float angle = transform.localEulerAngles.z;
-            angle += (targetAngle - angle) * speed * 0.5f;
-            transform.localEulerAngles = new Vector3(0f, 0f, angle);
-            yield return new WaitForEndOfFrame();
+            transform.localEulerAngles = Vector3.zero;
         }
-        transform.localEulerAngles = new Vector3(0f, 0f, targetAngle);
-        finalPos = Vector3.up * liftHeight;
-        waitingToDie = true;
+        else
+        {
+            while (Mathf.Abs(Mathf.DeltaAngle(transform.localEulerAngles.z, targetAngle)) > 0.1f)
+            {
+                float angle = transform.localEulerAngles.z;
+                angle = Mathf.LerpAngle(angle, targetAngle, speed * 0.5f);
+                transform.localEulerAngles = new Vector3(0f, 0f, angle);
+                yield return new WaitForEndOfFrame();
+            }
+            transform.localEulerAngles = new Vector3(0f, 0f, targetAngle);
+        }
+        finalPos = spriteDisplay.transform.localPosition + Vector3.up * liftHeight;
+        if (!forFinish)
+        {
+            waitingToDie = true;
+        }
         while (Vector2.Distance(finalPos, spriteDisplay.transform.localPosition) > 0.01f)
         {
             spriteDisplay.transform.localPosition += (finalPos - spriteDisplay.transform.localPosition) * speed;
@@ -721,7 +837,7 @@ public class Token : MonoBehaviour
             if (Vector2.Distance(finalPos, spriteDisplay.transform.localPosition) < 0.25f)
             {
                 var a = (float)spriteDisplay.color.a;
-                a -= liftSpeed * 0.5f;
+                a -= fadeSpeed * 0.5f;
                 spriteDisplay.color = new Color(spriteDisplay.color.r, spriteDisplay.color.g, spriteDisplay.color.b, a);
                 number.color = new Color(number.color.r, number.color.g, number.color.b, a);
                 shadow.color = new Color(shadow.color.r, shadow.color.g, shadow.color.b, Mathf.Lerp(0f, 0.5f, a));
@@ -747,7 +863,7 @@ public class Token : MonoBehaviour
         while (spriteDisplay.color.a > 0.05f)
         {
             var a = (float)spriteDisplay.color.a;
-            a -= liftSpeed;
+            a -= fadeSpeed;
             spriteDisplay.color = new Color(spriteDisplay.color.r, spriteDisplay.color.g, spriteDisplay.color.b, a);
             number.color = new Color(number.color.r, number.color.g, number.color.b, a);
             shadow.color = new Color(shadow.color.r, shadow.color.g, shadow.color.b, Mathf.Lerp(0, 0.5f, a));
@@ -787,9 +903,10 @@ public class Token : MonoBehaviour
         float speed = liftSpeed;
         float waitTime = Random.Range(killNumberWaitMin, killNumberWaitMax);
         yield return new WaitForSeconds(waitTime);
-        while (textDisplay.transform.localScale.x > 0.2f)
+        Transform scoringVisual = IsGnomeToken && gnome != null && gnome.enabled ? gnome.transform : textDisplay.transform;
+        while (scoringVisual.localScale.x > 0.2f)
         {
-            textDisplay.transform.localScale -= Vector3.one * speed * 0.95f;
+            scoringVisual.localScale -= Vector3.one * speed * 0.95f;
             yield return new WaitForEndOfFrame();
 
         }
@@ -800,9 +917,32 @@ public class Token : MonoBehaviour
             Services.GameController.StartScoreRolling();
         }
         Services.GameController.scoreDelta += Services.GameController.ScoreToken(token.data);
-        GameObject.Destroy(textDisplay.gameObject);
+        if (IsGnomeToken && gnome != null && gnome.enabled)
+        {
+            GameObject.Destroy(gnome.gameObject);
+        }
+        else
+        {
+            GameObject.Destroy(textDisplay.gameObject);
+        }
         GameObject.Destroy(gameObject);
     }
+
+    IEnumerator FinishKillNumber(float holdDuration)
+    {
+        yield return new WaitForSeconds(holdDuration);
+        if (Services.GameController.scoreDelta == 0)
+        {
+            Services.GameController.StartScoreRolling();
+        }
+        Services.GameController.scoreDelta += Services.GameController.ScoreToken(token.data);
+        if (token != null && token.tile != null)
+        {
+            token.tile.token = null;
+        }
+        GameObject.Destroy(gameObject);
+    }
+
     public void ShowCrunchedDisplay(int num)
     {
         crunchCircle.enabled = true;

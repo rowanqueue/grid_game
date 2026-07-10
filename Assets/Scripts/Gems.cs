@@ -20,8 +20,7 @@ public class Gems : MonoBehaviour, IUnityAdsInitializationListener, IUnityAdsLoa
     {
         {"earn",4 },
         {"newGame",5 },
-        {"snapshot",5 },
-        {"takeSnapshot", 2},
+        {"takeSnapshot", 0},
         {"buySpade",2 },
         {"buyAdder",3 },
         {"buyClipper",4 }
