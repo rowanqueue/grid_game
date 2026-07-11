@@ -118,6 +118,7 @@ public class GameController : MonoBehaviour
     [SerializeField] float tapPlacementSnapRadiusScale = 0.72f;
     [SerializeField] bool snapDragVisualToTile = true;
     public float waiting = 0f;
+    bool mergeUpgradeBlocking;
     public Token lastTokenPlaced;
     public bool holdingClipper = false;
     public bool holdingSpade = false;
@@ -408,27 +409,11 @@ public class GameController : MonoBehaviour
         introTutorialInputEnabled = true;
     }
 
-    IEnumerator TutorialCombineStageAdvanceRoutine(Token visualToken, Logic.Token newToken, Logic.Token toolToken, bool useHaptics)
+    IEnumerator TutorialCombineStageAdvanceRoutine(Token visualToken, Logic.Token newToken, Logic.Token toolToken, bool useHaptics, int consumedTileCount)
     {
-        if (visualToken != null)
-        {
-            yield return visualToken.WaitForPlacementComplete();
-        }
-
-        bool upgradePresentationDone = false;
-        if (visualToken != null)
-        {
-            visualToken.UpgradeToken(newToken, toolToken, useHaptics, () => upgradePresentationDone = true);
-        }
-        else
-        {
-            upgradePresentationDone = true;
-        }
-
-        while (!upgradePresentationDone)
-        {
-            yield return null;
-        }
+        mergeUpgradeBlocking = true;
+        yield return MergeUpgradeRoutine(visualToken, newToken, toolToken, useHaptics, consumedTileCount);
+        mergeUpgradeBlocking = false;
 
         if (inTutorial && tutorial.stage == TutorialStage.Blue3 && tutorial.Blue3FormViewHold > 0f)
         {
@@ -441,6 +426,100 @@ public class GameController : MonoBehaviour
         {
             tutorial.RequestIncrementStage(IncrementTrigger.AfterUpgrade);
         }
+    }
+
+    bool AreSnapshotdMergeDeathsComplete(List<Token> consumedDeaths)
+    {
+        if (consumedDeaths == null || consumedDeaths.Count == 0)
+        {
+            return true;
+        }
+
+        for (int i = 0; i < consumedDeaths.Count; i++)
+        {
+            Token t = consumedDeaths[i];
+            if (t != null && !t.mergeDeathVisualComplete)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    List<Token> SnapshotRecentMergeDeaths(int count)
+    {
+        if (count <= 0 || dyingTokens.Count < count)
+        {
+            return null;
+        }
+
+        return dyingTokens.GetRange(dyingTokens.Count - count, count);
+    }
+
+    IEnumerator MergeUpgradeRoutine(
+        Token visualToken,
+        Logic.Token newToken,
+        Logic.Token toolToken,
+        bool useHaptics,
+        int consumedTileCount,
+        System.Action onPresentationComplete = null)
+    {
+        List<Token> consumedDeaths = null;
+        if (consumedTileCount > 0)
+        {
+            while (dyingTokens.Count < consumedTileCount)
+            {
+                yield return null;
+            }
+
+            consumedDeaths = SnapshotRecentMergeDeaths(consumedTileCount);
+        }
+
+        if (visualToken != null)
+        {
+            yield return visualToken.WaitForPlacementComplete();
+        }
+
+        if (consumedDeaths != null)
+        {
+            while (!AreSnapshotdMergeDeathsComplete(consumedDeaths))
+            {
+                yield return null;
+            }
+        }
+
+        bool upgradePresentationDone = false;
+        if (visualToken != null)
+        {
+            visualToken.UpgradeToken(newToken, toolToken, useHaptics, () =>
+            {
+                upgradePresentationDone = true;
+                onPresentationComplete?.Invoke();
+            });
+        }
+        else
+        {
+            upgradePresentationDone = true;
+            onPresentationComplete?.Invoke();
+        }
+
+        while (!upgradePresentationDone)
+        {
+            yield return null;
+        }
+    }
+
+    IEnumerator RunBlockingMergeUpgrade(
+        Token visualToken,
+        Logic.Token newToken,
+        Logic.Token toolToken,
+        bool useHaptics,
+        int consumedTileCount)
+    {
+        mergeUpgradeBlocking = true;
+        yield return MergeUpgradeRoutine(visualToken, newToken, toolToken, useHaptics, consumedTileCount);
+        mergeUpgradeBlocking = false;
     }
 
     void LateUpdate()
@@ -1840,7 +1919,7 @@ public class GameController : MonoBehaviour
                 bool readyToTrigger = true;
                 foreach (Token t in dyingTokens)
                 {
-                    if (t.waitingToDie == false)
+                    if (!t.mergeDeathVisualComplete)
                     {
                         readyToTrigger = false;
                     }
@@ -2320,7 +2399,7 @@ public class GameController : MonoBehaviour
                 }
                 break;
             case InputState.Wait:
-                if (game.gridUpdating == false)
+                if (game.gridUpdating == false && !mergeUpgradeBlocking)
                 {
                     waiting -= Time.deltaTime;
 
@@ -2368,7 +2447,8 @@ public class GameController : MonoBehaviour
                                     break;
                                 case Logic.StatusReport.EventType.TokenChanged:
                                     //waiting = 0f;
-                                    token = _event.tokens[0];
+                                    Logic.Token oldToken = _event.tokens[0];
+                                    Logic.Token newToken = _event.tokens[1];
                                     Logic.Token toolTokenA = null;
                                     if (_event.tokens.Count >= 3)
                                     {
@@ -2377,21 +2457,19 @@ public class GameController : MonoBehaviour
 
                                     foreach (Tile tile in tiles.Values)
                                     {
-                                        if (tile.token)
+                                        if (tile.token != null && tile.token.token == oldToken)
                                         {
-                                            if (tile.token.token == token)
+                                            if (inTutorial && (tutorial.stage == TutorialStage.Placing
+                                                || tutorial.stage == TutorialStage.Blue3
+                                                || tutorial.stage == TutorialStage.Green2))
                                             {
-                                                if (inTutorial && (tutorial.stage == TutorialStage.Placing
-                                                    || tutorial.stage == TutorialStage.Blue3
-                                                    || tutorial.stage == TutorialStage.Green2))
-                                                {
-                                                    StartCoroutine(TutorialCombineStageAdvanceRoutine(
-                                                        tile.token, _event.tokens[1], toolTokenA, useHaptics));
-                                                }
-                                                else
-                                                {
-                                                    tile.token.UpgradeToken(_event.tokens[1], toolTokenA, useHaptics);
-                                                }
+                                                StartCoroutine(TutorialCombineStageAdvanceRoutine(
+                                                    tile.token, newToken, toolTokenA, useHaptics, _event.num));
+                                            }
+                                            else
+                                            {
+                                                StartCoroutine(RunBlockingMergeUpgrade(
+                                                    tile.token, newToken, toolTokenA, useHaptics, _event.num));
                                             }
                                         }
                                     }
@@ -2477,7 +2555,7 @@ public class GameController : MonoBehaviour
                                 bool readyToTrigger = true;
                                 foreach (Token t in dyingTokens)
                                 {
-                                    if (t.waitingToDie == false)
+                                    if (!t.mergeDeathVisualComplete)
                                     {
                                         readyToTrigger = false;
                                     }

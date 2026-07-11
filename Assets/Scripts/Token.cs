@@ -51,6 +51,7 @@ public class Token : MonoBehaviour
     bool finishDying = false;
     public bool lifted = false;
     public bool waitingToDie = false;
+    public bool mergeDeathVisualComplete = false;
 
     [Header("Clipper Tool Animation Values")]
     [SerializeField] private float Clipper_MoveToTileTime = 0.25f;
@@ -764,6 +765,7 @@ public class Token : MonoBehaviour
     }
     IEnumerator Dying(Logic.Token toolToken, bool forFinish)
     {
+        mergeDeathVisualComplete = false;
         float speed = forFinish
             ? liftSpeed * Services.GameController.finishLiftSpeedMultiplier
             : liftSpeed;
@@ -871,11 +873,10 @@ public class Token : MonoBehaviour
         }
 
 
-        //this is right before number erases itself
-        //make it so everything happens
-
-        //yield return null;
-
+        if (!forFinish)
+        {
+            mergeDeathVisualComplete = true;
+        }
 
     }
     public IEnumerator ToolDyingRoutine(bool destroyTool)

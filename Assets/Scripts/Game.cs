@@ -74,7 +74,6 @@ namespace Logic
             if (tokenGroup.Count >= groupCollapseNum)
             {
                 //remove everything except the one you placed and change it to the next num
-                status.events.Add(new StatusReport.Event(StatusReport.EventType.TokenWait,1));
                 for (int i = tokenGroup.Count - 1; i >= 0; i--)
                 {
                     Token token = tokenGroup[i];
@@ -92,7 +91,9 @@ namespace Logic
                 Tile tile = tokenChanged.tile;
                 tokenChanged.Destroy();
                 grid.PlaceToken(tile.pos,newToken);
-                status.events.Add(new StatusReport.Event(StatusReport.EventType.TokenChanged, new List<Token>() { tokenChanged, newToken }));
+                StatusReport.Event changedEvent = new StatusReport.Event(StatusReport.EventType.TokenChanged, new List<Token>() { tokenChanged, newToken });
+                changedEvent.num = tokenGroup.Count - 1;
+                status.events.Add(changedEvent);
                 List<Dictionary<TokenData, int>> updatedContents = progress.CheckProgress(newToken);
                 for (int i = 0; i < updatedContents.Count; i++)
                 {
