@@ -100,16 +100,18 @@ public class GameController : MonoBehaviour
     public GameObject freeSlotVisual;
     public Vector2Int chosenPos = Vector2Int.left;
     public float waitTime = 0.1f;
+    [SerializeField] float normalWaitTime = 0.25f;
+    [SerializeField] float fastWaitTime = 0.1f;
     [SerializeField] float tokenWaitMultiplier = 1.5f;
     [SerializeField] float winHoldDuration = 1.2f;
     [Header("Finish Sequence")]
-    [SerializeField] float finishBaseDelay = 0.08f;
+    [SerializeField] float finishBaseDelay = 0.04f;
     [SerializeField] float finishDelayPerScore = 0.003f;
     [SerializeField] int finishLastTileCount = 3;
     [SerializeField] float finishLastTileSlowdown = 1.6f;
     [SerializeField] int finishFlowerBase = 3;
     [SerializeField] int finishFlowerPerNum = 2;
-    [SerializeField] float finishScoreHoldBase = 0.12f;
+    [SerializeField] float finishScoreHoldBase = 0.06f;
     public float finishLiftSpeedMultiplier = 2f;
     [SerializeField] float cameraPanDuration = 0.45f;
     [SerializeField] float mulliganStaggerSeconds = 0.1f;
@@ -161,6 +163,14 @@ public class GameController : MonoBehaviour
 
     public bool diceMode = false;
     public bool useHaptics = false;
+    public bool fastMode = false;
+
+    public bool SkipDeathTilt => fastMode;
+    public float PlacementSettleSeconds => fastMode ? 0.05f : 0.12f;
+    public float LowerLiftDelay => fastMode ? 0.04f : 0.1f;
+    public float UpgradeStartDelay => fastMode ? 0.04f : 0.1f;
+    public float UpgradePresentationHold => fastMode ? 0.2f : 0.4f;
+    public float DeathAnimationSpeed => fastMode ? 2f : 1f;
 
     public Transform bagButtonTransform;
     public bool newGame = false;
@@ -233,6 +243,16 @@ public class GameController : MonoBehaviour
         {
             useHaptics = PlayerPrefs.GetInt("useHaptics") == 1;
         }
+        if (PlayerPrefs.HasKey("fastMode") == false)
+        {
+            PlayerPrefs.SetInt("fastMode", fastMode ? 1 : 0);
+            PlayerPrefs.Save();
+        }
+        else
+        {
+            fastMode = PlayerPrefs.GetInt("fastMode") == 1;
+        }
+        ApplyAnimationSpeedSettings();
         Application.targetFrameRate = 60;
         winScreen.SetActive(false);
         EnsureWinScreenDisplay();
@@ -478,13 +498,16 @@ public class GameController : MonoBehaviour
 
         if (visualToken != null)
         {
-            yield return visualToken.WaitForPlacementComplete();
+            yield return WaitForPlacementCompleteWithTimeout(visualToken, 3f);
         }
 
         if (consumedDeaths != null)
         {
-            while (!AreSnapshotdMergeDeathsComplete(consumedDeaths))
+            float deathWaitElapsed = 0f;
+            const float deathWaitTimeout = 3f;
+            while (!AreSnapshotdMergeDeathsComplete(consumedDeaths) && deathWaitElapsed < deathWaitTimeout)
             {
+                deathWaitElapsed += Time.deltaTime;
                 yield return null;
             }
         }
@@ -834,6 +857,19 @@ public class GameController : MonoBehaviour
         PlayerPrefs.Save();
     }
 
+    public void ToggleFastMode()
+    {
+        fastMode = !fastMode;
+        PlayerPrefs.SetInt("fastMode", fastMode ? 1 : 0);
+        PlayerPrefs.Save();
+        ApplyAnimationSpeedSettings();
+    }
+
+    void ApplyAnimationSpeedSettings()
+    {
+        waitTime = fastMode ? fastWaitTime : normalWaitTime;
+    }
+
     void ClearTokensFromGrid(bool undo = false)
     {
         foreach (Tile tile in tiles.Values)
@@ -1136,6 +1172,15 @@ public class GameController : MonoBehaviour
         DrawNextTutorialScriptHand(animateFromBag: true);
     }
 
+    public void PresentBagHandForMulliganBeat()
+    {
+        if (game.hand.AllSlotsEmpty())
+        {
+            game.hand.FillHand(game.bag);
+        }
+        CreateHand(true);
+    }
+
     public void OnTutorialEnded(bool refillHand = false)
     {
         game.skipAutoHandFillOnEmpty = false;
@@ -1316,6 +1361,7 @@ public class GameController : MonoBehaviour
         {
             case InputState.Choose:
                 draggingTile = false;
+                holdingClick = false;
                 if (inputState == InputState.Place)
                 {
                     //returning
@@ -1336,7 +1382,11 @@ public class GameController : MonoBehaviour
                 }
                 break;
             case InputState.Wait:
-                dyingTokens.Clear();
+                draggingTile = false;
+                holdingClick = false;
+                // Flush before clear so re-entering Wait (place / popup dismiss)
+                // cannot orphan floating death-score labels.
+                FlushDyingTokens();
                 break;
         }
         inputState = newState;
@@ -1685,50 +1735,163 @@ public class GameController : MonoBehaviour
         return false;
     }
 
-    IEnumerator WaitForBoardSettledThenFinish()
+    bool AreMergeDeathsComplete()
     {
-        const float snapDistance = 0.02f;
-
-        while (game.gridUpdating)
+        if (dyingTokens.Count == 0)
         {
-            yield return null;
+            return true;
         }
 
-        while (AnyGridTokenStillPlacing(snapDistance))
+        foreach (Token t in dyingTokens)
         {
-            yield return null;
+            if (t != null && !t.mergeDeathVisualComplete)
+            {
+                return false;
+            }
         }
 
-        if (lastTokenPlaced != null)
-        {
-            yield return lastTokenPlaced.WaitForPlacementComplete();
-        }
-
-        pendingFinishStart = false;
-        lastTokenPlaced = null;
-        EnterInputState(InputState.Finish);
+        return true;
     }
 
-    void DeathCheck()
+    void FlushDyingTokens()
+    {
+        for (int i = dyingTokens.Count - 1; i >= 0; i--)
+        {
+            Token t = dyingTokens[i];
+            if (t != null)
+            {
+                t.StartKillNumber();
+            }
+        }
+        dyingTokens.Clear();
+    }
+
+    bool TryFlushDyingTokens()
+    {
+        if (dyingTokens.Count == 0 || !AreMergeDeathsComplete())
+        {
+            return false;
+        }
+
+        FlushDyingTokens();
+        return true;
+    }
+
+    void EnsureVisualGridMatchesLogic()
+    {
+        foreach (Vector2Int p in tiles.Keys)
+        {
+            Tile tile = tiles[p];
+            Logic.Tile logicTile = game.grid.tiles[p];
+            tile.tile = logicTile;
+            if (logicTile.token != null && tile.token == null)
+            {
+                Token token = GameObject.Instantiate(tokenPrefab, gridTransform).GetComponent<Token>();
+                token.transform.position = tile.transform.position;
+                token.UpdateLayer("TokenPlaced");
+                token.Init(logicTile.token);
+                tile.token = token;
+            }
+        }
+    }
+
+    void TryStartFinish()
     {
         if (inputState == InputState.Finish || inputState == InputState.TapToRestart) { return; }
         if (inputState == InputState.Wait && game.gridUpdating) { return; }
-
-        bool emptyTile = false;
-        foreach (Tile tile in tiles.Values)
-        {
-            if (tile.token == null)
-            {
-                emptyTile = true;
-                break;
-            }
-        }
-        if (emptyTile) { return; }
-
+        if (!game.isGameover()) { return; }
         if (finishRoutineRunning || pendingFinishStart) { return; }
 
         pendingFinishStart = true;
         StartCoroutine(WaitForBoardSettledThenFinish());
+    }
+
+    IEnumerator WaitForPlacementCompleteWithTimeout(Token token, float timeout)
+    {
+        float elapsed = 0f;
+        while (token != null && token.IsPlacementAnimating && elapsed < timeout)
+        {
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        if (token == null || elapsed >= timeout)
+        {
+            yield break;
+        }
+
+        float settleElapsed = 0f;
+        float settleSeconds = PlacementSettleSeconds;
+        while (settleElapsed < settleSeconds)
+        {
+            settleElapsed += Time.deltaTime;
+            yield return null;
+        }
+    }
+
+    IEnumerator WaitWithTimeout(System.Func<bool> condition, float timeout)
+    {
+        float elapsed = 0f;
+        while (condition() && elapsed < timeout)
+        {
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+    }
+
+    IEnumerator WaitForBoardSettledThenFinish()
+    {
+        const float snapDistance = 0.02f;
+        const float settlementTimeout = 3f;
+
+        try
+        {
+            yield return WaitWithTimeout(() => game.gridUpdating, settlementTimeout);
+
+            yield return WaitWithTimeout(() => game.status.events.Count > 0, settlementTimeout);
+
+            yield return WaitWithTimeout(() => !AreMergeDeathsComplete(), settlementTimeout);
+
+            float elapsed = 0f;
+            while (AnyGridTokenStillPlacing(snapDistance))
+            {
+                if (elapsed >= settlementTimeout)
+                {
+                    break;
+                }
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+
+            if (lastTokenPlaced != null)
+            {
+                yield return WaitForPlacementCompleteWithTimeout(lastTokenPlaced, settlementTimeout);
+            }
+
+            if (AnyGridTokenStillPlacing(snapDistance)
+                || (lastTokenPlaced != null && lastTokenPlaced.IsPlacementAnimating))
+            {
+                PrepareAllTokensForFinish();
+            }
+
+            EnsureVisualGridMatchesLogic();
+
+            if (game.isGameover())
+            {
+                lastTokenPlaced = null;
+                EnterInputState(InputState.Finish);
+            }
+        }
+        finally
+        {
+            pendingFinishStart = false;
+        }
+    }
+
+    void DeathCheck()
+    {
+        if (!game.isGameover()) { return; }
+        TryStartFinish();
     }
 
     public void RequestWinScreenAccelerate()
@@ -1899,6 +2062,7 @@ public class GameController : MonoBehaviour
         if (winScreenDisplay == null && winScreen.activeSelf)
             winScreenScore.text = FormatWinScreenScore();
         bagDisplay.text = " "; game.bag.ToString();
+        InputHelper.BeginFrame();
         Vector2 mousePos = InputHelper.GetPointerWorldPosition();
         if (gameState == GameState.Bag)
         {
@@ -1914,25 +2078,7 @@ public class GameController : MonoBehaviour
         ignoreBagCloseInputThisFrame = false;
         if (inputState != InputState.Wait && inputState != InputState.Finish)
         {
-            if (dyingTokens.Count > 0)
-            {
-                bool readyToTrigger = true;
-                foreach (Token t in dyingTokens)
-                {
-                    if (!t.mergeDeathVisualComplete)
-                    {
-                        readyToTrigger = false;
-                    }
-                }
-                if (readyToTrigger)
-                {
-                    for (int i = dyingTokens.Count - 1; i >= 0; i--)
-                    {
-                        dyingTokens[i].StartKillNumber();
-                    }
-                    dyingTokens.Clear();
-                }
-            }
+            TryFlushDyingTokens();
         }
         //input
         switch (inputState)
@@ -2030,6 +2176,8 @@ public class GameController : MonoBehaviour
 
                 break;
             case InputState.Place:
+            {
+                bool dragDropThisFrame = false;
                 if (holdingClick)
                 {
                     clickHoldDuration += Time.deltaTime;
@@ -2045,13 +2193,22 @@ public class GameController : MonoBehaviour
                 holdingClipper = chosenToken.token.data.color == Logic.TokenColor.Clipper;
                 holdingSpade = chosenToken.token.data.color == Logic.TokenColor.Spade;
                 holdingAdder = chosenToken.token.data.color == Logic.TokenColor.Adder;
-                ResolvePlacementTarget(mousePos, out chosenPos, ActivePlacementSnapRadiusScale());
+                // Drop commits from thumb release with tap snap; in-drag highlight stays tighter.
+                dragDropThisFrame = draggingTile && InputHelper.GetPrimaryPressEnded();
+                if (dragDropThisFrame)
+                {
+                    ResolvePlacementTarget(mousePos, out chosenPos, tapPlacementSnapRadiusScale);
+                }
+                else
+                {
+                    ResolvePlacementTarget(mousePos, out chosenPos, ActivePlacementSnapRadiusScale());
+                }
                 //let go
                 if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Z))
                 {
                     EnterInputState(InputState.Choose);
                 }
-                else if (InputHelper.GetPrimaryPressBegan() || (draggingTile && InputHelper.GetPrimaryPressEnded()))
+                else if (InputHelper.GetPrimaryPressBegan() || dragDropThisFrame)
                 {//clicking
                     if (inTutorial && !tutorial.CanAcceptTutorialInput)
                     {
@@ -2087,7 +2244,7 @@ public class GameController : MonoBehaviour
                             Token placedToken = hand[chosenIndex];
                             game.PlaceTokenInFreeSlot(chosenIndex);
                             freeSlot.token = placedToken;
-                            placedToken.UpdateLayer("TokenMoving");
+                            placedToken.BeginPlacementAnimation();
                             hand[chosenIndex] = null;
                             if (useHaptics)
                             {
@@ -2148,7 +2305,7 @@ public class GameController : MonoBehaviour
                                 tiles[chosenPos].token = placedToken;
                                 lastTokenPlaced = placedToken;
                                 lastTokenPlaced.transform.localEulerAngles = Vector3.zero;
-                                placedToken.UpdateLayer("TokenMoving");
+                                placedToken.BeginPlacementAnimation();
                                 freeSlot.token = null;
 
                             }
@@ -2156,7 +2313,7 @@ public class GameController : MonoBehaviour
                             {
                                 placedToken = hand[chosenIndex];
                                 tiles[chosenPos].token = placedToken;
-                                placedToken.UpdateLayer("TokenMoving");
+                                placedToken.BeginPlacementAnimation();
                                 lastTokenPlaced = placedToken;
                                 lastTokenPlaced.transform.localEulerAngles = Vector3.zero;
                                 hand[chosenIndex] = null;
@@ -2205,7 +2362,7 @@ public class GameController : MonoBehaviour
                                     tiles[chosenPos].token.SetTokenData(tiles[chosenPos].token.token.data);
                                     lastTokenPlaced = freeSlot.token;
                                     lastTokenPlaced.transform.localEulerAngles = Vector3.zero;
-                                    freeSlot.token.UpdateLayer("TokenMoving");
+                                    freeSlot.token.BeginPlacementAnimation();
                                     freeSlot.token = null;
                                 }
                                 else
@@ -2232,7 +2389,7 @@ public class GameController : MonoBehaviour
                                 {
                                     tiles[chosenPos].token = hand[chosenIndex];
                                     tiles[chosenPos].token.SetTokenData(tiles[chosenPos].token.token.data);
-                                    hand[chosenIndex].UpdateLayer("TokenMoving");
+                                    hand[chosenIndex].BeginPlacementAnimation();
                                     lastTokenPlaced = hand[chosenIndex];
                                     lastTokenPlaced.transform.localEulerAngles = Vector3.zero;
                                     hand[chosenIndex] = null;
@@ -2389,15 +2546,13 @@ public class GameController : MonoBehaviour
                         break;
                     }
                 }
-                if (holdingClick == false)
+                // Only cancel on an explicit failed drag-drop release (not while sprite is catching up mid-drag).
+                if (dragDropThisFrame && draggingTile)
                 {
-                    if (draggingTile)
-                    {
-                        EnterInputState(InputState.Choose);
-                    }
-                    draggingTile = false;
+                    EnterInputState(InputState.Choose);
                 }
                 break;
+            }
             case InputState.Wait:
                 if (game.gridUpdating == false && !mergeUpgradeBlocking)
                 {
@@ -2530,6 +2685,12 @@ public class GameController : MonoBehaviour
                         }
                         else
                         {
+                            if (game.isGameover())
+                            {
+                                TryStartFinish();
+                                break;
+                            }
+
                             if (popupopen)
                             {
                                 EnterInputState(InputState.Popup);
@@ -2546,30 +2707,7 @@ public class GameController : MonoBehaviour
 
                             Save();
                             waiting = waitTime * 0.01f;
-                            if (dyingTokens.Count == 0)
-                            {
-
-                            }
-                            else
-                            {
-                                bool readyToTrigger = true;
-                                foreach (Token t in dyingTokens)
-                                {
-                                    if (!t.mergeDeathVisualComplete)
-                                    {
-                                        readyToTrigger = false;
-                                    }
-                                }
-                                if (readyToTrigger)
-                                {
-                                    for (int i = dyingTokens.Count - 1; i >= 0; i--)
-                                    {
-                                        dyingTokens[i].StartKillNumber();
-                                    }
-                                    dyingTokens.Clear();
-
-                                }
-                            }
+                            TryFlushDyingTokens();
 
                         }
                     }
@@ -2711,6 +2849,7 @@ public class GameController : MonoBehaviour
 
                 break;
         }
+        InputHelper.EndFrame();
     }
     IEnumerator BagRefillAnim()
     {
@@ -2936,12 +3075,9 @@ public class GameController : MonoBehaviour
 
     public void Mulligan()
     {
+        if (inTutorial) { return; }
         //put back rest of hand and draw 4 more
-        if (!inTutorial)
-        {
-            game.Mulligan();
-        }
-
+        game.Mulligan();
         StartCoroutine(MulliganAnim());
     }
 

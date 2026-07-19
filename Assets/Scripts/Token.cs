@@ -133,7 +133,7 @@ public class Token : MonoBehaviour
     {
         print("Default");
         // Delay before starting the upgrade animation
-        yield return new WaitForSeconds(0.1f);
+        yield return new WaitForSeconds(Services.GameController.UpgradeStartDelay);
 
         if(token.data.num < 8)
         {
@@ -159,7 +159,7 @@ public class Token : MonoBehaviour
         // Ending flower burst animation
         flowerParticles.StopFlowerBurst(token.data.color);
 
-        yield return new WaitForSeconds(upgradePresentationHold);
+        yield return new WaitForSeconds(Services.GameController.UpgradePresentationHold);
         onPresentationComplete?.Invoke();
     }
 
@@ -312,6 +312,21 @@ public class Token : MonoBehaviour
         gnome.transform.localScale = Vector3.one * 1.4f;
         gnome.transform.localRotation = Quaternion.identity;
         gnome.color = Color.white;
+    }
+
+    void ShowDeathScoreLabel()
+    {
+        if (IsGnomeToken)
+        {
+            ShowGnomeRevealForScoring();
+            return;
+        }
+
+        textDisplay.gameObject.SetActive(true);
+        textDisplay.enabled = true;
+        textDisplay.transform.localScale = Vector3.one * 1.4f;
+        textDisplay.text = Services.GameController.ScoreToken(token.data).ToString();
+        textDisplay.text = "<size=70%><voffset=0.2em>+</voffset></size>" + textDisplay.text;
     }
 
     public void PlaceInHand(int index)
@@ -524,9 +539,29 @@ public class Token : MonoBehaviour
     {
         shade.SetActive(true);
     }
+
+    public void SetBagUsedAppearance()
+    {
+        shade.SetActive(false);
+        const float fade = 0.45f;
+        const float desat = 0.55f;
+        spriteDisplay.color = new Color(desat, desat, desat, fade);
+        if (number.enabled)
+        {
+            Color c = number.color;
+            number.color = new Color(c.r * desat, c.g * desat, c.b * desat, fade);
+        }
+        if (crunchCircle.enabled)
+        {
+            crunchCircle.color = new Color(0.4f, 0.4f, 0.4f, 0.8f);
+            crunchText.color = Color.white;
+        }
+    }
     public void PlaceInTile(Tile tile, bool undoAnimation = false)
     {
         transform.position = tile.transform.position;
+        placementAnimating = false;
+        placementSettling = true;
         UpdateLayer("TokenPlaced");
         if (undoAnimation)
         {
@@ -580,6 +615,13 @@ public class Token : MonoBehaviour
     }
 
     bool placementSettling;
+    bool placementAnimating;
+
+    public void BeginPlacementAnimation()
+    {
+        placementAnimating = true;
+        placementSettling = false;
+    }
 
     public void Draw(Vector2 pos, bool hover = false, float followSpeed = DrawFollowSpeed)
     {
@@ -631,7 +673,7 @@ public class Token : MonoBehaviour
         }
 
         //border.enabled = hover;
-        if (spriteDisplay.sortingLayerName == "TokenMoving")
+        if (placementAnimating)
         {
             float dist = Vector2.Distance(pos, transform.position);
             if (dist < 0.1f && !placementSettling)
@@ -644,12 +686,13 @@ public class Token : MonoBehaviour
     }
     IEnumerator LowerLift()
     {
-        yield return new WaitForSeconds(0.1f);
+        yield return new WaitForSeconds(Services.GameController.LowerLiftDelay);
         placementParticles.Play();
+        placementAnimating = false;
         UpdateLayer("TokenPlaced");
     }
 
-    public bool IsPlacementAnimating => spriteDisplay.sortingLayerName == "TokenMoving";
+    public bool IsPlacementAnimating => placementAnimating;
 
     public bool IsMoving => moving;
 
@@ -659,7 +702,7 @@ public class Token : MonoBehaviour
         {
             yield return null;
         }
-        yield return new WaitForSeconds(placementSettleSeconds);
+        yield return new WaitForSeconds(Services.GameController.PlacementSettleSeconds);
     }
     public void UpdateLayer(string sortingLayer)
     {
@@ -670,6 +713,18 @@ public class Token : MonoBehaviour
         spriteDisplay.sortingLayerName = sortingLayer;
         number.sortingLayerName = sortingLayer;
         textDisplay.sortingLayerID = spriteDisplay.sortingLayerID;
+        if (sortingLayer == "UIToken")
+        {
+            shadow.sortingLayerName = sortingLayer;
+            if (crunchCircle != null)
+            {
+                crunchCircle.sortingLayerName = sortingLayer;
+            }
+            if (crunchText != null)
+            {
+                crunchText.sortingLayerID = spriteDisplay.sortingLayerID;
+            }
+        }
     }
 
     public void PrepareForFinishParade()
@@ -685,9 +740,11 @@ public class Token : MonoBehaviour
         }
         finishDying = false;
         lifted = false;
+        placementAnimating = false;
         placementSettling = true;
         transform.localEulerAngles = Vector3.zero;
-        if (token != null && Services.GameController.tiles.TryGetValue(token.pos, out Tile gridTile))
+        if (token != null && token.tile != null
+            && Services.GameController.tiles.TryGetValue(token.pos, out Tile gridTile))
         {
             transform.position = gridTile.transform.position;
         }
@@ -766,12 +823,12 @@ public class Token : MonoBehaviour
     IEnumerator Dying(Logic.Token toolToken, bool forFinish)
     {
         mergeDeathVisualComplete = false;
-        float speed = forFinish
+        float speed = (forFinish
             ? liftSpeed * Services.GameController.finishLiftSpeedMultiplier
-            : liftSpeed;
-        float fadeSpeed = forFinish
+            : liftSpeed) * Services.GameController.DeathAnimationSpeed;
+        float fadeSpeed = (forFinish
             ? liftSpeed * Services.GameController.finishLiftSpeedMultiplier
-            : liftSpeed;
+            : liftSpeed) * Services.GameController.DeathAnimationSpeed;
         float targetAngle = Random.Range(2.5f, 5f);
         if (Random.value < 0.5f)
         {
@@ -790,25 +847,6 @@ public class Token : MonoBehaviour
         textDisplay.transform.parent = transform.parent;
         dirtParticles.Play();
         sparkleParticles.Play();
-        if (IsGnomeToken)
-        {
-            ShowGnomeRevealForScoring();
-            if (forFinish)
-            {
-                sparkleParticles.Play();
-                if (Services.GameController.useHaptics)
-                {
-                    Haptics.PlayTransient(1f, 0.5f);
-                }
-            }
-        }
-        else
-        {
-            textDisplay.gameObject.SetActive(true);
-            textDisplay.transform.localScale = Vector3.one * 1.4f;
-            textDisplay.text = Services.GameController.ScoreToken(token.data).ToString();
-            textDisplay.text = "<size=70%><voffset=0.2em>+</voffset></size>" + textDisplay.text;
-        }
         Services.AudioManager.PlayRemoveTileSound(1);
 
         UpdateLayer("TokenMoving");
@@ -818,16 +856,24 @@ public class Token : MonoBehaviour
         }
         else
         {
-            while (Mathf.Abs(Mathf.DeltaAngle(transform.localEulerAngles.z, targetAngle)) > 0.1f)
+            if (!Services.GameController.SkipDeathTilt)
             {
-                float angle = transform.localEulerAngles.z;
-                angle = Mathf.LerpAngle(angle, targetAngle, speed * 0.5f);
-                transform.localEulerAngles = new Vector3(0f, 0f, angle);
-                yield return new WaitForEndOfFrame();
+                while (Mathf.Abs(Mathf.DeltaAngle(transform.localEulerAngles.z, targetAngle)) > 0.1f)
+                {
+                    float angle = transform.localEulerAngles.z;
+                    angle = Mathf.LerpAngle(angle, targetAngle, speed * 0.5f);
+                    transform.localEulerAngles = new Vector3(0f, 0f, angle);
+                    yield return new WaitForEndOfFrame();
+                }
+                transform.localEulerAngles = new Vector3(0f, 0f, targetAngle);
             }
-            transform.localEulerAngles = new Vector3(0f, 0f, targetAngle);
         }
         finalPos = spriteDisplay.transform.localPosition + Vector3.up * liftHeight;
+        ShowDeathScoreLabel();
+        if (forFinish && IsGnomeToken && Services.GameController.useHaptics)
+        {
+            Haptics.PlayTransient(1f, 0.5f);
+        }
         if (!forFinish)
         {
             waitingToDie = true;
@@ -946,17 +992,28 @@ public class Token : MonoBehaviour
 
     public void ShowCrunchedDisplay(int num)
     {
+        if (crunchCircle == null || crunchText == null)
+        {
+            return;
+        }
+
+        // BagNumberText lives under the score Text GO, which HideScoreLabel deactivates.
+        if (textDisplay != null)
+        {
+            textDisplay.gameObject.SetActive(true);
+            textDisplay.enabled = false;
+        }
+        crunchText.gameObject.SetActive(true);
+
         crunchCircle.enabled = true;
         crunchText.enabled = true;
-
         crunchText.text = $"x{num}";
         crunchCircle.color = Services.Visuals.tokenColors[(int)token.data.color];
-        /*textDisplay.transform.position -= new Vector3(0, 0.5f);
-        textDisplay.outlineWidth = 0.3f;
-        textDisplay.outlineColor = Color.black;
-        textDisplay.sortingLayerID = spriteDisplay.sortingLayerID;
-        textDisplay.sortingOrder = spriteDisplay.sortingOrder + 5;
-        textDisplay.text = num.ToString();*/
+
+        crunchCircle.sortingLayerName = spriteDisplay.sortingLayerName;
+        crunchCircle.sortingOrder = spriteDisplay.sortingOrder + 1;
+        crunchText.sortingLayerID = spriteDisplay.sortingLayerID;
+        crunchText.sortingOrder = spriteDisplay.sortingOrder + 2;
     }
     public void StartInvalidAnim()
     {

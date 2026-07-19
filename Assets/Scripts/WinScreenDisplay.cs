@@ -19,7 +19,7 @@ public class WinScreenDisplay : MonoBehaviour
 
     [SerializeField] float animateInDuration = 0.4f;
     [SerializeField] float slideOffsetY = 0.5f;
-    [SerializeField] float dimTargetAlpha = 0.75f;
+    [SerializeField] float dimTargetAlpha = 1f;
     [SerializeField] float dimFadeDuration = 0.35f;
     [SerializeField] float titleStaggerDelay = 0.1f;
     [SerializeField] float scoreCountDuration = 0.8f;

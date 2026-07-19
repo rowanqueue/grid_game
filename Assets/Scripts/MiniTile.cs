@@ -48,19 +48,29 @@ public class MiniTile : MonoBehaviour
     {
         backColor.enabled = true;
         edgeColor.enabled = true;
-        backColor.color = Color.gray;
-        edgeColor.color = Color.black;
+        if (token.temporary)
+        {
+            backColor.color = Color.gray;
+            edgeColor.color = Color.black;
+            spriteDisplay.color = Color.white;
+        }
+        else
+        {
+            backColor.color = Color.white;
+            edgeColor.color = Color.white;
+            spriteDisplay.color = Color.gray;
+        }
         number.text = "";
         spriteDisplay.enabled = true;
-        if(token.color == TokenColor.Adder)
+        if (token.color == TokenColor.Adder)
         {
             spriteDisplay.sprite = adder;
         }
-        if (token.color == TokenColor.Spade)
+        else if (token.color == TokenColor.Spade)
         {
             spriteDisplay.sprite = spade;
         }
-        if (token.color == TokenColor.Clipper)
+        else if (token.color == TokenColor.Clipper)
         {
             spriteDisplay.sprite = clipper;
         }

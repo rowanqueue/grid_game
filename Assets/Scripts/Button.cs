@@ -14,7 +14,8 @@ namespace flora
         Haptics,
         DiceMode,
         Difficulty,
-        StartGame
+        StartGame,
+        FastMode
     }
     public class Button : MonoBehaviour
     {
@@ -41,7 +42,11 @@ namespace flora
             switch (type)
             {
                 case ButtonType.Mulligan:
-                    if (Services.GameController.inTutorial == false)
+                    if (Services.GameController.inTutorial)
+                    {
+                        disabled = true;
+                    }
+                    else
                     {
                         disabled = Services.GameController.game.mulliganUsesRemaining <= 0;
                     }
@@ -56,6 +61,12 @@ namespace flora
                     if (toggledDisplay != null)
                     {
                         toggledDisplay.enabled = Services.GameController.useHaptics;
+                    }
+                    break;
+                case ButtonType.FastMode:
+                    if (toggledDisplay != null)
+                    {
+                        toggledDisplay.enabled = Services.GameController.fastMode;
                     }
                     break;
                 case ButtonType.StartGame:

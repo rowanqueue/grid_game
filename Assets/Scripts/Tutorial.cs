@@ -410,6 +410,10 @@ public class Tutorial : MonoBehaviour
         {
             Services.GameController.PresentTutorialHandAfterIntro();
         }
+        else if (stage == TutorialStage.Mulligan)
+        {
+            Services.GameController.PresentBagHandForMulliganBeat();
+        }
     }
 
     void EnterStage(TutorialStage newStage)

@@ -71,6 +71,35 @@ public class UpgradePopup : MonoBehaviour
         }
     }
 
+    static Dictionary<TokenData, int> CopyContents(Dictionary<TokenData, int> contents)
+    {
+        return new Dictionary<TokenData, int>(contents);
+    }
+
+    static List<TokenData> RemoveTriggers(Dictionary<TokenData, int> contents)
+    {
+        List<TokenData> triggers = new List<TokenData>();
+        foreach (TokenData token in contents.Keys)
+        {
+            if (contents[token] == 100)
+                triggers.Add(token);
+        }
+        foreach (TokenData token in triggers)
+            contents.Remove(token);
+        return triggers;
+    }
+
+    static void GetUpgradeData(Dictionary<TokenData, int> contents, out TokenData oldData, out TokenData newData)
+    {
+        oldData = new TokenData();
+        newData = new TokenData();
+        foreach (TokenData data in contents.Keys)
+        {
+            if (contents[data] < 0) { oldData = data; }
+            if (contents[data] > 0) { newData = data; }
+        }
+    }
+
     IEnumerator TinyActuallyCreate(Dictionary<TokenData, int> contents)
     {
         yield return new WaitForSeconds(0.0f);
@@ -101,36 +130,42 @@ public class UpgradePopup : MonoBehaviour
             tinyTabs[i].SetHeight(tabPositions[i].y);
         tinyTab.Activate();
 
+        Dictionary<TokenData, int> displayContents = CopyContents(contents);
+        RemoveTriggers(displayContents);
+
         foreach (MiniTile tile in tinyTab.miniTiles)
             tile.gameObject.SetActive(false);
         int tileCount = 0;
         switch (type)
         {
             case UpgradeType.Upgrade:
+                GetUpgradeData(displayContents, out TokenData oldData, out TokenData newData);
                 tinyTab.miniTiles[tileCount].gameObject.SetActive(true);
-                tinyTab.miniTiles[tileCount].SetTile(contents.Keys.ToList()[0]);
+                tinyTab.miniTiles[tileCount].SetTile(oldData);
                 tileCount++;
                 tinyTab.miniTiles[tileCount].gameObject.SetActive(true);
                 tinyTab.miniTiles[tileCount].SetArrow();
                 tileCount++;
                 tinyTab.miniTiles[tileCount].gameObject.SetActive(true);
-                tinyTab.miniTiles[tileCount].SetTile(contents.Keys.ToList()[1]);
+                tinyTab.miniTiles[tileCount].SetTile(newData);
                 tileCount++;
                 break;
             case UpgradeType.Unlock:
+                TokenData data = displayContents.Keys.ToList()[0];
+                int count = displayContents[data];
                 tinyTab.miniTiles[tileCount].gameObject.SetActive(true);
-                tinyTab.miniTiles[tileCount].SetTile(contents.Keys.ToList()[0]);
+                tinyTab.miniTiles[tileCount].SetTile(data);
                 tileCount++;
-                if (contents.Values.ToList()[0] > 1)
+                if (count > 1)
                 {
                     tinyTab.miniTiles[tileCount].gameObject.SetActive(true);
-                    tinyTab.miniTiles[tileCount].SetTile(contents.Keys.ToList()[0]);
+                    tinyTab.miniTiles[tileCount].SetTile(data);
                     tileCount++;
                 }
-                if (contents.Values.ToList()[0] > 2)
+                if (count > 2)
                 {
                     tinyTab.miniTiles[tileCount].gameObject.SetActive(true);
-                    tinyTab.miniTiles[tileCount].SetTile(contents.Keys.ToList()[0]);
+                    tinyTab.miniTiles[tileCount].SetTile(data);
                     tileCount++;
                 }
                 tinyTab.miniTiles[tileCount].gameObject.SetActive(true);
@@ -160,18 +195,12 @@ public class UpgradePopup : MonoBehaviour
             starting = StartCoroutine(SlideFromLeft());
         }
 
-        List<TokenData> triggers = new List<TokenData>();
-        foreach (TokenData token in contents.Keys)
-        {
-            if (contents[token] == 100)
-                triggers.Add(token);
-        }
+        List<TokenData> triggers = RemoveTriggers(contents);
         int triggerCount = 0;
         foreach (TokenData token in triggers)
         {
             unlockReasons[triggerCount].gameObject.SetActive(true);
             unlockReasons[triggerCount].SetTile(token);
-            contents.Remove(token);
             triggerCount++;
         }
         switch (type)
@@ -213,13 +242,7 @@ public class UpgradePopup : MonoBehaviour
             case UpgradeType.Upgrade:
                 upgradeParent.SetActive(true);
                 title.text = "Tile Upgrade";
-                TokenData oldData = new TokenData();
-                TokenData newData = new TokenData();
-                foreach (TokenData _data in contents.Keys)
-                {
-                    if (contents[_data] < 0) { oldData = _data; }
-                    if (contents[_data] > 0) { newData = _data; }
-                }
+                GetUpgradeData(contents, out TokenData oldData, out TokenData newData);
                 content.text = "A {0} tile has been upgraded from a {1} to a {2}!";
                 content.text = string.Format(content.text, new string[3] { oldData.color.ToString(), oldData.num.ToString(), newData.num.ToString() });
                 oldToken.SetTokenData(oldData);
