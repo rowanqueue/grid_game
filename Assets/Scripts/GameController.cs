@@ -432,7 +432,7 @@ public class GameController : MonoBehaviour
     IEnumerator TutorialCombineStageAdvanceRoutine(Token visualToken, Logic.Token newToken, Logic.Token toolToken, bool useHaptics, int consumedTileCount)
     {
         mergeUpgradeBlocking = true;
-        yield return MergeUpgradeRoutine(visualToken, newToken, toolToken, useHaptics, consumedTileCount);
+        yield return MergeUpgradeRoutine(visualToken, newToken, toolToken, useHaptics, consumedTileCount, waitForPresentation: true);
         mergeUpgradeBlocking = false;
 
         if (inTutorial && tutorial.stage == TutorialStage.Blue3 && tutorial.Blue3FormViewHold > 0f)
@@ -458,7 +458,8 @@ public class GameController : MonoBehaviour
         for (int i = 0; i < consumedDeaths.Count; i++)
         {
             Token t = consumedDeaths[i];
-            if (t != null && !t.mergeDeathVisualComplete)
+            // waitingToDie = tile has popped (score label + lift started), not full fade
+            if (t != null && !t.waitingToDie)
             {
                 return false;
             }
@@ -483,7 +484,8 @@ public class GameController : MonoBehaviour
         Logic.Token toolToken,
         bool useHaptics,
         int consumedTileCount,
-        System.Action onPresentationComplete = null)
+        System.Action onPresentationComplete = null,
+        bool waitForPresentation = false)
     {
         List<Token> consumedDeaths = null;
         if (consumedTileCount > 0)
@@ -494,11 +496,6 @@ public class GameController : MonoBehaviour
             }
 
             consumedDeaths = SnapshotRecentMergeDeaths(consumedTileCount);
-        }
-
-        if (visualToken != null)
-        {
-            yield return WaitForPlacementCompleteWithTimeout(visualToken, 3f);
         }
 
         if (consumedDeaths != null)
@@ -527,9 +524,15 @@ public class GameController : MonoBehaviour
             onPresentationComplete?.Invoke();
         }
 
-        while (!upgradePresentationDone)
+        // Gameplay: return immediately so Wait keeps pacing like buncha (chain merges).
+        // Score flush happens on the normal Wait path after merge (buncha order: merge then score),
+        // so KillNumber does not destroy floating tiles before their lift/particles play.
+        if (waitForPresentation)
         {
-            yield return null;
+            while (!upgradePresentationDone)
+            {
+                yield return null;
+            }
         }
     }
 
@@ -541,7 +544,7 @@ public class GameController : MonoBehaviour
         int consumedTileCount)
     {
         mergeUpgradeBlocking = true;
-        yield return MergeUpgradeRoutine(visualToken, newToken, toolToken, useHaptics, consumedTileCount);
+        yield return MergeUpgradeRoutine(visualToken, newToken, toolToken, useHaptics, consumedTileCount, waitForPresentation: false);
         mergeUpgradeBlocking = false;
     }
 
@@ -1744,7 +1747,7 @@ public class GameController : MonoBehaviour
 
         foreach (Token t in dyingTokens)
         {
-            if (t != null && !t.mergeDeathVisualComplete)
+            if (t != null && !t.waitingToDie)
             {
                 return false;
             }
@@ -1755,6 +1758,7 @@ public class GameController : MonoBehaviour
 
     void FlushDyingTokens()
     {
+        Debug.Log($"[ParticleLife] FlushDyingTokens count={dyingTokens.Count} t={Time.time:F3}\n{UnityEngine.StackTraceUtility.ExtractStackTrace()}");
         for (int i = dyingTokens.Count - 1; i >= 0; i--)
         {
             Token t = dyingTokens[i];

@@ -5758,6 +5758,7 @@ MonoBehaviour:
   handPos: {x: 0, y: 0}
   lifted: 0
   waitingToDie: 0
+  mergeDeathVisualComplete: 0
   Clipper_MoveToTileTime: 0.5
   Clipper_SlashTime: 0.4
   ClipperPositionOffset: {x: 1, y: -1, z: 0}
@@ -5775,6 +5776,8 @@ MonoBehaviour:
   placementSettleSeconds: 0.12
   killNumberWaitMin: 0.1
   killNumberWaitMax: 0.4
+  gnomeFinishHoldDuration: 0.55
+  lastTileHoldBonus: 0.15
   crunchCircle: {fileID: 4709330090078239351}
   crunchText: {fileID: 4836911429955404793}
 --- !u!1 &8600257090112988724

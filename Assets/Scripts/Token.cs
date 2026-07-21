@@ -150,16 +150,14 @@ public class Token : MonoBehaviour
         }
 
 
-        // Playing the flower burst animation
-        StartCoroutine(flowerParticles.PlayFlowerBurstCoroutine(0f, token.data.color));
+        // FlowerBurst lives under Text. SetTokenData→HideScoreLabel deactivates Text the
+        // same frame as Play, which kills the burst + its WatchBurst coroutine. Detach first.
+        DetachFlowerBurstForPlay();
+        yield return flowerParticles.PlayFlowerBurstCoroutine(0f, token.data.color);
 
         // Changing token data (number)
         SetTokenData(token.data);
 
-        // Ending flower burst animation
-        flowerParticles.StopFlowerBurst(token.data.color);
-
-        yield return new WaitForSeconds(Services.GameController.UpgradePresentationHold);
         onPresentationComplete?.Invoke();
     }
 
@@ -186,22 +184,20 @@ public class Token : MonoBehaviour
             Haptics.PlayTransient(1f, .5f);
         }
 
-        // Playing the flower burst animation
+        // Detach FlowerBurst so SetTokenData→HideScoreLabel can't kill it mid-play.
+        DetachFlowerBurstForPlay();
         if (isClipping)
         {
             yield return new WaitForSeconds(0.4f);
-            StartCoroutine(flowerParticles.PlayFlowerBurstCoroutine(0f, token.data.color));
+            yield return flowerParticles.PlayFlowerBurstCoroutine(0f, token.data.color);
         }
         else
         {
-            StartCoroutine(flowerParticles.PlayFlowerBurstCoroutine(0f, Logic.TokenColor.Adder));
+            yield return flowerParticles.PlayFlowerBurstCoroutine(0f, Logic.TokenColor.Adder);
         }
 
         // Changing token data (number)
         SetTokenData(token.data);
-
-        // Ending flower burst animation
-        flowerParticles.StopFlowerBurst(token.data.color);
     }
 
     /// <summary>
@@ -288,6 +284,62 @@ public class Token : MonoBehaviour
         {
             textDisplay.gameObject.SetActive(false);
         }
+    }
+
+    /// <summary>
+    /// DirtPuff and FlowerBurst live under the score Text GO. HideScoreLabel() deactivates
+    /// that GO, so activate it before Play (TMP stays off until score show). Sparkles stay off.
+    /// </summary>
+    void EnsureDeathParticleHierarchyActive()
+    {
+        if (textDisplay != null)
+        {
+            textDisplay.gameObject.SetActive(true);
+            // Keep score digits hidden until ShowDeathScoreLabel; particles still simulate.
+            if (!IsGnomeToken)
+            {
+                textDisplay.enabled = false;
+            }
+        }
+        if (dirtParticles != null)
+        {
+            dirtParticles.gameObject.SetActive(true);
+        }
+        if (flowerParticles != null)
+        {
+            flowerParticles.gameObject.SetActive(true);
+        }
+        Debug.Log(
+            $"[ParticleLife] EnsureDeathParticleHierarchyActive " +
+            $"textActive={(textDisplay != null && textDisplay.gameObject.activeInHierarchy)} " +
+            $"dirtActive={(dirtParticles != null && dirtParticles.gameObject.activeInHierarchy)} " +
+            $"flowerActive={(flowerParticles != null && flowerParticles.gameObject.activeInHierarchy)} " +
+            $"token={name} t={Time.time:F3}");
+    }
+
+    /// <summary>
+    /// Move FlowerBurst off the score Text GO so HideScoreLabel() cannot deactivate it
+    /// (and stop its coroutines) on the same frame as Play.
+    /// </summary>
+    void DetachFlowerBurstForPlay()
+    {
+        if (flowerParticles == null)
+        {
+            return;
+        }
+
+        Transform keepAliveParent = transform;
+        string prevParent = flowerParticles.transform.parent != null
+            ? flowerParticles.transform.parent.name
+            : "null";
+        flowerParticles.transform.SetParent(keepAliveParent, true);
+        flowerParticles.gameObject.SetActive(true);
+
+        Debug.Log(
+            $"[ParticleLife] DetachFlowerBurstForPlay " +
+            $"from={prevParent} to={keepAliveParent.name} " +
+            $"active={flowerParticles.gameObject.activeInHierarchy} " +
+            $"worldPos={flowerParticles.transform.position} token={name} t={Time.time:F3}");
     }
 
     bool IsGnomeToken => token != null && token.data.color == Logic.TokenColor.Gnome;
@@ -414,9 +466,10 @@ public class Token : MonoBehaviour
         dyingSequence.Join(tool.shadow.DOFade(0f, Spade_DigTime + 0.5f).SetEase(Ease.InCubic));
         dyingSequence.Play();
 
-        // dirt particles spawn from new score
+        // dirt + flower burst spawn from new score (sparkles intentionally unused)
+        newToken.EnsureDeathParticleHierarchyActive();
+        newToken.DetachFlowerBurstForPlay();
         newToken.dirtParticles.Play();
-        newToken.sparkleParticles.Play();
         StartCoroutine(newToken.flowerParticles.PlayFlowerBurstCoroutine(0f, Logic.TokenColor.Spade));
 
         // delete new token
@@ -845,37 +898,44 @@ public class Token : MonoBehaviour
         }
 
         textDisplay.transform.parent = transform.parent;
-        dirtParticles.Play();
-        sparkleParticles.Play();
+        // DirtPuff/FlowerBurst live under Text. HideScoreLabel() deactivates that GO, so
+        // Play() before activation emits nothing. Wake the hierarchy (TMP stays off until score show).
+        EnsureDeathParticleHierarchyActive();
+        LogDeathParticle("dirt", "Play_call", dirtParticles);
+        if (dirtParticles != null)
+        {
+            dirtParticles.Play();
+            LogDeathParticle("dirt", "AfterPlay", dirtParticles);
+            if (!dirtParticles.isPlaying && dirtParticles.particleCount == 0)
+            {
+                Debug.LogWarning($"[ParticleLife] dirt NEVER_STARTED after Play() token={name} t={Time.time:F3}");
+            }
+        }
+        else
+        {
+            Debug.Log($"[ParticleLife] dirt Play SKIPPED null ref token={name} t={Time.time:F3}");
+        }
+        StartCoroutine(WatchDeathParticles());
         Services.AudioManager.PlayRemoveTileSound(1);
 
         UpdateLayer("TokenMoving");
         if (forFinish)
         {
             transform.localEulerAngles = Vector3.zero;
+            finalPos = spriteDisplay.transform.localPosition + Vector3.up * liftHeight;
+            ShowDeathScoreLabel();
+            if (IsGnomeToken && Services.GameController.useHaptics)
+            {
+                Haptics.PlayTransient(1f, 0.5f);
+            }
         }
         else
         {
-            if (!Services.GameController.SkipDeathTilt)
-            {
-                while (Mathf.Abs(Mathf.DeltaAngle(transform.localEulerAngles.z, targetAngle)) > 0.1f)
-                {
-                    float angle = transform.localEulerAngles.z;
-                    angle = Mathf.LerpAngle(angle, targetAngle, speed * 0.5f);
-                    transform.localEulerAngles = new Vector3(0f, 0f, angle);
-                    yield return new WaitForEndOfFrame();
-                }
-                transform.localEulerAngles = new Vector3(0f, 0f, targetAngle);
-            }
-        }
-        finalPos = spriteDisplay.transform.localPosition + Vector3.up * liftHeight;
-        ShowDeathScoreLabel();
-        if (forFinish && IsGnomeToken && Services.GameController.useHaptics)
-        {
-            Haptics.PlayTransient(1f, 0.5f);
-        }
-        if (!forFinish)
-        {
+            // Buncha effective behavior: snap tilt (no multi-frame lean), mark pop, then lift
+            // immediately so dirt + float are visible before score KillNumber can destroy us.
+            transform.localEulerAngles = new Vector3(0f, 0f, targetAngle);
+            finalPos = spriteDisplay.transform.localPosition + Vector3.up * liftHeight;
+            ShowDeathScoreLabel();
             waitingToDie = true;
         }
         while (Vector2.Distance(finalPos, spriteDisplay.transform.localPosition) > 0.01f)
@@ -942,8 +1002,99 @@ public class Token : MonoBehaviour
     }
     public void StartKillNumber(float delay = 0f)
     {
+        Debug.Log($"[ParticleLife] KillNumber START delay={delay:F2} token={name} " +
+                  $"dirtPlaying={(dirtParticles != null && dirtParticles.isPlaying)} " +
+                  $"mergeDeathVisualComplete={mergeDeathVisualComplete} t={Time.time:F3}");
         StartCoroutine(KillNumber(delay));
     }
+
+    void LogDeathParticle(string which, string action, ParticleSystem ps)
+    {
+        if (ps == null)
+        {
+            Debug.Log($"[ParticleLife] {which} {action} ps=NULL token={name} t={Time.time:F3}");
+            return;
+        }
+        var main = ps.main;
+        Debug.Log(
+            $"[ParticleLife] {which} {action} " +
+            $"name={ps.name} playing={ps.isPlaying} paused={ps.isPaused} count={ps.particleCount} " +
+            $"duration={main.duration:F2} startLife={main.startLifetime.constantMax:F2} " +
+            $"active={ps.gameObject.activeInHierarchy} enabled={ps.gameObject.activeSelf} " +
+            $"emission={ps.emission.enabled} renderer={(ps.GetComponent<ParticleSystemRenderer>() != null && ps.GetComponent<ParticleSystemRenderer>().enabled)} " +
+            $"parent={(ps.transform.parent != null ? ps.transform.parent.name : "null")} " +
+            $"worldPos={ps.transform.position} token={name} t={Time.time:F3}");
+    }
+
+    IEnumerator WatchDeathParticles()
+    {
+        float start = Time.time;
+        for (int i = 0; i < 40; i++)
+        {
+            yield return new WaitForSeconds(0.1f);
+            if (this == null)
+            {
+                Debug.Log($"[ParticleLife] WatchDeathParticles TOKEN_DESTROYED after={Time.time - start:F2}s t={Time.time:F3}");
+                yield break;
+            }
+            LogDeathParticle("dirt", $"tick{i}", dirtParticles);
+            bool dirtDone = dirtParticles == null || (!dirtParticles.isPlaying && dirtParticles.particleCount == 0);
+            if (dirtDone && i > 2)
+            {
+                Debug.Log($"[ParticleLife] death particles IDLE after={Time.time - start:F2}s token={name} t={Time.time:F3}");
+                yield break;
+            }
+        }
+    }
+
+    void ReleasePlayingDeathParticles()
+    {
+        Debug.Log($"[ParticleLife] ReleasePlayingDeathParticles BEGIN token={name} t={Time.time:F3}");
+        Transform keepAliveParent = transform.parent != null
+            ? transform.parent
+            : Services.GameController != null ? Services.GameController.gridTransform : null;
+
+        ReleaseParticleSystem("dirt", dirtParticles, keepAliveParent);
+        dirtParticles = null;
+    }
+
+    void ReleaseParticleSystem(string which, ParticleSystem ps, Transform keepAliveParent)
+    {
+        if (ps == null)
+        {
+            Debug.Log($"[ParticleLife] {which} Release SKIPPED null t={Time.time:F3}");
+            return;
+        }
+
+        LogDeathParticle(which, "BeforeRelease", ps);
+        GameObject go = ps.gameObject;
+        if (keepAliveParent != null)
+        {
+            go.transform.SetParent(keepAliveParent, true);
+        }
+        else
+        {
+            go.transform.SetParent(null, true);
+        }
+
+        if (!ps.isPlaying)
+        {
+            Debug.Log($"[ParticleLife] {which} Release re-Play (was not playing) t={Time.time:F3}");
+            ps.Play();
+        }
+
+        // Clean up after the burst finishes playing out.
+        float lifetime = 2f;
+        var main = ps.main;
+        if (main.duration > 0f)
+        {
+            lifetime = main.duration + main.startLifetime.constantMax + 0.5f;
+        }
+        LogDeathParticle(which, $"AfterRelease destroyIn={lifetime:F2}s", ps);
+        Debug.Log($"[ParticleLife] {which} SCHEDULED_DESTROY go={go.name} in={lifetime:F2}s t={Time.time:F3}");
+        GameObject.Destroy(go, lifetime);
+    }
+
     IEnumerator KillNumber(float delay)
     {
         yield return new WaitForSeconds(delay);
@@ -951,7 +1102,7 @@ public class Token : MonoBehaviour
         float waitTime = Random.Range(killNumberWaitMin, killNumberWaitMax);
         yield return new WaitForSeconds(waitTime);
         Transform scoringVisual = IsGnomeToken && gnome != null && gnome.enabled ? gnome.transform : textDisplay.transform;
-        while (scoringVisual.localScale.x > 0.2f)
+        while (scoringVisual != null && scoringVisual.localScale.x > 0.2f)
         {
             scoringVisual.localScale -= Vector3.one * speed * 0.95f;
             yield return new WaitForEndOfFrame();
@@ -968,11 +1119,35 @@ public class Token : MonoBehaviour
         {
             GameObject.Destroy(gnome.gameObject);
         }
-        else
+        else if (textDisplay != null)
         {
             GameObject.Destroy(textDisplay.gameObject);
         }
+
+        // Let lift/fade finish so dirt is visible, then detach particles before destroy.
+        float elapsed = 0f;
+        const float deathVisualTimeout = 3f;
+        Debug.Log($"[ParticleLife] KillNumber wait mergeDeathVisualComplete={mergeDeathVisualComplete} token={name} t={Time.time:F3}");
+        while (!mergeDeathVisualComplete && elapsed < deathVisualTimeout)
+        {
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+        Debug.Log($"[ParticleLife] KillNumber deathVisual done complete={mergeDeathVisualComplete} waited={elapsed:F2}s token={name} t={Time.time:F3}");
+
+        ReleasePlayingDeathParticles();
+        Debug.Log($"[ParticleLife] KillNumber Destroy(token) CAUSE=KillNumber token={name} t={Time.time:F3}");
         GameObject.Destroy(gameObject);
+    }
+
+    void OnDestroy()
+    {
+        bool dirtStillChild = dirtParticles != null && dirtParticles.transform.IsChildOf(transform);
+        Debug.Log(
+            $"[ParticleLife] Token OnDestroy CAUSE=OnDestroy name={name} " +
+            $"dirtNull={dirtParticles == null} dirtStillChild={dirtStillChild} " +
+            $"dirtPlaying={(dirtParticles != null && dirtParticles.isPlaying)} " +
+            $"t={Time.time:F3}\n{UnityEngine.StackTraceUtility.ExtractStackTrace()}");
     }
 
     IEnumerator FinishKillNumber(float holdDuration)
