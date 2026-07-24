@@ -632,17 +632,8 @@ public class GameController : MonoBehaviour
     }
     public void StartNewRun()
     {
-        if (Services.Gems.CanAfford("newGame"))
-        {
-            Services.Gems.SpendGems("newGame");
-            GameStateGameplay();
-        }
-        else
-        {
-            Services.Gems.TooExpensive();
-            GameLog.Log("can't afford a new game");
-        }
-
+        // Seed charge lives in GameStateGameplay's SelectDifficulty path (same as Start).
+        GameStateGameplay();
     }
 
     /// <summary>
@@ -736,6 +727,7 @@ public class GameController : MonoBehaviour
         stateScreens[(int)gameState].gameObject.SetActive(true);
         stateScreens[(int)gameState].SetAnchor();
         movingToScreen = true;
+        RefreshLoadSnapshotPreview();
     }
     public void GameStateSettings()
     {
@@ -3111,8 +3103,22 @@ public class GameController : MonoBehaviour
         snapshotSave = currentSave;
         ignoreSnapshotDismissThisFrame = true;
         StartCoroutine(polaroidDisplay.ShowSnapshotRoutine(game.grid.tiles));
+        RefreshLoadSnapshotPreview();
         inputState = InputState.Snapshot;
         GameStateGameplay();
+    }
+
+    void RefreshLoadSnapshotPreview()
+    {
+        if (loadSnapshotButton == null)
+        {
+            return;
+        }
+        PolaroidDisplay preview = loadSnapshotButton.GetComponentInChildren<PolaroidDisplay>(true);
+        if (preview != null)
+        {
+            preview.RefreshStaticPreview();
+        }
     }
 
     IEnumerator DismissSnapshotRoutine()
@@ -3127,21 +3133,19 @@ public class GameController : MonoBehaviour
     }
     public void LoadSnapshot()
     {
+        if (SaveLoad.HasSave(1))
+        {
+            snapshotSave = SaveLoad.Load(1);
+        }
+        if (snapshotSave == null) { return; }
+
         if (Services.Gems.CanAfford("newGame") == false)
         {
             Services.Gems.TooExpensive();
             return;
         }
         Services.Gems.SpendGems("newGame");
-        Logic.History.Turn _save = null;
-        if (SaveLoad.HasSave(1))
-        {
-            //gameState = GameState.Gameplay;
-            _save = SaveLoad.Load(1);
-            //gameState = GameState.Snapshot;
-            snapshotSave = _save;
-        }
-        if (snapshotSave == null) { return; }
+
         game.LoadTurn(snapshotSave);
         score = game.score;
         scoreDelta = 0;
@@ -3149,7 +3153,27 @@ public class GameController : MonoBehaviour
         CreateHand();
         ClearTokensFromGrid();
         LoadTokensIntoGrid();
-        GameStateGameplay();
+        EnterGameplayFromLoadedSnapshot();
+    }
+
+    /// <summary>
+    /// Transition into gameplay after a snapshot is already applied.
+    /// Skips SelectDifficulty seed charge and fresh Initialize (unlike GameStateGameplay).
+    /// </summary>
+    void EnterGameplayFromLoadedSnapshot()
+    {
+        difficultyParent.SetActive(false);
+        if (gameState == GameState.Gameplay) { return; }
+        if (gameState == GameState.ToolShop)
+        {
+            var shop = toolShopScreen ?? stateScreens[(int)GameState.ToolShop].GetComponentInChildren<ToolShopScreen>();
+            shop?.CloseScreen();
+        }
+        lastState = gameState;
+        gameState = GameState.Gameplay;
+        stateScreens[(int)gameState].gameObject.SetActive(true);
+        stateScreens[(int)gameState].SetAnchor();
+        movingToScreen = true;
     }
     public void Save()
     {

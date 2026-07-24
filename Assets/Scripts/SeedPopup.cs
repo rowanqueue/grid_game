@@ -12,6 +12,7 @@ public class SeedPopup : MonoBehaviour
     bool open;
     GameObject visual;
     bool closing;
+    bool ignoreDismissUntilRelease;
     SpriteRenderer[] fadeRenderers;
     CanvasGroup canvasGroup;
     TextMeshPro messageText;
@@ -30,7 +31,18 @@ public class SeedPopup : MonoBehaviour
 
     void Update()
     {
-        if (open && !closing && InputHelper.GetPrimaryPressBegan())
+        if (!open || closing)
+            return;
+
+        // Same click that opened us (button OnMouseDown → Open) must not dismiss.
+        if (ignoreDismissUntilRelease)
+        {
+            if (!InputHelper.GetPrimaryPressHeld())
+                ignoreDismissUntilRelease = false;
+            return;
+        }
+
+        if (InputHelper.GetPrimaryPressBegan())
             StartCoroutine(WaitToClose());
     }
 
@@ -43,6 +55,7 @@ public class SeedPopup : MonoBehaviour
             messageText.text = string.IsNullOrEmpty(message) ? defaultMessage : message;
 
         open = true;
+        ignoreDismissUntilRelease = InputHelper.GetPrimaryPressBegan() || InputHelper.GetPrimaryPressHeld();
         visual.SetActive(true);
         SetVisualAlpha(0f);
         StartCoroutine(FadeIn());
@@ -51,6 +64,7 @@ public class SeedPopup : MonoBehaviour
     public void Close()
     {
         open = false;
+        ignoreDismissUntilRelease = false;
         KillTweens();
         visual.SetActive(false);
         SetVisualAlpha(1f);

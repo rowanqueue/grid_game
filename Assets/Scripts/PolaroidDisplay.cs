@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
 using Logic;
+using Save;
 using UnityEngine;
 
 public class PolaroidDisplay : MonoBehaviour
@@ -24,6 +25,100 @@ public class PolaroidDisplay : MonoBehaviour
     [SerializeField] private float dimPanelFadeInTime = 0.1f;
     [SerializeField] private float dimPanelFadeOutTime = 0.5f;
     [SerializeField] private float dimPanelAlpha = 0.5f;
+
+    [Header("Load Snapshot Preview")]
+    [SerializeField] private bool staticPreviewMode;
+
+    void Awake()
+    {
+        if (!staticPreviewMode)
+        {
+            return;
+        }
+        if (polaroidFlash != null)
+        {
+            polaroidFlash.gameObject.SetActive(false);
+        }
+        if (dimPanel != null)
+        {
+            dimPanel.gameObject.SetActive(false);
+        }
+    }
+
+    void OnEnable()
+    {
+        if (staticPreviewMode)
+        {
+            RefreshStaticPreview();
+        }
+    }
+
+    public void RefreshStaticPreview()
+    {
+        if (Services.GameController == null || Services.Visuals == null)
+        {
+            return;
+        }
+        if (!SaveLoad.HasSave(1))
+        {
+            return;
+        }
+        Logic.History.Turn turn = SaveLoad.PeekTurn(1);
+        if (turn == null)
+        {
+            return;
+        }
+        ShowStaticFromTurn(turn);
+    }
+
+    public void ShowStaticFromTurn(Logic.History.Turn turn)
+    {
+        if (turn == null || turn.grid == null)
+        {
+            return;
+        }
+        KillSnapshotTweens();
+        if (polaroidFlash != null)
+        {
+            polaroidFlash.gameObject.SetActive(false);
+        }
+        if (dimPanel != null)
+        {
+            dimPanel.gameObject.SetActive(false);
+        }
+        SetTilesFromGrid(turn.grid);
+        if (polaroidParent != null)
+        {
+            polaroidParent.SetActive(true);
+            Vector3 pos = polaroidParent.transform.localPosition;
+            polaroidParent.transform.localPosition = new Vector3(pos.x, endYpos, pos.z);
+            polaroidParent.transform.localRotation = Quaternion.identity;
+        }
+    }
+
+    public void SetTilesFromGrid(List<TokenData> grid)
+    {
+        foreach (PolaroidToken token in polaroidToken)
+        {
+            token.ResetDisplay();
+        }
+        if (grid == null)
+        {
+            return;
+        }
+        for (int i = 0; i < grid.Count; i++)
+        {
+            if (grid[i] == Logic.History.nullToken)
+            {
+                continue;
+            }
+            int x = i % 5;
+            int y = i / 5;
+            PolaroidToken token = polaroidToken[PositionToIndex(new Vector2Int(x, y))];
+            token.gameObject.SetActive(true);
+            token.InitializeDisplay(grid[i]);
+        }
+    }
 
     public IEnumerator ShowSnapshotRoutine(Dictionary<Vector2Int, Logic.Tile> tiles)
     {

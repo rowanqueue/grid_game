@@ -19,7 +19,12 @@ public class PolaroidToken : MonoBehaviour
 
     public void InitializeDisplay(TokenData tokenData)
     {
-        if (tokenData.num >= ((Logic.TripleGame)Services.GameController.game).maxTileNum)
+        int maxTileNum = 8;
+        if (Services.GameController != null && Services.GameController.game is Logic.TripleGame tripleGame)
+        {
+            maxTileNum = tripleGame.maxTileNum;
+        }
+        if (tokenData.num >= maxTileNum)
         {
             tileSprite.sprite = Services.Visuals.tokenMax[(int)tokenData.color];
             numberSprite.enabled = false;
@@ -54,7 +59,7 @@ public class PolaroidToken : MonoBehaviour
             {
                 numberSprite.enabled = true;
                 numberSprite.sprite = Services.Visuals.numberSprites[(int)tokenData.num];
-                if (Services.GameController.diceMode)
+                if (Services.GameController != null && Services.GameController.diceMode)
                 {
                     numberSprite.sprite = Services.Visuals.altNumberSprites[(int)tokenData.num];
                 }
