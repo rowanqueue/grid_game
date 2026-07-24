@@ -28,6 +28,7 @@ public class PolaroidDisplay : MonoBehaviour
     public IEnumerator ShowSnapshotRoutine(Dictionary<Vector2Int, Logic.Tile> tiles)
     {
         IsAnimating = true;
+        KillSnapshotTweens();
         SetTiles(tiles);
         polaroidParent.transform.localPosition = new Vector3(polaroidParent.transform.localPosition.x, defaultYpos, polaroidParent.transform.localPosition.z);
         dimPanel.color = new Color(dimPanel.color.r, dimPanel.color.g, dimPanel.color.b, 0);
@@ -35,10 +36,13 @@ public class PolaroidDisplay : MonoBehaviour
         yield return polaroidFlash.FlashRoutine();
         dimPanel.DOFade(dimPanelAlpha, dimPanelFadeInTime).SetEase(Ease.Linear).Play();
         yield return ShowPolaroid();
+        IsAnimating = false;
     }
 
     public IEnumerator HideSnapshotRoutine()
     {
+        IsAnimating = true;
+        KillSnapshotTweens();
         yield return HidePolaroid();
         dimPanel.gameObject.SetActive(false);
         foreach (PolaroidToken token in polaroidToken)
@@ -54,16 +58,28 @@ public class PolaroidDisplay : MonoBehaviour
         polaroidParent.transform.localPosition = new Vector3(polaroidParent.transform.localPosition.x, defaultYpos, polaroidParent.transform.localPosition.z);
         float zRotation = Random.Range(-polaroidRotationRange, polaroidRotationRange);
 
-        yield return polaroidParent.transform.DOMoveY(endYpos / 2, animateDownTime / 2).SetEase(Ease.Linear).WaitForCompletion();
+        yield return polaroidParent.transform.DOLocalMoveY(endYpos / 2, animateDownTime / 2).SetEase(Ease.Linear).WaitForCompletion();
         polaroidParent.transform.DORotate(new Vector3(0, 0, zRotation), animateDownTime / 2).SetEase(Ease.OutQuad).Play();
-        yield return polaroidParent.transform.DOMoveY(endYpos, animateDownTime / 2).SetEase(Ease.OutQuad).WaitForCompletion();
+        yield return polaroidParent.transform.DOLocalMoveY(endYpos, animateDownTime / 2).SetEase(Ease.OutQuad).WaitForCompletion();
     }
 
     private IEnumerator HidePolaroid()
     {
         dimPanel.DOFade(0, dimPanelFadeOutTime).SetEase(Ease.Linear).Play();
-        yield return polaroidParent.transform.DOMoveY(defaultYpos, animateUpTime).SetEase(Ease.InQuad).WaitForCompletion();
+        yield return polaroidParent.transform.DOLocalMoveY(defaultYpos, animateUpTime).SetEase(Ease.InQuad).WaitForCompletion();
         polaroidParent.SetActive(false);
+    }
+
+    private void KillSnapshotTweens()
+    {
+        if (polaroidParent != null)
+        {
+            polaroidParent.transform.DOKill();
+        }
+        if (dimPanel != null)
+        {
+            dimPanel.DOKill();
+        }
     }
 
     public void SetTiles(Dictionary<Vector2Int, Logic.Tile> tiles)

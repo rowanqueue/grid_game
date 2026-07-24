@@ -909,6 +909,7 @@ MonoBehaviour:
   words: {fileID: 0}
   hoverColor: {r: 0.7529412, g: 0.7529412, b: 0.7529412, a: 1}
   disabled: 0
+  allowDuringToolShop: 1
 --- !u!61 &6301826794048523677
 BoxCollider2D:
   m_ObjectHideFlags: 0

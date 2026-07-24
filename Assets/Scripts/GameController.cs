@@ -40,6 +40,12 @@ public enum GameState
     Snapshot,
 
 }
+/*
+ * 
+ * todo
+ * 
+ * 
+ */
 public class GameController : MonoBehaviour
 {
     public TextAsset gameJson;
@@ -90,6 +96,8 @@ public class GameController : MonoBehaviour
     //gameplay
     public InputState inputState = InputState.Choose;
     public List<Token> hand = new List<Token>();
+    bool mulliganInProgress;
+    public bool MulliganInProgress => mulliganInProgress;
     public bool draggingTile = false;
     public bool holdingClick = false;
     public float clickHoldDuration;
@@ -157,6 +165,7 @@ public class GameController : MonoBehaviour
     public bool winScreenAccelerateRequested;
     public bool winScreenShowing;
     public float winScreenAnimSpeed = 1f;
+    bool highScoreOpenedFromWin;
     bool dismissingPopup;
     Vector3 cameraPanStart;
     float cameraPanElapsed = -1f;
@@ -185,6 +194,9 @@ public class GameController : MonoBehaviour
     private List<Vector2Int> undidTiles = new List<Vector2Int>();
     private bool undidSlot = false;
     bool ignoreBagCloseInputThisFrame = false;
+    bool ignoreToolShopCloseInputThisFrame = false;
+    bool ignoreSnapshotDismissThisFrame = false;
+    bool dismissingSnapshot;
     void Awake()
     {
         InitializeServices();
@@ -741,6 +753,7 @@ public class GameController : MonoBehaviour
     {
         if (inputState == InputState.Finish || inputState == InputState.TapToRestart) { return; }
         if (inTutorial) { return; }
+        if (gameState != GameState.Gameplay) { return; }
         lastState = gameState;
         gameState = GameState.Snapshot;
 
@@ -758,6 +771,7 @@ public class GameController : MonoBehaviour
             GameStateGameplay();
             return;
         }
+        if (gameState != GameState.Gameplay) { return; }
         lastState = gameState;
         gameState = GameState.ToolShop;
 
@@ -766,6 +780,7 @@ public class GameController : MonoBehaviour
         var shop = toolShopScreen ?? stateScreens[(int)gameState].GetComponentInChildren<ToolShopScreen>();
         shop?.OpenScreen();
         movingToScreen = true;
+        ignoreToolShopCloseInputThisFrame = true;
     }
     public void DeactivateToolShopScreen()
     {
@@ -810,17 +825,79 @@ public class GameController : MonoBehaviour
     {
         if (inputState == InputState.Finish || inputState == InputState.TapToRestart) { return; }
         if (inTutorial) { return; }
+        highScoreOpenedFromWin = false;
         lastState = gameState;
         gameState = GameState.HighScore;
+
+        stateScreens[(int)gameState].gameObject.SetActive(true);
+        stateScreens[(int)gameState].SetAnchor();
+        movingToScreen = true;
 
         if (HighScoreManager.Instance != null)
         {
             HighScoreManager.Instance.RefreshUI();
         }
+    }
+
+    public void OpenHighScoresFromWin()
+    {
+        if (inputState != InputState.TapToRestart) { return; }
+
+        highScoreOpenedFromWin = true;
+        if (winScreen != null)
+        {
+            winScreen.SetActive(false);
+        }
+
+        lastState = gameState;
+        gameState = GameState.HighScore;
 
         stateScreens[(int)gameState].gameObject.SetActive(true);
         stateScreens[(int)gameState].SetAnchor();
         movingToScreen = true;
+
+        if (HighScoreManager.Instance != null)
+        {
+            HighScoreManager.Instance.RefreshUI();
+        }
+    }
+
+    public void HighScoreBack()
+    {
+        if (highScoreOpenedFromWin)
+        {
+            ReturnToWinFromHighScore();
+            return;
+        }
+        GameStateSettings();
+    }
+
+    void ReturnToWinFromHighScore()
+    {
+        highScoreOpenedFromWin = false;
+        lastState = gameState;
+        gameState = GameState.Gameplay;
+        stateScreens[(int)gameState].gameObject.SetActive(true);
+        stateScreens[(int)gameState].SetAnchor();
+        movingToScreen = true;
+
+        EnsureWinScreenDisplay();
+        if (winScreen != null)
+        {
+            winScreen.SetActive(true);
+        }
+        if (winScreenDisplay != null)
+        {
+            winScreenDisplay.ShowActionButtons();
+        }
+    }
+
+    public void RestartFromWin()
+    {
+        highScoreOpenedFromWin = false;
+        Services.AudioManager.StopMusic();
+        Services.AudioManager.StopScoreLoop();
+        SceneManager.LoadScene(0);
     }
     public void GameStateHelp()
     {
@@ -1539,7 +1616,7 @@ public class GameController : MonoBehaviour
 
     string FormatWinScreenScore()
     {
-        return "<size=35%>Your score:</size>\n" + score.ToString() + "\n<size=15%><line-height=100%>-Tap to restart-</size>";
+        return "<size=35%>Your score:</size>\n" + score.ToString();
     }
 
     float GetFinishStepDelay(Logic.TokenData data, int index, int total)
@@ -1696,6 +1773,10 @@ public class GameController : MonoBehaviour
         {
             winScreen.SetActive(true);
             winScreenScore.text = FormatWinScreenScore();
+            if (winScreenDisplay != null)
+            {
+                winScreenDisplay.ShowActionButtons();
+            }
         }
         winScreenShowing = false;
         winScreenAccelerateRequested = false;
@@ -2079,7 +2160,20 @@ public class GameController : MonoBehaviour
                 }
             }
         }
+        if (gameState == GameState.ToolShop)
+        {
+            if (InputHelper.GetPrimaryPressBegan() && !ignoreToolShopCloseInputThisFrame)
+            {
+                var shop = toolShopScreen ?? stateScreens[(int)GameState.ToolShop].GetComponentInChildren<ToolShopScreen>();
+                if (shop == null || !shop.IsPointerOverPanel())
+                {
+                    GameStateGameplay();
+                }
+            }
+        }
         ignoreBagCloseInputThisFrame = false;
+        ignoreToolShopCloseInputThisFrame = false;
+        ignoreSnapshotDismissThisFrame = false;
         if (inputState != InputState.Wait && inputState != InputState.Finish)
         {
             TryFlushDyingTokens();
@@ -2088,13 +2182,10 @@ public class GameController : MonoBehaviour
         switch (inputState)
         {
             case InputState.TapToRestart:
-                if (InputHelper.GetAnyPressBegan())
-                {
-                    Services.AudioManager.StopMusic();
-                    SceneManager.LoadScene(0);
-                }
+                // Restart / High Scores are handled by WinScreen action buttons.
                 break;
             case InputState.Choose:
+                if (gameState != GameState.Gameplay) { break; }
                 chosenIndex = -1;
                 Logic.TokenColor color = Logic.TokenColor.Clipper;
                 //hover
@@ -2181,6 +2272,7 @@ public class GameController : MonoBehaviour
                 break;
             case InputState.Place:
             {
+                if (gameState != GameState.Gameplay) { break; }
                 bool dragDropThisFrame = false;
                 if (holdingClick)
                 {
@@ -2725,10 +2817,13 @@ public class GameController : MonoBehaviour
                 }
                 break;
             case InputState.Snapshot:
-                if (InputHelper.GetAnyPressBegan())
+                if (InputHelper.GetAnyPressBegan()
+                    && !ignoreSnapshotDismissThisFrame
+                    && !dismissingSnapshot
+                    && polaroidDisplay != null
+                    && !polaroidDisplay.IsAnimating)
                 {
-                    StartCoroutine(polaroidDisplay.HideSnapshotRoutine());
-                    EnterInputState(InputState.Choose);
+                    StartCoroutine(DismissSnapshotRoutine());
                 }
                 break;
         }
@@ -3005,6 +3100,7 @@ public class GameController : MonoBehaviour
     }
     public void Snapshot()
     {
+        if (gameState != GameState.Gameplay) { return; }
         if (Services.Gems.CanAfford("takeSnapshot") == false)
         {
             return;
@@ -3013,9 +3109,21 @@ public class GameController : MonoBehaviour
         Services.AudioManager.PlaySnapshotSound();
         SaveLoad.Save(1, currentSave);
         snapshotSave = currentSave;
+        ignoreSnapshotDismissThisFrame = true;
         StartCoroutine(polaroidDisplay.ShowSnapshotRoutine(game.grid.tiles));
         inputState = InputState.Snapshot;
         GameStateGameplay();
+    }
+
+    IEnumerator DismissSnapshotRoutine()
+    {
+        if (dismissingSnapshot || polaroidDisplay == null)
+            yield break;
+
+        dismissingSnapshot = true;
+        yield return polaroidDisplay.HideSnapshotRoutine();
+        dismissingSnapshot = false;
+        EnterInputState(InputState.Choose);
     }
     public void LoadSnapshot()
     {
@@ -3080,27 +3188,39 @@ public class GameController : MonoBehaviour
     public void Mulligan()
     {
         if (inTutorial) { return; }
+        if (gameState != GameState.Gameplay) { return; }
+        if (inputState != InputState.Choose) { return; }
+        if (mulliganInProgress) { return; }
+        if (game.mulliganUsesRemaining <= 0) { return; }
         //put back rest of hand and draw 4 more
+        mulliganInProgress = true;
         game.Mulligan();
         StartCoroutine(MulliganAnim());
     }
 
     public IEnumerator MulliganAnim()
     {
-        for (int i = 0; i < hand.Count; i++)
+        try
         {
-            if (hand[i] == null) { continue; }
-            hand[i].PlaceInBag();
-            yield return new WaitForSeconds(mulliganStaggerSeconds);
-            hand[i] = null;
-        }
-        yield return new WaitForSeconds(mulliganPauseBeforeDraw);
+            for (int i = 0; i < hand.Count; i++)
+            {
+                if (hand[i] == null) { continue; }
+                hand[i].PlaceInBag();
+                yield return new WaitForSeconds(mulliganStaggerSeconds);
+                hand[i] = null;
+            }
+            yield return new WaitForSeconds(mulliganPauseBeforeDraw);
 
-        CreateHand(true);
-        Services.AudioManager.PlayUndoSound();
-        if (!inTutorial)
+            CreateHand(true);
+            Services.AudioManager.PlayUndoSound();
+            if (!inTutorial)
+            {
+                Save();
+            }
+        }
+        finally
         {
-            Save();
+            mulliganInProgress = false;
         }
     }
 

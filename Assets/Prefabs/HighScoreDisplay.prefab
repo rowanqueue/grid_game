@@ -99,7 +99,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: <mspace=0em>1.                      1
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: ad0c76634cd1f584ca2abeeaa80ab731, type: 2}
   m_sharedMaterial: {fileID: 9122183538073236614, guid: ad0c76634cd1f584ca2abeeaa80ab731, type: 2}
@@ -133,7 +133,7 @@ MonoBehaviour:
   m_fontSizeMin: 0
   m_fontSizeMax: 72
   m_fontStyle: 1
-  m_HorizontalAlignment: 32
+  m_HorizontalAlignment: 1
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
@@ -218,4 +218,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   textDisplay: {fileID: 179138931682321230}
   place: 1
-  score: 917
+  score: 0
+  difficulty: 0

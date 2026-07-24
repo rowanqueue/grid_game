@@ -27,7 +27,7 @@ public class HighScoreManager : MonoBehaviour
     }
 
     const string PlayerPrefsKey = "highscores";
-    public int maxEntries = 5;
+    public int maxEntries = 10;
 
     [Tooltip("Optional explicit list of HighScoreDisplay components. If empty, they will be discovered in the scene.")]
     public List<HighScoreDisplay> displays = new List<HighScoreDisplay>();
@@ -122,7 +122,8 @@ public class HighScoreManager : MonoBehaviour
         {
             if (data != null && data.entries != null && i < data.entries.Count)
             {
-                displays[i].SetScore(data.entries[i].score);
+                HighScoreEntry entry = data.entries[i];
+                displays[i].SetScore(entry.score, entry.difficulty);
             }
             else
             {

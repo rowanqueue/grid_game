@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
@@ -8,26 +6,32 @@ public class HighScoreDisplay : MonoBehaviour
     public TextMeshPro textDisplay;
     public int place;
     public int score;
-    int spaces = 25;
-    public void Start()
+    public int difficulty;
+
+    void Awake()
     {
-        SetScore(score);
+        // Text is owned by HighScoreManager.RefreshUI; leave blank until then.
+        if (textDisplay != null && score == 0)
+        {
+            textDisplay.text = "";
+        }
     }
 
-    public void SetScore(int newScore)
+    public void SetScore(int newScore, int newDifficulty = 0)
     {
         score = newScore;
-        int sofar = spaces;
-        textDisplay.text = "<mspace=0em>";
-        textDisplay.text += place.ToString() + ".";
-        sofar -= place.ToString().Length + 1;
-        string num = FancyNum(score);
-        sofar -= num.Length;
-        for(int i = 0; i < sofar; i++)
+        difficulty = newDifficulty;
+        if (textDisplay == null)
         {
-            textDisplay.text += " ";
+            return;
         }
-        textDisplay.text += num;
+
+        string difficultyLabel = GetDifficultyLabel(difficulty);
+        textDisplay.text = place + ".  " + FancyNum(score);
+        if (!string.IsNullOrEmpty(difficultyLabel))
+        {
+            textDisplay.text += "  <size=70%>" + difficultyLabel + "</size>";
+        }
     }
 
     /// <summary>
@@ -35,28 +39,37 @@ public class HighScoreDisplay : MonoBehaviour
     /// </summary>
     public void SetEmpty()
     {
+        score = 0;
+        difficulty = 0;
         if (textDisplay != null)
         {
             textDisplay.text = "";
         }
     }
 
+    static string GetDifficultyLabel(int difficultyIndex)
+    {
+        if (Services.GameController == null || Services.GameController.difficultyNames == null)
+        {
+            return string.Empty;
+        }
+        if (difficultyIndex < 0 || difficultyIndex >= Services.GameController.difficultyNames.Count)
+        {
+            return string.Empty;
+        }
+
+        string raw = Services.GameController.difficultyNames[difficultyIndex];
+        if (string.IsNullOrEmpty(raw))
+        {
+            return string.Empty;
+        }
+
+        int br = raw.IndexOf('<');
+        return br >= 0 ? raw.Substring(0, br).Trim() : raw.Trim();
+    }
+
     string FancyNum(int num)
     {
-        string s = string.Empty;
-        string _number = num.ToString("N0");
-        for (int i = 0; i < _number.Length; i++)
-        {
-            if (i < _number.Length - 1 && _number[i + 1] == ',')
-            {
-                //s += "<cspace=-0.2em>";
-            }
-            s += _number[i];
-            if (i > 0 && _number[i - 1] == ',')
-            {
-                //s += "</cspace>";
-            }
-        }
-        return s;
+        return num.ToString("N0");
     }
 }

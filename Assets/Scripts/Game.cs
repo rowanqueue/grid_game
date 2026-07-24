@@ -839,9 +839,13 @@ namespace Logic
             {
                 hand.tokens[i] = null;
             }
-            hand.tokens[0] = new Token(new TokenData(TokenColor.Clipper, 0), true);
-            hand.tokens[1] = new Token(new TokenData(TokenColor.Blue, 4), true);
-            hand.tokensTaken = 2;
+            hand.tokens[0] = new Token(new TokenData(TokenColor.Green, 1), true);
+            hand.tokensTaken = 1;
+            if (hand.handSize > 1)
+            {
+                hand.tokens[1] = new Token(new TokenData(TokenColor.Clipper, 0), true);
+                hand.tokensTaken = 2;
+            }
             freeSlot = null;
 
             score = 500;

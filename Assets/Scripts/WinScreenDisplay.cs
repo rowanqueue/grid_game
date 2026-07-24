@@ -14,8 +14,6 @@ public class WinScreenPayload
 public class WinScreenDisplay : MonoBehaviour
 {
     const float SkipSpeedMultiplier = 2f;
-    const string HiddenRestartLine = "\n<size=15%><line-height=100%><alpha=#00>-Tap to restart-</alpha></size>";
-    const string VisibleRestartLine = "\n<size=15%><line-height=100%>-Tap to restart-</size>";
 
     [SerializeField] float animateInDuration = 0.4f;
     [SerializeField] float slideOffsetY = 0.5f;
@@ -24,6 +22,11 @@ public class WinScreenDisplay : MonoBehaviour
     [SerializeField] float titleStaggerDelay = 0.1f;
     [SerializeField] float scoreCountDuration = 0.8f;
     [SerializeField] float statsStaggerDelay = 0.15f;
+
+    [Header("Action Buttons")]
+    [SerializeField] GameObject actionButtonsRoot;
+    [SerializeField] flora.Button highScoreButton;
+    [SerializeField] flora.Button restartButton;
 
     TMP_Text scoreText;
     TMP_Text titleText;
@@ -34,6 +37,13 @@ public class WinScreenDisplay : MonoBehaviour
     float animSpeed = 1f;
     bool showingWinScreen;
     readonly List<Tween> activeTweens = new List<Tween>();
+
+    void Awake()
+    {
+        CacheReferences();
+        CaptureRestPosition();
+        HideActionButtons();
+    }
 
     void Update()
     {
@@ -96,12 +106,6 @@ public class WinScreenDisplay : MonoBehaviour
         }
     }
 
-    void Awake()
-    {
-        CacheReferences();
-        CaptureRestPosition();
-    }
-
     void CacheReferences()
     {
         titleText = null;
@@ -142,6 +146,34 @@ public class WinScreenDisplay : MonoBehaviour
             if (bg != null)
             {
                 dimBackground = bg.GetComponent<SpriteRenderer>();
+            }
+        }
+
+        if (actionButtonsRoot == null)
+        {
+            Transform found = transform.Find("ActionButtons");
+            if (found != null)
+            {
+                actionButtonsRoot = found.gameObject;
+            }
+        }
+        if (actionButtonsRoot != null)
+        {
+            if (highScoreButton == null)
+            {
+                Transform hs = actionButtonsRoot.transform.Find("HighScoresButton");
+                if (hs != null)
+                {
+                    highScoreButton = hs.GetComponent<flora.Button>();
+                }
+            }
+            if (restartButton == null)
+            {
+                Transform rs = actionButtonsRoot.transform.Find("RestartButton");
+                if (rs != null)
+                {
+                    restartButton = rs.GetComponent<flora.Button>();
+                }
             }
         }
     }
@@ -270,12 +302,44 @@ public class WinScreenDisplay : MonoBehaviour
                 worldText.sortingOrder = 26;
             }
         }
+        if (actionButtonsRoot != null)
+        {
+            foreach (SpriteRenderer sr in actionButtonsRoot.GetComponentsInChildren<SpriteRenderer>(true))
+            {
+                sr.sortingLayerID = layerId;
+                sr.sortingOrder = 27;
+            }
+            foreach (TextMeshPro tmp in actionButtonsRoot.GetComponentsInChildren<TextMeshPro>(true))
+            {
+                tmp.sortingLayerID = layerId;
+                tmp.sortingOrder = 28;
+            }
+        }
+    }
+
+    public void ShowActionButtons()
+    {
+        CacheReferences();
+        if (actionButtonsRoot != null)
+        {
+            actionButtonsRoot.SetActive(true);
+            ApplyWinScreenSorting();
+        }
+    }
+
+    public void HideActionButtons()
+    {
+        if (actionButtonsRoot != null)
+        {
+            actionButtonsRoot.SetActive(false);
+        }
     }
 
     public IEnumerator ShowRoutine(WinScreenPayload payload)
     {
         showingWinScreen = true;
         ResetAnimationSpeed();
+        HideActionButtons();
         if (Services.GameController != null)
         {
             Services.GameController.winScreenAnimSpeed = 1f;
@@ -308,12 +372,14 @@ public class WinScreenDisplay : MonoBehaviour
         if (titleText == null && scoreText == null)
         {
             showingWinScreen = false;
+            ShowActionButtons();
             ResetAnimationSpeed();
             yield break;
         }
 
         if (titleText != null)
         {
+            titleText.gameObject.SetActive(true);
             titleText.text = payload.isNewHighScore ? "New high score!" : "Congratulations!";
             titleText.alpha = 0f;
             titleText.transform.localScale = Vector3.one * 0.85f;
@@ -340,14 +406,14 @@ public class WinScreenDisplay : MonoBehaviour
             SetTextPosition(scoreText, scoreRestPosition + Vector2.down * slideOffsetY);
 
             int displayScore = payload.fromScore;
-            scoreText.text = BuildScoreText(displayScore, showRestart: false);
+            scoreText.text = BuildScoreText(displayScore);
 
             Tween scoreFadeTween = scoreText.DOFade(1f, animateInDuration * 0.5f).SetEase(Ease.OutQuad);
             Tween scoreMoveTween = CreateTextPositionTween(scoreText, scoreRestPosition, animateInDuration, Ease.OutQuad);
             Tween countTween = DOTween.To(() => displayScore, v =>
             {
                 displayScore = v;
-                scoreText.text = BuildScoreText(displayScore, showRestart: false);
+                scoreText.text = BuildScoreText(displayScore);
             }, payload.toScore, scoreCountDuration).SetEase(Ease.OutQuad);
             Sequence scoreSeq = DOTween.Sequence();
             scoreSeq.Join(scoreFadeTween);
@@ -361,11 +427,12 @@ public class WinScreenDisplay : MonoBehaviour
 
             yield return WaitScaled(statsStaggerDelay);
             LockScoreTextPosition();
-            scoreText.text = BuildScoreText(payload.toScore, showRestart: true);
+            scoreText.text = BuildScoreText(payload.toScore);
             scoreText.alpha = 1f;
             LockScoreTextPosition();
         }
 
+        ShowActionButtons();
         showingWinScreen = false;
         ResetAnimationSpeed();
     }
@@ -374,12 +441,14 @@ public class WinScreenDisplay : MonoBehaviour
     {
         showingWinScreen = true;
         ResetAnimationSpeed();
+        HideActionButtons();
         CacheReferences();
         CaptureRestPosition();
         ApplyWinScreenSorting();
         if (scoreText == null)
         {
             gameObject.SetActive(true);
+            ShowActionButtons();
             showingWinScreen = false;
             ResetAnimationSpeed();
             yield break;
@@ -400,21 +469,21 @@ public class WinScreenDisplay : MonoBehaviour
         TrackTween(moveTween);
         TrackTween(sequence);
         yield return WaitForTween(sequence);
+        ShowActionButtons();
         showingWinScreen = false;
         ResetAnimationSpeed();
     }
 
-    static string BuildScoreText(int scoreValue, bool showRestart)
+    static string BuildScoreText(int scoreValue)
     {
-        string s = "<size=35%>Your score:</size>\n" + scoreValue.ToString();
-        s += showRestart ? VisibleRestartLine : HiddenRestartLine;
-        return s;
+        return "<size=35%>Your score:</size>\n" + scoreValue.ToString();
     }
 
     public void HideImmediate()
     {
         showingWinScreen = false;
         ResetAnimationSpeed();
+        HideActionButtons();
         if (scoreText != null)
         {
             scoreText.DOKill();
