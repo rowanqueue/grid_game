@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 71c1514a6bd24e1e882cebbe1904ce04, type: 3}
-  m_Name: Nunito-Bold-Fun
+  m_Name: Nunito-Bold-DarkText
   m_EditorClassIdentifier: 
-  hashCode: -772035713
+  hashCode: 409793347
   material: {fileID: 702498762529516548}
-  materialHashCode: -6485377
+  materialHashCode: -1173692285
   m_Version: 1.1.0
   m_SourceFontFileGUID: 98b340ee47e246e44b7694fac7645b85
   m_SourceFontFile_EditorRef: {fileID: 12800000, guid: 98b340ee47e246e44b7694fac7645b85, type: 3}
@@ -5684,7 +5684,7 @@ Material:
     - _Reflectivity: 10
     - _ScaleRatioA: 0.8333333
     - _ScaleRatioB: 0.6770833
-    - _ScaleRatioC: 0.40111572
+    - _ScaleRatioC: 0.6770833
     - _ScaleX: 1
     - _ScaleY: 1
     - _ShaderFlags: 0
@@ -5697,10 +5697,10 @@ Material:
     - _StencilWriteMask: 255
     - _TextureHeight: 512
     - _TextureWidth: 512
-    - _UnderlayDilate: 0.31
+    - _UnderlayDilate: 0
     - _UnderlayOffsetX: -0
-    - _UnderlayOffsetY: -0.88
-    - _UnderlaySoftness: 0.498
+    - _UnderlayOffsetY: -0.48
+    - _UnderlaySoftness: 0.17
     - _VertexOffsetX: 0
     - _VertexOffsetY: 0
     - _WeightBold: 0.75
