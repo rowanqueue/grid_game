@@ -113,13 +113,13 @@ public class GameController : MonoBehaviour
     [SerializeField] float tokenWaitMultiplier = 1.5f;
     [SerializeField] float winHoldDuration = 1.2f;
     [Header("Finish Sequence")]
-    [SerializeField] float finishBaseDelay = 0.04f;
-    [SerializeField] float finishDelayPerScore = 0.003f;
+    [SerializeField] float finishBaseDelay = 0.053f;
+    [SerializeField] float finishDelayPerScore = 0.004f;
     [SerializeField] int finishLastTileCount = 3;
     [SerializeField] float finishLastTileSlowdown = 1.6f;
     [SerializeField] int finishFlowerBase = 3;
     [SerializeField] int finishFlowerPerNum = 2;
-    [SerializeField] float finishScoreHoldBase = 0.06f;
+    [SerializeField] float finishScoreHoldBase = 0.08f;
     public float finishLiftSpeedMultiplier = 2f;
     [SerializeField] float cameraPanDuration = 0.45f;
     [SerializeField] float mulliganStaggerSeconds = 0.1f;
@@ -162,6 +162,7 @@ public class GameController : MonoBehaviour
     int scoreBeforeFinish;
     bool finishRoutineRunning;
     bool pendingFinishStart;
+    public int finishLiftsInFlight;
     public bool winScreenAccelerateRequested;
     public bool winScreenShowing;
     public float winScreenAnimSpeed = 1f;
@@ -1023,6 +1024,7 @@ public class GameController : MonoBehaviour
         if (movingToScreen) { return; }
         if (gameState == GameState.Bag)
         {
+            Debug.Log($"[BagUI] ToggleBagDisplay close t={Time.time:F3}");
             deckDisplay.ClearBagAfterDelay();
             Services.AudioManager.PlayBagSound();
             GameStateGameplay();
@@ -1033,6 +1035,7 @@ public class GameController : MonoBehaviour
             {
                 tutorial.IncrementStage();
             }*/
+            Debug.Log($"[BagUI] ToggleBagDisplay open t={Time.time:F3}");
             deckDisplay.MakeBag();
             GameStateBag();
         }
@@ -1608,7 +1611,7 @@ public class GameController : MonoBehaviour
 
     string FormatWinScreenScore()
     {
-        return "<size=35%>Your score:</size>\n" + score.ToString();
+        return "<size=35%>Congratulations!\nYour score:</size>\n" + score.ToString();
     }
 
     float GetFinishStepDelay(Logic.TokenData data, int index, int total)
@@ -1696,6 +1699,7 @@ public class GameController : MonoBehaviour
     IEnumerator FinishBoardRoutine()
     {
         PrepareAllTokensForFinish();
+        finishLiftsInFlight = 0;
 
         List<(Vector2Int pos, Tile tile)> finishTiles = BuildFinishTileOrder();
         int total = finishTiles.Count;
@@ -1729,6 +1733,10 @@ public class GameController : MonoBehaviour
             tile.token = null;
         }
 
+        while (finishLiftsInFlight > 0 || scoreDelta > 0)
+        {
+            yield return null;
+        }
         yield return FlushScoreDeltaImmediate();
         yield return ShowWinScreenSequence();
         finishRoutineRunning = false;
@@ -2533,28 +2541,33 @@ public class GameController : MonoBehaviour
                             }
                             if (chosenIndex >= game.hand.handSize)
                             {
+                                GameLog.Log($"[Spade] Place dig into freeSlot chosenIndex={chosenIndex} pos={chosenPos}");
                                 game.PlaceTokenBackInHand(chosenIndex, chosenPos);
                                 //GameObject.Destroy(freeSlot.token.gameObject);
                                 tiles[chosenPos].token.ToolAnim(freeSlot.token, chosenIndex);
                                 freeSlot.token = tiles[chosenPos].token;
                                 lastTokenPlaced = null;
                                 freeSlot.token.UpdateLayer("TokenHand");
+                                freeSlot.token.lifted = true;
 
                                 tiles[chosenPos].token = null;
                             }
                             else
                             {
+                                GameLog.Log($"[Spade] Place dig into hand[{chosenIndex}] pos={chosenPos}");
                                 game.PlaceTokenBackInHand(chosenIndex, chosenPos);
                                 lastTokenPlaced = null;
                                 //GameObject.Destroy(hand[chosenIndex].gameObject);
                                 tiles[chosenPos].token.ToolAnim(hand[chosenIndex], chosenIndex);
                                 hand[chosenIndex] = tiles[chosenPos].token;
                                 hand[chosenIndex].UpdateLayer("TokenHand");
+                                hand[chosenIndex].lifted = true;
                                 //hand[chosenIndex].SpadeAnim(chosenIndex);
                                 tiles[chosenPos].token = null;
                             }
                             EnterInputState(InputState.Wait);
                             waiting = 0f;
+                            GameLog.Log($"[Spade] Enter Wait after dig chosenIndex={chosenIndex}");
                             break;
                         }
                         else if (emptyTile)
@@ -2848,7 +2861,7 @@ public class GameController : MonoBehaviour
         if (freeSlot.token)
         {
             bool shouldHover = false;
-            if (!freeSlot.token.IsPlacementAnimating)
+            if (!freeSlot.token.IsPlacementAnimating && !freeSlot.token.travelingFromSpade)
             {
                 freeSlot.token.lifted = false;
             }
@@ -2862,6 +2875,10 @@ public class GameController : MonoBehaviour
                         freeSlot.token.lifted = true;
                     }
                 }
+            }
+            if (freeSlot.token.travelingFromSpade)
+            {
+                freeSlot.token.lifted = true;
             }
             if (shouldHover)
             {
@@ -2885,7 +2902,11 @@ public class GameController : MonoBehaviour
         for (int i = 0; i < hand.Count; i++)
         {
             if (hand[i] == null) { continue; }
-            hand[i].lifted = false;
+            bool spadeTravel = hand[i].travelingFromSpade;
+            if (!spadeTravel)
+            {
+                hand[i].lifted = false;
+            }
             Vector2 pos = handTransforms[i].position;// firstHandPos + (i * handSeparation);
             if (game.hand.handSize == 1)
             {
@@ -2895,6 +2916,10 @@ public class GameController : MonoBehaviour
             {
                 if (inputState == InputState.Choose)
                 {
+                    if (spadeTravel)
+                    {
+                        hand[i].lifted = true;
+                    }
                     hand[i].Draw(pos, true);
                 }
                 else if (inputState == InputState.Place)
@@ -2910,6 +2935,19 @@ public class GameController : MonoBehaviour
                     }
 
                 }
+                else if (spadeTravel
+                    || inputState == InputState.Wait
+                    || inputState == InputState.Popup)
+                {
+                    // Dug Spade tile must keep lerping to hand during Wait/Popup.
+                    hand[i].lifted = true;
+                    hand[i].Draw(pos);
+                }
+            }
+            else if (spadeTravel)
+            {
+                hand[i].lifted = true;
+                hand[i].Draw(pos);
             }
             else
             {

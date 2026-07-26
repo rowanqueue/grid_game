@@ -200,10 +200,10 @@ MonoBehaviour:
   active: 0
   spriteRenderer: {fileID: 1442920271173001913}
   miniTiles:
-  - {fileID: 550118095969856132}
-  - {fileID: 1438951849988365255}
-  - {fileID: 6123811369327413875}
   - {fileID: 5000009170429766029}
+  - {fileID: 6123811369327413875}
+  - {fileID: 1438951849988365255}
+  - {fileID: 550118095969856132}
 --- !u!1 &9049369641224585692
 GameObject:
   m_ObjectHideFlags: 0

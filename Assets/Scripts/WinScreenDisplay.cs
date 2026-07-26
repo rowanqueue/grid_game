@@ -352,7 +352,7 @@ public class WinScreenDisplay : MonoBehaviour
 
         if (titleText != null)
         {
-            titleText.alpha = 0f;
+            titleText.gameObject.SetActive(false);
         }
         if (scoreText != null)
         {
@@ -369,7 +369,7 @@ public class WinScreenDisplay : MonoBehaviour
             yield return WaitForTween(dimTween);
         }
 
-        if (titleText == null && scoreText == null)
+        if (scoreText == null)
         {
             showingWinScreen = false;
             ShowActionButtons();
@@ -377,60 +377,35 @@ public class WinScreenDisplay : MonoBehaviour
             yield break;
         }
 
-        if (titleText != null)
+        string headline = payload.isNewHighScore ? "New high score!" : "Congratulations!";
+        scoreText.alpha = 0f;
+        SetTextPosition(scoreText, scoreRestPosition + Vector2.down * slideOffsetY);
+
+        int displayScore = payload.fromScore;
+        scoreText.text = BuildScoreText(headline, displayScore);
+
+        Tween scoreFadeTween = scoreText.DOFade(1f, animateInDuration * 0.5f).SetEase(Ease.OutQuad);
+        Tween scoreMoveTween = CreateTextPositionTween(scoreText, scoreRestPosition, animateInDuration, Ease.OutQuad);
+        Tween countTween = DOTween.To(() => displayScore, v =>
         {
-            titleText.gameObject.SetActive(true);
-            titleText.text = payload.isNewHighScore ? "New high score!" : "Congratulations!";
-            titleText.alpha = 0f;
-            titleText.transform.localScale = Vector3.one * 0.85f;
-            SetTextPosition(titleText, titleRestPosition + Vector2.down * slideOffsetY);
+            displayScore = v;
+            scoreText.text = BuildScoreText(headline, displayScore);
+        }, payload.toScore, scoreCountDuration).SetEase(Ease.OutQuad);
+        Sequence scoreSeq = DOTween.Sequence();
+        scoreSeq.Join(scoreFadeTween);
+        scoreSeq.Join(scoreMoveTween);
+        scoreSeq.Join(countTween);
+        TrackTween(scoreFadeTween);
+        TrackTween(scoreMoveTween);
+        TrackTween(countTween);
+        TrackTween(scoreSeq);
+        yield return WaitForTween(scoreSeq);
 
-            Tween fadeTween = titleText.DOFade(1f, animateInDuration).SetEase(Ease.OutQuad);
-            Tween moveTween = CreateTextPositionTween(titleText, titleRestPosition, animateInDuration, Ease.OutBack);
-            Tween scaleTween = titleText.transform.DOScale(1f, animateInDuration).SetEase(Ease.OutBack);
-            Sequence titleSeq = DOTween.Sequence();
-            titleSeq.Join(fadeTween);
-            titleSeq.Join(moveTween);
-            titleSeq.Join(scaleTween);
-            TrackTween(fadeTween);
-            TrackTween(moveTween);
-            TrackTween(scaleTween);
-            TrackTween(titleSeq);
-            yield return WaitForTween(titleSeq);
-            yield return WaitScaled(titleStaggerDelay);
-        }
-
-        if (scoreText != null)
-        {
-            scoreText.alpha = 0f;
-            SetTextPosition(scoreText, scoreRestPosition + Vector2.down * slideOffsetY);
-
-            int displayScore = payload.fromScore;
-            scoreText.text = BuildScoreText(displayScore);
-
-            Tween scoreFadeTween = scoreText.DOFade(1f, animateInDuration * 0.5f).SetEase(Ease.OutQuad);
-            Tween scoreMoveTween = CreateTextPositionTween(scoreText, scoreRestPosition, animateInDuration, Ease.OutQuad);
-            Tween countTween = DOTween.To(() => displayScore, v =>
-            {
-                displayScore = v;
-                scoreText.text = BuildScoreText(displayScore);
-            }, payload.toScore, scoreCountDuration).SetEase(Ease.OutQuad);
-            Sequence scoreSeq = DOTween.Sequence();
-            scoreSeq.Join(scoreFadeTween);
-            scoreSeq.Join(scoreMoveTween);
-            scoreSeq.Join(countTween);
-            TrackTween(scoreFadeTween);
-            TrackTween(scoreMoveTween);
-            TrackTween(countTween);
-            TrackTween(scoreSeq);
-            yield return WaitForTween(scoreSeq);
-
-            yield return WaitScaled(statsStaggerDelay);
-            LockScoreTextPosition();
-            scoreText.text = BuildScoreText(payload.toScore);
-            scoreText.alpha = 1f;
-            LockScoreTextPosition();
-        }
+        yield return WaitScaled(statsStaggerDelay);
+        LockScoreTextPosition();
+        scoreText.text = BuildScoreText(headline, payload.toScore);
+        scoreText.alpha = 1f;
+        LockScoreTextPosition();
 
         ShowActionButtons();
         showingWinScreen = false;
@@ -474,9 +449,9 @@ public class WinScreenDisplay : MonoBehaviour
         ResetAnimationSpeed();
     }
 
-    static string BuildScoreText(int scoreValue)
+    static string BuildScoreText(string headline, int scoreValue)
     {
-        return "<size=35%>Your score:</size>\n" + scoreValue.ToString();
+        return "<size=35%>" + headline + "\nYour score:</size>\n" + scoreValue.ToString();
     }
 
     public void HideImmediate()

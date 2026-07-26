@@ -114,7 +114,10 @@ namespace Save
         public List<string> previousUnlocks = new List<string>();
         public Save(Logic.History.Turn turn)
         {
-            this.difficulty = Services.GameController.difficulty;
+            // Prefer the difficulty the running game was initialized with, not the
+            // settings UI selection (which can change mid-run before a restart).
+            int activeDifficulty = Services.GameController.difficulties.IndexOf(Services.GameController.gameJson);
+            this.difficulty = activeDifficulty >= 0 ? activeDifficulty : Services.GameController.difficulty;
             this.turn = turn;
             foreach(Tile tile in Services.GameController.flowers.Keys)
             {

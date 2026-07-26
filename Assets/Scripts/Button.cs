@@ -31,12 +31,19 @@ namespace flora
         public bool disabled = false;
         [Tooltip("If true, this button can be pressed while the tool shop is open.")]
         public bool allowDuringToolShop = false;
+        [Tooltip("Extra objects to hide when this button is disabled (e.g. seed cost icons).")]
+        public GameObject[] hideWhenDisabled;
         Vector3 baseScale;
         Coroutine pressRoutine;
+        GemCostLabel[] costLabels;
 
         void Start()
         {
             baseScale = transform.localScale;
+            if (type == ButtonType.StartGame)
+            {
+                costLabels = GetComponentsInChildren<GemCostLabel>(true);
+            }
         }
 
         void Update()
@@ -76,7 +83,7 @@ namespace flora
             {
                 display.color = (hover ? hoverColor : Color.white);
             }
-            if (type == ButtonType.Difficulty || type == ButtonType.StartGame)
+            if (type == ButtonType.Difficulty)
             {
                 if (toggledDisplay != null)
                 {
@@ -85,6 +92,39 @@ namespace flora
                 if (words != null)
                 {
                     words.enabled = !disabled;
+                }
+            }
+            else if (type == ButtonType.StartGame)
+            {
+                if (toggledDisplay != null)
+                {
+                    toggledDisplay.enabled = !disabled;
+                }
+                if (words != null)
+                {
+                    words.enabled = true;
+                    words.text = disabled ? "Locked" : "Tap to Start";
+                }
+                bool showCost = !disabled;
+                if (costLabels != null)
+                {
+                    for (int i = 0; i < costLabels.Length; i++)
+                    {
+                        if (costLabels[i] != null)
+                        {
+                            costLabels[i].gameObject.SetActive(showCost);
+                        }
+                    }
+                }
+                if (hideWhenDisabled != null)
+                {
+                    for (int i = 0; i < hideWhenDisabled.Length; i++)
+                    {
+                        if (hideWhenDisabled[i] != null)
+                        {
+                            hideWhenDisabled[i].SetActive(showCost);
+                        }
+                    }
                 }
             }
         }
