@@ -269,6 +269,7 @@ public class GameController : MonoBehaviour
         Application.targetFrameRate = 60;
         winScreen.SetActive(false);
         EnsureWinScreenDisplay();
+
         switch (whichGame)
         {
             case GameType.Triple:
@@ -278,6 +279,7 @@ public class GameController : MonoBehaviour
                 game = new Logic.BubbleGame();
                 break;
         }
+
         if (PlayerPrefs.HasKey("difficulty") == false)
         {
             PlayerPrefs.SetInt("difficulty", difficulty);
@@ -287,7 +289,14 @@ public class GameController : MonoBehaviour
         {
             difficulty = PlayerPrefs.GetInt("difficulty");
         }
+
+        if(gameState == GameState.Start)
+        {
+            difficulty = 1;
+        }
+
         gameJson = difficulties[difficulty];
+
         Json.Root root = JsonConvert.DeserializeObject<Json.Root>(gameJson.text);
         game.Initialize(root);
 
@@ -334,14 +343,7 @@ public class GameController : MonoBehaviour
         //runTutorial = true;
         if (runTutorial)
         {
-            difficulty = 0;
-            gameJson = difficulties[difficulty];
-            root = JsonConvert.DeserializeObject<Json.Root>(gameJson.text);
-            game.Initialize(root);
-            game.StartTutorial();
-            tutorialHandsDrawn = 1;
-            game.skipAutoHandFillOnEmpty = true;
-            pendingTutorialStart = true;
+            PrepareTutorialSession();
         }
         else
         {
@@ -420,6 +422,26 @@ public class GameController : MonoBehaviour
         {
             BeginTutorialSession();
         }
+    }
+
+    /// <summary>
+    /// Boots a guided tutorial on easy (difficulty 0) rules. Used by first-time/redo Awake
+    /// and when confirming Tutorial from the difficulty picker.
+    /// </summary>
+    public void PrepareTutorialSession()
+    {
+        PlayerPrefs.DeleteKey("tutorialComplete");
+        PlayerPrefs.DeleteKey("greenLearnt");
+        PlayerPrefs.DeleteKey("purpleLearnt");
+        difficulty = 0;
+        gameJson = difficulties[difficulty];
+        Json.Root root = JsonConvert.DeserializeObject<Json.Root>(gameJson.text);
+        game.Initialize(root);
+        game.StartTutorial();
+        tutorialHandsDrawn = 1;
+        game.skipAutoHandFillOnEmpty = true;
+        runTutorial = true;
+        pendingTutorialStart = true;
     }
 
     public void BeginTutorialSession()
@@ -642,7 +664,6 @@ public class GameController : MonoBehaviour
     /// </summary>
     public void GameStateGameplay()
     {
-        bool beginTutorialAfterTransition = pendingTutorialStart;
         if (gameState == GameState.Settings)
         {
             if (lastState == GameState.SelectDifficulty)
@@ -686,11 +707,18 @@ public class GameController : MonoBehaviour
         difficultyParent.SetActive(false);
         if (gameState == GameState.SelectDifficulty && !IsTutorialSession)
         {
-            gameJson = difficulties[difficulty];
-            Json.Root root = JsonConvert.DeserializeObject<Json.Root>(gameJson.text);
-            game.Initialize(root);
-            CreateHand(true);
-            Save();
+            if (difficulty == 0)
+            {
+                PrepareTutorialSession();
+            }
+            else
+            {
+                gameJson = difficulties[difficulty];
+                Json.Root root = JsonConvert.DeserializeObject<Json.Root>(gameJson.text);
+                game.Initialize(root);
+                CreateHand(true);
+                Save();
+            }
         }
         /*if (inTutorial && tutorial.stage == TutorialStage.GreenNextBag)
         {
@@ -707,7 +735,7 @@ public class GameController : MonoBehaviour
         stateScreens[(int)gameState].gameObject.SetActive(true);
         stateScreens[(int)gameState].SetAnchor();
         movingToScreen = true;
-        if (beginTutorialAfterTransition)
+        if (pendingTutorialStart)
         {
             BeginTutorialSession();
         }
@@ -828,7 +856,7 @@ public class GameController : MonoBehaviour
 
         if (HighScoreManager.Instance != null)
         {
-            HighScoreManager.Instance.RefreshUI();
+            HighScoreManager.Instance.SetViewDifficulty(difficulty);
         }
     }
 
@@ -851,7 +879,7 @@ public class GameController : MonoBehaviour
 
         if (HighScoreManager.Instance != null)
         {
-            HighScoreManager.Instance.RefreshUI();
+            HighScoreManager.Instance.SetViewDifficulty(difficulty);
         }
     }
 
@@ -2035,7 +2063,7 @@ public class GameController : MonoBehaviour
         }*/
         if (difficultyUnlocked[difficulty] == false)
         {
-            difficultyName.text += "\nLocked! Earn " + scoreNeededToUnlock[difficulty].ToString() + " in ";
+            difficultyName.text += "\nLocked!\nEarn " + scoreNeededToUnlock[difficulty].ToString() + " in ";
             string actualName = difficultyNames[difficulty - 1].Split('<')[0];
             difficultyName.text += actualName + " to unlock";
         }

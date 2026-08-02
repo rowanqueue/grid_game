@@ -135,7 +135,19 @@ public class UpgradePopup : MonoBehaviour
 
         foreach (MiniTile tile in tinyTab.miniTiles)
             tile.gameObject.SetActive(false);
-        int tileCount = 0;
+
+        int needed = 0;
+        switch (type)
+        {
+            case UpgradeType.Upgrade:
+                needed = 3;
+                break;
+            case UpgradeType.Unlock:
+                TokenData unlockData = displayContents.Keys.ToList()[0];
+                needed = Mathf.Clamp(displayContents[unlockData], 1, 3) + 1;
+                break;
+        }
+        int tileCount = tinyTab.miniTiles.Count - needed;
         switch (type)
         {
             case UpgradeType.Upgrade:
@@ -173,7 +185,7 @@ public class UpgradePopup : MonoBehaviour
                 tileCount++;
                 break;
         }
-        float x = tinyTabX[tileCount - 1];
+        float x = tinyTabX[needed - 1];
         float y = tinyTab.transform.localPosition.y;
         tinyTab.NewPosition(new Vector2(x, y));
     }

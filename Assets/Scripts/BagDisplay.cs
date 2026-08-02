@@ -215,26 +215,37 @@ public class BagDisplay : MonoBehaviour
         bagContents = game.bag.GetNextBag();
         uniqueTokens = bagContents.Keys.ToList();
         uniqueTokens.Sort((t1, t2) => t1.CompareTo(t2));
-        i = 0;
-        Vector2 miniTilePos = new Vector2(-2.25f, -2.5f);
-        Vector2 miniTileSeparation = new Vector2(0.5f, -0.55f);
-        int miniTilePerRow = 10;
+        float cursor = 0f;
+        int row = 0;
+        Vector2 miniTilePos = new Vector2(-2.5f, -2.5f);
+        Vector2 miniTileSeparation = new Vector2(0.48f, -0.55f);
+        int miniTilePerRow = 12;
         foreach (Logic.TokenData tokenData in uniqueTokens)
         {
+            int count = bagContents[tokenData].x;
+            float countWidth = count >= 10 ? 1.35f : 1f;
+            float pairWidth = 1f + countWidth;
+            if (cursor > 0f && cursor + pairWidth > miniTilePerRow)
+            {
+                cursor = 0f;
+                row++;
+            }
+
             MiniTile token = GameObject.Instantiate(Services.GameController.miniTilePrefab, tokenParent).GetComponent<MiniTile>();
             token.SetTile(tokenData);
             token.gameObject.SetActive(true);
-            Vector2 move = new Vector2(i % miniTilePerRow * miniTileSeparation.x, i / miniTilePerRow * miniTileSeparation.y);
+            Vector2 move = new Vector2(cursor * miniTileSeparation.x, row * miniTileSeparation.y);
             token.transform.position = miniTilePos + move + (Vector2)transform.position;
-            i++;
-            numTokens = i;
+            cursor += 1f;
+            numTokens++;
+
             token = GameObject.Instantiate(Services.GameController.miniTilePrefab, tokenParent).GetComponent<MiniTile>();
-            token.SetTile(new TokenData(Logic.TokenColor.Display, bagContents[tokenData].x));
+            token.SetTile(new TokenData(Logic.TokenColor.Display, count));
             token.gameObject.SetActive(true);
-            move = new Vector2(i % miniTilePerRow * miniTileSeparation.x, i / miniTilePerRow * miniTileSeparation.y);
+            move = new Vector2(cursor * miniTileSeparation.x, row * miniTileSeparation.y);
             token.transform.position = miniTilePos + move + (Vector2)transform.position;
-            i++;
-            numTokens = i;
+            cursor += countWidth;
+            numTokens++;
         }
 
         Debug.Log($"[BagUI] MakeBag end showNext={showNextBag} spawned={tokenParent.childCount} t={Time.time:F3}");

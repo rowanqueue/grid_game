@@ -26,12 +26,7 @@ public class HighScoreDisplay : MonoBehaviour
             return;
         }
 
-        string difficultyLabel = GetDifficultyLabel(difficulty);
         textDisplay.text = place + ".  " + FancyNum(score);
-        if (!string.IsNullOrEmpty(difficultyLabel))
-        {
-            textDisplay.text += "  <size=70%>" + difficultyLabel + "</size>";
-        }
     }
 
     /// <summary>
@@ -45,27 +40,6 @@ public class HighScoreDisplay : MonoBehaviour
         {
             textDisplay.text = "";
         }
-    }
-
-    static string GetDifficultyLabel(int difficultyIndex)
-    {
-        if (Services.GameController == null || Services.GameController.difficultyNames == null)
-        {
-            return string.Empty;
-        }
-        if (difficultyIndex < 0 || difficultyIndex >= Services.GameController.difficultyNames.Count)
-        {
-            return string.Empty;
-        }
-
-        string raw = Services.GameController.difficultyNames[difficultyIndex];
-        if (string.IsNullOrEmpty(raw))
-        {
-            return string.Empty;
-        }
-
-        int br = raw.IndexOf('<');
-        return br >= 0 ? raw.Substring(0, br).Trim() : raw.Trim();
     }
 
     string FancyNum(int num)

@@ -867,7 +867,11 @@ public class Token : MonoBehaviour
         textDisplay.sortingLayerID = spriteDisplay.sortingLayerID;
         if (sortingLayer == "UIToken")
         {
-            shadow.sortingLayerName = sortingLayer;
+            if (shadow != null)
+            {
+                shadow.sortingLayerName = sortingLayer;
+                shadow.enabled = false;
+            }
             if (crunchCircle != null)
             {
                 crunchCircle.sortingLayerName = sortingLayer;
