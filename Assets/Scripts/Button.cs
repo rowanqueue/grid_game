@@ -25,6 +25,7 @@ namespace flora
         public SpriteRenderer toggledDisplay;
         public TextMeshPro words;
         public Color hoverColor;
+        public Color standardColor = Color.white; 
         [SerializeField] float pressScale = 0.95f;
         [SerializeField] float pressDuration = 0.08f;
         bool hover = false;
@@ -54,19 +55,19 @@ namespace flora
                 case ButtonType.DiceMode:
                     if (toggledDisplay != null)
                     {
-                        toggledDisplay.enabled = Services.GameController.diceMode;
+                        toggledDisplay.gameObject.SetActive(Services.GameController.diceMode);
                     }
                     break;
                 case ButtonType.Haptics:
                     if (toggledDisplay != null)
                     {
-                        toggledDisplay.enabled = Services.GameController.useHaptics;
+                        toggledDisplay.gameObject.SetActive(Services.GameController.useHaptics);
                     }
                     break;
                 case ButtonType.FastMode:
                     if (toggledDisplay != null)
                     {
-                        toggledDisplay.enabled = Services.GameController.fastMode;
+                        toggledDisplay.gameObject.SetActive(Services.GameController.fastMode);
                     }
                     break;
                 case ButtonType.StartGame:
@@ -75,13 +76,13 @@ namespace flora
             }
             if (display != null && disabled == false)
             {
-                display.color = (hover ? hoverColor : Color.white);
+                display.color = (hover ? hoverColor : standardColor);
             }
             if (type == ButtonType.Difficulty || type == ButtonType.StartGame)
             {
                 if (toggledDisplay != null)
                 {
-                    toggledDisplay.enabled = !disabled;
+                    toggledDisplay.gameObject.SetActive(!disabled);
                 }
                 if (words != null)
                 {

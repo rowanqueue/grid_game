@@ -25,7 +25,7 @@ public class TreeShadow : MonoBehaviour
     }
     private void Update()
     {
-        noise = Mathf.Lerp(0.75f, 1.1f, Mathf.PerlinNoise1D(Time.time * 0.1f + seed));
+        noise = Mathf.Lerp(0.75f, 1.1f, Mathf.PerlinNoise1D(Time.time * 0.01f + seed));
         input = seed + Time.time * valA;
         output = Mathf.Sin(input) * valB * noise;
         float offsetX = output;
