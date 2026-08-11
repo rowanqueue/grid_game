@@ -62,21 +62,45 @@ namespace Save
         }
         public static Logic.History.Turn Load(int id)
         {
+            Save save = ReadSave(id);
+            if (save == null)
+            {
+                return null;
+            }
+            save.Load();
+            return save.turn;
+        }
+
+        /// <summary>
+        /// Returns the saved turn without applying Save.Load side effects
+        /// (difficulty, flowers, unlocks).
+        /// </summary>
+        public static Logic.History.Turn PeekTurn(int id)
+        {
+            Save save = ReadSave(id);
+            return save?.turn;
+        }
+
+        static Save ReadSave(int id)
+        {
             string path = null;
 #if UNITY_EDITOR
             path = "Assets/Resources/Saves";
 #else
             path = Application.persistentDataPath;
 #endif
-            path += "/Save"+id+".json";
-            string json = System.IO.File.ReadAllText(path);
-            Save save = JsonUtility.FromJson(json, typeof(Save)) as Save;
-            if(save.version != version)
+            path += "/Save" + id + ".json";
+            if (System.IO.File.Exists(path) == false)
             {
                 return null;
             }
-            save.Load();
-            return save.turn;
+            string json = System.IO.File.ReadAllText(path);
+            Save save = JsonUtility.FromJson(json, typeof(Save)) as Save;
+            if (save == null || save.version != version)
+            {
+                return null;
+            }
+            return save;
         }
     }
     [Serializable]
@@ -90,7 +114,10 @@ namespace Save
         public List<string> previousUnlocks = new List<string>();
         public Save(Logic.History.Turn turn)
         {
-            this.difficulty = Services.GameController.difficulty;
+            // Prefer the difficulty the running game was initialized with, not the
+            // settings UI selection (which can change mid-run before a restart).
+            int activeDifficulty = Services.GameController.difficulties.IndexOf(Services.GameController.gameJson);
+            this.difficulty = activeDifficulty >= 0 ? activeDifficulty : Services.GameController.difficulty;
             this.turn = turn;
             foreach(Tile tile in Services.GameController.flowers.Keys)
             {

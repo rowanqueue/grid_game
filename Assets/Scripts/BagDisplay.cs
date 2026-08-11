@@ -2,6 +2,7 @@ using Logic;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 
 public class BagDisplay : MonoBehaviour
@@ -18,6 +19,8 @@ public class BagDisplay : MonoBehaviour
 
     public SpriteRenderer bagSwitchSprite;
 
+    Coroutine emptyBagRoutine;
+
     void Start()
     {
     }
@@ -32,7 +35,6 @@ public class BagDisplay : MonoBehaviour
         if (showNextBag == false) { return; }
         showNextBag = false;
         Services.AudioManager.PlayBagRustleSound();
-        ClearBag();
         MakeBag();
     }
 
@@ -41,28 +43,53 @@ public class BagDisplay : MonoBehaviour
         if (showNextBag == true) { return; }
         showNextBag = true;
         Services.AudioManager.PlayBagRustleSound();
-        ClearBag();
         MakeBag();
     }
 
     public void ClearBag()
     {
+        int count = tokenParent.childCount;
+        StringBuilder childDump = new StringBuilder();
+        List<GameObject> children = new List<GameObject>(count);
         foreach (Transform child in tokenParent)
         {
-            GameObject.Destroy(child.gameObject);
+            children.Add(child.gameObject);
+            childDump.Append($" [{child.name} id={child.GetInstanceID()} active={child.gameObject.activeSelf}]");
+        }
+        Debug.Log($"[BagUI] ClearBag children={count} t={Time.time:F3}{childDump}");
+
+        foreach (GameObject go in children)
+        {
+            go.SetActive(false);
+            GameObject.Destroy(go);
         }
     }
 
     public void ClearBagAfterDelay()
     {
         gameObject.SetActive(true);
-        StartCoroutine(EmptyBag());
+        CancelDelayedClear();
+        emptyBagRoutine = StartCoroutine(EmptyBag());
+        Debug.Log($"[BagUI] ClearBagAfterDelay scheduled children={tokenParent.childCount} t={Time.time:F3}");
+    }
+
+    void CancelDelayedClear()
+    {
+        if (emptyBagRoutine != null)
+        {
+            StopCoroutine(emptyBagRoutine);
+            emptyBagRoutine = null;
+            Debug.Log($"[BagUI] CancelDelayedClear t={Time.time:F3}");
+        }
     }
 
     IEnumerator EmptyBag()
     {
         yield return new WaitForSeconds(1f);
-        if (Services.GameController.gameState != GameState.Bag)
+        emptyBagRoutine = null;
+        bool willClear = Services.GameController.gameState != GameState.Bag;
+        Debug.Log($"[BagUI] EmptyBag willClear={willClear} gameState={Services.GameController.gameState} children={tokenParent.childCount} t={Time.time:F3}");
+        if (willClear)
         {
             ClearBag();
         }
@@ -70,6 +97,12 @@ public class BagDisplay : MonoBehaviour
 
     public void MakeBag()
     {
+        CancelDelayedClear();
+        int staleCount = tokenParent.childCount;
+        string staleTag = staleCount > 0 ? " (STALE)" : "";
+        Debug.Log($"[BagUI] MakeBag start showNext={showNextBag} children={staleCount}{staleTag} t={Time.time:F3}");
+        ClearBag();
+
         Dictionary<Logic.TokenData, Vector2Int> bagContents;
         if (showNextBag)
         {
@@ -112,15 +145,15 @@ public class BagDisplay : MonoBehaviour
         Vector2 realFirstPos = firstGridPos;
         Vector2 realGridSeperation = gridSeparation;
         bool showUsed = true;
-        if (totalUniqueTokens > 7 * 4)
+        if (totalUniqueTokens > 6 * 4)
         {
             showUsed = false;
             totalUniqueTokens -= usedTokens;
         }
         if (totalUniqueTokens > 5 * 4)
         {
-            actualPerRow = 7;
-            realFirstPos.x -= gridSeparation.x * 0.75f;
+            actualPerRow = 6;
+            realFirstPos.x -= gridSeparation.x * 0.26f;
             realGridSeperation.x = 0.85f;
         }
         foreach (Logic.TokenData tokenData in uniqueTokens)
@@ -136,6 +169,7 @@ public class BagDisplay : MonoBehaviour
                 token.Init(new Logic.Token(tokenData, true));
                 token.gameObject.SetActive(true);
                 token.UpdateLayer("UIToken");
+                token.shadow.enabled = false;
                 if (bagContents[tokenData].x > splitter)
                 {
                     token.ShowCrunchedDisplay(bagContents[tokenData].x);
@@ -163,6 +197,7 @@ public class BagDisplay : MonoBehaviour
                     token.Init(new Logic.Token(tokenData, true));
                     token.gameObject.SetActive(true);
                     token.UpdateLayer("UIToken");
+                    token.shadow.enabled = false;
                     if (leftover > splitter)
                     {
                         token.ShowCrunchedDisplay(leftover);
@@ -180,26 +215,39 @@ public class BagDisplay : MonoBehaviour
         bagContents = game.bag.GetNextBag();
         uniqueTokens = bagContents.Keys.ToList();
         uniqueTokens.Sort((t1, t2) => t1.CompareTo(t2));
-        i = 0;
-        Vector2 miniTilePos = new Vector2(-2.25f, -2.5f);
-        Vector2 miniTileSeparation = new Vector2(0.5f, -0.55f);
-        int miniTilePerRow = 10;
+        float cursor = 0f;
+        int row = 0;
+        Vector2 miniTilePos = new Vector2(-2.5f, -2.5f);
+        Vector2 miniTileSeparation = new Vector2(0.48f, -0.55f);
+        int miniTilePerRow = 12;
         foreach (Logic.TokenData tokenData in uniqueTokens)
         {
+            int count = bagContents[tokenData].x;
+            float countWidth = count >= 10 ? 1.35f : 1f;
+            float pairWidth = 1f + countWidth;
+            if (cursor > 0f && cursor + pairWidth > miniTilePerRow)
+            {
+                cursor = 0f;
+                row++;
+            }
+
             MiniTile token = GameObject.Instantiate(Services.GameController.miniTilePrefab, tokenParent).GetComponent<MiniTile>();
             token.SetTile(tokenData);
             token.gameObject.SetActive(true);
-            Vector2 move = new Vector2(i % miniTilePerRow * miniTileSeparation.x, i / miniTilePerRow * miniTileSeparation.y);
+            Vector2 move = new Vector2(cursor * miniTileSeparation.x, row * miniTileSeparation.y);
             token.transform.position = miniTilePos + move + (Vector2)transform.position;
-            i++;
-            numTokens = i;
+            cursor += 1f;
+            numTokens++;
+
             token = GameObject.Instantiate(Services.GameController.miniTilePrefab, tokenParent).GetComponent<MiniTile>();
-            token.SetTile(new TokenData(Logic.TokenColor.Display, bagContents[tokenData].x));
+            token.SetTile(new TokenData(Logic.TokenColor.Display, count));
             token.gameObject.SetActive(true);
-            move = new Vector2(i % miniTilePerRow * miniTileSeparation.x, i / miniTilePerRow * miniTileSeparation.y);
+            move = new Vector2(cursor * miniTileSeparation.x, row * miniTileSeparation.y);
             token.transform.position = miniTilePos + move + (Vector2)transform.position;
-            i++;
-            numTokens = i;
+            cursor += countWidth;
+            numTokens++;
         }
+
+        Debug.Log($"[BagUI] MakeBag end showNext={showNextBag} spawned={tokenParent.childCount} t={Time.time:F3}");
     }
 }

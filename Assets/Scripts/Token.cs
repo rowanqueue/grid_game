@@ -48,7 +48,13 @@ public class Token : MonoBehaviour
     Coroutine wiggleAnim;
 
     bool beingSpaded = false;
+    /// <summary>True while a dug Spade tile is lerping from the board into the hand.</summary>
+    public bool travelingFromSpade = false;
+    int spadeReturnHandIndex = -1;
+    bool loggedSpadeDrawBlock = false;
     bool finishDying = false;
+    bool finishScoreApplied = false;
+    bool finishScoreLabelDone = false;
     public bool lifted = false;
     public bool waitingToDie = false;
     public bool mergeDeathVisualComplete = false;
@@ -392,6 +398,10 @@ public class Token : MonoBehaviour
         if (toolToken.token.data.color == Logic.TokenColor.Spade)
         {
             beingSpaded = true;
+            travelingFromSpade = true;
+            spadeReturnHandIndex = index;
+            loggedSpadeDrawBlock = false;
+            GameLog.Log($"[Spade] ToolAnim: beingSpaded=true travelingFromSpade=true dug={name} id={GetInstanceID()} handIndex={index} pos={transform.position}");
         }
 
         StartCoroutine(ToolUseAnimation(toolToken));
@@ -433,6 +443,8 @@ public class Token : MonoBehaviour
     /// <returns></returns>
     public IEnumerator SpadeUseAnimation(Token tool)
     {
+        GameLog.Log($"[Spade] Dig start dug={name} id={GetInstanceID()} pos={transform.position}");
+
         // Creating new token to display score post shovel
         Token newToken = GameObject.Instantiate(this, transform.parent).GetComponent<Token>();
         newToken.token = token;
@@ -441,6 +453,10 @@ public class Token : MonoBehaviour
         newToken.spriteDisplay.enabled = false;
         newToken.shadow.enabled = false;
         newToken.number.enabled = false;
+        // Score clone must not freeze Draw or keep traveling-from-spade state.
+        newToken.beingSpaded = false;
+        newToken.travelingFromSpade = false;
+        newToken.moving = false;
 
         // Move to tile
         tool.transform.DORotate(Vector3.forward * Spade_StartingRotation, Spade_MoveToTileTime).SetEase(Ease.OutQuint).Play();
@@ -453,12 +469,23 @@ public class Token : MonoBehaviour
         newToken.textDisplay.text = Services.GameController.ScoreToken(token.data).ToString();
         newToken.textDisplay.text = "<size=70%><voffset=0.2em>+</voffset></size>" + newToken.textDisplay.text;
 
-        // spade scoops
+        // spade scoops — start dug-tile lift with the scoop so it isn't late
         Services.AudioManager.PlaySpadeSound();
-        tool.transform.DORotate(Vector3.forward * Spade_EndRotation, Spade_DigTime).SetEase(Ease.InOutSine).Play();
-        yield return tool.transform.DOMove(transform.position + Spade_DigDestination, Spade_DigTime).SetEase(Ease.InOutSine).WaitForCompletion();
+        beingSpaded = false;
+        GameLog.Log($"[Spade] Scoop start: dug-tile lift dug={name} id={GetInstanceID()} pos={transform.position}");
+        StartCoroutine(SpadeDugTileTravelToHand());
 
-        // spade fades away
+        tool.transform.DORotate(Vector3.forward * Spade_EndRotation, Spade_DigTime).SetEase(Ease.InOutSine).Play();
+        tool.transform.DOMove(transform.position + Spade_DigDestination, Spade_DigTime).SetEase(Ease.InOutSine).Play();
+
+        // dirt + flower burst with the scoop (sparkles intentionally unused)
+        newToken.EnsureDeathParticleHierarchyActive();
+        newToken.DetachFlowerBurstForPlay();
+        newToken.dirtParticles.Play();
+        StartCoroutine(newToken.flowerParticles.PlayFlowerBurstCoroutine(0f, Logic.TokenColor.Spade));
+        newToken.StartKillNumber(0.5f);
+
+        // spade fades away while dig finishes
         Sequence dyingSequence = DOTween.Sequence();
         tool.textDisplay.gameObject.SetActive(false);
         dyingSequence.Append(tool.spriteDisplay.DOFade(0f, Spade_DigTime + 0.5f).SetEase(Ease.InCubic));
@@ -466,16 +493,64 @@ public class Token : MonoBehaviour
         dyingSequence.Join(tool.shadow.DOFade(0f, Spade_DigTime + 0.5f).SetEase(Ease.InCubic));
         dyingSequence.Play();
 
-        // dirt + flower burst spawn from new score (sparkles intentionally unused)
-        newToken.EnsureDeathParticleHierarchyActive();
-        newToken.DetachFlowerBurstForPlay();
-        newToken.dirtParticles.Play();
-        StartCoroutine(newToken.flowerParticles.PlayFlowerBurstCoroutine(0f, Logic.TokenColor.Spade));
-
-        // delete new token
-        newToken.StartKillNumber(0.5f);
-        beingSpaded = false;
+        yield return new WaitForSeconds(Spade_DigTime);
         GameObject.Destroy(tool.gameObject);
+    }
+
+    /// <summary>
+    /// Lifts the dug flower off the board, then moves it into the hand/free-slot.
+    /// Uses <see cref="moving"/> so Draw does not fight the animation.
+    /// </summary>
+    IEnumerator SpadeDugTileTravelToHand()
+    {
+        moving = true;
+        travelingFromSpade = true;
+        lifted = true;
+        UpdateLayer("TokenMoving");
+
+        Vector3 liftTarget = transform.position + Vector3.up * liftHeight;
+        GameLog.Log($"[Spade] Lift tween start from={transform.position} to={liftTarget} liftHeight={liftHeight} speed={toolLiftSpeed}");
+        yield return transform.DOMove(liftTarget, toolLiftSpeed).SetEase(Ease.OutCubic).WaitForCompletion();
+        GameLog.Log($"[Spade] Lift tween done pos={transform.position}");
+
+        // Raise sprite while traveling (same hover offset as held tiles).
+        spriteDisplay.transform.localPosition = Vector3.up * 0.5f;
+
+        Vector3 HandTarget()
+        {
+            var gc = Services.GameController;
+            if (spadeReturnHandIndex >= gc.game.hand.handSize)
+            {
+                return gc.freeSlot != null ? gc.freeSlot.transform.position : transform.position;
+            }
+            if (spadeReturnHandIndex >= 0 && spadeReturnHandIndex < gc.handTransforms.Count)
+            {
+                Vector3 p = gc.handTransforms[spadeReturnHandIndex].position;
+                if (gc.game.hand.handSize == 1)
+                {
+                    p.x = 0f;
+                }
+                return p;
+            }
+            return transform.position;
+        }
+
+        Vector3 target = HandTarget();
+        GameLog.Log($"[Spade] Travel to hand start target={target} handIndex={spadeReturnHandIndex}");
+        while (Vector3.Distance(target, transform.position) > 0.05f)
+        {
+            target = HandTarget();
+            transform.position += (target - transform.position) * 0.15f;
+            yield return new WaitForEndOfFrame();
+        }
+
+        transform.position = HandTarget();
+        spriteDisplay.transform.localPosition = Vector3.zero;
+        travelingFromSpade = false;
+        lifted = false;
+        moving = false;
+        UpdateLayer("TokenHand");
+        GameLog.Log($"[Spade] Arrived in hand dug={name} id={GetInstanceID()} pos={transform.position}");
     }
 
     /// <summary>
@@ -596,6 +671,8 @@ public class Token : MonoBehaviour
     public void SetBagUsedAppearance()
     {
         shade.SetActive(false);
+        if (shadow != null)
+            shadow.enabled = false;
         const float fade = 0.45f;
         const float desat = 0.55f;
         spriteDisplay.color = new Color(desat, desat, desat, fade);
@@ -684,6 +761,11 @@ public class Token : MonoBehaviour
         }
         if (beingSpaded)
         {
+            if (!loggedSpadeDrawBlock)
+            {
+                loggedSpadeDrawBlock = true;
+                GameLog.Log($"[Spade] Draw blocked by beingSpaded dug={name} id={GetInstanceID()}");
+            }
             return;
         }
         if (initialized == false)
@@ -705,6 +787,23 @@ public class Token : MonoBehaviour
         shadow.transform.localScale = Vector3.one * Mathf.Lerp(1f, 0.75f, shadow_scale);
 
         transform.position += ((Vector3)pos - transform.position) * followSpeed * (Time.deltaTime / 0.16666f);
+
+        // Spade travel is driven by SpadeDugTileTravelToHand (moving=true); Draw must not clear it early.
+        if (travelingFromSpade && !moving)
+        {
+            float spadeDist = Vector2.Distance(pos, transform.position);
+            if (spadeDist > 0.15f)
+            {
+                lifted = true;
+            }
+            else
+            {
+                travelingFromSpade = false;
+                lifted = false;
+                GameLog.Log($"[Spade] Arrived in hand (Draw settle) dug={name} id={GetInstanceID()}");
+            }
+        }
+
         if (spriteDisplay.sortingLayerName == "TokenPlaced")
         {
             if (Services.GameController.lastTokenPlaced == this && Services.GameController.inputState == InputState.Choose)
@@ -768,7 +867,11 @@ public class Token : MonoBehaviour
         textDisplay.sortingLayerID = spriteDisplay.sortingLayerID;
         if (sortingLayer == "UIToken")
         {
-            shadow.sortingLayerName = sortingLayer;
+            if (shadow != null)
+            {
+                shadow.sortingLayerName = sortingLayer;
+                shadow.enabled = false;
+            }
             if (crunchCircle != null)
             {
                 crunchCircle.sortingLayerName = sortingLayer;
@@ -792,6 +895,8 @@ public class Token : MonoBehaviour
             }
         }
         finishDying = false;
+        finishScoreApplied = false;
+        finishScoreLabelDone = false;
         lifted = false;
         placementAnimating = false;
         placementSettling = true;
@@ -821,7 +926,14 @@ public class Token : MonoBehaviour
     public IEnumerator PlayFinishTileRoutine(FinishTilePacing pacing, bool isLastTile)
     {
         finishDying = true;
-        yield return Dying(null, forFinish: true);
+        finishScoreApplied = false;
+        finishScoreLabelDone = false;
+        if (Services.GameController != null)
+        {
+            Services.GameController.finishLiftsInFlight++;
+        }
+        StartCoroutine(FinishLiftThenDestroy());
+
         float hold = pacing.scoreHoldDuration;
         if (IsGnomeToken)
         {
@@ -831,7 +943,77 @@ public class Token : MonoBehaviour
         {
             hold += lastTileHoldBonus;
         }
-        yield return FinishKillNumber(hold);
+        yield return new WaitForSeconds(hold);
+        ApplyFinishScore();
+    }
+
+    IEnumerator FinishLiftThenDestroy()
+    {
+        yield return Dying(null, forFinish: true);
+        while (!finishScoreApplied)
+        {
+            yield return null;
+        }
+        while (!finishScoreLabelDone)
+        {
+            yield return null;
+        }
+        if (Services.GameController != null)
+        {
+            Services.GameController.finishLiftsInFlight = Mathf.Max(0, Services.GameController.finishLiftsInFlight - 1);
+        }
+        ReleasePlayingDeathParticles();
+        GameObject.Destroy(gameObject);
+    }
+
+    void ApplyFinishScore()
+    {
+        if (finishScoreApplied)
+        {
+            return;
+        }
+        finishScoreApplied = true;
+        // Visual HUD roll only — no score loop (one pop at lift start is the audio beat).
+        if (Services.GameController != null && token != null)
+        {
+            Services.GameController.scoreDelta += Services.GameController.ScoreToken(token.data);
+            if (token.tile != null)
+            {
+                token.tile.token = null;
+            }
+        }
+        StartCoroutine(ShrinkFinishScoreLabel());
+    }
+
+    IEnumerator ShrinkFinishScoreLabel()
+    {
+        // Match KillNumber's disappear for +N. Gnomes leave their reveal image behind.
+        if (IsGnomeToken)
+        {
+            if (textDisplay != null)
+            {
+                GameObject.Destroy(textDisplay.gameObject);
+                textDisplay = null;
+            }
+            finishScoreLabelDone = true;
+            yield break;
+        }
+
+        float speed = liftSpeed;
+        float waitTime = Random.Range(killNumberWaitMin, killNumberWaitMax);
+        yield return new WaitForSeconds(waitTime);
+        Transform scoringVisual = textDisplay != null ? textDisplay.transform : null;
+        while (scoringVisual != null && scoringVisual.localScale.x > 0.2f)
+        {
+            scoringVisual.localScale -= Vector3.one * speed * 0.95f;
+            yield return new WaitForEndOfFrame();
+        }
+        if (textDisplay != null)
+        {
+            GameObject.Destroy(textDisplay.gameObject);
+            textDisplay = null;
+        }
+        finishScoreLabelDone = true;
     }
 
     IEnumerator Wiggle()
@@ -1148,21 +1330,6 @@ public class Token : MonoBehaviour
             $"dirtNull={dirtParticles == null} dirtStillChild={dirtStillChild} " +
             $"dirtPlaying={(dirtParticles != null && dirtParticles.isPlaying)} " +
             $"t={Time.time:F3}\n{UnityEngine.StackTraceUtility.ExtractStackTrace()}");
-    }
-
-    IEnumerator FinishKillNumber(float holdDuration)
-    {
-        yield return new WaitForSeconds(holdDuration);
-        if (Services.GameController.scoreDelta == 0)
-        {
-            Services.GameController.StartScoreRolling();
-        }
-        Services.GameController.scoreDelta += Services.GameController.ScoreToken(token.data);
-        if (token != null && token.tile != null)
-        {
-            token.tile.token = null;
-        }
-        GameObject.Destroy(gameObject);
     }
 
     public void ShowCrunchedDisplay(int num)

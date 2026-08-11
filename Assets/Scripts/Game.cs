@@ -730,16 +730,36 @@ namespace Logic
         }
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-        static TokenData[] BuildDebugTokenCandidates()
+        TokenData[] BuildDebugTokenCandidates(int minNum = 1, int maxNum = -1)
         {
+            int tileCap = (this is TripleGame triple) ? triple.maxTileNum : 8;
+            if (maxNum < 0)
+            {
+                maxNum = tileCap > 0 ? tileCap : 8;
+            }
+            minNum = Mathf.Clamp(minNum, 1, maxNum);
             var list = new List<TokenData>();
-            TokenColor[] colors = { TokenColor.Blue, TokenColor.Red, TokenColor.Green, TokenColor.Purple };
-            for (int n = 1; n <= 3; n++)
+            TokenColor[] colors =
+            {
+                TokenColor.Blue,
+                TokenColor.Red,
+                TokenColor.Green,
+                TokenColor.Purple,
+                TokenColor.Gold
+            };
+            for (int n = minNum; n <= maxNum; n++)
             {
                 foreach (TokenColor color in colors)
                 {
                     list.Add(new TokenData(color, n));
                 }
+            }
+            for (int i = list.Count - 1; i > 0; i--)
+            {
+                int j = UnityEngine.Random.Range(0, i + 1);
+                TokenData tmp = list[i];
+                list[i] = list[j];
+                list[j] = tmp;
             }
             return list.ToArray();
         }
@@ -766,16 +786,25 @@ namespace Logic
             return CountMatchGroupIfPlaced(pos, data) >= GetGroupCollapseNum();
         }
 
-        TokenData PickSafeFillToken(Vector2Int pos)
+        TokenData PickSafeFillToken(Vector2Int pos, TokenData[] candidates = null)
         {
-            foreach (TokenData candidate in BuildDebugTokenCandidates())
+            if (candidates == null)
+            {
+                candidates = BuildDebugTokenCandidates();
+            }
+            List<TokenData> safe = new List<TokenData>();
+            foreach (TokenData candidate in candidates)
             {
                 if (!WouldCreateMatch(pos, candidate))
                 {
-                    return candidate;
+                    safe.Add(candidate);
                 }
             }
-            return new TokenData(TokenColor.Blue, 1);
+            if (safe.Count > 0)
+            {
+                return safe[UnityEngine.Random.Range(0, safe.Count)];
+            }
+            return new TokenData(TokenColor.Blue, Mathf.Max(1, ((this is TripleGame t) ? t.maxTileNum : 8) / 2));
         }
 
         TokenData PickSafeHandToken(Vector2Int emptyPos)
@@ -819,10 +848,13 @@ namespace Logic
             grid.Clear();
             status.events.Clear();
 
-            grid.PlaceToken(leftPos, new Token(new TokenData(TokenColor.Purple, 4), false));
-            grid.PlaceToken(mid, new Token(new TokenData(TokenColor.Purple, 4), false));
-            grid.PlaceToken(rightPos, new Token(new TokenData(TokenColor.Purple, 5), false));
+            int high = (this is TripleGame tripleHigh) && tripleHigh.maxTileNum > 0 ? tripleHigh.maxTileNum : 8;
+            grid.PlaceToken(leftPos, new Token(new TokenData(TokenColor.Purple, Mathf.Max(4, high - 2)), false));
+            grid.PlaceToken(mid, new Token(new TokenData(TokenColor.Gold, Mathf.Max(5, high - 1)), false));
+            grid.PlaceToken(rightPos, new Token(new TokenData(TokenColor.Purple, high), false));
 
+            // Full 1..max spread (shuffled) so finish parade has both small and large +N values.
+            TokenData[] mixedCandidates = BuildDebugTokenCandidates(1, high);
             for (int x = 0; x < gridSize.x; x++)
             {
                 for (int y = 0; y < gridSize.y; y++)
@@ -830,7 +862,7 @@ namespace Logic
                     Vector2Int pos = new Vector2Int(x, y);
                     if (!grid.HasTile(pos)) { continue; }
                     if (pos == leftPos || pos == mid || pos == rightPos || pos == emptyPos) { continue; }
-                    TokenData data = PickSafeFillToken(pos);
+                    TokenData data = PickSafeFillToken(pos, mixedCandidates);
                     grid.PlaceToken(pos, new Token(data, false));
                 }
             }
@@ -839,13 +871,19 @@ namespace Logic
             {
                 hand.tokens[i] = null;
             }
-            hand.tokens[0] = new Token(new TokenData(TokenColor.Clipper, 0), true);
-            hand.tokens[1] = new Token(new TokenData(TokenColor.Blue, 4), true);
-            hand.tokensTaken = 2;
+            hand.tokens[0] = new Token(new TokenData(TokenColor.Green, 1), true);
+            hand.tokensTaken = 1;
+            if (hand.handSize > 1)
+            {
+                hand.tokens[1] = new Token(new TokenData(TokenColor.Clipper, 0), true);
+                hand.tokensTaken = 2;
+            }
             freeSlot = null;
 
             score = 500;
             gridUpdating = false;
+
+            bag.DebugFillLargeBag();
 
             history.turns.Clear();
             history.turns.Add(new History.Turn(this));
@@ -1205,6 +1243,66 @@ namespace Logic
                 bagContents.Add(token, startingBagContents[token]);
             }
         }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        /// <summary>
+        /// Fills the bag with ~60 varied tiles for bag UI testing.
+        /// </summary>
+        public void DebugFillLargeBag()
+        {
+            startingBagContents.Clear();
+            bagContents.Clear();
+            tilesDrawnThisBag.Clear();
+            nextBagsTemporary.Clear();
+            playedTempTiles.Clear();
+
+            const int targetCount = 60;
+            int maxNum = (game is TripleGame triple) && triple.maxTileNum > 0 ? triple.maxTileNum : 8;
+            TokenColor[] colors =
+            {
+                TokenColor.Blue,
+                TokenColor.Red,
+                TokenColor.Green,
+                TokenColor.Purple,
+                TokenColor.Gold
+            };
+
+            List<TokenData> pool = new List<TokenData>();
+            foreach (TokenColor color in colors)
+            {
+                for (int n = 1; n <= maxNum; n++)
+                {
+                    pool.Add(new TokenData(color, n));
+                }
+            }
+            pool.Add(new TokenData(TokenColor.Clipper, 0));
+            pool.Add(new TokenData(TokenColor.Spade, 0));
+            pool.Add(new TokenData(TokenColor.Adder, 0));
+
+            for (int i = pool.Count - 1; i > 0; i--)
+            {
+                int j = UnityEngine.Random.Range(0, i + 1);
+                TokenData tmp = pool[i];
+                pool[i] = pool[j];
+                pool[j] = tmp;
+            }
+
+            int remaining = targetCount;
+            for (int i = 0; i < pool.Count && remaining > 0; i++)
+            {
+                // Prefer 1–3 copies; occasionally go above 4 to exercise crunch display.
+                int maxForType = remaining > 8 && UnityEngine.Random.value < 0.2f ? 6 : 3;
+                int count = Mathf.Min(remaining, UnityEngine.Random.Range(1, maxForType + 1));
+                TokenData data = pool[i];
+                startingBagContents[data] = count;
+                bagContents[data] = count;
+                remaining -= count;
+            }
+
+            RefillBag();
+        }
+#endif
+
         public void AddContents(Dictionary<TokenData, int> newContents,bool loading = false)
         {
             foreach (TokenData tokenData in newContents.Keys)
@@ -2110,6 +2208,12 @@ namespace Logic
                 }
                 //hand
                 game.hand.tokensTaken = tokensTaken;
+                if (game.hand.tokens == null || game.hand.tokens.Length != hand.Count)
+                {
+                    // Save may outlive a difficulty change (e.g. Sage handSize 1 vs prior 4).
+                    game.hand.handSize = hand.Count;
+                    game.hand.tokens = new Token[hand.Count];
+                }
                 for (int i = 0; i < hand.Count; i++)
                 {
                     if (hand[i] == History.nullToken)

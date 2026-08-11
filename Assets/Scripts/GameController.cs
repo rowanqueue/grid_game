@@ -40,6 +40,12 @@ public enum GameState
     Snapshot,
 
 }
+/*
+ * 
+ * todo
+ * 
+ * 
+ */
 public class GameController : MonoBehaviour
 {
     public TextAsset gameJson;
@@ -90,6 +96,8 @@ public class GameController : MonoBehaviour
     //gameplay
     public InputState inputState = InputState.Choose;
     public List<Token> hand = new List<Token>();
+    bool mulliganInProgress;
+    public bool MulliganInProgress => mulliganInProgress;
     public bool draggingTile = false;
     public bool holdingClick = false;
     public float clickHoldDuration;
@@ -105,13 +113,13 @@ public class GameController : MonoBehaviour
     [SerializeField] float tokenWaitMultiplier = 1.5f;
     [SerializeField] float winHoldDuration = 1.2f;
     [Header("Finish Sequence")]
-    [SerializeField] float finishBaseDelay = 0.04f;
-    [SerializeField] float finishDelayPerScore = 0.003f;
+    [SerializeField] float finishBaseDelay = 0.053f;
+    [SerializeField] float finishDelayPerScore = 0.004f;
     [SerializeField] int finishLastTileCount = 3;
     [SerializeField] float finishLastTileSlowdown = 1.6f;
     [SerializeField] int finishFlowerBase = 3;
     [SerializeField] int finishFlowerPerNum = 2;
-    [SerializeField] float finishScoreHoldBase = 0.06f;
+    [SerializeField] float finishScoreHoldBase = 0.08f;
     public float finishLiftSpeedMultiplier = 2f;
     [SerializeField] float cameraPanDuration = 0.45f;
     [SerializeField] float mulliganStaggerSeconds = 0.1f;
@@ -154,9 +162,11 @@ public class GameController : MonoBehaviour
     int scoreBeforeFinish;
     bool finishRoutineRunning;
     bool pendingFinishStart;
+    public int finishLiftsInFlight;
     public bool winScreenAccelerateRequested;
     public bool winScreenShowing;
     public float winScreenAnimSpeed = 1f;
+    bool highScoreOpenedFromWin;
     bool dismissingPopup;
     Vector3 cameraPanStart;
     float cameraPanElapsed = -1f;
@@ -185,6 +195,9 @@ public class GameController : MonoBehaviour
     private List<Vector2Int> undidTiles = new List<Vector2Int>();
     private bool undidSlot = false;
     bool ignoreBagCloseInputThisFrame = false;
+    bool ignoreToolShopCloseInputThisFrame = false;
+    bool ignoreSnapshotDismissThisFrame = false;
+    bool dismissingSnapshot;
     void Awake()
     {
         InitializeServices();
@@ -256,6 +269,7 @@ public class GameController : MonoBehaviour
         Application.targetFrameRate = 60;
         winScreen.SetActive(false);
         EnsureWinScreenDisplay();
+
         switch (whichGame)
         {
             case GameType.Triple:
@@ -265,6 +279,7 @@ public class GameController : MonoBehaviour
                 game = new Logic.BubbleGame();
                 break;
         }
+
         if (PlayerPrefs.HasKey("difficulty") == false)
         {
             PlayerPrefs.SetInt("difficulty", difficulty);
@@ -274,7 +289,14 @@ public class GameController : MonoBehaviour
         {
             difficulty = PlayerPrefs.GetInt("difficulty");
         }
+
+        if(gameState == GameState.Start)
+        {
+            difficulty = 1;
+        }
+
         gameJson = difficulties[difficulty];
+
         Json.Root root = JsonConvert.DeserializeObject<Json.Root>(gameJson.text);
         game.Initialize(root);
 
@@ -321,14 +343,7 @@ public class GameController : MonoBehaviour
         //runTutorial = true;
         if (runTutorial)
         {
-            difficulty = 0;
-            gameJson = difficulties[difficulty];
-            root = JsonConvert.DeserializeObject<Json.Root>(gameJson.text);
-            game.Initialize(root);
-            game.StartTutorial();
-            tutorialHandsDrawn = 1;
-            game.skipAutoHandFillOnEmpty = true;
-            pendingTutorialStart = true;
+            PrepareTutorialSession();
         }
         else
         {
@@ -407,6 +422,26 @@ public class GameController : MonoBehaviour
         {
             BeginTutorialSession();
         }
+    }
+
+    /// <summary>
+    /// Boots a guided tutorial on easy (difficulty 0) rules. Used by first-time/redo Awake
+    /// and when confirming Tutorial from the difficulty picker.
+    /// </summary>
+    public void PrepareTutorialSession()
+    {
+        PlayerPrefs.DeleteKey("tutorialComplete");
+        PlayerPrefs.DeleteKey("greenLearnt");
+        PlayerPrefs.DeleteKey("purpleLearnt");
+        difficulty = 0;
+        gameJson = difficulties[difficulty];
+        Json.Root root = JsonConvert.DeserializeObject<Json.Root>(gameJson.text);
+        game.Initialize(root);
+        game.StartTutorial();
+        tutorialHandsDrawn = 1;
+        game.skipAutoHandFillOnEmpty = true;
+        runTutorial = true;
+        pendingTutorialStart = true;
     }
 
     public void BeginTutorialSession()
@@ -620,17 +655,8 @@ public class GameController : MonoBehaviour
     }
     public void StartNewRun()
     {
-        if (Services.Gems.CanAfford("newGame"))
-        {
-            Services.Gems.SpendGems("newGame");
-            GameStateGameplay();
-        }
-        else
-        {
-            Services.Gems.TooExpensive();
-            GameLog.Log("can't afford a new game");
-        }
-
+        // Seed charge lives in GameStateGameplay's SelectDifficulty path (same as Start).
+        GameStateGameplay();
     }
 
     /// <summary>
@@ -638,7 +664,6 @@ public class GameController : MonoBehaviour
     /// </summary>
     public void GameStateGameplay()
     {
-        bool beginTutorialAfterTransition = pendingTutorialStart;
         if (gameState == GameState.Settings)
         {
             if (lastState == GameState.SelectDifficulty)
@@ -682,11 +707,18 @@ public class GameController : MonoBehaviour
         difficultyParent.SetActive(false);
         if (gameState == GameState.SelectDifficulty && !IsTutorialSession)
         {
-            gameJson = difficulties[difficulty];
-            Json.Root root = JsonConvert.DeserializeObject<Json.Root>(gameJson.text);
-            game.Initialize(root);
-            CreateHand(true);
-            Save();
+            if (difficulty == 0)
+            {
+                PrepareTutorialSession();
+            }
+            else
+            {
+                gameJson = difficulties[difficulty];
+                Json.Root root = JsonConvert.DeserializeObject<Json.Root>(gameJson.text);
+                game.Initialize(root);
+                CreateHand(true);
+                Save();
+            }
         }
         /*if (inTutorial && tutorial.stage == TutorialStage.GreenNextBag)
         {
@@ -703,7 +735,7 @@ public class GameController : MonoBehaviour
         stateScreens[(int)gameState].gameObject.SetActive(true);
         stateScreens[(int)gameState].SetAnchor();
         movingToScreen = true;
-        if (beginTutorialAfterTransition)
+        if (pendingTutorialStart)
         {
             BeginTutorialSession();
         }
@@ -724,6 +756,7 @@ public class GameController : MonoBehaviour
         stateScreens[(int)gameState].gameObject.SetActive(true);
         stateScreens[(int)gameState].SetAnchor();
         movingToScreen = true;
+        RefreshLoadSnapshotPreview();
     }
     public void GameStateSettings()
     {
@@ -741,6 +774,7 @@ public class GameController : MonoBehaviour
     {
         if (inputState == InputState.Finish || inputState == InputState.TapToRestart) { return; }
         if (inTutorial) { return; }
+        if (gameState != GameState.Gameplay) { return; }
         lastState = gameState;
         gameState = GameState.Snapshot;
 
@@ -758,6 +792,7 @@ public class GameController : MonoBehaviour
             GameStateGameplay();
             return;
         }
+        if (gameState != GameState.Gameplay) { return; }
         lastState = gameState;
         gameState = GameState.ToolShop;
 
@@ -766,6 +801,7 @@ public class GameController : MonoBehaviour
         var shop = toolShopScreen ?? stateScreens[(int)gameState].GetComponentInChildren<ToolShopScreen>();
         shop?.OpenScreen();
         movingToScreen = true;
+        ignoreToolShopCloseInputThisFrame = true;
     }
     public void DeactivateToolShopScreen()
     {
@@ -810,17 +846,79 @@ public class GameController : MonoBehaviour
     {
         if (inputState == InputState.Finish || inputState == InputState.TapToRestart) { return; }
         if (inTutorial) { return; }
+        highScoreOpenedFromWin = false;
         lastState = gameState;
         gameState = GameState.HighScore;
-
-        if (HighScoreManager.Instance != null)
-        {
-            HighScoreManager.Instance.RefreshUI();
-        }
 
         stateScreens[(int)gameState].gameObject.SetActive(true);
         stateScreens[(int)gameState].SetAnchor();
         movingToScreen = true;
+
+        if (HighScoreManager.Instance != null)
+        {
+            HighScoreManager.Instance.SetViewDifficulty(difficulty);
+        }
+    }
+
+    public void OpenHighScoresFromWin()
+    {
+        if (inputState != InputState.TapToRestart) { return; }
+
+        highScoreOpenedFromWin = true;
+        if (winScreen != null)
+        {
+            winScreen.SetActive(false);
+        }
+
+        lastState = gameState;
+        gameState = GameState.HighScore;
+
+        stateScreens[(int)gameState].gameObject.SetActive(true);
+        stateScreens[(int)gameState].SetAnchor();
+        movingToScreen = true;
+
+        if (HighScoreManager.Instance != null)
+        {
+            HighScoreManager.Instance.SetViewDifficulty(difficulty);
+        }
+    }
+
+    public void HighScoreBack()
+    {
+        if (highScoreOpenedFromWin)
+        {
+            ReturnToWinFromHighScore();
+            return;
+        }
+        GameStateSettings();
+    }
+
+    void ReturnToWinFromHighScore()
+    {
+        highScoreOpenedFromWin = false;
+        lastState = gameState;
+        gameState = GameState.Gameplay;
+        stateScreens[(int)gameState].gameObject.SetActive(true);
+        stateScreens[(int)gameState].SetAnchor();
+        movingToScreen = true;
+
+        EnsureWinScreenDisplay();
+        if (winScreen != null)
+        {
+            winScreen.SetActive(true);
+        }
+        if (winScreenDisplay != null)
+        {
+            winScreenDisplay.ShowActionButtons();
+        }
+    }
+
+    public void RestartFromWin()
+    {
+        highScoreOpenedFromWin = false;
+        Services.AudioManager.StopMusic();
+        Services.AudioManager.StopScoreLoop();
+        SceneManager.LoadScene(0);
     }
     public void GameStateHelp()
     {
@@ -954,6 +1052,7 @@ public class GameController : MonoBehaviour
         if (movingToScreen) { return; }
         if (gameState == GameState.Bag)
         {
+            Debug.Log($"[BagUI] ToggleBagDisplay close t={Time.time:F3}");
             deckDisplay.ClearBagAfterDelay();
             Services.AudioManager.PlayBagSound();
             GameStateGameplay();
@@ -964,6 +1063,7 @@ public class GameController : MonoBehaviour
             {
                 tutorial.IncrementStage();
             }*/
+            Debug.Log($"[BagUI] ToggleBagDisplay open t={Time.time:F3}");
             deckDisplay.MakeBag();
             GameStateBag();
         }
@@ -1539,7 +1639,7 @@ public class GameController : MonoBehaviour
 
     string FormatWinScreenScore()
     {
-        return "<size=35%>Your score:</size>\n" + score.ToString() + "\n<size=15%><line-height=100%>-Tap to restart-</size>";
+        return "<size=35%>Congratulations!\nYour score:</size>\n" + score.ToString();
     }
 
     float GetFinishStepDelay(Logic.TokenData data, int index, int total)
@@ -1627,6 +1727,7 @@ public class GameController : MonoBehaviour
     IEnumerator FinishBoardRoutine()
     {
         PrepareAllTokensForFinish();
+        finishLiftsInFlight = 0;
 
         List<(Vector2Int pos, Tile tile)> finishTiles = BuildFinishTileOrder();
         int total = finishTiles.Count;
@@ -1660,6 +1761,10 @@ public class GameController : MonoBehaviour
             tile.token = null;
         }
 
+        while (finishLiftsInFlight > 0 || scoreDelta > 0)
+        {
+            yield return null;
+        }
         yield return FlushScoreDeltaImmediate();
         yield return ShowWinScreenSequence();
         finishRoutineRunning = false;
@@ -1696,6 +1801,10 @@ public class GameController : MonoBehaviour
         {
             winScreen.SetActive(true);
             winScreenScore.text = FormatWinScreenScore();
+            if (winScreenDisplay != null)
+            {
+                winScreenDisplay.ShowActionButtons();
+            }
         }
         winScreenShowing = false;
         winScreenAccelerateRequested = false;
@@ -1954,7 +2063,7 @@ public class GameController : MonoBehaviour
         }*/
         if (difficultyUnlocked[difficulty] == false)
         {
-            difficultyName.text += "\nLocked! Earn " + scoreNeededToUnlock[difficulty].ToString() + " in ";
+            difficultyName.text += "\nLocked!\nEarn " + scoreNeededToUnlock[difficulty].ToString() + " in ";
             string actualName = difficultyNames[difficulty - 1].Split('<')[0];
             difficultyName.text += actualName + " to unlock";
         }
@@ -2079,7 +2188,20 @@ public class GameController : MonoBehaviour
                 }
             }
         }
+        if (gameState == GameState.ToolShop)
+        {
+            if (InputHelper.GetPrimaryPressBegan() && !ignoreToolShopCloseInputThisFrame)
+            {
+                var shop = toolShopScreen ?? stateScreens[(int)GameState.ToolShop].GetComponentInChildren<ToolShopScreen>();
+                if (shop == null || !shop.IsPointerOverPanel())
+                {
+                    GameStateGameplay();
+                }
+            }
+        }
         ignoreBagCloseInputThisFrame = false;
+        ignoreToolShopCloseInputThisFrame = false;
+        ignoreSnapshotDismissThisFrame = false;
         if (inputState != InputState.Wait && inputState != InputState.Finish)
         {
             TryFlushDyingTokens();
@@ -2088,13 +2210,10 @@ public class GameController : MonoBehaviour
         switch (inputState)
         {
             case InputState.TapToRestart:
-                if (InputHelper.GetAnyPressBegan())
-                {
-                    Services.AudioManager.StopMusic();
-                    SceneManager.LoadScene(0);
-                }
+                // Restart / High Scores are handled by WinScreen action buttons.
                 break;
             case InputState.Choose:
+                if (gameState != GameState.Gameplay) { break; }
                 chosenIndex = -1;
                 Logic.TokenColor color = Logic.TokenColor.Clipper;
                 //hover
@@ -2181,6 +2300,7 @@ public class GameController : MonoBehaviour
                 break;
             case InputState.Place:
             {
+                if (gameState != GameState.Gameplay) { break; }
                 bool dragDropThisFrame = false;
                 if (holdingClick)
                 {
@@ -2449,28 +2569,33 @@ public class GameController : MonoBehaviour
                             }
                             if (chosenIndex >= game.hand.handSize)
                             {
+                                GameLog.Log($"[Spade] Place dig into freeSlot chosenIndex={chosenIndex} pos={chosenPos}");
                                 game.PlaceTokenBackInHand(chosenIndex, chosenPos);
                                 //GameObject.Destroy(freeSlot.token.gameObject);
                                 tiles[chosenPos].token.ToolAnim(freeSlot.token, chosenIndex);
                                 freeSlot.token = tiles[chosenPos].token;
                                 lastTokenPlaced = null;
                                 freeSlot.token.UpdateLayer("TokenHand");
+                                freeSlot.token.lifted = true;
 
                                 tiles[chosenPos].token = null;
                             }
                             else
                             {
+                                GameLog.Log($"[Spade] Place dig into hand[{chosenIndex}] pos={chosenPos}");
                                 game.PlaceTokenBackInHand(chosenIndex, chosenPos);
                                 lastTokenPlaced = null;
                                 //GameObject.Destroy(hand[chosenIndex].gameObject);
                                 tiles[chosenPos].token.ToolAnim(hand[chosenIndex], chosenIndex);
                                 hand[chosenIndex] = tiles[chosenPos].token;
                                 hand[chosenIndex].UpdateLayer("TokenHand");
+                                hand[chosenIndex].lifted = true;
                                 //hand[chosenIndex].SpadeAnim(chosenIndex);
                                 tiles[chosenPos].token = null;
                             }
                             EnterInputState(InputState.Wait);
                             waiting = 0f;
+                            GameLog.Log($"[Spade] Enter Wait after dig chosenIndex={chosenIndex}");
                             break;
                         }
                         else if (emptyTile)
@@ -2725,10 +2850,13 @@ public class GameController : MonoBehaviour
                 }
                 break;
             case InputState.Snapshot:
-                if (InputHelper.GetAnyPressBegan())
+                if (InputHelper.GetAnyPressBegan()
+                    && !ignoreSnapshotDismissThisFrame
+                    && !dismissingSnapshot
+                    && polaroidDisplay != null
+                    && !polaroidDisplay.IsAnimating)
                 {
-                    StartCoroutine(polaroidDisplay.HideSnapshotRoutine());
-                    EnterInputState(InputState.Choose);
+                    StartCoroutine(DismissSnapshotRoutine());
                 }
                 break;
         }
@@ -2761,7 +2889,7 @@ public class GameController : MonoBehaviour
         if (freeSlot.token)
         {
             bool shouldHover = false;
-            if (!freeSlot.token.IsPlacementAnimating)
+            if (!freeSlot.token.IsPlacementAnimating && !freeSlot.token.travelingFromSpade)
             {
                 freeSlot.token.lifted = false;
             }
@@ -2775,6 +2903,10 @@ public class GameController : MonoBehaviour
                         freeSlot.token.lifted = true;
                     }
                 }
+            }
+            if (freeSlot.token.travelingFromSpade)
+            {
+                freeSlot.token.lifted = true;
             }
             if (shouldHover)
             {
@@ -2798,7 +2930,11 @@ public class GameController : MonoBehaviour
         for (int i = 0; i < hand.Count; i++)
         {
             if (hand[i] == null) { continue; }
-            hand[i].lifted = false;
+            bool spadeTravel = hand[i].travelingFromSpade;
+            if (!spadeTravel)
+            {
+                hand[i].lifted = false;
+            }
             Vector2 pos = handTransforms[i].position;// firstHandPos + (i * handSeparation);
             if (game.hand.handSize == 1)
             {
@@ -2808,6 +2944,10 @@ public class GameController : MonoBehaviour
             {
                 if (inputState == InputState.Choose)
                 {
+                    if (spadeTravel)
+                    {
+                        hand[i].lifted = true;
+                    }
                     hand[i].Draw(pos, true);
                 }
                 else if (inputState == InputState.Place)
@@ -2823,6 +2963,19 @@ public class GameController : MonoBehaviour
                     }
 
                 }
+                else if (spadeTravel
+                    || inputState == InputState.Wait
+                    || inputState == InputState.Popup)
+                {
+                    // Dug Spade tile must keep lerping to hand during Wait/Popup.
+                    hand[i].lifted = true;
+                    hand[i].Draw(pos);
+                }
+            }
+            else if (spadeTravel)
+            {
+                hand[i].lifted = true;
+                hand[i].Draw(pos);
             }
             else
             {
@@ -3005,6 +3158,7 @@ public class GameController : MonoBehaviour
     }
     public void Snapshot()
     {
+        if (gameState != GameState.Gameplay) { return; }
         if (Services.Gems.CanAfford("takeSnapshot") == false)
         {
             return;
@@ -3013,27 +3167,51 @@ public class GameController : MonoBehaviour
         Services.AudioManager.PlaySnapshotSound();
         SaveLoad.Save(1, currentSave);
         snapshotSave = currentSave;
+        ignoreSnapshotDismissThisFrame = true;
         StartCoroutine(polaroidDisplay.ShowSnapshotRoutine(game.grid.tiles));
+        RefreshLoadSnapshotPreview();
         inputState = InputState.Snapshot;
         GameStateGameplay();
     }
+
+    void RefreshLoadSnapshotPreview()
+    {
+        if (loadSnapshotButton == null)
+        {
+            return;
+        }
+        PolaroidDisplay preview = loadSnapshotButton.GetComponentInChildren<PolaroidDisplay>(true);
+        if (preview != null)
+        {
+            preview.RefreshStaticPreview();
+        }
+    }
+
+    IEnumerator DismissSnapshotRoutine()
+    {
+        if (dismissingSnapshot || polaroidDisplay == null)
+            yield break;
+
+        dismissingSnapshot = true;
+        yield return polaroidDisplay.HideSnapshotRoutine();
+        dismissingSnapshot = false;
+        EnterInputState(InputState.Choose);
+    }
     public void LoadSnapshot()
     {
+        if (SaveLoad.HasSave(1))
+        {
+            snapshotSave = SaveLoad.Load(1);
+        }
+        if (snapshotSave == null) { return; }
+
         if (Services.Gems.CanAfford("newGame") == false)
         {
             Services.Gems.TooExpensive();
             return;
         }
         Services.Gems.SpendGems("newGame");
-        Logic.History.Turn _save = null;
-        if (SaveLoad.HasSave(1))
-        {
-            //gameState = GameState.Gameplay;
-            _save = SaveLoad.Load(1);
-            //gameState = GameState.Snapshot;
-            snapshotSave = _save;
-        }
-        if (snapshotSave == null) { return; }
+
         game.LoadTurn(snapshotSave);
         score = game.score;
         scoreDelta = 0;
@@ -3041,7 +3219,27 @@ public class GameController : MonoBehaviour
         CreateHand();
         ClearTokensFromGrid();
         LoadTokensIntoGrid();
-        GameStateGameplay();
+        EnterGameplayFromLoadedSnapshot();
+    }
+
+    /// <summary>
+    /// Transition into gameplay after a snapshot is already applied.
+    /// Skips SelectDifficulty seed charge and fresh Initialize (unlike GameStateGameplay).
+    /// </summary>
+    void EnterGameplayFromLoadedSnapshot()
+    {
+        difficultyParent.SetActive(false);
+        if (gameState == GameState.Gameplay) { return; }
+        if (gameState == GameState.ToolShop)
+        {
+            var shop = toolShopScreen ?? stateScreens[(int)GameState.ToolShop].GetComponentInChildren<ToolShopScreen>();
+            shop?.CloseScreen();
+        }
+        lastState = gameState;
+        gameState = GameState.Gameplay;
+        stateScreens[(int)gameState].gameObject.SetActive(true);
+        stateScreens[(int)gameState].SetAnchor();
+        movingToScreen = true;
     }
     public void Save()
     {
@@ -3080,27 +3278,39 @@ public class GameController : MonoBehaviour
     public void Mulligan()
     {
         if (inTutorial) { return; }
+        if (gameState != GameState.Gameplay) { return; }
+        if (inputState != InputState.Choose) { return; }
+        if (mulliganInProgress) { return; }
+        if (game.mulliganUsesRemaining <= 0) { return; }
         //put back rest of hand and draw 4 more
+        mulliganInProgress = true;
         game.Mulligan();
         StartCoroutine(MulliganAnim());
     }
 
     public IEnumerator MulliganAnim()
     {
-        for (int i = 0; i < hand.Count; i++)
+        try
         {
-            if (hand[i] == null) { continue; }
-            hand[i].PlaceInBag();
-            yield return new WaitForSeconds(mulliganStaggerSeconds);
-            hand[i] = null;
-        }
-        yield return new WaitForSeconds(mulliganPauseBeforeDraw);
+            for (int i = 0; i < hand.Count; i++)
+            {
+                if (hand[i] == null) { continue; }
+                hand[i].PlaceInBag();
+                yield return new WaitForSeconds(mulliganStaggerSeconds);
+                hand[i] = null;
+            }
+            yield return new WaitForSeconds(mulliganPauseBeforeDraw);
 
-        CreateHand(true);
-        Services.AudioManager.PlayUndoSound();
-        if (!inTutorial)
+            CreateHand(true);
+            Services.AudioManager.PlayUndoSound();
+            if (!inTutorial)
+            {
+                Save();
+            }
+        }
+        finally
         {
-            Save();
+            mulliganInProgress = false;
         }
     }
 

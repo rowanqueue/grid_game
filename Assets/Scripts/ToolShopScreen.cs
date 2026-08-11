@@ -15,12 +15,19 @@ public class ToolShopScreen : MonoBehaviour
     public float slideInDuration = 0.35f;
     [Tooltip("Duration of the slide-out animation in seconds.")]
     public float slideOutDuration = 0.55f;
+    [Tooltip("Collider covering the shop panel; clicks inside do not dismiss the shop.")]
+    public Collider2D panelCollider;
 
     Vector3 restPosition;
     bool restPositionValid;
     Coroutine slideCoroutine;
 
     public bool IsAnimating => slideCoroutine != null;
+
+    public bool IsPointerOverPanel()
+    {
+        return InputHelper.IsPointerOverCollider(panelCollider);
+    }
 
     private void Start()
     {

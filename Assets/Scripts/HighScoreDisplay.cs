@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
@@ -8,26 +6,27 @@ public class HighScoreDisplay : MonoBehaviour
     public TextMeshPro textDisplay;
     public int place;
     public int score;
-    int spaces = 25;
-    public void Start()
+    public int difficulty;
+
+    void Awake()
     {
-        SetScore(score);
+        // Text is owned by HighScoreManager.RefreshUI; leave blank until then.
+        if (textDisplay != null && score == 0)
+        {
+            textDisplay.text = "";
+        }
     }
 
-    public void SetScore(int newScore)
+    public void SetScore(int newScore, int newDifficulty = 0)
     {
         score = newScore;
-        int sofar = spaces;
-        textDisplay.text = "<mspace=0em>";
-        textDisplay.text += place.ToString() + ".";
-        sofar -= place.ToString().Length + 1;
-        string num = FancyNum(score);
-        sofar -= num.Length;
-        for(int i = 0; i < sofar; i++)
+        difficulty = newDifficulty;
+        if (textDisplay == null)
         {
-            textDisplay.text += " ";
+            return;
         }
-        textDisplay.text += num;
+
+        textDisplay.text = place + ".  " + FancyNum(score);
     }
 
     /// <summary>
@@ -35,6 +34,8 @@ public class HighScoreDisplay : MonoBehaviour
     /// </summary>
     public void SetEmpty()
     {
+        score = 0;
+        difficulty = 0;
         if (textDisplay != null)
         {
             textDisplay.text = "";
@@ -43,20 +44,6 @@ public class HighScoreDisplay : MonoBehaviour
 
     string FancyNum(int num)
     {
-        string s = string.Empty;
-        string _number = num.ToString("N0");
-        for (int i = 0; i < _number.Length; i++)
-        {
-            if (i < _number.Length - 1 && _number[i + 1] == ',')
-            {
-                //s += "<cspace=-0.2em>";
-            }
-            s += _number[i];
-            if (i > 0 && _number[i - 1] == ',')
-            {
-                //s += "</cspace>";
-            }
-        }
-        return s;
+        return num.ToString("N0");
     }
 }
