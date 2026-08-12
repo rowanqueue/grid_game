@@ -1,11 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class ToolShopScreen : MonoBehaviour
 {
     List<Token> tokensToBuy = new List<Token>();
-    public List<Transform> handTransforms = new List<Transform>();
+    public List<Transform> handTransforms = new List<Transform>(); 
 
     [Tooltip("Transform to slide in from the edge. If null, uses this object.")]
     public Transform slideRoot;
@@ -52,6 +53,7 @@ public class ToolShopScreen : MonoBehaviour
             tokensToBuy.Add(token);
             tokensToBuy[i].Init(token.token);
             tokensToBuy[i].UpdateLayer("UIToken");
+            tokensToBuy[i].EnableDisplayShadow();
             tokensToBuy[i].transform.position = handTransforms[i].position;
         }
     }
