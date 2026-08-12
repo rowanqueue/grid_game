@@ -116,50 +116,25 @@ public class BagDisplay : MonoBehaviour
         List<TokenData> uniqueTokens = bagContents.Keys.ToList();
         uniqueTokens.Sort((t1, t2) => t1.CompareTo(t2));
         int i = 0;
-        int splitter = 4;
-        int totalUniqueTokens = 0;
-        int usedTokens = 0;
-        foreach (Logic.TokenData tokenData in uniqueTokens)
-        {
-            if (bagContents[tokenData].x > splitter)
-            {
-                totalUniqueTokens += 1;
-            }
-            else
-            {
-                totalUniqueTokens += bagContents[tokenData].x;
-            }
-            int leftover = bagContents[tokenData].y - bagContents[tokenData].x;
-            if (leftover > splitter)
-            {
-                totalUniqueTokens += 1;
-                usedTokens += 1;
-            }
-            else
-            {
-                totalUniqueTokens += leftover;
-                usedTokens += leftover;
-            }
-        }
-        int actualPerRow = perRow;
-        Vector2 realFirstPos = firstGridPos;
-        Vector2 realGridSeperation = gridSeparation;
+        const int usedSplitter = 2;
+        int remainingSplitter = 4;
+        int maxSlots = perRow * 4;
         bool showUsed = true;
-        if (totalUniqueTokens > 6 * 4)
+
+        while (CountBagDisplaySlots(bagContents, uniqueTokens, remainingSplitter, usedSplitter, showUsed) > maxSlots
+               && remainingSplitter > 2)
+        {
+            remainingSplitter--;
+        }
+        if (CountBagDisplaySlots(bagContents, uniqueTokens, remainingSplitter, usedSplitter, showUsed) > maxSlots)
         {
             showUsed = false;
-            totalUniqueTokens -= usedTokens;
         }
-        if (totalUniqueTokens > 5 * 4)
-        {
-            actualPerRow = 6;
-            realFirstPos.x -= gridSeparation.x * 0.26f;
-            realGridSeperation.x = 0.85f;
-        }
+
         foreach (Logic.TokenData tokenData in uniqueTokens)
         {
             int amountTokens = bagContents[tokenData].x;
-            if (amountTokens > splitter)
+            if (amountTokens > remainingSplitter)
             {
                 amountTokens = 1;
             }
@@ -170,13 +145,13 @@ public class BagDisplay : MonoBehaviour
                 token.gameObject.SetActive(true);
                 token.UpdateLayer("UIToken");
                 token.shadow.enabled = false;
-                if (bagContents[tokenData].x > splitter)
+                if (bagContents[tokenData].x > remainingSplitter)
                 {
                     token.ShowCrunchedDisplay(bagContents[tokenData].x);
                 }
-                Vector2 move = new Vector2(i % actualPerRow * realGridSeperation.x, i / actualPerRow * realGridSeperation.y);
-                token.Draw(realFirstPos + move + (Vector2)transform.position);
-                token.transform.position = realFirstPos + move + (Vector2)transform.position;
+                Vector2 move = new Vector2(i % perRow * gridSeparation.x, i / perRow * gridSeparation.y);
+                token.Draw(firstGridPos + move + (Vector2)transform.position);
+                token.transform.position = firstGridPos + move + (Vector2)transform.position;
                 i++;
                 numTokens = i;
             }
@@ -187,7 +162,7 @@ public class BagDisplay : MonoBehaviour
             {
                 int leftover = bagContents[tokenData].y - bagContents[tokenData].x;
                 int amountTokens = leftover;
-                if (amountTokens > splitter)
+                if (amountTokens > usedSplitter)
                 {
                     amountTokens = 1;
                 }
@@ -198,14 +173,14 @@ public class BagDisplay : MonoBehaviour
                     token.gameObject.SetActive(true);
                     token.UpdateLayer("UIToken");
                     token.shadow.enabled = false;
-                    if (leftover > splitter)
+                    if (leftover > usedSplitter)
                     {
                         token.ShowCrunchedDisplay(leftover);
                     }
                     token.SetBagUsedAppearance();
-                    Vector2 move = new Vector2(i % actualPerRow * realGridSeperation.x, i / actualPerRow * realGridSeperation.y);
-                    token.Draw(realFirstPos + move + (Vector2)transform.position);
-                    token.transform.position = realFirstPos + move + (Vector2)transform.position;
+                    Vector2 move = new Vector2(i % perRow * gridSeparation.x, i / perRow * gridSeparation.y);
+                    token.Draw(firstGridPos + move + (Vector2)transform.position);
+                    token.transform.position = firstGridPos + move + (Vector2)transform.position;
                     i++;
                     numTokens = i;
                 }
@@ -218,12 +193,12 @@ public class BagDisplay : MonoBehaviour
         float cursor = 0f;
         int row = 0;
         Vector2 miniTilePos = new Vector2(-2.5f, -2.5f);
-        Vector2 miniTileSeparation = new Vector2(0.48f, -0.55f);
-        int miniTilePerRow = 12;
+        Vector2 miniTileSeparation = new Vector2(0.40f, -0.55f);
+        int miniTilePerRow = 15;
+        const float countWidth = 1f;
         foreach (Logic.TokenData tokenData in uniqueTokens)
         {
             int count = bagContents[tokenData].x;
-            float countWidth = count >= 10 ? 1.35f : 1f;
             float pairWidth = 1f + countWidth;
             if (cursor > 0f && cursor + pairWidth > miniTilePerRow)
             {
@@ -249,5 +224,34 @@ public class BagDisplay : MonoBehaviour
         }
 
         Debug.Log($"[BagUI] MakeBag end showNext={showNextBag} spawned={tokenParent.childCount} t={Time.time:F3}");
+    }
+
+    static int SlotsForCount(int count, int splitter)
+    {
+        if (count <= 0)
+        {
+            return 0;
+        }
+        return count > splitter ? 1 : count;
+    }
+
+    static int CountBagDisplaySlots(
+        Dictionary<TokenData, Vector2Int> bagContents,
+        List<TokenData> uniqueTokens,
+        int remainingSplitter,
+        int usedSplitter,
+        bool includeUsed)
+    {
+        int slots = 0;
+        foreach (TokenData tokenData in uniqueTokens)
+        {
+            slots += SlotsForCount(bagContents[tokenData].x, remainingSplitter);
+            if (includeUsed)
+            {
+                int leftover = bagContents[tokenData].y - bagContents[tokenData].x;
+                slots += SlotsForCount(leftover, usedSplitter);
+            }
+        }
+        return slots;
     }
 }

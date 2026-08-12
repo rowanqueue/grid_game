@@ -42,7 +42,8 @@ public class MiniTile : MonoBehaviour
             edgeColor.enabled = false;
             number.text = "<size=35%>x</size><u>" + number.text + "</u>";
             number.enableWordWrapping = false;
-            number.rectTransform.sizeDelta = new Vector2(1.25f, 1f);
+            number.overflowMode = TextOverflowModes.Overflow;
+            number.rectTransform.sizeDelta = new Vector2(1f, 1f);
         }
 
     }
