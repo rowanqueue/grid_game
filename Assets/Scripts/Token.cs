@@ -68,6 +68,7 @@ public class Token : MonoBehaviour
     [Header("Spade Tool Animation Values")]
     [SerializeField] private float Spade_MoveToTileTime = 0.5f;
     [SerializeField] private float Spade_DigTime = 0.5f;
+    [SerializeField] private float Spade_FadeTime = 0.35f;
     [SerializeField] private Vector3 Spade_PositionOffset = new Vector3(0f, -0.5f, 0f);
     [SerializeField] private Vector3 Spade_DigDestination = new Vector3(0f, -0.5f, 0f);
     [SerializeField] private float Spade_StartingRotation = 30f;
@@ -462,13 +463,6 @@ public class Token : MonoBehaviour
         tool.transform.DORotate(Vector3.forward * Spade_StartingRotation, Spade_MoveToTileTime).SetEase(Ease.OutQuint).Play();
         yield return tool.transform.DOMove(transform.position + Spade_PositionOffset, Spade_MoveToTileTime).SetEase(Ease.OutQuint).WaitForCompletion();
 
-        // Show text
-        newToken.textDisplay.gameObject.SetActive(true);
-        newToken.textDisplay.transform.parent = transform.parent;
-        newToken.textDisplay.transform.localScale = Vector3.one * 1.4f;
-        newToken.textDisplay.text = Services.GameController.ScoreToken(token.data).ToString();
-        newToken.textDisplay.text = "<size=70%><voffset=0.2em>+</voffset></size>" + newToken.textDisplay.text;
-
         // spade scoops — start dug-tile lift with the scoop so it isn't late
         Services.AudioManager.PlaySpadeSound();
         beingSpaded = false;
@@ -478,22 +472,23 @@ public class Token : MonoBehaviour
         tool.transform.DORotate(Vector3.forward * Spade_EndRotation, Spade_DigTime).SetEase(Ease.InOutSine).Play();
         tool.transform.DOMove(transform.position + Spade_DigDestination, Spade_DigTime).SetEase(Ease.InOutSine).Play();
 
-        // dirt + flower burst with the scoop (sparkles intentionally unused)
+        // dirt + flower burst with the scoop (sparkles intentionally unused).
+        // EnsureDeathParticleHierarchyActive disables TMP; ShowDeathScoreLabel turns +N back on.
         newToken.EnsureDeathParticleHierarchyActive();
         newToken.DetachFlowerBurstForPlay();
         newToken.dirtParticles.Play();
         StartCoroutine(newToken.flowerParticles.PlayFlowerBurstCoroutine(0f, Logic.TokenColor.Spade));
+        newToken.textDisplay.transform.SetParent(transform.parent, true);
+        newToken.ShowDeathScoreLabel();
         newToken.StartKillNumber(0.5f);
 
-        // spade fades away while dig finishes
+        // spade fades away while dig finishes — wait for full fade before destroy
         Sequence dyingSequence = DOTween.Sequence();
         tool.textDisplay.gameObject.SetActive(false);
-        dyingSequence.Append(tool.spriteDisplay.DOFade(0f, Spade_DigTime + 0.5f).SetEase(Ease.InCubic));
-        dyingSequence.Join(tool.number.DOFade(0f, Spade_DigTime + 0.5f).SetEase(Ease.InCubic));
-        dyingSequence.Join(tool.shadow.DOFade(0f, Spade_DigTime + 0.5f).SetEase(Ease.InCubic));
-        dyingSequence.Play();
-
-        yield return new WaitForSeconds(Spade_DigTime);
+        dyingSequence.Append(tool.spriteDisplay.DOFade(0f, Spade_FadeTime).SetEase(Ease.InCubic));
+        dyingSequence.Join(tool.number.DOFade(0f, Spade_FadeTime).SetEase(Ease.InCubic));
+        dyingSequence.Join(tool.shadow.DOFade(0f, Spade_FadeTime).SetEase(Ease.InCubic));
+        yield return dyingSequence.WaitForCompletion();
         GameObject.Destroy(tool.gameObject);
     }
 
@@ -545,7 +540,7 @@ public class Token : MonoBehaviour
         }
 
         transform.position = HandTarget();
-        spriteDisplay.transform.localPosition = Vector3.zero;
+        // Leave sprite hover offset; Draw lerps it down when lifted=false (avoids snap).
         travelingFromSpade = false;
         lifted = false;
         moving = false;
