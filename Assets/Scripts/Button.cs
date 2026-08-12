@@ -22,12 +22,15 @@ namespace flora
         public ButtonType type;
         public UnityEvent _event;
         public SpriteRenderer display;
+        public SpriteRenderer displayDropShadow;
         public SpriteRenderer toggledDisplay;
         public TextMeshPro words;
         public Color hoverColor;
         public Color standardColor = Color.white; 
         [SerializeField] float pressScale = 0.95f;
         [SerializeField] float pressDuration = 0.08f;
+        [SerializeField] bool changeSortingOrderInTutorial = false;
+        [SerializeField] string tutorialSortingLayer;
         bool hover = false;
         public bool disabled = false;
         [Tooltip("If true, this button can be pressed while the tool shop is open.")]
@@ -37,10 +40,27 @@ namespace flora
         Vector3 baseScale;
         Coroutine pressRoutine;
         GemCostLabel[] costLabels;
+        private int baseSortingLayerID;
+        private int tutorialSortingLayerID;
 
         void Start()
         {
+            if (changeSortingOrderInTutorial)
+            {
+                if (display != null)
+                {
+                    baseSortingLayerID = display.sortingLayerID;
+                }
+                else
+                {
+                    baseSortingLayerID = SortingLayer.NameToID("Default");
+                }
+
+                tutorialSortingLayerID = SortingLayer.NameToID(tutorialSortingLayer);
+            }
+            
             baseScale = transform.localScale;
+
             if (type == ButtonType.StartGame)
             {
                 costLabels = GetComponentsInChildren<GemCostLabel>(true);
@@ -49,6 +69,38 @@ namespace flora
 
         void Update()
         {
+            if (Services.GameController.inTutorial && changeSortingOrderInTutorial)
+            {
+                if (display != null)
+                {
+                    display.sortingLayerID = tutorialSortingLayerID;
+                }
+
+                if (displayDropShadow != null)
+                {
+                    displayDropShadow.sortingLayerID = tutorialSortingLayerID;
+                }
+                if (words != null)
+                {
+                    words.sortingLayerID = tutorialSortingLayerID;
+                }
+            }
+            else if (changeSortingOrderInTutorial)
+            {
+                if (display != null)
+                {
+                    display.sortingLayerID = baseSortingLayerID;
+                }
+                if (displayDropShadow != null)
+                {
+                    displayDropShadow.sortingLayerID = baseSortingLayerID;
+                }
+                if (words != null)
+                {
+                    words.sortingLayerID = baseSortingLayerID;
+                }
+            }
+
             switch (type)
             {
                 case ButtonType.Mulligan:

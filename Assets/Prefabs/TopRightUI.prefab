@@ -32,7 +32,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2020760110331791336}
-  - {fileID: 5405951566745975723}
   m_Father: {fileID: 3546795605185898949}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8867681669595900535
@@ -76,13 +75,18 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
   display: {fileID: 8464569984703216689}
+  displayDropShadow: {fileID: 6606698102198757122}
   toggledDisplay: {fileID: 0}
   words: {fileID: 0}
   hoverColor: {r: 0.7529412, g: 0.7529412, b: 0.7529412, a: 1}
   standardColor: {r: 1, g: 1, b: 1, a: 1}
   pressScale: 0.95
   pressDuration: 0.08
+  changeSortingOrderInTutorial: 1
+  tutorialSortingLayer: Tile
   disabled: 0
+  allowDuringToolShop: 0
+  hideWhenDisabled: []
 --- !u!61 &3374931842516078314
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -139,7 +143,7 @@ GameObject:
   - component: {fileID: 5405951566745975723}
   - component: {fileID: 6606698102198757122}
   m_Layer: 0
-  m_Name: 9-Sliced (1)
+  m_Name: Dropshadow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -153,12 +157,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1085820783852617330}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.05, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.04999969, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 89741989589175413}
+  m_Father: {fileID: 2020760110331791336}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &6606698102198757122
 SpriteRenderer:
@@ -198,8 +202,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: -866524337
-  m_SortingLayer: 5
+  m_SortingLayerID: 607463127
+  m_SortingLayer: 6
   m_SortingOrder: -1
   m_Sprite: {fileID: 21300000, guid: effe80f0630294f60b27a5beb5198500, type: 3}
   m_Color: {r: 0.031026991, g: 0.35202888, b: 0.437, a: 0.74509805}
@@ -223,7 +227,7 @@ GameObject:
   - component: {fileID: 4571742558065820222}
   - component: {fileID: 4842606386133214099}
   m_Layer: 0
-  m_Name: 9-Sliced (1)
+  m_Name: Dropshadow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -237,12 +241,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1533364471110238942}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.05, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.050000258, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 8492008655117136047}
+  m_Father: {fileID: 7692334711782142090}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &4842606386133214099
 SpriteRenderer:
@@ -282,9 +286,9 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: -866524337
-  m_SortingLayer: 5
-  m_SortingOrder: -1
+  m_SortingLayerID: 607463127
+  m_SortingLayer: 6
+  m_SortingOrder: -2
   m_Sprite: {fileID: 21300000, guid: 3f9e293e6d8944a648d32aad366bbd66, type: 3}
   m_Color: {r: 0.03137255, g: 0.3529412, b: 0.43529412, a: 0.6313726}
   m_FlipX: 0
@@ -328,7 +332,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7706183421780511711}
-  - {fileID: 5873209898305985523}
   m_Father: {fileID: 3546795605185898949}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2353646598765792058
@@ -384,13 +387,18 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
   display: {fileID: 9008082996841942326}
+  displayDropShadow: {fileID: 2661175743942012155}
   toggledDisplay: {fileID: 0}
   words: {fileID: 0}
   hoverColor: {r: 0.7529412, g: 0.7529412, b: 0.7529412, a: 1}
   standardColor: {r: 1, g: 0.9019608, b: 0.7607843, a: 1}
   pressScale: 0.95
   pressDuration: 0.08
+  changeSortingOrderInTutorial: 1
+  tutorialSortingLayer: Tile
   disabled: 0
+  allowDuringToolShop: 0
+  hideWhenDisabled: []
 --- !u!61 &7648699660939202416
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -465,7 +473,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 5873209898305985523}
   m_Father: {fileID: 4905840702402120670}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &9008082996841942326
@@ -506,11 +515,11 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: -866524337
-  m_SortingLayer: 5
-  m_SortingOrder: 0
+  m_SortingLayerID: 607463127
+  m_SortingLayer: 6
+  m_SortingOrder: 6
   m_Sprite: {fileID: 21300000, guid: 9790af401a507314285064eee8b897cc, type: 3}
-  m_Color: {r: 1, g: 0.99607843, b: 0.88235295, a: 1}
+  m_Color: {r: 1, g: 0.9023294, b: 0.759434, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -549,7 +558,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 5405951566745975723}
   m_Father: {fileID: 89741989589175413}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &8464569984703216689
@@ -590,8 +600,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: -866524337
-  m_SortingLayer: 5
+  m_SortingLayerID: 607463127
+  m_SortingLayer: 6
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: effe80f0630294f60b27a5beb5198500, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -615,7 +625,7 @@ GameObject:
   - component: {fileID: 5873209898305985523}
   - component: {fileID: 2661175743942012155}
   m_Layer: 0
-  m_Name: 9-Sliced (1)
+  m_Name: Dropshadow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -629,12 +639,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6553353339851570454}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.05, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.049999896, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 4905840702402120670}
+  m_Father: {fileID: 7706183421780511711}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &2661175743942012155
 SpriteRenderer:
@@ -674,9 +684,9 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: -866524337
-  m_SortingLayer: 5
-  m_SortingOrder: -1
+  m_SortingLayerID: 607463127
+  m_SortingLayer: 6
+  m_SortingOrder: 5
   m_Sprite: {fileID: 21300000, guid: 459eed1a56b87fb429574a56bd8ab2ce, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -717,7 +727,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 4571742558065820222}
   m_Father: {fileID: 8492008655117136047}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &6427938711117619659
@@ -758,9 +769,9 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: -866524337
-  m_SortingLayer: 5
-  m_SortingOrder: 0
+  m_SortingLayerID: 607463127
+  m_SortingLayer: 6
+  m_SortingOrder: -1
   m_Sprite: {fileID: 21300000, guid: 3f9e293e6d8944a648d32aad366bbd66, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -822,7 +833,7 @@ MonoBehaviour:
   executeInUpdate: 1
   moved: 1
   anchorType: 14
-  anchorOffset: {x: -0.3, y: -0.5, z: 0}
+  anchorOffset: {x: -0.3, y: -0.04, z: 0}
 --- !u!1 &7696419808433623704
 GameObject:
   m_ObjectHideFlags: 0
@@ -855,7 +866,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7692334711782142090}
-  - {fileID: 4571742558065820222}
   m_Father: {fileID: 3546795605185898949}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &502275031765782959
@@ -911,14 +921,18 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
   display: {fileID: 6427938711117619659}
+  displayDropShadow: {fileID: 4842606386133214099}
   toggledDisplay: {fileID: 0}
   words: {fileID: 0}
   hoverColor: {r: 0.7529412, g: 0.7529412, b: 0.7529412, a: 1}
   standardColor: {r: 1, g: 1, b: 1, a: 1}
   pressScale: 0.95
   pressDuration: 0.08
+  changeSortingOrderInTutorial: 1
+  tutorialSortingLayer: Tile
   disabled: 0
   allowDuringToolShop: 1
+  hideWhenDisabled: []
 --- !u!61 &6301826794048523677
 BoxCollider2D:
   m_ObjectHideFlags: 0
