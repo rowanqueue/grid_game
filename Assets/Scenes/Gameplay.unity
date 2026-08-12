@@ -14963,17 +14963,19 @@ MonoBehaviour:
   gameJson: {fileID: 4900000, guid: 1776d1bcb3aa2bd4f8a3a2d2c9e7f094, type: 3}
   difficulty: 0
   difficulties:
+  - {fileID: 4900000, guid: 30b61fdc0c64f1748a12d4349cec59fb, type: 3}
   - {fileID: 4900000, guid: 3acfbc046927bc64a9fed71304496b9a, type: 3}
   - {fileID: 4900000, guid: 5d6bf615c24b5d74dba90f77d3ab4799, type: 3}
   - {fileID: 4900000, guid: 29cd649d961053c4aac8d73425d7a8c9, type: 3}
   - {fileID: 4900000, guid: d96b59efe9b449646a7fc4e35c874a5c, type: 3}
   difficultyNames:
+  - Tutorial<br><size=50%>Redo the Tutorial
   - Novice<br><size=50%>Permanent spade
   - Intermediate<br><size=50%>No new permanent tiles, only upgrades
   - Master<br><size=50%>Gnomes!
   - Sage<br><size=50%>Single Tile Hand
-  difficultyUnlocked: 01000000
-  scoreNeededToUnlock: 00000000f4010000e8030000dc050000
+  difficultyUnlocked: 0101000000
+  scoreNeededToUnlock: 0000000000000000f4010000e8030000dc050000
   difficultyName: {fileID: 5279165537954978552}
   difficultyButtons:
   - {fileID: 4254495646806523887}
