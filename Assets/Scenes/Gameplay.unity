@@ -5239,7 +5239,7 @@ Transform:
   m_GameObject: {fileID: 300880907}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.4689667, y: 4.79, z: 0}
+  m_LocalPosition: {x: -2.7995868, y: 4.79, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -11657,6 +11657,7 @@ MonoBehaviour:
   nextBagLocalPos: {x: 0, y: -2.5, z: 0}
   nextBagRowSpacing: 0.06
   nextBagIconCountSpacing: 0.08
+  nextBagVerticalRowSpacing: 0.05
   nextBagMinPairsPerRow: 5
 --- !u!1 &800253279
 GameObject:
@@ -17081,9 +17082,10 @@ MonoBehaviour:
   nextBagEntryWidth: 1.05
   nextBagEntryHeight: 0.5
   nextBagCanvasSize: {x: 5.4, y: 2}
-  nextBagLocalPos: {x: 0, y: -2.5, z: 0}
+  nextBagLocalPos: {x: 0, y: -3.4, z: 0}
   nextBagRowSpacing: 0.06
   nextBagIconCountSpacing: 0.08
+  nextBagVerticalRowSpacing: 0.05
   nextBagMinPairsPerRow: 5
 --- !u!4 &1174742338
 Transform:
@@ -23008,7 +23010,7 @@ Transform:
   m_GameObject: {fileID: 1712947391}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2.0926738, y: -4.5, z: 0}
+  m_LocalPosition: {x: 2.4370697, y: -4.5, z: 0}
   m_LocalScale: {x: 0.5, y: 0.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -24486,7 +24488,7 @@ Transform:
   m_GameObject: {fileID: 1791552952}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.1, z: 0}
+  m_LocalPosition: {x: 0, y: -0.44, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -29646,7 +29648,7 @@ PrefabInstance:
       objectReference: {fileID: 1959469644}
     - target: {fileID: 3546795605185898949, guid: 7c892abf3aef94db488afc305c949b82, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 2.6689668
+      value: 2.9995868
       objectReference: {fileID: 0}
     - target: {fileID: 3546795605185898949, guid: 7c892abf3aef94db488afc305c949b82, type: 3}
       propertyPath: m_LocalPosition.y
