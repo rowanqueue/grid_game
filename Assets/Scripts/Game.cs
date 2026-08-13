@@ -1299,6 +1299,24 @@ namespace Logic
                 remaining -= count;
             }
 
+            // Guarantee next-bag Mini strip exercises counts >= 10.
+            TokenData oversized = new TokenData(TokenColor.Blue, 1);
+            const int oversizedCount = 12;
+            if (startingBagContents.ContainsKey(oversized))
+            {
+                int delta = oversizedCount - startingBagContents[oversized];
+                if (delta > 0)
+                {
+                    startingBagContents[oversized] = oversizedCount;
+                    bagContents[oversized] = oversizedCount;
+                }
+            }
+            else
+            {
+                startingBagContents[oversized] = oversizedCount;
+                bagContents[oversized] = oversizedCount;
+            }
+
             RefillBag();
         }
 #endif

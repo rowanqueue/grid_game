@@ -1098,6 +1098,7 @@ MonoBehaviour:
   ClipperSlashXLength: 1
   Spade_MoveToTileTime: 0.5
   Spade_DigTime: 0.5
+  Spade_FadeTime: 0.35
   Spade_PositionOffset: {x: 0, y: -0.5, z: 0}
   Spade_DigDestination: {x: 0, y: -0.5, z: 0}
   Spade_StartingRotation: 30
@@ -2571,6 +2572,7 @@ MonoBehaviour:
   ClipperSlashXLength: 1
   Spade_MoveToTileTime: 0.5
   Spade_DigTime: 0.5
+  Spade_FadeTime: 0.35
   Spade_PositionOffset: {x: 0, y: -0.5, z: 0}
   Spade_DigDestination: {x: 0, y: -0.5, z: 0}
   Spade_StartingRotation: 30
@@ -5237,7 +5239,7 @@ Transform:
   m_GameObject: {fileID: 300880907}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.4726896, y: 4.79, z: 0}
+  m_LocalPosition: {x: -2.4689667, y: 4.79, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -11647,6 +11649,15 @@ MonoBehaviour:
   numTokens: 0
   showNextBag: 0
   bagSwitchSprite: {fileID: 0}
+  nextBagCanvas: {fileID: 0}
+  nextBagContent: {fileID: 0}
+  nextBagEntryWidth: 1.05
+  nextBagEntryHeight: 0.5
+  nextBagCanvasSize: {x: 5.4, y: 2}
+  nextBagLocalPos: {x: 0, y: -2.5, z: 0}
+  nextBagRowSpacing: 0.06
+  nextBagIconCountSpacing: 0.08
+  nextBagMinPairsPerRow: 5
 --- !u!1 &800253279
 GameObject:
   m_ObjectHideFlags: 0
@@ -17065,6 +17076,15 @@ MonoBehaviour:
   numTokens: 0
   showNextBag: 0
   bagSwitchSprite: {fileID: 1125671040}
+  nextBagCanvas: {fileID: 0}
+  nextBagContent: {fileID: 0}
+  nextBagEntryWidth: 1.05
+  nextBagEntryHeight: 0.5
+  nextBagCanvasSize: {x: 5.4, y: 2}
+  nextBagLocalPos: {x: 0, y: -2.5, z: 0}
+  nextBagRowSpacing: 0.06
+  nextBagIconCountSpacing: 0.08
+  nextBagMinPairsPerRow: 5
 --- !u!4 &1174742338
 Transform:
   m_ObjectHideFlags: 0
@@ -22988,7 +23008,7 @@ Transform:
   m_GameObject: {fileID: 1712947391}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2.0965517, y: -4.5, z: 0}
+  m_LocalPosition: {x: 2.0926738, y: -4.5, z: 0}
   m_LocalScale: {x: 0.5, y: 0.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -23304,6 +23324,7 @@ MonoBehaviour:
   ClipperSlashXLength: 1
   Spade_MoveToTileTime: 0.5
   Spade_DigTime: 0.5
+  Spade_FadeTime: 0.35
   Spade_PositionOffset: {x: 0, y: -0.5, z: 0}
   Spade_DigDestination: {x: 0, y: -0.5, z: 0}
   Spade_StartingRotation: 30
@@ -24465,7 +24486,7 @@ Transform:
   m_GameObject: {fileID: 1791552952}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -25216,6 +25237,7 @@ MonoBehaviour:
   ClipperSlashXLength: 1
   Spade_MoveToTileTime: 0.5
   Spade_DigTime: 0.5
+  Spade_FadeTime: 0.35
   Spade_PositionOffset: {x: 0, y: -0.5, z: 0}
   Spade_DigDestination: {x: 0, y: -0.5, z: 0}
   Spade_StartingRotation: 30
@@ -27053,6 +27075,7 @@ MonoBehaviour:
   ClipperSlashXLength: 1
   Spade_MoveToTileTime: 0.5
   Spade_DigTime: 0.5
+  Spade_FadeTime: 0.35
   Spade_PositionOffset: {x: 0, y: -0.5, z: 0}
   Spade_DigDestination: {x: 0, y: -0.5, z: 0}
   Spade_StartingRotation: 30
@@ -29623,7 +29646,7 @@ PrefabInstance:
       objectReference: {fileID: 1959469644}
     - target: {fileID: 3546795605185898949, guid: 7c892abf3aef94db488afc305c949b82, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 2.6726897
+      value: 2.6689668
       objectReference: {fileID: 0}
     - target: {fileID: 3546795605185898949, guid: 7c892abf3aef94db488afc305c949b82, type: 3}
       propertyPath: m_LocalPosition.y
