@@ -2967,8 +2967,11 @@ public class GameController : MonoBehaviour
                     || inputState == InputState.Wait
                     || inputState == InputState.Popup)
                 {
-                    // Dug Spade tile must keep lerping to hand during Wait/Popup.
-                    hand[i].lifted = true;
+                    // Only force lift while still traveling; after arrival Draw settles the hover.
+                    if (spadeTravel)
+                    {
+                        hand[i].lifted = true;
+                    }
                     hand[i].Draw(pos);
                 }
             }
