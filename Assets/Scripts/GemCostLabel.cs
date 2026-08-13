@@ -34,6 +34,6 @@ public class GemCostLabel : MonoBehaviour
         if (label == null || Services.Gems == null) return;
 
         int cost = Services.Gems.GetCost(costKey);
-        label.text = $"-{cost}";
+        label.text = $" {cost}";
     }
 }
