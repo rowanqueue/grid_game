@@ -11651,14 +11651,21 @@ MonoBehaviour:
   bagSwitchSprite: {fileID: 0}
   nextBagCanvas: {fileID: 0}
   nextBagContent: {fileID: 0}
-  nextBagEntryWidth: 1.05
+  nextBagEntryWidth: 0.9
   nextBagEntryHeight: 0.5
-  nextBagCanvasSize: {x: 5.4, y: 2}
+  nextBagCanvasSize: {x: 4.6, y: 2}
   nextBagLocalPos: {x: 0, y: -2.5, z: 0}
-  nextBagRowSpacing: 0.06
-  nextBagIconCountSpacing: 0.08
+  nextBagRowSpacing: 0.05
+  nextBagIconCountSpacing: 0.06
   nextBagVerticalRowSpacing: 0.05
   nextBagMinPairsPerRow: 5
+  nextBagTopPadding: 0.25
+  nextBagSidePadding: 0.2
+  nextBagLabelGap: 0.15
+  nextBagLabelHeight: 0.45
+  nextBagLabelFontSize: 3.5
+  nextBagLabelColor: {r: 0.23, g: 0.23, b: 0.23, a: 1}
+  nextBagLabelFont: {fileID: 11400000, guid: 52c9d90975675fb4eb4d2dc32579d50c, type: 2}
 --- !u!1 &800253279
 GameObject:
   m_ObjectHideFlags: 0
@@ -17079,14 +17086,21 @@ MonoBehaviour:
   bagSwitchSprite: {fileID: 1125671040}
   nextBagCanvas: {fileID: 0}
   nextBagContent: {fileID: 0}
-  nextBagEntryWidth: 1.05
+  nextBagEntryWidth: 0.9
   nextBagEntryHeight: 0.5
-  nextBagCanvasSize: {x: 5.4, y: 2}
+  nextBagCanvasSize: {x: 4.6, y: 2}
   nextBagLocalPos: {x: 0, y: -3.4, z: 0}
-  nextBagRowSpacing: 0.06
-  nextBagIconCountSpacing: 0.08
+  nextBagRowSpacing: 0.05
+  nextBagIconCountSpacing: 0.06
   nextBagVerticalRowSpacing: 0.05
   nextBagMinPairsPerRow: 5
+  nextBagTopPadding: 0.25
+  nextBagSidePadding: 0.2
+  nextBagLabelGap: 0.15
+  nextBagLabelHeight: 0.45
+  nextBagLabelFontSize: 3.5
+  nextBagLabelColor: {r: 0.23, g: 0.23, b: 0.23, a: 1}
+  nextBagLabelFont: {fileID: 11400000, guid: 52c9d90975675fb4eb4d2dc32579d50c, type: 2}
 --- !u!4 &1174742338
 Transform:
   m_ObjectHideFlags: 0

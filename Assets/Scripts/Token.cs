@@ -316,12 +316,6 @@ public class Token : MonoBehaviour
         {
             flowerParticles.gameObject.SetActive(true);
         }
-        Debug.Log(
-            $"[ParticleLife] EnsureDeathParticleHierarchyActive " +
-            $"textActive={(textDisplay != null && textDisplay.gameObject.activeInHierarchy)} " +
-            $"dirtActive={(dirtParticles != null && dirtParticles.gameObject.activeInHierarchy)} " +
-            $"flowerActive={(flowerParticles != null && flowerParticles.gameObject.activeInHierarchy)} " +
-            $"token={name} t={Time.time:F3}");
     }
 
     /// <summary>
@@ -336,17 +330,8 @@ public class Token : MonoBehaviour
         }
 
         Transform keepAliveParent = transform;
-        string prevParent = flowerParticles.transform.parent != null
-            ? flowerParticles.transform.parent.name
-            : "null";
         flowerParticles.transform.SetParent(keepAliveParent, true);
         flowerParticles.gameObject.SetActive(true);
-
-        Debug.Log(
-            $"[ParticleLife] DetachFlowerBurstForPlay " +
-            $"from={prevParent} to={keepAliveParent.name} " +
-            $"active={flowerParticles.gameObject.activeInHierarchy} " +
-            $"worldPos={flowerParticles.transform.position} token={name} t={Time.time:F3}");
     }
 
     bool IsGnomeToken => token != null && token.data.color == Logic.TokenColor.Gnome;
@@ -1078,21 +1063,10 @@ public class Token : MonoBehaviour
         // DirtPuff/FlowerBurst live under Text. HideScoreLabel() deactivates that GO, so
         // Play() before activation emits nothing. Wake the hierarchy (TMP stays off until score show).
         EnsureDeathParticleHierarchyActive();
-        LogDeathParticle("dirt", "Play_call", dirtParticles);
         if (dirtParticles != null)
         {
             dirtParticles.Play();
-            LogDeathParticle("dirt", "AfterPlay", dirtParticles);
-            if (!dirtParticles.isPlaying && dirtParticles.particleCount == 0)
-            {
-                Debug.LogWarning($"[ParticleLife] dirt NEVER_STARTED after Play() token={name} t={Time.time:F3}");
-            }
         }
-        else
-        {
-            Debug.Log($"[ParticleLife] dirt Play SKIPPED null ref token={name} t={Time.time:F3}");
-        }
-        StartCoroutine(WatchDeathParticles());
         Services.AudioManager.PlayRemoveTileSound(1);
 
         UpdateLayer("TokenMoving");
@@ -1179,71 +1153,26 @@ public class Token : MonoBehaviour
     }
     public void StartKillNumber(float delay = 0f)
     {
-        Debug.Log($"[ParticleLife] KillNumber START delay={delay:F2} token={name} " +
-                  $"dirtPlaying={(dirtParticles != null && dirtParticles.isPlaying)} " +
-                  $"mergeDeathVisualComplete={mergeDeathVisualComplete} t={Time.time:F3}");
         StartCoroutine(KillNumber(delay));
-    }
-
-    void LogDeathParticle(string which, string action, ParticleSystem ps)
-    {
-        if (ps == null)
-        {
-            Debug.Log($"[ParticleLife] {which} {action} ps=NULL token={name} t={Time.time:F3}");
-            return;
-        }
-        var main = ps.main;
-        Debug.Log(
-            $"[ParticleLife] {which} {action} " +
-            $"name={ps.name} playing={ps.isPlaying} paused={ps.isPaused} count={ps.particleCount} " +
-            $"duration={main.duration:F2} startLife={main.startLifetime.constantMax:F2} " +
-            $"active={ps.gameObject.activeInHierarchy} enabled={ps.gameObject.activeSelf} " +
-            $"emission={ps.emission.enabled} renderer={(ps.GetComponent<ParticleSystemRenderer>() != null && ps.GetComponent<ParticleSystemRenderer>().enabled)} " +
-            $"parent={(ps.transform.parent != null ? ps.transform.parent.name : "null")} " +
-            $"worldPos={ps.transform.position} token={name} t={Time.time:F3}");
-    }
-
-    IEnumerator WatchDeathParticles()
-    {
-        float start = Time.time;
-        for (int i = 0; i < 40; i++)
-        {
-            yield return new WaitForSeconds(0.1f);
-            if (this == null)
-            {
-                Debug.Log($"[ParticleLife] WatchDeathParticles TOKEN_DESTROYED after={Time.time - start:F2}s t={Time.time:F3}");
-                yield break;
-            }
-            LogDeathParticle("dirt", $"tick{i}", dirtParticles);
-            bool dirtDone = dirtParticles == null || (!dirtParticles.isPlaying && dirtParticles.particleCount == 0);
-            if (dirtDone && i > 2)
-            {
-                Debug.Log($"[ParticleLife] death particles IDLE after={Time.time - start:F2}s token={name} t={Time.time:F3}");
-                yield break;
-            }
-        }
     }
 
     void ReleasePlayingDeathParticles()
     {
-        Debug.Log($"[ParticleLife] ReleasePlayingDeathParticles BEGIN token={name} t={Time.time:F3}");
         Transform keepAliveParent = transform.parent != null
             ? transform.parent
             : Services.GameController != null ? Services.GameController.gridTransform : null;
 
-        ReleaseParticleSystem("dirt", dirtParticles, keepAliveParent);
+        ReleaseParticleSystem(dirtParticles, keepAliveParent);
         dirtParticles = null;
     }
 
-    void ReleaseParticleSystem(string which, ParticleSystem ps, Transform keepAliveParent)
+    void ReleaseParticleSystem(ParticleSystem ps, Transform keepAliveParent)
     {
         if (ps == null)
         {
-            Debug.Log($"[ParticleLife] {which} Release SKIPPED null t={Time.time:F3}");
             return;
         }
 
-        LogDeathParticle(which, "BeforeRelease", ps);
         GameObject go = ps.gameObject;
         if (keepAliveParent != null)
         {
@@ -1256,7 +1185,6 @@ public class Token : MonoBehaviour
 
         if (!ps.isPlaying)
         {
-            Debug.Log($"[ParticleLife] {which} Release re-Play (was not playing) t={Time.time:F3}");
             ps.Play();
         }
 
@@ -1267,8 +1195,6 @@ public class Token : MonoBehaviour
         {
             lifetime = main.duration + main.startLifetime.constantMax + 0.5f;
         }
-        LogDeathParticle(which, $"AfterRelease destroyIn={lifetime:F2}s", ps);
-        Debug.Log($"[ParticleLife] {which} SCHEDULED_DESTROY go={go.name} in={lifetime:F2}s t={Time.time:F3}");
         GameObject.Destroy(go, lifetime);
     }
 
@@ -1304,27 +1230,14 @@ public class Token : MonoBehaviour
         // Let lift/fade finish so dirt is visible, then detach particles before destroy.
         float elapsed = 0f;
         const float deathVisualTimeout = 3f;
-        Debug.Log($"[ParticleLife] KillNumber wait mergeDeathVisualComplete={mergeDeathVisualComplete} token={name} t={Time.time:F3}");
         while (!mergeDeathVisualComplete && elapsed < deathVisualTimeout)
         {
             elapsed += Time.deltaTime;
             yield return null;
         }
-        Debug.Log($"[ParticleLife] KillNumber deathVisual done complete={mergeDeathVisualComplete} waited={elapsed:F2}s token={name} t={Time.time:F3}");
 
         ReleasePlayingDeathParticles();
-        Debug.Log($"[ParticleLife] KillNumber Destroy(token) CAUSE=KillNumber token={name} t={Time.time:F3}");
         GameObject.Destroy(gameObject);
-    }
-
-    void OnDestroy()
-    {
-        bool dirtStillChild = dirtParticles != null && dirtParticles.transform.IsChildOf(transform);
-        Debug.Log(
-            $"[ParticleLife] Token OnDestroy CAUSE=OnDestroy name={name} " +
-            $"dirtNull={dirtParticles == null} dirtStillChild={dirtStillChild} " +
-            $"dirtPlaying={(dirtParticles != null && dirtParticles.isPlaying)} " +
-            $"t={Time.time:F3}\n{UnityEngine.StackTraceUtility.ExtractStackTrace()}");
     }
 
     public void ShowCrunchedDisplay(int num)

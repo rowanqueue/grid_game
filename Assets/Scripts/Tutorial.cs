@@ -178,17 +178,88 @@ public class Tutorial : MonoBehaviour
         switch (s)
         {
             case TutorialStage.Placing:
+            case TutorialStage.FreeSlot:
             case TutorialStage.WeirdSet:
             case TutorialStage.Undo:
             case TutorialStage.FirstRed:
             case TutorialStage.Blue3:
             case TutorialStage.LearnGreen:
+            case TutorialStage.Green2:
             case TutorialStage.CleanUp:
             case TutorialStage.Purple:
                 return true;
             default:
                 return false;
         }
+    }
+
+    const float DefaultDimEndFade = 0.73f;
+    const float DefaultDimTime = 0.5f;
+
+    Image FindStageDim(GameObject parent)
+    {
+        if (parent == null) { return null; }
+        if (parent.TryGetComponent(out TutorialStageData data) && data.dim != null)
+        {
+            return data.dim;
+        }
+
+        Image[] images = parent.GetComponentsInChildren<Image>(true);
+        for (int i = 0; i < images.Length; i++)
+        {
+            Image image = images[i];
+            if (image != null && image.gameObject.name == "DimScreen")
+            {
+                return image;
+            }
+        }
+        return null;
+    }
+
+    float GetStageDimEndFade(GameObject parent)
+    {
+        if (parent != null && parent.TryGetComponent(out TutorialStageData data))
+        {
+            return data.endFade;
+        }
+        return DefaultDimEndFade;
+    }
+
+    float GetStageDimTime(GameObject parent)
+    {
+        if (parent != null && parent.TryGetComponent(out TutorialStageData data))
+        {
+            return data.dimTime;
+        }
+        return DefaultDimTime;
+    }
+
+    void SnapStageDimVisible(GameObject parent)
+    {
+        Image dim = FindStageDim(parent);
+        if (dim == null) { return; }
+        float endFade = GetStageDimEndFade(parent);
+        dim.gameObject.SetActive(true);
+        dim.DOKill();
+        dim.color = new Color(dim.color.r, dim.color.g, dim.color.b, endFade);
+    }
+
+    IEnumerator FadeStageDimOut(GameObject parent)
+    {
+        Image dim = FindStageDim(parent);
+        if (dim == null || !dim.gameObject.activeInHierarchy) { yield break; }
+        float dimTime = GetStageDimTime(parent);
+        dim.DOKill();
+        Tween fade = dim.DOFade(0f, dimTime);
+        yield return fade.WaitForCompletion();
+        dim.gameObject.SetActive(false);
+    }
+
+    bool StageHasDim(TutorialStage s)
+    {
+        int index = (int)s;
+        if (index < 0 || index >= stageParents.Count) { return false; }
+        return FindStageDim(stageParents[index]) != null;
     }
 
     void BindHighlightFromStageData(int phaseIndex = 0)
@@ -232,9 +303,24 @@ public class Tutorial : MonoBehaviour
         active = false;
         isPresenting = false;
         StopActivePresentation();
+        Image dim = FindStageDim(stageParentSafe());
+        if (dim != null)
+        {
+            dim.DOKill();
+            Color c = dim.color;
+            dim.color = new Color(c.r, c.g, c.b, 0f);
+            dim.gameObject.SetActive(false);
+        }
         ExitStage();
         Services.GameController.OnTutorialEnded(refillHand);
         PlayerPrefs.SetInt("tutorialComplete", 1);
+    }
+
+    GameObject stageParentSafe()
+    {
+        int index = (int)stage;
+        if (index < 0 || index >= stageParents.Count) { return null; }
+        return stageParents[index];
     }
 
     public void StartSpecialTutorial(TutorialStage stage)
@@ -373,20 +459,47 @@ public class Tutorial : MonoBehaviour
             yield return WaitForGridSettled();
         }
 
+        TutorialStage nextStage = (TutorialStage)((int)stage + 1);
+        GameObject currentParent = null;
+        int currentIndex = (int)stage;
+        if (currentIndex >= 0 && currentIndex < stageParents.Count)
+        {
+            currentParent = stageParents[currentIndex];
+        }
+
+        bool hadDim = StageHasDim(stage);
+        bool nextHasDim = StageHasDim(nextStage);
+        bool keepDim = hadDim && nextHasDim;
+        bool fadeDimOut = hadDim && !nextHasDim;
+
         if (currentStageData != null && UsesStageData(stage))
         {
             int lastPhase = currentStageData.stagePhase.Count - 1;
             if (lastPhase >= 0)
             {
+                // Prefer TutorialStageData.dim fade when wired; otherwise fade whatever DimScreen exists.
+                bool fadeWiredDim = fadeDimOut && currentStageData.HasDim;
                 yield return currentStageData.AnimateOutStageCoroutine(
-                    Mathf.Min(stagePhase, lastPhase));
+                    Mathf.Min(stagePhase, lastPhase), fadeDim: fadeWiredDim);
+                if (fadeDimOut && !fadeWiredDim)
+                {
+                    yield return FadeStageDimOut(currentParent);
+                }
+            }
+            else if (fadeDimOut)
+            {
+                yield return FadeStageDimOut(currentParent);
             }
         }
+        else if (fadeDimOut)
+        {
+            yield return FadeStageDimOut(currentParent);
+        }
 
-        IncrementStageInternal();
+        EnterStage(nextStage, keepDim: keepDim);
         ReleaseGameplayInputIfReady();
 
-        yield return FinishEnterPresentation();
+        yield return FinishEnterPresentation(keepDim: keepDim);
     }
 
     void DeferIncrementStage(IncrementTrigger trigger)
@@ -394,11 +507,11 @@ public class Tutorial : MonoBehaviour
         deferredIncrementTrigger = trigger;
     }
 
-    IEnumerator FinishEnterPresentation()
+    IEnumerator FinishEnterPresentation(bool keepDim = false)
     {
         if (currentStageData != null && UsesStageData(stage) && currentStageData.HasPhase(0))
         {
-            yield return currentStageData.RunEnterPresentation();
+            yield return currentStageData.RunEnterPresentation(keepDim);
             BindHighlightFromStageData(0);
         }
         else
@@ -416,13 +529,29 @@ public class Tutorial : MonoBehaviour
         }
     }
 
-    void EnterStage(TutorialStage newStage)
+    void EnterStage(TutorialStage newStage, bool keepDim = false)
     {
+        TutorialStage previousStage = stage;
+        int previousIndex = (int)previousStage;
+        GameObject previousParent = null;
+        if (previousIndex >= 0 && previousIndex < stageParents.Count)
+        {
+            previousParent = stageParents[previousIndex];
+        }
+
         currentStageData = null;
-        ExitStage();
+        if (!keepDim)
+        {
+            ExitStage();
+        }
+
         stage = newStage;
         if (stage == TutorialStage.ActuallyFinishDefault)
         {
+            if (keepDim && previousParent != null)
+            {
+                previousParent.SetActive(false);
+            }
             ExitTutorial(refillHand: true);
             return;
         }
@@ -441,6 +570,21 @@ public class Tutorial : MonoBehaviour
         if (!stageParent.TryGetComponent(out currentStageData))
         {
             currentStageData = null;
+        }
+
+        if (keepDim)
+        {
+            // Keep the dim continuous: snap new dim on before tearing down the old stage.
+            SnapStageDimVisible(stageParents[stageIndex]);
+            if (currentStageData != null && currentStageData.HasPhase(0))
+            {
+                currentStageData.ActivateStage(0, false);
+            }
+        }
+
+        if (keepDim && previousParent != null && previousParent != stageParents[stageIndex])
+        {
+            previousParent.SetActive(false);
         }
 
         switch (stage)
@@ -462,12 +606,22 @@ public class Tutorial : MonoBehaviour
             case TutorialStage.FreeSlot:
                 placingRule = true;
                 choosingRule = false;
+                currentStageData = stageParent.GetComponent<TutorialStageData>();
+                if (keepDim && currentStageData != null)
+                {
+                    currentStageData.ActivateStage(0, false);
+                }
+                BindHighlightFromStageData(0);
                 break;
             case TutorialStage.HandRefill:
                 break;
             case TutorialStage.WeirdSet:
                 placingRule = true;
                 currentStageData = stageParent.GetComponent<TutorialStageData>();
+                if (keepDim && currentStageData != null)
+                {
+                    currentStageData.ActivateStage(0, false);
+                }
                 BindHighlightFromStageData(0);
                 allowedPlaces = new List<Vector2Int>()
                 {
@@ -479,6 +633,10 @@ public class Tutorial : MonoBehaviour
                 break;
             case TutorialStage.Undo:
                 currentStageData = stageParent.GetComponent<TutorialStageData>();
+                if (keepDim && currentStageData != null)
+                {
+                    currentStageData.ActivateStage(0, false);
+                }
                 BindHighlightFromStageData(0);
                 break;
             case TutorialStage.FirstRed:
@@ -491,11 +649,19 @@ public class Tutorial : MonoBehaviour
                 choosingRule = true;
                 allowedColor = Logic.TokenColor.Red;
                 currentStageData = stageParent.GetComponent<TutorialStageData>();
+                if (keepDim && currentStageData != null)
+                {
+                    currentStageData.ActivateStage(0, false);
+                }
                 BindHighlightFromStageData(0);
                 break;
             case TutorialStage.Blue3:
                 placingRule = true;
                 currentStageData = stageParent.GetComponent<TutorialStageData>();
+                if (keepDim && currentStageData != null)
+                {
+                    currentStageData.ActivateStage(0, false);
+                }
                 BindHighlightFromStageData(0);
                 allowedPlaces = new List<Vector2Int>()
                 {
@@ -525,6 +691,10 @@ public class Tutorial : MonoBehaviour
                 choosingRule = true;
                 allowedColor = Logic.TokenColor.Green;
                 currentStageData = stageParent.GetComponent<TutorialStageData>();
+                if (keepDim && currentStageData != null)
+                {
+                    currentStageData.ActivateStage(0, false);
+                }
                 BindHighlightFromStageData(0);
                 break;
             case TutorialStage.Green2:
@@ -535,6 +705,12 @@ public class Tutorial : MonoBehaviour
                 };
                 choosingRule = true;
                 allowedColor = TokenColor.Green;
+                currentStageData = stageParent.GetComponent<TutorialStageData>();
+                if (keepDim && currentStageData != null)
+                {
+                    currentStageData.ActivateStage(0, false);
+                }
+                BindHighlightFromStageData(0);
                 break;
             case TutorialStage.CleanUp:
                 placingRule = true;
@@ -545,6 +721,10 @@ public class Tutorial : MonoBehaviour
                 choosingRule = true;
                 allowedColor = TokenColor.Blue;
                 currentStageData = stageParent.GetComponent<TutorialStageData>();
+                if (keepDim && currentStageData != null)
+                {
+                    currentStageData.ActivateStage(0, false);
+                }
                 BindHighlightFromStageData(0);
                 break;
             case TutorialStage.Purple:
@@ -556,6 +736,10 @@ public class Tutorial : MonoBehaviour
                 choosingRule = true;
                 allowedColor = TokenColor.Purple;
                 currentStageData = stageParent.GetComponent<TutorialStageData>();
+                if (keepDim && currentStageData != null)
+                {
+                    currentStageData.ActivateStage(0, false);
+                }
                 BindHighlightFromStageData(0);
                 break;
         }

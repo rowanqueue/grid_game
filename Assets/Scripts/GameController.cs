@@ -1867,7 +1867,6 @@ public class GameController : MonoBehaviour
 
     void FlushDyingTokens()
     {
-        Debug.Log($"[ParticleLife] FlushDyingTokens count={dyingTokens.Count} t={Time.time:F3}\n{UnityEngine.StackTraceUtility.ExtractStackTrace()}");
         for (int i = dyingTokens.Count - 1; i >= 0; i--)
         {
             Token t = dyingTokens[i];

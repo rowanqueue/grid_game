@@ -17,6 +17,8 @@ public class TutorialStageData : MonoBehaviour
 
     public bool HasPhase(int index) => stagePhase != null && index >= 0 && index < stagePhase.Count;
 
+    public bool HasDim => dim != null;
+
     float GetMaxArrowFadeTime()
     {
         float max = 0f;
@@ -33,23 +35,38 @@ public class TutorialStageData : MonoBehaviour
         return max;
     }
 
-    public IEnumerator RunEnterPresentation()
+    public void SnapDimVisible()
+    {
+        if (dim == null) { return; }
+        dim.gameObject.SetActive(true);
+        dim.DOKill();
+        dim.color = new Color(dim.color.r, dim.color.g, dim.color.b, endFade);
+    }
+
+    public IEnumerator RunEnterPresentation(bool keepDim = false)
     {
         if (!HasPhase(0)) { yield break; }
         PrepStage(0);
         ActivateStage(0, true);
-        yield return StepStartAnimation();
+        yield return StepStartAnimation(keepDim);
     }
 
-    public IEnumerator StepStartAnimation()
+    public IEnumerator StepStartAnimation(bool keepDim = false)
     {
         Tween dimTween = null;
         if (dim != null)
         {
             dim.gameObject.SetActive(true);
             dim.DOKill();
-            dim.color = new Color(dim.color.r, dim.color.g, dim.color.b, 0);
-            dimTween = dim.DOFade(endFade, dimTime);
+            if (keepDim)
+            {
+                dim.color = new Color(dim.color.r, dim.color.g, dim.color.b, endFade);
+            }
+            else
+            {
+                dim.color = new Color(dim.color.r, dim.color.g, dim.color.b, 0);
+                dimTween = dim.DOFade(endFade, dimTime);
+            }
         }
 
         yield return AnimateInStageCoroutine(0);
@@ -103,7 +120,7 @@ public class TutorialStageData : MonoBehaviour
         }
     }
 
-    public IEnumerator AnimateOutStageCoroutine(int tuStageIndex)
+    public IEnumerator AnimateOutStageCoroutine(int tuStageIndex, bool fadeDim = false)
     {
         if (!HasPhase(tuStageIndex)) { yield break; }
         StagePhase stage = stagePhase[tuStageIndex];
@@ -123,9 +140,22 @@ public class TutorialStageData : MonoBehaviour
             maxDuration = Mathf.Max(maxDuration, arrow.fadeTime);
         }
 
+        if (fadeDim && dim != null && dim.gameObject.activeInHierarchy)
+        {
+            dim.DOKill();
+            dim.DOFade(0f, dimTime);
+            maxDuration = Mathf.Max(maxDuration, dimTime);
+        }
+
         if (maxDuration > 0f)
         {
             yield return new WaitForSeconds(maxDuration);
+        }
+
+        if (fadeDim && dim != null)
+        {
+            dim.DOKill();
+            dim.gameObject.SetActive(false);
         }
 
         ActivateStage(tuStageIndex, false);

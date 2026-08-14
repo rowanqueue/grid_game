@@ -441,7 +441,7 @@ namespace Logic
             status = new StatusReport();
             bag = new Bag(this,bagContents);
             hand = new Hand(handSize, handChoices);
-            if(root.startingHand.Count > 0)
+            if (root.startingHand != null && root.startingHand.Count > 0)
             {
                 hand.FillStartingHand(bag, root.startingHand);
             }
@@ -1390,7 +1390,12 @@ namespace Logic
         }
         public TokenData DrawToken()
         {
-            //Shuffle();
+            // Tutorial hands (and other direct removes) can leave the list empty without
+            // going through DrawToken, so refill before indexing.
+            if (bag.Count <= 0)
+            {
+                RefillBag();
+            }
             TokenData tokenData = bag[bag.Count - 1];
             tilesDrawnThisBag.Add(tokenData);
             bag.RemoveAt(bag.Count - 1);

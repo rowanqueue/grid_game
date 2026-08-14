@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -22,14 +23,23 @@ public class BagDisplay : MonoBehaviour
 
     [SerializeField] Canvas nextBagCanvas;
     [SerializeField] RectTransform nextBagContent;
-    [SerializeField] float nextBagEntryWidth = 1.05f;
+    [SerializeField] float nextBagEntryWidth = 0.9f;
     [SerializeField] float nextBagEntryHeight = 0.5f;
-    [SerializeField] Vector2 nextBagCanvasSize = new Vector2(5.4f, 2.0f);
+    [SerializeField] Vector2 nextBagCanvasSize = new Vector2(4.6f, 2.0f);
     [SerializeField] Vector3 nextBagLocalPos = new Vector3(0f, -2.5f, 0f);
-    [SerializeField] float nextBagRowSpacing = 0.06f;
-    [SerializeField] float nextBagIconCountSpacing = 0.08f;
+    [SerializeField] float nextBagRowSpacing = 0.05f;
+    [SerializeField] float nextBagIconCountSpacing = 0.06f;
     [SerializeField] float nextBagVerticalRowSpacing = 0.05f;
     [SerializeField] int nextBagMinPairsPerRow = 5;
+    [SerializeField] float nextBagTopPadding = 0.25f;
+    [SerializeField] float nextBagSidePadding = 0.2f;
+    [SerializeField] float nextBagLabelGap = 0.15f;
+    [SerializeField] float nextBagLabelHeight = 0.45f;
+    [SerializeField] float nextBagLabelFontSize = 3.5f;
+    [SerializeField] Color nextBagLabelColor = new Color(0.23f, 0.23f, 0.23f, 1f);
+    [SerializeField] TMP_FontAsset nextBagLabelFont;
+
+    TextMeshPro nextBagLabel;
 
     Coroutine emptyBagRoutine;
 
@@ -232,6 +242,8 @@ public class BagDisplay : MonoBehaviour
         if (uniqueTokens.Count == 0)
         {
             ApplyNextBagCanvasSize(1);
+            PositionNextBagLabel(GetNextBagCanvasSize(1).y);
+            FitNextBagCanvasToScreen(GetNextBagCanvasSize(1));
             return;
         }
 
@@ -262,13 +274,97 @@ public class BagDisplay : MonoBehaviour
             numTokens += 2;
         }
 
+        Vector2 naturalSize = GetNextBagCanvasSize(rows.Count);
         ApplyNextBagCanvasSize(rows.Count);
-        LayoutRowsBottomUp(rows, GetNextBagCanvasSize(rows.Count).x);
-        // Layout each row's horizontal entries without a parent VLG moving the rows.
+        LayoutRowsBottomUp(rows, naturalSize.x);
         foreach (RectTransform row in rows)
         {
             LayoutRebuilder.ForceRebuildLayoutImmediate(row);
         }
+
+        PositionNextBagLabel(naturalSize.y);
+        FitNextBagCanvasToScreen(naturalSize);
+    }
+
+    void PositionNextBagLabel(float stripHeight)
+    {
+        EnsureNextBagLabel();
+        if (nextBagLabel == null)
+        {
+            return;
+        }
+
+        RectTransform labelRect = nextBagLabel.rectTransform;
+        labelRect.anchorMin = new Vector2(0.5f, 0f);
+        labelRect.anchorMax = new Vector2(0.5f, 0f);
+        labelRect.pivot = new Vector2(0.5f, 0f);
+        labelRect.sizeDelta = new Vector2(GetNextBagCanvasSize(1).x, nextBagLabelHeight);
+        labelRect.anchoredPosition = new Vector2(0f, stripHeight + nextBagLabelGap);
+        labelRect.localScale = Vector3.one;
+        nextBagLabel.gameObject.SetActive(true);
+    }
+
+    void FitNextBagCanvasToScreen(Vector2 naturalSize)
+    {
+        if (nextBagCanvas == null)
+        {
+            return;
+        }
+
+        RectTransform canvasRect = nextBagCanvas.GetComponent<RectTransform>();
+        if (canvasRect == null)
+        {
+            return;
+        }
+
+        canvasRect.localPosition = nextBagLocalPos;
+        canvasRect.localRotation = Quaternion.identity;
+        canvasRect.pivot = new Vector2(0.5f, 0f);
+
+        float labelBlock = nextBagLabelGap + nextBagLabelHeight;
+        float naturalHeight = naturalSize.y + labelBlock;
+        float naturalWidth = naturalSize.x;
+
+        float availableHeight = GetAvailableNextBagHeight();
+        float availableWidth = GetAvailableNextBagWidth();
+
+        float scale = 1f;
+        if (naturalHeight > 0.01f && naturalHeight > availableHeight)
+        {
+            scale = Mathf.Min(scale, availableHeight / naturalHeight);
+        }
+        if (naturalWidth > 0.01f && naturalWidth > availableWidth)
+        {
+            scale = Mathf.Min(scale, availableWidth / naturalWidth);
+        }
+
+        scale = Mathf.Clamp(scale, 0.15f, 1f);
+        canvasRect.localScale = new Vector3(scale, scale, 1f);
+    }
+
+    float GetAvailableNextBagHeight()
+    {
+        Camera cam = Camera.main;
+        if (cam == null)
+        {
+            return Mathf.Max(nextBagEntryHeight, nextBagCanvasSize.y);
+        }
+
+        Vector3 worldTop = cam.transform.position + new Vector3(0f, cam.orthographicSize, 0f);
+        float safeTopLocalY = transform.InverseTransformPoint(worldTop).y - nextBagTopPadding;
+        return Mathf.Max(nextBagEntryHeight + nextBagLabelGap + nextBagLabelHeight, safeTopLocalY - nextBagLocalPos.y);
+    }
+
+    float GetAvailableNextBagWidth()
+    {
+        Camera cam = Camera.main;
+        if (cam == null)
+        {
+            return Mathf.Max(nextBagCanvasSize.x, 1f);
+        }
+
+        float fullWidth = 2f * cam.orthographicSize * cam.aspect;
+        return Mathf.Max(nextBagEntryWidth, fullWidth - nextBagSidePadding * 2f);
     }
 
     void LayoutRowsBottomUp(List<RectTransform> rows, float contentWidth)
@@ -446,6 +542,65 @@ public class BagDisplay : MonoBehaviour
                 vlg.childForceExpandHeight = false;
             }
         }
+
+        EnsureNextBagLabel();
+    }
+
+    void EnsureNextBagLabel()
+    {
+        if (nextBagCanvas == null)
+        {
+            return;
+        }
+
+        if (nextBagLabel == null)
+        {
+            Transform existing = nextBagCanvas.transform.Find("NextBagLabel");
+            if (existing != null)
+            {
+                TextMeshProUGUI ugui = existing.GetComponent<TextMeshProUGUI>();
+                if (ugui != null)
+                {
+                    Destroy(ugui);
+                }
+                nextBagLabel = existing.GetComponent<TextMeshPro>();
+                if (nextBagLabel == null)
+                {
+                    nextBagLabel = existing.gameObject.AddComponent<TextMeshPro>();
+                }
+            }
+        }
+
+        if (nextBagLabelFont == null)
+        {
+#if UNITY_EDITOR
+            nextBagLabelFont = UnityEditor.AssetDatabase.LoadAssetAtPath<TMP_FontAsset>("Assets/Art/Nunito-Bold SDF.asset");
+#endif
+            if (nextBagLabelFont == null)
+            {
+                nextBagLabelFont = TMP_Settings.defaultFontAsset;
+            }
+        }
+
+        if (nextBagLabel == null)
+        {
+            GameObject labelGo = new GameObject("NextBagLabel");
+            labelGo.transform.SetParent(nextBagCanvas.transform, false);
+            nextBagLabel = labelGo.AddComponent<TextMeshPro>();
+        }
+
+        nextBagLabel.text = "Next Bag";
+        if (nextBagLabelFont != null)
+        {
+            nextBagLabel.font = nextBagLabelFont;
+        }
+        nextBagLabel.fontSize = nextBagLabelFontSize;
+        nextBagLabel.color = nextBagLabelColor;
+        nextBagLabel.alignment = TextAlignmentOptions.Center;
+        nextBagLabel.enableWordWrapping = false;
+        nextBagLabel.overflowMode = TextOverflowModes.Overflow;
+        nextBagLabel.sortingOrder = 25;
+        nextBagLabel.gameObject.SetActive(true);
     }
 
     void ClearNextBagLayoutChildren()
