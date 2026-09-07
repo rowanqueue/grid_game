@@ -33,13 +33,14 @@ public class BagDisplay : MonoBehaviour
     [SerializeField] int nextBagMinPairsPerRow = 5;
     [SerializeField] float nextBagTopPadding = 0.25f;
     [SerializeField] float nextBagSidePadding = 0.2f;
-    [SerializeField] float nextBagLabelGap = 0.15f;
+    [SerializeField] float nextBagLabelGap = 0.1f;
     [SerializeField] float nextBagLabelHeight = 0.45f;
     [SerializeField] float nextBagLabelFontSize = 3.5f;
     [SerializeField] Color nextBagLabelColor = new Color(0.23f, 0.23f, 0.23f, 1f);
     [SerializeField] TMP_FontAsset nextBagLabelFont;
+    [SerializeField] TMP_Text nextBagDisplay;
 
-    TextMeshPro nextBagLabel;
+    TMP_Text nextBagLabel;
 
     Coroutine emptyBagRoutine;
 
@@ -242,7 +243,6 @@ public class BagDisplay : MonoBehaviour
         if (uniqueTokens.Count == 0)
         {
             ApplyNextBagCanvasSize(1);
-            PositionNextBagLabel(GetNextBagCanvasSize(1).y);
             FitNextBagCanvasToScreen(GetNextBagCanvasSize(1));
             return;
         }
@@ -282,24 +282,41 @@ public class BagDisplay : MonoBehaviour
             LayoutRebuilder.ForceRebuildLayoutImmediate(row);
         }
 
-        PositionNextBagLabel(naturalSize.y);
         FitNextBagCanvasToScreen(naturalSize);
     }
 
-    void PositionNextBagLabel(float stripHeight)
+    void PositionNextBagLabel()
     {
         EnsureNextBagLabel();
-        if (nextBagLabel == null)
+        if (nextBagLabel == null || nextBagCanvas == null)
         {
             return;
         }
 
+        RectTransform canvasRect = nextBagCanvas.GetComponent<RectTransform>();
         RectTransform labelRect = nextBagLabel.rectTransform;
-        labelRect.anchorMin = new Vector2(0.5f, 0f);
-        labelRect.anchorMax = new Vector2(0.5f, 0f);
-        labelRect.pivot = new Vector2(0.5f, 0f);
-        labelRect.sizeDelta = new Vector2(GetNextBagCanvasSize(1).x, nextBagLabelHeight);
-        labelRect.anchoredPosition = new Vector2(0f, stripHeight + nextBagLabelGap);
+        if (canvasRect == null || labelRect == null)
+        {
+            return;
+        }
+
+        Vector3 topWorld = canvasRect.TransformPoint(new Vector3(0f, canvasRect.sizeDelta.y, 0f));
+        Transform labelParent = labelRect.parent != null ? labelRect.parent : transform;
+        Vector3 topInLabelParent = labelParent.InverseTransformPoint(topWorld);
+
+        float halfH = Mathf.Abs(labelRect.sizeDelta.y) * 0.5f;
+        if (halfH < 0.01f)
+        {
+            halfH = nextBagLabelHeight * 0.5f;
+        }
+
+        // Sit the visible glyphs just above the strip (the rect is taller than the text).
+        float bottomInset = Mathf.Max(0f, nextBagLabel.margin.w);
+
+        labelRect.anchorMin = new Vector2(0.5f, 0.5f);
+        labelRect.anchorMax = new Vector2(0.5f, 0.5f);
+        labelRect.pivot = new Vector2(0.5f, 0.5f);
+        labelRect.anchoredPosition = new Vector2(0f, topInLabelParent.y + nextBagLabelGap + halfH - bottomInset);
         labelRect.localScale = Vector3.one;
         nextBagLabel.gameObject.SetActive(true);
     }
@@ -321,8 +338,7 @@ public class BagDisplay : MonoBehaviour
         canvasRect.localRotation = Quaternion.identity;
         canvasRect.pivot = new Vector2(0.5f, 0f);
 
-        float labelBlock = nextBagLabelGap + nextBagLabelHeight;
-        float naturalHeight = naturalSize.y + labelBlock;
+        float naturalHeight = naturalSize.y;
         float naturalWidth = naturalSize.x;
 
         float availableHeight = GetAvailableNextBagHeight();
@@ -340,10 +356,12 @@ public class BagDisplay : MonoBehaviour
 
         scale = Mathf.Clamp(scale, 0.15f, 1f);
         canvasRect.localScale = new Vector3(scale, scale, 1f);
+        PositionNextBagLabel();
     }
 
     float GetAvailableNextBagHeight()
     {
+        float labelBlock = nextBagLabelGap + GetSceneLabelHeight();
         Camera cam = Camera.main;
         if (cam == null)
         {
@@ -352,7 +370,28 @@ public class BagDisplay : MonoBehaviour
 
         Vector3 worldTop = cam.transform.position + new Vector3(0f, cam.orthographicSize, 0f);
         float safeTopLocalY = transform.InverseTransformPoint(worldTop).y - nextBagTopPadding;
-        return Mathf.Max(nextBagEntryHeight + nextBagLabelGap + nextBagLabelHeight, safeTopLocalY - nextBagLocalPos.y);
+        float floorY = GetNextBagFloorInBagLocal();
+        return Mathf.Max(nextBagEntryHeight, safeTopLocalY - floorY - labelBlock);
+    }
+
+    float GetNextBagFloorInBagLocal()
+    {
+        Transform parent = nextTokenParent != null ? nextTokenParent : transform;
+        Vector3 floorWorld = parent.TransformPoint(nextBagLocalPos);
+        return transform.InverseTransformPoint(floorWorld).y;
+    }
+
+    float GetSceneLabelHeight()
+    {
+        if (nextBagLabel != null)
+        {
+            RectTransform labelRect = nextBagLabel.rectTransform;
+            if (labelRect != null && labelRect.sizeDelta.y > 0.01f)
+            {
+                return labelRect.sizeDelta.y;
+            }
+        }
+        return nextBagLabelHeight;
     }
 
     float GetAvailableNextBagWidth()
@@ -548,27 +587,39 @@ public class BagDisplay : MonoBehaviour
 
     void EnsureNextBagLabel()
     {
-        if (nextBagCanvas == null)
+        if (nextBagLabel == null)
         {
-            return;
+            nextBagLabel = nextBagDisplay;
         }
 
         if (nextBagLabel == null)
         {
-            Transform existing = nextBagCanvas.transform.Find("NextBagLabel");
-            if (existing != null)
+            Transform sceneLabel = transform.Find("NextBagDisplay");
+            if (sceneLabel != null)
             {
-                TextMeshProUGUI ugui = existing.GetComponent<TextMeshProUGUI>();
-                if (ugui != null)
-                {
-                    Destroy(ugui);
-                }
-                nextBagLabel = existing.GetComponent<TextMeshPro>();
-                if (nextBagLabel == null)
-                {
-                    nextBagLabel = existing.gameObject.AddComponent<TextMeshPro>();
-                }
+                nextBagLabel = sceneLabel.GetComponent<TMP_Text>();
             }
+        }
+
+        if (nextBagCanvas != null)
+        {
+            Transform leftover = nextBagCanvas.transform.Find("NextBagLabel");
+            if (leftover != null && (nextBagLabel == null || leftover.gameObject != nextBagLabel.gameObject))
+            {
+                leftover.gameObject.SetActive(false);
+                Destroy(leftover.gameObject);
+            }
+        }
+
+        if (nextBagLabel != null)
+        {
+            nextBagLabel.gameObject.SetActive(true);
+            return;
+        }
+
+        if (nextBagCanvas == null)
+        {
+            return;
         }
 
         if (nextBagLabelFont == null)
@@ -582,25 +633,22 @@ public class BagDisplay : MonoBehaviour
             }
         }
 
-        if (nextBagLabel == null)
-        {
-            GameObject labelGo = new GameObject("NextBagLabel");
-            labelGo.transform.SetParent(nextBagCanvas.transform, false);
-            nextBagLabel = labelGo.AddComponent<TextMeshPro>();
-        }
-
-        nextBagLabel.text = "Next Bag";
+        GameObject labelGo = new GameObject("NextBagLabel");
+        labelGo.transform.SetParent(nextBagCanvas.transform, false);
+        TextMeshPro fallback = labelGo.AddComponent<TextMeshPro>();
+        fallback.text = "Next Bag";
         if (nextBagLabelFont != null)
         {
-            nextBagLabel.font = nextBagLabelFont;
+            fallback.font = nextBagLabelFont;
         }
-        nextBagLabel.fontSize = nextBagLabelFontSize;
-        nextBagLabel.color = nextBagLabelColor;
-        nextBagLabel.alignment = TextAlignmentOptions.Center;
-        nextBagLabel.enableWordWrapping = false;
-        nextBagLabel.overflowMode = TextOverflowModes.Overflow;
-        nextBagLabel.sortingOrder = 25;
-        nextBagLabel.gameObject.SetActive(true);
+        fallback.fontSize = nextBagLabelFontSize;
+        fallback.color = nextBagLabelColor;
+        fallback.alignment = TextAlignmentOptions.Center;
+        fallback.enableWordWrapping = false;
+        fallback.overflowMode = TextOverflowModes.Overflow;
+        fallback.sortingOrder = 25;
+        fallback.gameObject.SetActive(true);
+        nextBagLabel = fallback;
     }
 
     void ClearNextBagLayoutChildren()

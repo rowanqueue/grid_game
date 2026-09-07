@@ -9,11 +9,12 @@ public class TutorialStageData : MonoBehaviour
 {
     [Header("Presentation Timing")]
     public float dimTime = 0.5f;
+    public float dimFadeInTime = 0.9f;
     public float endFade = 0.73f;
     public Image dim;
     public List<StagePhase> stagePhase;
 
-    public float PresentationDuration => dimTime + GetMaxArrowFadeTime();
+    public float PresentationDuration => Mathf.Max(dimTime, dimFadeInTime) + GetMaxArrowFadeTime();
 
     public bool HasPhase(int index) => stagePhase != null && index >= 0 && index < stagePhase.Count;
 
@@ -65,7 +66,7 @@ public class TutorialStageData : MonoBehaviour
             else
             {
                 dim.color = new Color(dim.color.r, dim.color.g, dim.color.b, 0);
-                dimTween = dim.DOFade(endFade, dimTime);
+                dimTween = dim.DOFade(endFade, dimFadeInTime);
             }
         }
 

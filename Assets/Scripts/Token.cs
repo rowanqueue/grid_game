@@ -1204,12 +1204,20 @@ public class Token : MonoBehaviour
         float speed = liftSpeed;
         float waitTime = Random.Range(killNumberWaitMin, killNumberWaitMax);
         yield return new WaitForSeconds(waitTime);
-        Transform scoringVisual = IsGnomeToken && gnome != null && gnome.enabled ? gnome.transform : textDisplay.transform;
-        while (scoringVisual != null && scoringVisual.localScale.x > 0.2f)
+        Transform scoreLabel = textDisplay != null ? textDisplay.transform : null;
+        Transform gnomeVisual = IsGnomeToken && gnome != null && gnome.enabled ? gnome.transform : null;
+        while ((scoreLabel != null && scoreLabel.localScale.x > 0.2f)
+            || (gnomeVisual != null && gnomeVisual.localScale.x > 0.2f))
         {
-            scoringVisual.localScale -= Vector3.one * speed * 0.95f;
+            if (scoreLabel != null && scoreLabel.localScale.x > 0.2f)
+            {
+                scoreLabel.localScale -= Vector3.one * speed * 0.95f;
+            }
+            if (gnomeVisual != null && gnomeVisual.localScale.x > 0.2f)
+            {
+                gnomeVisual.localScale -= Vector3.one * speed * 0.95f;
+            }
             yield return new WaitForEndOfFrame();
-
         }
         //todo: make this the right amount of points
         //Services.GameController.dyingTokens.Remove(this);
@@ -1222,7 +1230,7 @@ public class Token : MonoBehaviour
         {
             GameObject.Destroy(gnome.gameObject);
         }
-        else if (textDisplay != null)
+        if (textDisplay != null)
         {
             GameObject.Destroy(textDisplay.gameObject);
         }

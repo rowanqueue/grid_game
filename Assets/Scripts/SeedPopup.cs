@@ -5,12 +5,15 @@ using UnityEngine;
 
 public class SeedPopup : MonoBehaviour
 {
+    const int OverlayBaseOrder = 100;
+
     [SerializeField] float fadeInDuration = 0.15f;
     [SerializeField] float fadeOutDuration = 0.15f;
     [SerializeField] float clickDebounce = 0.1f;
 
     bool open;
     GameObject visual;
+    Collider2D seedsButtonCollider;
     bool closing;
     bool ignoreDismissUntilRelease;
     SpriteRenderer[] fadeRenderers;
@@ -21,12 +24,87 @@ public class SeedPopup : MonoBehaviour
     void Awake()
     {
         visual = transform.GetChild(0).gameObject;
+        Transform seedsButton = visual.transform.Find("Seeds");
+        if (seedsButton != null)
+            ConfigureSeedsButton(seedsButton);
         visual.SetActive(false);
         fadeRenderers = visual.GetComponentsInChildren<SpriteRenderer>(true);
         canvasGroup = visual.GetComponent<CanvasGroup>();
         messageText = visual.GetComponentInChildren<TextMeshPro>(true);
         if (messageText != null)
             defaultMessage = messageText.text;
+        ApplyOverlaySorting();
+    }
+
+    void ConfigureSeedsButton(Transform seedsButton)
+    {
+        var anchor = seedsButton.GetComponent<AnchorGameObject>();
+        if (anchor != null)
+        {
+            anchor.enabled = false;
+            Destroy(anchor);
+        }
+
+        seedsButton.localPosition = new Vector3(0f, -0.35f, 0f);
+        seedsButton.localRotation = Quaternion.identity;
+        seedsButton.localScale = Vector3.one;
+
+        for (int i = 0; i < seedsButton.childCount; i++)
+        {
+            Transform child = seedsButton.GetChild(i);
+            if (child.name.StartsWith("9-Sliced"))
+                child.gameObject.SetActive(false);
+        }
+
+        TextMeshPro label = seedsButton.GetComponentInChildren<TextMeshPro>(true);
+        if (label != null)
+        {
+            label.gameObject.SetActive(true);
+            label.text = "Get Seeds";
+            label.alignment = TextAlignmentOptions.Center;
+            label.enableAutoSizing = false;
+            label.fontSize = 4f;
+            if (label.rectTransform != null)
+            {
+                label.rectTransform.pivot = new Vector2(0.5f, 0.5f);
+                label.rectTransform.anchoredPosition = Vector2.zero;
+                label.rectTransform.sizeDelta = new Vector2(4f, 1f);
+            }
+        }
+
+        var box = seedsButton.GetComponent<BoxCollider2D>();
+        if (box != null)
+        {
+            box.offset = Vector2.zero;
+            box.size = new Vector2(3.5f, 1f);
+        }
+        seedsButtonCollider = seedsButton.GetComponent<Collider2D>();
+    }
+
+    void ApplyOverlaySorting()
+    {
+        int layerId = SortingLayer.NameToID("UIToken");
+        TextMeshPro[] texts = visual.GetComponentsInChildren<TextMeshPro>(true);
+
+        int minOrder = int.MaxValue;
+        foreach (SpriteRenderer sr in fadeRenderers)
+            minOrder = Mathf.Min(minOrder, sr.sortingOrder);
+        foreach (TextMeshPro tmp in texts)
+            minOrder = Mathf.Min(minOrder, tmp.sortingOrder);
+        if (minOrder == int.MaxValue)
+            return;
+
+        int shift = OverlayBaseOrder - minOrder;
+        foreach (SpriteRenderer sr in fadeRenderers)
+        {
+            sr.sortingLayerID = layerId;
+            sr.sortingOrder += shift;
+        }
+        foreach (TextMeshPro tmp in texts)
+        {
+            tmp.sortingLayerID = layerId;
+            tmp.sortingOrder += shift;
+        }
     }
 
     void Update()
@@ -42,8 +120,16 @@ public class SeedPopup : MonoBehaviour
             return;
         }
 
-        if (InputHelper.GetPrimaryPressBegan())
-            StartCoroutine(WaitToClose());
+        if (!InputHelper.GetPrimaryPressBegan())
+            return;
+
+        if (InputHelper.IsPointerOverCollider(seedsButtonCollider))
+        {
+            Close();
+            return;
+        }
+
+        StartCoroutine(WaitToClose());
     }
 
     public void Open(string message = null)
@@ -56,6 +142,8 @@ public class SeedPopup : MonoBehaviour
 
         open = true;
         ignoreDismissUntilRelease = InputHelper.GetPrimaryPressBegan() || InputHelper.GetPrimaryPressHeld();
+        if (seedsButtonCollider != null)
+            seedsButtonCollider.transform.localPosition = new Vector3(0f, -0.35f, 0f);
         visual.SetActive(true);
         SetVisualAlpha(0f);
         StartCoroutine(FadeIn());

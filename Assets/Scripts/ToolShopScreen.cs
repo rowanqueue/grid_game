@@ -27,7 +27,65 @@ public class ToolShopScreen : MonoBehaviour
 
     public bool IsPointerOverPanel()
     {
-        return InputHelper.IsPointerOverCollider(panelCollider);
+        if (panelCollider != null && InputHelper.IsPointerOverCollider(panelCollider))
+        {
+            return true;
+        }
+
+        Vector2 world = InputHelper.GetPointerWorldPosition();
+        Collider2D[] colliders = GetComponentsInChildren<Collider2D>();
+        for (int i = 0; i < colliders.Length; i++)
+        {
+            Collider2D col = colliders[i];
+            if (col == null || !col.enabled)
+            {
+                continue;
+            }
+            if (col.OverlapPoint(world))
+            {
+                return true;
+            }
+        }
+
+        Renderer[] renderers = GetComponentsInChildren<Renderer>();
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            Renderer r = renderers[i];
+            if (r == null || !r.enabled)
+            {
+                continue;
+            }
+            Bounds bounds = r.bounds;
+            Vector3 point = new Vector3(world.x, world.y, bounds.center.z);
+            if (bounds.Contains(point))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    void Awake()
+    {
+        EnableShopButtons();
+    }
+
+    void OnEnable()
+    {
+        EnableShopButtons();
+    }
+
+    void EnableShopButtons()
+    {
+        flora.Button[] buttons = GetComponentsInChildren<flora.Button>(true);
+        for (int i = 0; i < buttons.Length; i++)
+        {
+            if (buttons[i] != null)
+            {
+                buttons[i].allowDuringToolShop = true;
+            }
+        }
     }
 
     private void Start()

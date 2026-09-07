@@ -15,10 +15,11 @@ public class MiniTile : MonoBehaviour
     public Sprite adder;
     public Sprite spade;
     public Sprite clipper;
+    public Sprite gnome;
     // Start is called before the first frame update
     public void SetTile(TokenData token)
     {
-        if(token.color == TokenColor.Adder || token.color == TokenColor.Spade || token.color == TokenColor.Clipper)
+        if(token.color == TokenColor.Adder || token.color == TokenColor.Spade || token.color == TokenColor.Clipper || token.color == TokenColor.Gnome)
         {
             SetTileWeird(token);
             return;
@@ -76,6 +77,10 @@ public class MiniTile : MonoBehaviour
         else if (token.color == TokenColor.Clipper)
         {
             spriteDisplay.sprite = clipper;
+        }
+        else if (token.color == TokenColor.Gnome)
+        {
+            spriteDisplay.sprite = gnome;
         }
     }
     public void SetArrow()

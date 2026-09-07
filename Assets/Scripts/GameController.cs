@@ -144,6 +144,7 @@ public class GameController : MonoBehaviour
 
     public UpgradePopup upgradePopup;
     public bool popupopen = false;
+    bool UpgradePopupBlocking => upgradePopup != null && upgradePopup.IsBlockingInput;
 
     public List<GameObject> flowerPrefabs;
     public Dictionary<Tile, List<Flower>> flowers;
@@ -183,6 +184,9 @@ public class GameController : MonoBehaviour
     public float DeathAnimationSpeed => fastMode ? 2f : 1f;
 
     public Transform bagButtonTransform;
+    [SerializeField] GameObject shopButton;
+    [SerializeField] GameObject mulliganButton;
+    [SerializeField] GameObject snapshotButton;
     public bool newGame = false;
     public List<Token> dyingTokens = new List<Token>();
 
@@ -201,21 +205,23 @@ public class GameController : MonoBehaviour
     void Awake()
     {
         InitializeServices();
+        ResolveDifficultySelectHudButtons();
 #if UNITY_ANDROID
         UnityEngine.Screen.sleepTimeout = SleepTimeout.NeverSleep;
 #endif
         if (PlayerPrefs.HasKey("difficulty"))
         {
-            if (PlayerPrefs.GetInt("difficulty") > 3)
+            int savedDifficulty = PlayerPrefs.GetInt("difficulty");
+            if (savedDifficulty < 0 || savedDifficulty >= difficulties.Count)
             {
                 PlayerPrefs.DeleteKey("difficulty");
-                PlayerPrefs.DeleteKey("difficultyUnlock");
             }
         }
         if (PlayerPrefs.HasKey("difficultyUnlock"))
         {
             String unlock = PlayerPrefs.GetString("difficultyUnlock");
-            for (int i = 0; i < unlock.Length; i++)
+            int count = Mathf.Min(unlock.Length, difficultyUnlocked.Count);
+            for (int i = 0; i < count; i++)
             {
                 if (unlock[i] == '1')
                 {
@@ -225,7 +231,7 @@ public class GameController : MonoBehaviour
         }
         else
         {
-            PlayerPrefs.SetString("difficultyUnlock", "1000");
+            PlayerPrefs.SetString("difficultyUnlock", BuildDifficultyUnlockString());
             PlayerPrefs.Save();
         }
         if (PlayerPrefs.HasKey("musicVolume") == false)
@@ -282,17 +288,17 @@ public class GameController : MonoBehaviour
 
         if (PlayerPrefs.HasKey("difficulty") == false)
         {
+            difficulty = DefaultDifficultySelection();
             PlayerPrefs.SetInt("difficulty", difficulty);
             PlayerPrefs.Save();
         }
         else
         {
             difficulty = PlayerPrefs.GetInt("difficulty");
-        }
-
-        if(gameState == GameState.Start)
-        {
-            difficulty = 1;
+            if (difficulty <= 0 || difficulty >= difficulties.Count)
+            {
+                difficulty = DefaultDifficultySelection();
+            }
         }
 
         gameJson = difficulties[difficulty];
@@ -705,6 +711,7 @@ public class GameController : MonoBehaviour
             }
         }
         difficultyParent.SetActive(false);
+        SetDifficultySelectHudVisible(true);
         if (gameState == GameState.SelectDifficulty && !IsTutorialSession)
         {
             if (difficulty == 0)
@@ -717,6 +724,7 @@ public class GameController : MonoBehaviour
                 Json.Root root = JsonConvert.DeserializeObject<Json.Root>(gameJson.text);
                 game.Initialize(root);
                 CreateHand(true);
+                PersistLastPlayedDifficulty();
                 Save();
             }
         }
@@ -745,9 +753,46 @@ public class GameController : MonoBehaviour
         lastState = gameState;
         gameState = GameState.SelectDifficulty;
         difficultyParent.SetActive(true);
+        SetDifficultySelectHudVisible(false);
         stateScreens[(int)GameState.Gameplay].gameObject.SetActive(true);
         stateScreens[(int)GameState.Gameplay].SetAnchor();
         movingToScreen = true;
+    }
+
+    void ResolveDifficultySelectHudButtons()
+    {
+        if (shopButton == null)
+        {
+            shopButton = GameObject.Find("ShopButton");
+        }
+        if (mulliganButton == null)
+        {
+            mulliganButton = GameObject.Find("Mulligan");
+        }
+        if (snapshotButton == null)
+        {
+            snapshotButton = GameObject.Find("SnapshotButton");
+        }
+    }
+
+    void SetDifficultySelectHudVisible(bool visible)
+    {
+        if (shopButton != null)
+        {
+            shopButton.SetActive(visible);
+        }
+        if (mulliganButton != null)
+        {
+            mulliganButton.SetActive(visible);
+        }
+        if (bagButtonTransform != null)
+        {
+            bagButtonTransform.gameObject.SetActive(visible);
+        }
+        if (snapshotButton != null)
+        {
+            snapshotButton.SetActive(visible);
+        }
     }
     public void GameStateStart()
     {
@@ -760,6 +805,11 @@ public class GameController : MonoBehaviour
     }
     public void GameStateSettings()
     {
+        if (highScoreOpenedFromWin)
+        {
+            ReturnToWinFromHighScore();
+            return;
+        }
         if (inputState == InputState.Finish || inputState == InputState.TapToRestart) { return; }
         if (inTutorial) { return; }
         if (inTutorial) { return; }
@@ -1766,6 +1816,8 @@ public class GameController : MonoBehaviour
             yield return null;
         }
         yield return FlushScoreDeltaImmediate();
+        PersistDifficultyUnlocks();
+        PersistLastPlayedDifficulty();
         yield return ShowWinScreenSequence();
         finishRoutineRunning = false;
         EnterInputState(InputState.TapToRestart);
@@ -1818,7 +1870,7 @@ public class GameController : MonoBehaviour
 
         dismissingPopup = true;
         upgradePopup.Close();
-        while (upgradePopup.IsAnimatingClose)
+        while (upgradePopup.IsBlockingInput)
             yield return null;
 
         popupopen = false;
@@ -2212,7 +2264,7 @@ public class GameController : MonoBehaviour
                 // Restart / High Scores are handled by WinScreen action buttons.
                 break;
             case InputState.Choose:
-                if (gameState != GameState.Gameplay) { break; }
+                if (gameState != GameState.Gameplay || UpgradePopupBlocking) { break; }
                 chosenIndex = -1;
                 Logic.TokenColor color = Logic.TokenColor.Clipper;
                 //hover
@@ -2299,7 +2351,7 @@ public class GameController : MonoBehaviour
                 break;
             case InputState.Place:
             {
-                if (gameState != GameState.Gameplay) { break; }
+                if (gameState != GameState.Gameplay || UpgradePopupBlocking) { break; }
                 bool dragDropThisFrame = false;
                 if (holdingClick)
                 {
@@ -2819,8 +2871,9 @@ public class GameController : MonoBehaviour
                                 break;
                             }
 
-                            if (popupopen)
+                            if (popupopen || UpgradePopupBlocking)
                             {
+                                popupopen = true;
                                 EnterInputState(InputState.Popup);
                             }
                             else if (game.hand.handSize == 1)
@@ -2843,7 +2896,11 @@ public class GameController : MonoBehaviour
                 }
                 break;
             case InputState.Popup:
-                if (InputHelper.GetAnyPressBegan() && !dismissingPopup && upgradePopup != null && !upgradePopup.IsAnimatingClose)
+                if (InputHelper.GetAnyPressBegan()
+                    && !dismissingPopup
+                    && upgradePopup != null
+                    && upgradePopup.IsVisible
+                    && !upgradePopup.IsAnimatingClose)
                 {
                     StartCoroutine(DismissUpgradePopupRoutine());
                 }
@@ -3231,6 +3288,7 @@ public class GameController : MonoBehaviour
     void EnterGameplayFromLoadedSnapshot()
     {
         difficultyParent.SetActive(false);
+        SetDifficultySelectHudVisible(true);
         if (gameState == GameState.Gameplay) { return; }
         if (gameState == GameState.ToolShop)
         {
@@ -3252,6 +3310,15 @@ public class GameController : MonoBehaviour
         Logic.History.Turn save = new Logic.History.Turn(game);
         currentSave = save;
         SaveLoad.Save(0, currentSave);
+        PersistDifficultyUnlocks();
+    }
+
+    void PersistDifficultyUnlocks()
+    {
+        if (IsTutorialSession)
+        {
+            return;
+        }
         for (int i = 0; i < difficultyUnlocked.Count; i++)
         {
             if (difficultyUnlocked[i]) { continue; }
@@ -3261,19 +3328,41 @@ public class GameController : MonoBehaviour
                 difficultyUnlocked[i] = true;
             }
         }
+        PlayerPrefs.SetString("difficultyUnlock", BuildDifficultyUnlockString());
+        PlayerPrefs.Save();
+    }
+
+    string BuildDifficultyUnlockString()
+    {
         String unlock = "";
         for (int i = 0; i < difficultyUnlocked.Count; i++)
         {
-            if (difficultyUnlocked[i])
-            {
-                unlock = unlock + "1";
-            }
-            else
-            {
-                unlock = unlock + "0";
-            }
+            unlock = unlock + (difficultyUnlocked[i] ? "1" : "0");
         }
-        PlayerPrefs.SetString("difficultyUnlock", unlock);
+        return unlock;
+    }
+
+    int DefaultDifficultySelection()
+    {
+        return Mathf.Clamp(1, 0, Mathf.Max(0, difficulties.Count - 1));
+    }
+
+    void PersistLastPlayedDifficulty()
+    {
+        if (IsTutorialSession)
+        {
+            return;
+        }
+        int played = difficulties.IndexOf(gameJson);
+        if (played < 0)
+        {
+            played = difficulty;
+        }
+        if (played <= 0 || played >= difficulties.Count)
+        {
+            return;
+        }
+        PlayerPrefs.SetInt("difficulty", played);
         PlayerPrefs.Save();
     }
 
