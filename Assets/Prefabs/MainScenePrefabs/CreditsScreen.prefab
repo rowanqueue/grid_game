@@ -53,7 +53,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: GameController, Assembly-CSharp
-        m_MethodName: 
+        m_MethodName: GameStateSettings
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -65,7 +65,7 @@ MonoBehaviour:
         m_CallState: 2
       - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: AudioManager, Assembly-CSharp
-        m_MethodName: 
+        m_MethodName: PlayButtonPressSound
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -77,7 +77,7 @@ MonoBehaviour:
         m_CallState: 2
       - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: AudioManager, Assembly-CSharp
-        m_MethodName: 
+        m_MethodName: PlayMenuTransitionSound
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -195,8 +195,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 1.2, y: -2.4198}
-  m_SizeDelta: {x: 2, y: 3.0121}
+  m_AnchoredPosition: {x: 1.2, y: -2.5145}
+  m_SizeDelta: {x: 2, y: 2.779}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!23 &8607851692369266909
 MeshRenderer:
@@ -288,8 +288,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 5.3
-  m_fontSizeBase: 5.3
+  m_fontSize: 6.4
+  m_fontSizeBase: 6.4
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 1
@@ -761,8 +761,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -1.2, y: -2.4198}
-  m_SizeDelta: {x: 2, y: 3.0121}
+  m_AnchoredPosition: {x: -1.2, y: -2.5145}
+  m_SizeDelta: {x: 2, y: 2.779}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!23 &1863981379431553200
 MeshRenderer:
@@ -854,8 +854,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 5.3
-  m_fontSizeBase: 5.3
+  m_fontSize: 6.4
+  m_fontSizeBase: 6.4
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 1
@@ -1082,28 +1082,28 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: '<size=50%><color=#DCEFBA><u>ART</u></color></size>
+  m_text: '<size=70%><color=#DCEFBA>Art</color></size>
 
     Stephanie Farn
 
-    <size=50%><color=#DCEFBA><u>DESIGN</u></color></size>
+    <size=70%><color=#DCEFBA>Design</u></color></size>
 
     Charles
     Pratt
 
-    <size=50%><color=#DCEFBA><u>PROGRAMMING</u></color></size>
+    <size=70%><color=#DCEFBA>Programming</color></size>
 
-    Rowan
-    Wood
+    Rowan Wood
 
-    Parker Crandell
+    Parker
+    Crandell
 
-    <size=50%><color=#DCEFBA><u>SOUND & MUSIC</u></color></size>
+    <size=70%><color=#DCEFBA>Sound & Music</color></size>
 
     Patrick
     Trinh
 
-    <size=50%><color=#DCEFBA><u>Special Thanks</u></color></size>
+    <size=70%><color=#DCEFBA>Special Thanks</u></color></size>
 
 '
   m_isRightToLeft: 0
@@ -1144,7 +1144,7 @@ MonoBehaviour:
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
-  m_lineSpacing: 0
+  m_lineSpacing: -7.95
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
