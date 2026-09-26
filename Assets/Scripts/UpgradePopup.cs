@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
-using System.Linq;
 
 enum UpgradeType
 {
@@ -44,7 +43,9 @@ public class UpgradePopup : MonoBehaviour
 
     Coroutine starting;
     Coroutine ending;
+    Coroutine createRoutine;
     bool isClosing;
+    bool isShowing;
 
     void Awake()
     {
@@ -89,20 +90,83 @@ public class UpgradePopup : MonoBehaviour
         return triggers;
     }
 
-    static void GetUpgradeData(Dictionary<TokenData, int> contents, out TokenData oldData, out TokenData newData)
+    static UpgradeType GetUpgradeType(Dictionary<TokenData, int> contents)
     {
-        oldData = new TokenData();
-        newData = new TokenData();
-        foreach (TokenData data in contents.Keys)
+        foreach (int num in contents.Values)
         {
-            if (contents[data] < 0) { oldData = data; }
-            if (contents[data] > 0) { newData = data; }
+            if (num < 0)
+                return UpgradeType.Upgrade;
         }
+        return UpgradeType.Unlock;
     }
 
-    IEnumerator TinyActuallyCreate(Dictionary<TokenData, int> contents)
+    static bool TryGetUpgradeData(Dictionary<TokenData, int> contents, out TokenData oldData, out TokenData newData)
+    {
+        oldData = default;
+        newData = default;
+        bool hasOld = false;
+        bool hasNew = false;
+        foreach (TokenData data in contents.Keys)
+        {
+            int count = contents[data];
+            if (count < 0)
+            {
+                oldData = data;
+                hasOld = true;
+            }
+            if (count > 0 && count != 100)
+            {
+                newData = data;
+                hasNew = true;
+            }
+        }
+        return hasOld && hasNew;
+    }
+
+    static bool TryGetUnlockData(Dictionary<TokenData, int> contents, out TokenData data, out int count)
+    {
+        data = new TokenData();
+        count = 0;
+        foreach (TokenData token in contents.Keys)
+        {
+            int n = contents[token];
+            if (n > 0 && n != 100)
+            {
+                data = token;
+                count = n;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    IEnumerator TinyActuallyCreate(Dictionary<TokenData, int> contents, UpgradeType upgradeType)
     {
         yield return new WaitForSeconds(0.0f);
+
+        Dictionary<TokenData, int> displayContents = CopyContents(contents);
+        RemoveTriggers(displayContents);
+        upgradeType = GetUpgradeType(displayContents);
+
+        int needed = 0;
+        TokenData unlockData = default;
+        int unlockCount = 0;
+        TokenData oldData = default;
+        TokenData newData = default;
+        if (upgradeType == UpgradeType.Upgrade && !TryGetUpgradeData(displayContents, out oldData, out newData))
+            upgradeType = UpgradeType.Unlock;
+        switch (upgradeType)
+        {
+            case UpgradeType.Upgrade:
+                needed = 3;
+                break;
+            case UpgradeType.Unlock:
+                if (!TryGetUnlockData(displayContents, out unlockData, out unlockCount))
+                    yield break;
+                needed = Mathf.Clamp(unlockCount, 1, 3) + 1;
+                break;
+        }
+
         UpgradeTab tinyTab = tinyTabs[0];
         if (tinyTabs[0].active == false)
         {
@@ -130,28 +194,13 @@ public class UpgradePopup : MonoBehaviour
             tinyTabs[i].SetHeight(tabPositions[i].y);
         tinyTab.Activate();
 
-        Dictionary<TokenData, int> displayContents = CopyContents(contents);
-        RemoveTriggers(displayContents);
-
         foreach (MiniTile tile in tinyTab.miniTiles)
             tile.gameObject.SetActive(false);
 
-        int needed = 0;
-        switch (type)
-        {
-            case UpgradeType.Upgrade:
-                needed = 3;
-                break;
-            case UpgradeType.Unlock:
-                TokenData unlockData = displayContents.Keys.ToList()[0];
-                needed = Mathf.Clamp(displayContents[unlockData], 1, 3) + 1;
-                break;
-        }
         int tileCount = tinyTab.miniTiles.Count - needed;
-        switch (type)
+        switch (upgradeType)
         {
             case UpgradeType.Upgrade:
-                GetUpgradeData(displayContents, out TokenData oldData, out TokenData newData);
                 tinyTab.miniTiles[tileCount].gameObject.SetActive(true);
                 tinyTab.miniTiles[tileCount].SetTile(oldData);
                 tileCount++;
@@ -163,21 +212,19 @@ public class UpgradePopup : MonoBehaviour
                 tileCount++;
                 break;
             case UpgradeType.Unlock:
-                TokenData data = displayContents.Keys.ToList()[0];
-                int count = displayContents[data];
                 tinyTab.miniTiles[tileCount].gameObject.SetActive(true);
-                tinyTab.miniTiles[tileCount].SetTile(data);
+                tinyTab.miniTiles[tileCount].SetTile(unlockData);
                 tileCount++;
-                if (count > 1)
+                if (unlockCount > 1)
                 {
                     tinyTab.miniTiles[tileCount].gameObject.SetActive(true);
-                    tinyTab.miniTiles[tileCount].SetTile(data);
+                    tinyTab.miniTiles[tileCount].SetTile(unlockData);
                     tileCount++;
                 }
-                if (count > 2)
+                if (unlockCount > 2)
                 {
                     tinyTab.miniTiles[tileCount].gameObject.SetActive(true);
-                    tinyTab.miniTiles[tileCount].SetTile(data);
+                    tinyTab.miniTiles[tileCount].SetTile(unlockData);
                     tileCount++;
                 }
                 tinyTab.miniTiles[tileCount].gameObject.SetActive(true);
@@ -190,7 +237,7 @@ public class UpgradePopup : MonoBehaviour
         tinyTab.NewPosition(new Vector2(x, y));
     }
 
-    IEnumerator ActuallyCreate(Dictionary<TokenData, int> contents)
+    IEnumerator ActuallyCreate(Dictionary<TokenData, int> contents, UpgradeType upgradeType)
     {
         yield return new WaitForSeconds(0.0f);
         bool alreadyActive = visual.activeSelf;
@@ -208,6 +255,11 @@ public class UpgradePopup : MonoBehaviour
         }
 
         List<TokenData> triggers = RemoveTriggers(contents);
+        upgradeType = GetUpgradeType(contents);
+        TokenData oldData = default;
+        TokenData newData = default;
+        if (upgradeType == UpgradeType.Upgrade && !TryGetUpgradeData(contents, out oldData, out newData))
+            upgradeType = UpgradeType.Unlock;
         int triggerCount = 0;
         foreach (TokenData token in triggers)
         {
@@ -215,25 +267,25 @@ public class UpgradePopup : MonoBehaviour
             unlockReasons[triggerCount].SetTile(token);
             triggerCount++;
         }
-        switch (type)
+        switch (upgradeType)
         {
             case UpgradeType.Unlock:
                 unlockParent.SetActive(true);
                 title.text = "Tile Unlock";
                 content.text = "A {0} tile has been added to your bag!";
-                TokenData data = contents.Keys.ToList()[0];
-                if (contents[data] == 1 || contents[data] == 3)
+                TryGetUnlockData(contents, out TokenData data, out int unlockCount);
+                if (unlockCount == 1 || unlockCount == 3)
                 {
                     unlockSubParents[0].SetActive(true);
-                    if (contents[data] == 3)
+                    if (unlockCount == 3)
                         unlockSubParents[2].SetActive(true);
                 }
                 else
                     unlockSubParents[1].SetActive(true);
-                if (contents[data] > 1)
+                if (unlockCount > 1)
                 {
                     string[] numWords = new string[] { "Zero", "one", "Two", "Three" };
-                    content.text = numWords[contents[data]] + " {0} tiles have been added to your bag!";
+                    content.text = numWords[unlockCount] + " {0} tiles have been added to your bag!";
                 }
                 string token_info = "";
                 if (data.color == TokenColor.Adder)
@@ -254,7 +306,6 @@ public class UpgradePopup : MonoBehaviour
             case UpgradeType.Upgrade:
                 upgradeParent.SetActive(true);
                 title.text = "Tile Upgrade";
-                GetUpgradeData(contents, out TokenData oldData, out TokenData newData);
                 content.text = "A {0} tile has been upgraded from a {1} to a {2}!";
                 content.text = string.Format(content.text, new string[3] { oldData.color.ToString(), oldData.num.ToString(), newData.num.ToString() });
                 oldToken.SetTokenData(oldData);
@@ -263,6 +314,7 @@ public class UpgradePopup : MonoBehaviour
                 oldToken.UpdateLayer("UIToken");
                 break;
         }
+        createRoutine = null;
     }
 
     public bool Create(Dictionary<TokenData, int> contents)
@@ -275,28 +327,48 @@ public class UpgradePopup : MonoBehaviour
         else
             previousUnlocks.Add(id);
 
-        bool hasRemove = false;
         bool hasGain = false;
         foreach (int num in contents.Values)
         {
-            if (num < 0) { hasRemove = true; }
             if (num > 0) { hasGain = true; }
         }
         if (hasGain == false) { return false; }
-        type = hasRemove ? UpgradeType.Upgrade : UpgradeType.Unlock;
+        UpgradeType upgradeType = GetUpgradeType(contents);
+        type = upgradeType;
+        Dictionary<TokenData, int> snapshot = CopyContents(contents);
         if (repeat)
         {
-            StartCoroutine(TinyActuallyCreate(contents));
+            StartCoroutine(TinyActuallyCreate(snapshot, upgradeType));
             return false;
         }
-        StartCoroutine(ActuallyCreate(contents));
+        isShowing = true;
+        if (createRoutine != null)
+            StopCoroutine(createRoutine);
+        createRoutine = StartCoroutine(ActuallyCreate(snapshot, upgradeType));
         return true;
     }
 
     public void Close()
     {
-        if (isClosing || !visual.activeSelf)
+        if (isClosing)
             return;
+
+        if (createRoutine != null)
+        {
+            StopCoroutine(createRoutine);
+            createRoutine = null;
+        }
+
+        if (!visual.activeSelf)
+        {
+            if (starting != null)
+            {
+                StopCoroutine(starting);
+                starting = null;
+            }
+            isShowing = false;
+            return;
+        }
 
         Services.AudioManager.PlayButtonPressSound();
         unlockParent.SetActive(false);
@@ -317,6 +389,8 @@ public class UpgradePopup : MonoBehaviour
     }
 
     public bool IsAnimatingClose => isClosing;
+    public bool IsVisible => visual != null && visual.activeSelf;
+    public bool IsBlockingInput => isShowing || isClosing || IsVisible;
 
     public void TabClosed(UpgradeTab tab)
     {
@@ -364,6 +438,7 @@ public class UpgradePopup : MonoBehaviour
         yield return SlideHelper.SlideLocalX(visual.transform, slideOutToX, slideOutDuration);
         visual.SetActive(false);
         isClosing = false;
+        isShowing = false;
         ending = null;
     }
 }

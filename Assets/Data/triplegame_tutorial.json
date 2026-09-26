@@ -8,7 +8,7 @@
     "handSize": 4,
     "gameVariables": {
         "groupCollapseNum": 3,
-        "maxTileNum": 4,
+        "maxTileNum": 8,
     },
     "tokenVariables": {
         "color": [
@@ -43,21 +43,45 @@
             "gold": 10,
         }
     },
+    "startingHand":[
+      "spade","*","*","*"
+    ],
     "startingBag": [
-      {
+        {
+            "token": {
+                "color": "blue",
+                "number": 1
+            },
+            "count": 8
+        },
+        {
+            "token": {
+                "color": "red",
+                "number": 1
+            },
+            "count": 6
+        },
+        {
+            "token": {
+                "color": "green",
+                "number": 1
+            },
+            "count": 4
+        },
+        {
+            "token": {
+                "color": "purple",
+                "number": 1
+            },
+            "count": 2
+        },
+        {
           "token": {
-              "color": "blue",
-              "number": 1
+              "color": "spade",
+              "number": 0
           },
-          "count": 6
-      },
-      {
-          "token": {
-              "color": "red",
-              "number": 1
-          },
-          "count": 4
-      }
+          "count": 1
+        },
     ],
     "progress": {
         "events": [
@@ -172,25 +196,6 @@
                 ]
             },
             {
-                "trigger": [
-                    {
-                        "token": {
-                            "color": "blue",
-                            "number": 3
-                        }
-                    },
-                ],
-                "reward": [
-                    {
-                        "token": {
-                            "color": "spade",
-                            "number": 1
-                        },
-                        "count": 1
-                    }
-                ]
-            },
-            {
                 "prototypical": true,
                 "__helper": "prototypical means that this will create this progress event for all possible number tokens of this color",
                 "trigger": [
@@ -287,101 +292,6 @@
                             "number": 1
                         },
                         "count": 1
-                    }
-                ]
-            },
-
-            {
-                "trigger": [
-                    {
-                        "token": {
-                            "color": "blue",
-                            "number": 3
-                        }
-                    },
-                    {
-                        "token": {
-                            "color": "red",
-                            "number": 3
-                        }
-                    }
-                ],
-                "reward": [
-                    {
-                        "token": {
-                            "color": "green",
-                            "number": 1
-                        },
-                        "count": 2
-                    }
-                ]
-            },
-            {
-                "trigger": [
-                    {
-                        "token": {
-                            "color": "blue",
-                            "number": 4
-                        }
-                    },
-                    {
-                        "token": {
-                            "color": "red",
-                            "number": 4
-                        }
-                    }
-                ],
-                "reward": [
-                    {
-                        "token": {
-                            "color": "purple",
-                            "number": 1
-                        },
-                        "count": 1
-                    }
-                ]
-            },
-            {
-                "trigger": [
-                    {
-                        "token": {
-                            "color": "green",
-                            "number": 4
-                        }
-                    },
-                ],
-                "reward": [
-                    {
-                        "token": {
-                            "color": "purple",
-                            "number": 1
-                        },
-                        "count": 1
-                    }
-                ]
-            },
-            {
-                "trigger": [
-                    {
-                        "token": {
-                            "color": "blue",
-                            "number": 5
-                        }
-                    },
-                    {
-                        "token": {
-                            "color": "red",
-                            "number": 5
-                        }
-                    }
-                ],
-                "reward": [
-                    {
-                        "token": {
-                            "color": "green",
-                            "number": 1
-                        },
-                        "count": 2
                     }
                 ]
             },
@@ -466,6 +376,14 @@
                             "temporary": true,
                         },
                         "count": 1
+                    },
+                    {
+                        "token": {
+                            "color": "spade",
+                            "number": 1,
+                            "temporary": true,
+                        },
+                        "count": 1
                     }
                 ]
             },
@@ -484,6 +402,14 @@
                         "token": {
                             "color": "clipper",
                             "number": -1,
+                            "temporary": true,
+                        },
+                        "count": 1
+                    },
+                    {
+                        "token": {
+                            "color": "spade",
+                            "number": 1,
                             "temporary": true,
                         },
                         "count": 1

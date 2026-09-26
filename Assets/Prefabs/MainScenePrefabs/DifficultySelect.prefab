@@ -348,7 +348,8 @@ MonoBehaviour:
   pressDuration: 0.08
   disabled: 0
   allowDuringToolShop: 0
-  hideWhenDisabled: []
+  hideWhenDisabled:
+  - {fileID: 7334435661626343408}
 --- !u!212 &8959391210202547171
 SpriteRenderer:
   m_ObjectHideFlags: 0

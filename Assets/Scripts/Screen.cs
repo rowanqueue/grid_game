@@ -23,7 +23,7 @@ namespace flora
                 return;
             foreach (AnchorGameObject a in anchoreds)
             {
-                if (a != null)
+                if (a != null && a.enabled)
                     a.SetAnchor(screenAnchorOffset, forceInactive: true);
             }
         }

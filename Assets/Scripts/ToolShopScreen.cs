@@ -27,7 +27,65 @@ public class ToolShopScreen : MonoBehaviour
 
     public bool IsPointerOverPanel()
     {
-        return InputHelper.IsPointerOverCollider(panelCollider);
+        if (panelCollider != null && InputHelper.IsPointerOverCollider(panelCollider))
+        {
+            return true;
+        }
+
+        Vector2 world = InputHelper.GetPointerWorldPosition();
+        Collider2D[] colliders = GetComponentsInChildren<Collider2D>();
+        for (int i = 0; i < colliders.Length; i++)
+        {
+            Collider2D col = colliders[i];
+            if (col == null || !col.enabled)
+            {
+                continue;
+            }
+            if (col.OverlapPoint(world))
+            {
+                return true;
+            }
+        }
+
+        Renderer[] renderers = GetComponentsInChildren<Renderer>();
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            Renderer r = renderers[i];
+            if (r == null || !r.enabled)
+            {
+                continue;
+            }
+            Bounds bounds = r.bounds;
+            Vector3 point = new Vector3(world.x, world.y, bounds.center.z);
+            if (bounds.Contains(point))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    void Awake()
+    {
+        EnableShopButtons();
+    }
+
+    void OnEnable()
+    {
+        EnableShopButtons();
+    }
+
+    void EnableShopButtons()
+    {
+        flora.Button[] buttons = GetComponentsInChildren<flora.Button>(true);
+        for (int i = 0; i < buttons.Length; i++)
+        {
+            if (buttons[i] != null)
+            {
+                buttons[i].allowDuringToolShop = true;
+            }
+        }
     }
 
     private void Start()
@@ -94,17 +152,6 @@ public class ToolShopScreen : MonoBehaviour
             Services.GameController.DeactivateToolShopScreen();
         }
     }
-    public bool FreeSpaceInHands()
-    {
-        for (int i = 0; i < Services.GameController.hand.Count; i++)
-        {
-            if (Services.GameController.hand[i] == null)
-            {
-                return true;
-            }
-        }
-        return false;
-    }
     void BuyToken(Logic.TokenData tokenData)
     {
         for (int i = 0; i < Services.GameController.hand.Count; i++)
@@ -113,24 +160,22 @@ public class ToolShopScreen : MonoBehaviour
             {
                 Services.GameController.game.hand.AddTokenToHand(i, tokenData);
                 Services.GameController.CreateHand(false, false);
-                break;
+                return;
             }
         }
+        Services.GameController.game.bag.AddNewTokenToCurrentBag(tokenData);
     }
     public void BuySpade()
     {
-        if(FreeSpaceInHands() == false) { return; }
         if(Services.Gems.CanAfford("buySpade") == false)
         {
             return;
         }
         Services.Gems.SpendGems("buySpade");
         BuyToken(tokensToBuy[0].token.data);
-        //Services.GameController.game.bag.nextBagsTemporary.Add(tokensToBuy[0].token.data);
     }
     public void BuyAdder()
     {
-        if (FreeSpaceInHands() == false) { return; }
         if (Services.Gems.CanAfford("buyAdder") == false)
         {
             return;
@@ -140,7 +185,6 @@ public class ToolShopScreen : MonoBehaviour
     }
     public void BuyClipper()
     {
-        if (FreeSpaceInHands() == false) { return; }
         if (Services.Gems.CanAfford("buyClipper") == false)
         {
             return;

@@ -441,7 +441,7 @@ namespace Logic
             status = new StatusReport();
             bag = new Bag(this,bagContents);
             hand = new Hand(handSize, handChoices);
-            if(root.startingHand.Count > 0)
+            if (root.startingHand != null && root.startingHand.Count > 0)
             {
                 hand.FillStartingHand(bag, root.startingHand);
             }
@@ -1299,6 +1299,24 @@ namespace Logic
                 remaining -= count;
             }
 
+            // Guarantee next-bag Mini strip exercises counts >= 10.
+            TokenData oversized = new TokenData(TokenColor.Blue, 1);
+            const int oversizedCount = 12;
+            if (startingBagContents.ContainsKey(oversized))
+            {
+                int delta = oversizedCount - startingBagContents[oversized];
+                if (delta > 0)
+                {
+                    startingBagContents[oversized] = oversizedCount;
+                    bagContents[oversized] = oversizedCount;
+                }
+            }
+            else
+            {
+                startingBagContents[oversized] = oversizedCount;
+                bagContents[oversized] = oversizedCount;
+            }
+
             RefillBag();
         }
 #endif
@@ -1372,7 +1390,12 @@ namespace Logic
         }
         public TokenData DrawToken()
         {
-            //Shuffle();
+            // Tutorial hands (and other direct removes) can leave the list empty without
+            // going through DrawToken, so refill before indexing.
+            if (bag.Count <= 0)
+            {
+                RefillBag();
+            }
             TokenData tokenData = bag[bag.Count - 1];
             tilesDrawnThisBag.Add(tokenData);
             bag.RemoveAt(bag.Count - 1);
@@ -1390,6 +1413,11 @@ namespace Logic
             {
                 tilesDrawnThisBag.Remove(tokenData);
             }
+            bag.Add(tokenData);
+            Shuffle();
+        }
+        public void AddNewTokenToCurrentBag(TokenData tokenData)
+        {
             bag.Add(tokenData);
             Shuffle();
         }

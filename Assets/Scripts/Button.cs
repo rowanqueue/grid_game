@@ -40,6 +40,8 @@ namespace flora
         Vector3 baseScale;
         Coroutine pressRoutine;
         GemCostLabel[] costLabels;
+        float unlockedWordsY;
+        RectTransform wordsRect;
         private int baseSortingLayerID;
         private int tutorialSortingLayerID;
 
@@ -64,6 +66,13 @@ namespace flora
             if (type == ButtonType.StartGame)
             {
                 costLabels = GetComponentsInChildren<GemCostLabel>(true);
+                if (words != null)
+                {
+                    wordsRect = words.rectTransform;
+                    unlockedWordsY = wordsRect != null
+                        ? wordsRect.anchoredPosition.y
+                        : words.transform.localPosition.y;
+                }
             }
         }
 
@@ -157,6 +166,19 @@ namespace flora
                 {
                     words.enabled = true;
                     words.text = disabled ? "Locked" : "Tap to Start";
+                    float wordsY = disabled ? 0f : unlockedWordsY;
+                    if (wordsRect != null)
+                    {
+                        Vector2 pos = wordsRect.anchoredPosition;
+                        pos.y = wordsY;
+                        wordsRect.anchoredPosition = pos;
+                    }
+                    else
+                    {
+                        Vector3 pos = words.transform.localPosition;
+                        pos.y = wordsY;
+                        words.transform.localPosition = pos;
+                    }
                 }
                 bool showCost = !disabled;
                 if (costLabels != null)
