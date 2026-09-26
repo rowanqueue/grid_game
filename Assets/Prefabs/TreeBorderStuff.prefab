@@ -1725,6 +1725,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9060954024496971472}
+  - component: {fileID: 4701756919773877130}
   m_Layer: 0
   m_Name: TreeBorderTop
   m_TagString: Untagged
@@ -1750,6 +1751,20 @@ Transform:
   - {fileID: 3472835717048793141}
   m_Father: {fileID: 4498743249455688582}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -180}
+--- !u!114 &4701756919773877130
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8091826195783775776}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d08b061e41804fe182253852b4ac783, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  standardSortingLayerString: TokenHeld
+  tutorialSortingLayerString: Tile
 --- !u!1 &8242949621145683411
 GameObject:
   m_ObjectHideFlags: 0
@@ -1960,6 +1975,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7243705119646345824}
+  - component: {fileID: 5137697549620443180}
   m_Layer: 0
   m_Name: TreeBorder
   m_TagString: Untagged
@@ -1987,6 +2003,20 @@ Transform:
   - {fileID: 7963515124006394264}
   m_Father: {fileID: 4498743249455688582}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5137697549620443180
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9145659925901005375}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d08b061e41804fe182253852b4ac783, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  standardSortingLayerString: TokenHeld
+  tutorialSortingLayerString: Tile
 --- !u!1001 &4200639006459783870
 PrefabInstance:
   m_ObjectHideFlags: 0
