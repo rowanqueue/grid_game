@@ -152,17 +152,6 @@ public class ToolShopScreen : MonoBehaviour
             Services.GameController.DeactivateToolShopScreen();
         }
     }
-    public bool FreeSpaceInHands()
-    {
-        for (int i = 0; i < Services.GameController.hand.Count; i++)
-        {
-            if (Services.GameController.hand[i] == null)
-            {
-                return true;
-            }
-        }
-        return false;
-    }
     void BuyToken(Logic.TokenData tokenData)
     {
         for (int i = 0; i < Services.GameController.hand.Count; i++)
@@ -171,24 +160,22 @@ public class ToolShopScreen : MonoBehaviour
             {
                 Services.GameController.game.hand.AddTokenToHand(i, tokenData);
                 Services.GameController.CreateHand(false, false);
-                break;
+                return;
             }
         }
+        Services.GameController.game.bag.AddNewTokenToCurrentBag(tokenData);
     }
     public void BuySpade()
     {
-        if(FreeSpaceInHands() == false) { return; }
         if(Services.Gems.CanAfford("buySpade") == false)
         {
             return;
         }
         Services.Gems.SpendGems("buySpade");
         BuyToken(tokensToBuy[0].token.data);
-        //Services.GameController.game.bag.nextBagsTemporary.Add(tokensToBuy[0].token.data);
     }
     public void BuyAdder()
     {
-        if (FreeSpaceInHands() == false) { return; }
         if (Services.Gems.CanAfford("buyAdder") == false)
         {
             return;
@@ -198,7 +185,6 @@ public class ToolShopScreen : MonoBehaviour
     }
     public void BuyClipper()
     {
-        if (FreeSpaceInHands() == false) { return; }
         if (Services.Gems.CanAfford("buyClipper") == false)
         {
             return;

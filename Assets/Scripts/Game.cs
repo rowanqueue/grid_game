@@ -1416,6 +1416,11 @@ namespace Logic
             bag.Add(tokenData);
             Shuffle();
         }
+        public void AddNewTokenToCurrentBag(TokenData tokenData)
+        {
+            bag.Add(tokenData);
+            Shuffle();
+        }
         public void PlayedTempToken(Token token)
         {
             playedTempTiles.Add(token.data);
