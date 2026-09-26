@@ -126,7 +126,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 5, y: 2}
+  m_Size: {x: 4.64, y: 3.76}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -149,7 +149,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &6475267331867096275
 RectTransform:
   m_ObjectHideFlags: 0
@@ -231,7 +231,13 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Hell yeah brother
+  m_text: '<b>WELCOME TO FLORACOTTA</b>
+
+    This is a meditative, tile-laying puzzle
+    game meant to evoke the rhythms and patterns of natural gardening.
+
+    Lets
+    get started!'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: ad0c76634cd1f584ca2abeeaa80ab731, type: 2}
   m_sharedMaterial: {fileID: 9122183538073236614, guid: ad0c76634cd1f584ca2abeeaa80ab731, type: 2}
@@ -258,13 +264,13 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 3
+  m_fontSize: 2
   m_fontSizeBase: 5
   m_fontWeight: 400
   m_enableAutoSizing: 1
   m_fontSizeMin: 2
   m_fontSizeMax: 3
-  m_fontStyle: 1
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535

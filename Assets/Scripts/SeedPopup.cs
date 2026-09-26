@@ -12,8 +12,9 @@ public class SeedPopup : MonoBehaviour
     [SerializeField] float clickDebounce = 0.1f;
 
     bool open;
-    GameObject visual;
-    Collider2D seedsButtonCollider;
+    [SerializeField] GameObject visual;
+    //[SerializeField] Collider2D seedsButtonCollider;
+    [SerializeField] SpriteRenderer dimPanel;
     bool closing;
     bool ignoreDismissUntilRelease;
     SpriteRenderer[] fadeRenderers;
@@ -24,13 +25,14 @@ public class SeedPopup : MonoBehaviour
     void Awake()
     {
         visual = transform.GetChild(0).gameObject;
-        Transform seedsButton = visual.transform.Find("Seeds");
-        if (seedsButton != null)
-            ConfigureSeedsButton(seedsButton);
+        //Transform seedsButton = visual.transform.Find("Seeds");
+        //if (seedsButton != null)
+        //ConfigureSeedsButton(seedsButton);
         visual.SetActive(false);
         fadeRenderers = visual.GetComponentsInChildren<SpriteRenderer>(true);
         canvasGroup = visual.GetComponent<CanvasGroup>();
         messageText = visual.GetComponentInChildren<TextMeshPro>(true);
+
         if (messageText != null)
             defaultMessage = messageText.text;
         ApplyOverlaySorting();
@@ -56,6 +58,7 @@ public class SeedPopup : MonoBehaviour
                 child.gameObject.SetActive(false);
         }
 
+        /*
         TextMeshPro label = seedsButton.GetComponentInChildren<TextMeshPro>(true);
         if (label != null)
         {
@@ -71,6 +74,7 @@ public class SeedPopup : MonoBehaviour
                 label.rectTransform.sizeDelta = new Vector2(4f, 1f);
             }
         }
+        */
 
         var box = seedsButton.GetComponent<BoxCollider2D>();
         if (box != null)
@@ -78,7 +82,7 @@ public class SeedPopup : MonoBehaviour
             box.offset = Vector2.zero;
             box.size = new Vector2(3.5f, 1f);
         }
-        seedsButtonCollider = seedsButton.GetComponent<Collider2D>();
+        //seedsButtonCollider = seedsButton.GetComponent<Collider2D>();
     }
 
     void ApplyOverlaySorting()
@@ -107,6 +111,7 @@ public class SeedPopup : MonoBehaviour
         }
     }
 
+    /*
     void Update()
     {
         if (!open || closing)
@@ -131,6 +136,7 @@ public class SeedPopup : MonoBehaviour
 
         StartCoroutine(WaitToClose());
     }
+    */
 
     public void Open(string message = null)
     {
@@ -142,8 +148,8 @@ public class SeedPopup : MonoBehaviour
 
         open = true;
         ignoreDismissUntilRelease = InputHelper.GetPrimaryPressBegan() || InputHelper.GetPrimaryPressHeld();
-        if (seedsButtonCollider != null)
-            seedsButtonCollider.transform.localPosition = new Vector3(0f, -0.35f, 0f);
+        //if (seedsButtonCollider != null)
+        //    seedsButtonCollider.transform.localPosition = new Vector3(0f, -0.35f, 0f);
         visual.SetActive(true);
         SetVisualAlpha(0f);
         StartCoroutine(FadeIn());
@@ -155,6 +161,7 @@ public class SeedPopup : MonoBehaviour
         ignoreDismissUntilRelease = false;
         KillTweens();
         visual.SetActive(false);
+        dimPanel.gameObject.SetActive(false);
         SetVisualAlpha(1f);
     }
 
@@ -174,6 +181,7 @@ public class SeedPopup : MonoBehaviour
 
     IEnumerator FadeTo(float targetAlpha, float duration)
     {
+        dimPanel.gameObject.SetActive(true);
         if (canvasGroup != null)
         {
             yield return canvasGroup.DOFade(targetAlpha, duration).SetEase(Ease.OutQuad).WaitForCompletion();
@@ -190,6 +198,13 @@ public class SeedPopup : MonoBehaviour
             elapsed += Time.deltaTime;
             float alpha = Mathf.Lerp(startAlpha, targetAlpha, elapsed / duration);
             SetVisualAlpha(alpha);
+            if (dimPanel != null)
+            {
+                float alphaD = Mathf.Lerp(startAlpha, targetAlpha / 0.6f, elapsed / duration);
+                Color color = dimPanel.color;
+                color.a = Mathf.Clamp(alphaD,0f, 0.6f);
+                dimPanel.color = color;
+            }
             yield return null;
         }
 
