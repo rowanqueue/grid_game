@@ -13,7 +13,8 @@ public class SeedPopup : MonoBehaviour
 
     bool open;
     bool offerAd;
-    GameObject visual;
+    [SerializeField] GameObject visual;
+    [SerializeField] SpriteRenderer dimPanel;
     Transform yesButton;
     Transform noButton;
     Collider2D yesCollider;
@@ -27,7 +28,8 @@ public class SeedPopup : MonoBehaviour
 
     void Awake()
     {
-        visual = transform.GetChild(0).gameObject;
+        if (visual == null)
+            visual = transform.GetChild(0).gameObject;
         Transform title = visual.transform.Find("Title Text");
         messageText = title != null
             ? title.GetComponent<TextMeshPro>()
@@ -261,6 +263,8 @@ public class SeedPopup : MonoBehaviour
         ignoreDismissUntilRelease = false;
         KillTweens();
         visual.SetActive(false);
+        if (dimPanel != null)
+            dimPanel.gameObject.SetActive(false);
         SetVisualAlpha(1f);
     }
 
@@ -280,6 +284,8 @@ public class SeedPopup : MonoBehaviour
 
     IEnumerator FadeTo(float targetAlpha, float duration)
     {
+        if (dimPanel != null)
+            dimPanel.gameObject.SetActive(true);
         if (canvasGroup != null)
         {
             yield return canvasGroup.DOFade(targetAlpha, duration).SetEase(Ease.OutQuad).WaitForCompletion();
@@ -296,6 +302,13 @@ public class SeedPopup : MonoBehaviour
             elapsed += Time.deltaTime;
             float alpha = Mathf.Lerp(startAlpha, targetAlpha, elapsed / duration);
             SetVisualAlpha(alpha);
+            if (dimPanel != null)
+            {
+                float alphaD = Mathf.Lerp(startAlpha, targetAlpha / 0.6f, elapsed / duration);
+                Color color = dimPanel.color;
+                color.a = Mathf.Clamp(alphaD, 0f, 0.6f);
+                dimPanel.color = color;
+            }
             yield return null;
         }
 

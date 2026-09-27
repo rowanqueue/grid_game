@@ -1285,9 +1285,9 @@ public class Token : MonoBehaviour
     public void EnableDisplayShadow()
     {
         shadow.enabled = true;
-        shadow.color = new Color(0, 0, 0, 0.5f);
-        shadow.transform.localPosition = new Vector3(0, -0.129f, 0.2f);
-        shadow.transform.localScale = new Vector3(1, 0.82f, 1);
+        shadow.color = new Color(1, 1, 1, 0.55f);
+        shadow.transform.localPosition = new Vector3(0, -0.22f, 0.2f);
+        shadow.transform.localScale = new Vector3(0.82f, 0.62f, 1);
     }
 
     IEnumerator InvalidWiggle()
