@@ -861,13 +861,7 @@ public class GameController : MonoBehaviour
     {
         if (inputState == InputState.Finish || inputState == InputState.TapToRestart) { return; }
         if (inTutorial) { return; }
-        lastState = gameState;
-        gameState = GameState.Seeds;
-
-        stateScreens[(int)gameState].gameObject.SetActive(true);
-        stateScreens[(int)gameState].SetAnchor();
-        //snapshotPreview.openScreen();
-        movingToScreen = true;
+        Services.Gems.PromptWatchAd();
     }
     public void GameStateBag()
     {

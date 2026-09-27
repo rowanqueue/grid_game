@@ -12,8 +12,12 @@ public class SeedPopup : MonoBehaviour
     [SerializeField] float clickDebounce = 0.1f;
 
     bool open;
+    bool offerAd;
     GameObject visual;
-    Collider2D seedsButtonCollider;
+    Transform yesButton;
+    Transform noButton;
+    Collider2D yesCollider;
+    Collider2D noCollider;
     bool closing;
     bool ignoreDismissUntilRelease;
     SpriteRenderer[] fadeRenderers;
@@ -24,43 +28,75 @@ public class SeedPopup : MonoBehaviour
     void Awake()
     {
         visual = transform.GetChild(0).gameObject;
+        Transform title = visual.transform.Find("Title Text");
+        messageText = title != null
+            ? title.GetComponent<TextMeshPro>()
+            : visual.GetComponentInChildren<TextMeshPro>(true);
+        if (messageText != null)
+            defaultMessage = messageText.text;
+
+        Transform desc = visual.transform.Find("Desc Text");
+        if (desc != null)
+            desc.gameObject.SetActive(false);
+
         Transform seedsButton = visual.transform.Find("Seeds");
         if (seedsButton != null)
-            ConfigureSeedsButton(seedsButton);
+            SetupChoiceButtons(seedsButton);
+
         visual.SetActive(false);
         fadeRenderers = visual.GetComponentsInChildren<SpriteRenderer>(true);
         canvasGroup = visual.GetComponent<CanvasGroup>();
-        messageText = visual.GetComponentInChildren<TextMeshPro>(true);
-        if (messageText != null)
-            defaultMessage = messageText.text;
         ApplyOverlaySorting();
     }
 
-    void ConfigureSeedsButton(Transform seedsButton)
+    void SetupChoiceButtons(Transform seedsButton)
     {
-        var anchor = seedsButton.GetComponent<AnchorGameObject>();
-        if (anchor != null)
-        {
-            anchor.enabled = false;
-            Destroy(anchor);
-        }
+        yesButton = seedsButton;
+        ConfigureChoiceButton(yesButton, "Yes", new Vector3(-1.15f, -0.35f, 0f));
+        yesCollider = yesButton.GetComponent<Collider2D>();
 
-        seedsButton.localPosition = new Vector3(0f, -0.35f, 0f);
-        seedsButton.localRotation = Quaternion.identity;
-        seedsButton.localScale = Vector3.one;
+        GameObject noObject = Instantiate(yesButton.gameObject, yesButton.parent);
+        noObject.name = "No";
+        noButton = noObject.transform;
+        ConfigureChoiceButton(noButton, "No", new Vector3(1.15f, -0.35f, 0f));
+        noCollider = noButton.GetComponent<Collider2D>();
+    }
 
-        for (int i = 0; i < seedsButton.childCount; i++)
+    void StripAnchor(Transform button)
+    {
+        var anchor = button.GetComponent<AnchorGameObject>();
+        if (anchor == null)
+            return;
+        anchor.enabled = false;
+        DestroyImmediate(anchor);
+    }
+
+    void ConfigureChoiceButton(Transform button, string labelText, Vector3 localPos)
+    {
+        StripAnchor(button);
+
+        var floraButton = button.GetComponent<flora.Button>();
+        if (floraButton != null)
+            floraButton.enabled = false;
+
+        button.gameObject.SetActive(true);
+        button.localPosition = localPos;
+        button.localRotation = Quaternion.identity;
+        button.localScale = Vector3.one;
+
+        for (int i = 0; i < button.childCount; i++)
         {
-            Transform child = seedsButton.GetChild(i);
+            Transform child = button.GetChild(i);
             if (child.name.StartsWith("9-Sliced"))
                 child.gameObject.SetActive(false);
         }
 
-        TextMeshPro label = seedsButton.GetComponentInChildren<TextMeshPro>(true);
+        TextMeshPro label = button.GetComponentInChildren<TextMeshPro>(true);
         if (label != null)
         {
             label.gameObject.SetActive(true);
-            label.text = "Get Seeds";
+            label.enabled = true;
+            label.text = labelText;
             label.alignment = TextAlignmentOptions.Center;
             label.enableAutoSizing = false;
             label.fontSize = 4f;
@@ -68,17 +104,55 @@ public class SeedPopup : MonoBehaviour
             {
                 label.rectTransform.pivot = new Vector2(0.5f, 0.5f);
                 label.rectTransform.anchoredPosition = Vector2.zero;
-                label.rectTransform.sizeDelta = new Vector2(4f, 1f);
+                label.rectTransform.sizeDelta = new Vector2(2.2f, 1f);
             }
+            label.ForceMeshUpdate();
         }
 
-        var box = seedsButton.GetComponent<BoxCollider2D>();
+        var box = button.GetComponent<BoxCollider2D>();
         if (box != null)
         {
             box.offset = Vector2.zero;
-            box.size = new Vector2(3.5f, 1f);
+            box.size = new Vector2(2.2f, 1f);
         }
-        seedsButtonCollider = seedsButton.GetComponent<Collider2D>();
+    }
+
+    void SetChoiceVisible(Transform button, Collider2D collider, bool visible)
+    {
+        if (button == null)
+            return;
+
+        button.gameObject.SetActive(true);
+        if (collider != null)
+            collider.enabled = visible;
+
+        Renderer[] renderers = button.GetComponentsInChildren<Renderer>(true);
+        for (int i = 0; i < renderers.Length; i++)
+            renderers[i].enabled = visible;
+
+        TextMeshPro[] labels = button.GetComponentsInChildren<TextMeshPro>(true);
+        for (int i = 0; i < labels.Length; i++)
+        {
+            labels[i].enabled = visible;
+            if (visible)
+                labels[i].ForceMeshUpdate();
+        }
+    }
+
+    void ApplyButtonLayout()
+    {
+        if (yesButton != null)
+        {
+            yesButton.localPosition = new Vector3(-1.15f, -0.35f, 0f);
+            SetChoiceVisible(yesButton, yesCollider, offerAd);
+        }
+        if (noButton != null)
+        {
+            noButton.localPosition = offerAd
+                ? new Vector3(1.15f, -0.35f, 0f)
+                : new Vector3(0f, -0.35f, 0f);
+            SetChoiceVisible(noButton, noCollider, true);
+        }
     }
 
     void ApplyOverlaySorting()
@@ -123,7 +197,15 @@ public class SeedPopup : MonoBehaviour
         if (!InputHelper.GetPrimaryPressBegan())
             return;
 
-        if (InputHelper.IsPointerOverCollider(seedsButtonCollider))
+        if (offerAd && InputHelper.IsPointerOverCollider(yesCollider))
+        {
+            Close();
+            if (Services.Gems != null)
+                Services.Gems.WatchAd();
+            return;
+        }
+
+        if (InputHelper.IsPointerOverCollider(noCollider))
         {
             Close();
             return;
@@ -132,18 +214,42 @@ public class SeedPopup : MonoBehaviour
         StartCoroutine(WaitToClose());
     }
 
+    public void OpenWatchAdPrompt(int seedAmount)
+    {
+        offerAd = true;
+        OpenInternal($"Watch an ad to earn {seedAmount} seeds");
+    }
+
     public void Open(string message = null)
     {
-        if (open)
-            return;
+        offerAd = false;
+        OpenInternal(string.IsNullOrEmpty(message) ? defaultMessage : message);
+    }
+
+    void OpenInternal(string message)
+    {
+        if (closing)
+        {
+            StopAllCoroutines();
+            closing = false;
+            KillTweens();
+        }
 
         if (messageText != null)
-            messageText.text = string.IsNullOrEmpty(message) ? defaultMessage : message;
+        {
+            messageText.text = message;
+            if (messageText.rectTransform != null)
+                messageText.rectTransform.sizeDelta = new Vector2(4.5f, 2f);
+            messageText.ForceMeshUpdate();
+        }
+
+        ignoreDismissUntilRelease = InputHelper.GetPrimaryPressBegan() || InputHelper.GetPrimaryPressHeld();
+        ApplyButtonLayout();
+
+        if (open && visual.activeSelf)
+            return;
 
         open = true;
-        ignoreDismissUntilRelease = InputHelper.GetPrimaryPressBegan() || InputHelper.GetPrimaryPressHeld();
-        if (seedsButtonCollider != null)
-            seedsButtonCollider.transform.localPosition = new Vector3(0f, -0.35f, 0f);
         visual.SetActive(true);
         SetVisualAlpha(0f);
         StartCoroutine(FadeIn());

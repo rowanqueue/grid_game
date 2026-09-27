@@ -18,7 +18,7 @@ public class Gems : MonoBehaviour, IUnityAdsInitializationListener, IUnityAdsLoa
     public SeedPopup seedPopup;
     public Dictionary<string, int> seedCosts = new Dictionary<string, int>()
     {
-        {"earn",4 },
+        {"earn",5 },
         {"newGame",5 },
         {"takeSnapshot", 0},
         {"buySpade",2 },
@@ -151,9 +151,15 @@ public class Gems : MonoBehaviour, IUnityAdsInitializationListener, IUnityAdsLoa
 #endif
     }
 
+    public void PromptWatchAd()
+    {
+        if (seedPopup != null)
+            seedPopup.OpenWatchAdPrompt(GetCost("earn"));
+    }
+
     public void TooExpensive()
     {
-        seedPopup.Open();
+        PromptWatchAd();
     }
 
     public int GetCost(string key)
