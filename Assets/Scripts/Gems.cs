@@ -200,6 +200,8 @@ public class Gems : MonoBehaviour, IUnityAdsInitializationListener, IUnityAdsLoa
 
     public void WatchAd()
     {
+        if (seedPopup != null)
+            seedPopup.Close();
         rewardGrantedFromAd = false;
         if (Advertisement.isInitialized && !string.IsNullOrEmpty(_adUnitId))
         {

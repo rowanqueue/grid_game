@@ -12,38 +12,25 @@ public class SeedPopup : MonoBehaviour
     [SerializeField] float clickDebounce = 0.1f;
 
     bool open;
-    bool offerAd;
     [SerializeField] GameObject visual;
     [SerializeField] SpriteRenderer dimPanel;
-    Transform yesButton;
-    Transform noButton;
-    Collider2D yesCollider;
-    Collider2D noCollider;
     bool closing;
-    bool ignoreDismissUntilRelease;
     SpriteRenderer[] fadeRenderers;
     CanvasGroup canvasGroup;
     TextMeshPro messageText;
-    string defaultMessage;
 
     void Awake()
     {
-        if (visual == null)
+        if (visual == null && transform.childCount > 0)
             visual = transform.GetChild(0).gameObject;
+
         Transform title = visual.transform.Find("Title Text");
         messageText = title != null
             ? title.GetComponent<TextMeshPro>()
             : visual.GetComponentInChildren<TextMeshPro>(true);
-        if (messageText != null)
-            defaultMessage = messageText.text;
 
-        Transform desc = visual.transform.Find("Desc Text");
-        if (desc != null)
-            desc.gameObject.SetActive(false);
-
-        Transform seedsButton = visual.transform.Find("Seeds");
-        if (seedsButton != null)
-            SetupChoiceButtons(seedsButton);
+        HideNamedChildren(visual.transform, "Seeds");
+        RefreshEarnLabel();
 
         visual.SetActive(false);
         fadeRenderers = visual.GetComponentsInChildren<SpriteRenderer>(true);
@@ -51,109 +38,40 @@ public class SeedPopup : MonoBehaviour
         ApplyOverlaySorting();
     }
 
-    void SetupChoiceButtons(Transform seedsButton)
+    Transform FindNamedChild(Transform root, string childName)
     {
-        yesButton = seedsButton;
-        ConfigureChoiceButton(yesButton, "Yes", new Vector3(-1.15f, -0.35f, 0f));
-        yesCollider = yesButton.GetComponent<Collider2D>();
-
-        GameObject noObject = Instantiate(yesButton.gameObject, yesButton.parent);
-        noObject.name = "No";
-        noButton = noObject.transform;
-        ConfigureChoiceButton(noButton, "No", new Vector3(1.15f, -0.35f, 0f));
-        noCollider = noButton.GetComponent<Collider2D>();
+        Transform[] children = root.GetComponentsInChildren<Transform>(true);
+        for (int i = 0; i < children.Length; i++)
+        {
+            if (children[i] != null && children[i].name == childName)
+                return children[i];
+        }
+        return null;
     }
 
-    void StripAnchor(Transform button)
+    void RefreshEarnLabel()
     {
-        var anchor = button.GetComponent<AnchorGameObject>();
-        if (anchor == null)
+        if (visual == null)
             return;
-        anchor.enabled = false;
-        DestroyImmediate(anchor);
-    }
-
-    void ConfigureChoiceButton(Transform button, string labelText, Vector3 localPos)
-    {
-        StripAnchor(button);
-
-        var floraButton = button.GetComponent<flora.Button>();
-        if (floraButton != null)
-            floraButton.enabled = false;
-
-        button.gameObject.SetActive(true);
-        button.localPosition = localPos;
-        button.localRotation = Quaternion.identity;
-        button.localScale = Vector3.one;
-
-        for (int i = 0; i < button.childCount; i++)
-        {
-            Transform child = button.GetChild(i);
-            if (child.name.StartsWith("9-Sliced"))
-                child.gameObject.SetActive(false);
-        }
-
-        TextMeshPro label = button.GetComponentInChildren<TextMeshPro>(true);
-        if (label != null)
-        {
-            label.gameObject.SetActive(true);
-            label.enabled = true;
-            label.text = labelText;
-            label.alignment = TextAlignmentOptions.Center;
-            label.enableAutoSizing = false;
-            label.fontSize = 4f;
-            if (label.rectTransform != null)
-            {
-                label.rectTransform.pivot = new Vector2(0.5f, 0.5f);
-                label.rectTransform.anchoredPosition = Vector2.zero;
-                label.rectTransform.sizeDelta = new Vector2(2.2f, 1f);
-            }
-            label.ForceMeshUpdate();
-        }
-
-        var box = button.GetComponent<BoxCollider2D>();
-        if (box != null)
-        {
-            box.offset = Vector2.zero;
-            box.size = new Vector2(2.2f, 1f);
-        }
-    }
-
-    void SetChoiceVisible(Transform button, Collider2D collider, bool visible)
-    {
-        if (button == null)
+        Transform seedPrice = FindNamedChild(visual.transform, "SeedPrice");
+        if (seedPrice == null)
             return;
-
-        button.gameObject.SetActive(true);
-        if (collider != null)
-            collider.enabled = visible;
-
-        Renderer[] renderers = button.GetComponentsInChildren<Renderer>(true);
-        for (int i = 0; i < renderers.Length; i++)
-            renderers[i].enabled = visible;
-
-        TextMeshPro[] labels = button.GetComponentsInChildren<TextMeshPro>(true);
-        for (int i = 0; i < labels.Length; i++)
+        seedPrice.gameObject.SetActive(true);
+        TextMeshPro earnLabel = seedPrice.GetComponentInChildren<TextMeshPro>(true);
+        if (earnLabel != null && Services.Gems != null)
         {
-            labels[i].enabled = visible;
-            if (visible)
-                labels[i].ForceMeshUpdate();
+            earnLabel.text = "+" + Services.Gems.GetCost("earn");
+            earnLabel.ForceMeshUpdate();
         }
     }
 
-    void ApplyButtonLayout()
+    void HideNamedChildren(Transform root, string childName)
     {
-        if (yesButton != null)
+        Transform[] children = root.GetComponentsInChildren<Transform>(true);
+        for (int i = 0; i < children.Length; i++)
         {
-            yesButton.localPosition = new Vector3(-1.15f, -0.35f, 0f);
-            SetChoiceVisible(yesButton, yesCollider, offerAd);
-        }
-        if (noButton != null)
-        {
-            noButton.localPosition = offerAd
-                ? new Vector3(1.15f, -0.35f, 0f)
-                : new Vector3(0f, -0.35f, 0f);
-            SetChoiceVisible(noButton, noCollider, true);
+            if (children[i] != null && children[i].name == childName)
+                children[i].gameObject.SetActive(false);
         }
     }
 
@@ -183,52 +101,12 @@ public class SeedPopup : MonoBehaviour
         }
     }
 
-    void Update()
-    {
-        if (!open || closing)
-            return;
-
-        // Same click that opened us (button OnMouseDown → Open) must not dismiss.
-        if (ignoreDismissUntilRelease)
-        {
-            if (!InputHelper.GetPrimaryPressHeld())
-                ignoreDismissUntilRelease = false;
-            return;
-        }
-
-        if (!InputHelper.GetPrimaryPressBegan())
-            return;
-
-        if (offerAd && InputHelper.IsPointerOverCollider(yesCollider))
-        {
-            Close();
-            if (Services.Gems != null)
-                Services.Gems.WatchAd();
-            return;
-        }
-
-        if (InputHelper.IsPointerOverCollider(noCollider))
-        {
-            Close();
-            return;
-        }
-
-        StartCoroutine(WaitToClose());
-    }
-
     public void OpenWatchAdPrompt(int seedAmount)
     {
-        offerAd = true;
-        OpenInternal($"Watch an ad to earn {seedAmount} seeds");
+        Open();
     }
 
     public void Open(string message = null)
-    {
-        offerAd = false;
-        OpenInternal(string.IsNullOrEmpty(message) ? defaultMessage : message);
-    }
-
-    void OpenInternal(string message)
     {
         if (closing)
         {
@@ -237,16 +115,13 @@ public class SeedPopup : MonoBehaviour
             KillTweens();
         }
 
-        if (messageText != null)
+        RefreshEarnLabel();
+
+        if (messageText != null && !string.IsNullOrEmpty(message))
         {
             messageText.text = message;
-            if (messageText.rectTransform != null)
-                messageText.rectTransform.sizeDelta = new Vector2(4.5f, 2f);
             messageText.ForceMeshUpdate();
         }
-
-        ignoreDismissUntilRelease = InputHelper.GetPrimaryPressBegan() || InputHelper.GetPrimaryPressHeld();
-        ApplyButtonLayout();
 
         if (open && visual.activeSelf)
             return;
@@ -260,7 +135,6 @@ public class SeedPopup : MonoBehaviour
     public void Close()
     {
         open = false;
-        ignoreDismissUntilRelease = false;
         KillTweens();
         visual.SetActive(false);
         if (dimPanel != null)
@@ -271,15 +145,6 @@ public class SeedPopup : MonoBehaviour
     IEnumerator FadeIn()
     {
         yield return FadeTo(1f, fadeInDuration);
-    }
-
-    IEnumerator WaitToClose()
-    {
-        closing = true;
-        yield return new WaitForSeconds(clickDebounce);
-        yield return FadeTo(0f, fadeOutDuration);
-        Close();
-        closing = false;
     }
 
     IEnumerator FadeTo(float targetAlpha, float duration)
