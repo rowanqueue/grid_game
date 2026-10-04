@@ -18,6 +18,7 @@ public class SeedPopup : MonoBehaviour
     SpriteRenderer[] fadeRenderers;
     CanvasGroup canvasGroup;
     TextMeshPro messageText;
+    string defaultMessage;
 
     void Awake()
     {
@@ -28,6 +29,8 @@ public class SeedPopup : MonoBehaviour
         messageText = title != null
             ? title.GetComponent<TextMeshPro>()
             : visual.GetComponentInChildren<TextMeshPro>(true);
+        if (messageText != null)
+            defaultMessage = messageText.text;
 
         HideNamedChildren(visual.transform, "Seeds");
         RefreshEarnLabel();
@@ -75,35 +78,55 @@ public class SeedPopup : MonoBehaviour
         }
     }
 
+    bool overlaySortingApplied;
+
     void ApplyOverlaySorting()
     {
+        // Difficulty UI on UIToken tops out at the seed counter (order 38).
+        // Dim sits just under the popup art, and both sit above that counter.
         int layerId = SortingLayer.NameToID("UIToken");
-        TextMeshPro[] texts = visual.GetComponentsInChildren<TextMeshPro>(true);
+        int contentFloor = OverlayBaseOrder + 1;
 
-        int minOrder = int.MaxValue;
-        foreach (SpriteRenderer sr in fadeRenderers)
-            minOrder = Mathf.Min(minOrder, sr.sortingOrder);
-        foreach (TextMeshPro tmp in texts)
-            minOrder = Mathf.Min(minOrder, tmp.sortingOrder);
-        if (minOrder == int.MaxValue)
+        if (dimPanel != null)
+        {
+            dimPanel.sortingLayerID = layerId;
+            dimPanel.sortingOrder = OverlayBaseOrder;
+        }
+
+        if (visual == null)
             return;
 
-        int shift = OverlayBaseOrder - minOrder;
-        foreach (SpriteRenderer sr in fadeRenderers)
+        Renderer[] renderers = visual.GetComponentsInChildren<Renderer>(true);
+        if (renderers.Length == 0)
+            return;
+
+        if (!overlaySortingApplied)
         {
-            sr.sortingLayerID = layerId;
-            sr.sortingOrder += shift;
+            int minOrder = int.MaxValue;
+            foreach (Renderer renderer in renderers)
+                minOrder = Mathf.Min(minOrder, renderer.sortingOrder);
+
+            int shift = contentFloor - minOrder;
+            foreach (Renderer renderer in renderers)
+            {
+                renderer.sortingLayerID = layerId;
+                renderer.sortingOrder += shift;
+            }
+            overlaySortingApplied = true;
+            return;
         }
-        foreach (TextMeshPro tmp in texts)
+
+        foreach (Renderer renderer in renderers)
         {
-            tmp.sortingLayerID = layerId;
-            tmp.sortingOrder += shift;
+            renderer.sortingLayerID = layerId;
+            if (renderer.sortingOrder < contentFloor)
+                renderer.sortingOrder = contentFloor;
         }
     }
 
     public void OpenWatchAdPrompt(int seedAmount)
     {
-        Open();
+        Open("Watch Ads for seeds!");
     }
 
     public void Open(string message = null)
@@ -117,11 +140,13 @@ public class SeedPopup : MonoBehaviour
 
         RefreshEarnLabel();
 
-        if (messageText != null && !string.IsNullOrEmpty(message))
+        if (messageText != null)
         {
-            messageText.text = message;
+            messageText.text = string.IsNullOrEmpty(message) ? defaultMessage : message;
             messageText.ForceMeshUpdate();
         }
+
+        ApplyOverlaySorting();
 
         if (open && visual.activeSelf)
             return;

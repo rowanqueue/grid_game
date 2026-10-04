@@ -159,7 +159,8 @@ public class Gems : MonoBehaviour, IUnityAdsInitializationListener, IUnityAdsLoa
 
     public void TooExpensive()
     {
-        PromptWatchAd();
+        if (seedPopup != null)
+            seedPopup.Open();
     }
 
     public int GetCost(string key)
