@@ -114,6 +114,7 @@ namespace flora
             {
                 case ButtonType.Mulligan:
                     disabled = Services.GameController.inTutorial
+                        || Services.GameController.PendingTutorialStart
                         || Services.GameController.gameState != GameState.Gameplay
                         || Services.GameController.inputState != InputState.Choose
                         || Services.GameController.MulliganInProgress

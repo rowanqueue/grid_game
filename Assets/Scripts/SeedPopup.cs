@@ -113,14 +113,32 @@ public class SeedPopup : MonoBehaviour
                 renderer.sortingOrder += shift;
             }
             overlaySortingApplied = true;
-            return;
+        }
+        else
+        {
+            foreach (Renderer renderer in renderers)
+            {
+                renderer.sortingLayerID = layerId;
+                if (renderer.sortingOrder < contentFloor)
+                    renderer.sortingOrder = contentFloor;
+            }
         }
 
-        foreach (Renderer renderer in renderers)
+        // Flowers hanging off the popup stay above the difficulty UI but under the dim.
+        ParkDecorationBehindDim(layerId);
+    }
+
+    void ParkDecorationBehindDim(int layerId)
+    {
+        Transform decoration = FindNamedChild(visual.transform, "Decoration");
+        if (decoration == null)
+            return;
+
+        Renderer[] renderers = decoration.GetComponentsInChildren<Renderer>(true);
+        for (int i = 0; i < renderers.Length; i++)
         {
-            renderer.sortingLayerID = layerId;
-            if (renderer.sortingOrder < contentFloor)
-                renderer.sortingOrder = contentFloor;
+            renderers[i].sortingLayerID = layerId;
+            renderers[i].sortingOrder = OverlayBaseOrder - 1;
         }
     }
 

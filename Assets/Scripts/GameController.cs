@@ -60,12 +60,14 @@ public class GameController : MonoBehaviour
     public GameType whichGame;
     public GameState gameState = GameState.Gameplay;
     GameState lastState;
+    GameState settingsOpenedFrom;
     public bool runTutorial;
     //once tutorial is done, it should be created from a prefab
     public Tutorial tutorial;
     public bool inTutorial => tutorial.active;
     public bool IsTutorialSession => runTutorial || pendingTutorialStart || inTutorial;
     bool pendingTutorialStart;
+    public bool PendingTutorialStart => pendingTutorialStart;
     bool introTutorialInputEnabled;
     public bool CanProcessIntroTutorialInput => introTutorialInputEnabled;
     public List<flora.Screen> stateScreens = new List<flora.Screen>();
@@ -464,6 +466,7 @@ public class GameController : MonoBehaviour
         tutorial.StartTutorial();
         SyncTutorialHandFillMode();
         EnterInputState(InputState.Choose);
+        ApplyMulliganButtonVisibility(false);
         StartCoroutine(EnableIntroTutorialInputNextFrame());
     }
 
@@ -675,7 +678,7 @@ public class GameController : MonoBehaviour
     {
         if (gameState == GameState.Settings)
         {
-            if (lastState == GameState.SelectDifficulty)
+            if (settingsOpenedFrom == GameState.SelectDifficulty)
             {
                 GameStateSelectDifficulty();
                 return;
@@ -784,10 +787,7 @@ public class GameController : MonoBehaviour
         {
             shopButton.SetActive(visible);
         }
-        if (mulliganButton != null)
-        {
-            mulliganButton.SetActive(visible);
-        }
+        ApplyMulliganButtonVisibility(visible);
         if (bagButtonTransform != null)
         {
             bagButtonTransform.gameObject.SetActive(visible);
@@ -796,6 +796,16 @@ public class GameController : MonoBehaviour
         {
             snapshotButton.SetActive(visible);
         }
+    }
+
+    void ApplyMulliganButtonVisibility(bool visible)
+    {
+        if (mulliganButton == null)
+        {
+            ResolveDifficultySelectHudButtons();
+        }
+        if (mulliganButton == null) { return; }
+        mulliganButton.SetActive(visible && !inTutorial && !pendingTutorialStart);
     }
     public void GameStateStart()
     {
@@ -816,6 +826,10 @@ public class GameController : MonoBehaviour
         if (inputState == InputState.Finish || inputState == InputState.TapToRestart) { return; }
         if (inTutorial) { return; }
         if (inTutorial) { return; }
+        if (gameState != GameState.Credits && gameState != GameState.HighScore)
+        {
+            settingsOpenedFrom = gameState;
+        }
         lastState = gameState;
         gameState = GameState.Settings;
 
@@ -1383,6 +1397,7 @@ public class GameController : MonoBehaviour
             StopCoroutine(tutorialHandRefreshCoroutine);
             tutorialHandRefreshCoroutine = null;
         }
+        ApplyMulliganButtonVisibility(true);
         if (!refillHand)
         {
             return;
@@ -3233,10 +3248,8 @@ public class GameController : MonoBehaviour
             } while (farEnough == false);
         }
 
-        Vector3 flowerPos = flower.transform.position + (Vector3.forward * -10);
-        RaycastHit hit;
-        Physics.Raycast(flowerPos, Vector3.forward, out hit);
-        flower.ChangeLayer(hit.collider != null);
+        // Edge flowers used to miss the tile collider and jump to TokenHand, in front of the dim.
+        flower.ChangeLayer(true);
 
         numFlowers++;
         if (keepFlower)
@@ -3419,7 +3432,7 @@ public class GameController : MonoBehaviour
 
     public void Mulligan()
     {
-        if (inTutorial) { return; }
+        if (inTutorial || pendingTutorialStart) { return; }
         if (gameState != GameState.Gameplay) { return; }
         if (inputState != InputState.Choose) { return; }
         if (mulliganInProgress) { return; }

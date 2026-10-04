@@ -16,6 +16,8 @@ public class MiniTile : MonoBehaviour
     public Sprite spade;
     public Sprite clipper;
     public Sprite gnome;
+    // Indexed like full-size clipping sprites: 0 unused, 1 blue, 2 red, 3 green, 4 purple, 5 gold
+    public List<Sprite> clippingSprites;
     // Start is called before the first frame update
     public void SetTile(TokenData token)
     {
@@ -68,7 +70,12 @@ public class MiniTile : MonoBehaviour
         spriteDisplay.enabled = true;
         if (token.color == TokenColor.Adder)
         {
-            spriteDisplay.sprite = adder;
+            Sprite clipping = null;
+            if (clippingSprites != null && token.num >= 0 && token.num < clippingSprites.Count)
+            {
+                clipping = clippingSprites[token.num];
+            }
+            spriteDisplay.sprite = clipping != null ? clipping : adder;
         }
         else if (token.color == TokenColor.Spade)
         {
