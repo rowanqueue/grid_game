@@ -136,7 +136,7 @@ MonoBehaviour:
   _event:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 2119057107516020614}
         m_TargetAssemblyTypeName: ToolShopScreen, Assembly-CSharp
         m_MethodName: BuyClipper
         m_Mode: 1
@@ -1356,7 +1356,7 @@ MonoBehaviour:
   _event:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 2119057107516020614}
         m_TargetAssemblyTypeName: ToolShopScreen, Assembly-CSharp
         m_MethodName: BuySpade
         m_Mode: 1
@@ -1873,7 +1873,7 @@ MonoBehaviour:
   _event:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 2119057107516020614}
         m_TargetAssemblyTypeName: ToolShopScreen, Assembly-CSharp
         m_MethodName: BuyAdder
         m_Mode: 1

@@ -35,6 +35,20 @@ public class FlowerBurstParticleController : MonoBehaviour
         {
             ps.gameObject.SetActive(true);
         }
+        PinBurstBehindDim(ps);
+    }
+
+    void PinBurstBehindDim(ParticleSystem ps)
+    {
+        if (ps == null)
+            return;
+
+        ParticleSystemRenderer renderer = ps.GetComponent<ParticleSystemRenderer>();
+        if (renderer == null)
+            return;
+
+        renderer.sortingLayerName = "Tile";
+        renderer.sortingOrder = 0;
     }
 
     private void PlayFlowerBurst(Logic.TokenColor tokenColor)

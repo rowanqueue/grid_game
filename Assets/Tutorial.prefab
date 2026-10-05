@@ -181,6 +181,13 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  clippingSprites:
+  - {fileID: 0}
+  - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
+  - {fileID: 21300000, guid: 43cdf20a7ec948599ff69452a8d920b0, type: 3}
+  - {fileID: 21300000, guid: 7d1520787ae94c9e849e99d0ca4577b0, type: 3}
+  - {fileID: 21300000, guid: 6a227f6ad3634b839497965159a1636c, type: 3}
+  - {fileID: 21300000, guid: 7d4e2bb104294a17bfa054313bf6fb87, type: 3}
 --- !u!1 &95092352997369176
 GameObject:
   m_ObjectHideFlags: 0
@@ -823,6 +830,13 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  clippingSprites:
+  - {fileID: 0}
+  - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
+  - {fileID: 21300000, guid: 43cdf20a7ec948599ff69452a8d920b0, type: 3}
+  - {fileID: 21300000, guid: 7d1520787ae94c9e849e99d0ca4577b0, type: 3}
+  - {fileID: 21300000, guid: 6a227f6ad3634b839497965159a1636c, type: 3}
+  - {fileID: 21300000, guid: 7d4e2bb104294a17bfa054313bf6fb87, type: 3}
 --- !u!1 &231813988424039980
 GameObject:
   m_ObjectHideFlags: 0
@@ -1099,6 +1113,13 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  clippingSprites:
+  - {fileID: 0}
+  - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
+  - {fileID: 21300000, guid: 43cdf20a7ec948599ff69452a8d920b0, type: 3}
+  - {fileID: 21300000, guid: 7d1520787ae94c9e849e99d0ca4577b0, type: 3}
+  - {fileID: 21300000, guid: 6a227f6ad3634b839497965159a1636c, type: 3}
+  - {fileID: 21300000, guid: 7d4e2bb104294a17bfa054313bf6fb87, type: 3}
 --- !u!1 &320496467679475942
 GameObject:
   m_ObjectHideFlags: 0
@@ -1230,6 +1251,13 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  clippingSprites:
+  - {fileID: 0}
+  - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
+  - {fileID: 21300000, guid: 43cdf20a7ec948599ff69452a8d920b0, type: 3}
+  - {fileID: 21300000, guid: 7d1520787ae94c9e849e99d0ca4577b0, type: 3}
+  - {fileID: 21300000, guid: 6a227f6ad3634b839497965159a1636c, type: 3}
+  - {fileID: 21300000, guid: 7d4e2bb104294a17bfa054313bf6fb87, type: 3}
 --- !u!1 &358137659031247141
 GameObject:
   m_ObjectHideFlags: 0
@@ -2449,6 +2477,13 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  clippingSprites:
+  - {fileID: 0}
+  - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
+  - {fileID: 21300000, guid: 43cdf20a7ec948599ff69452a8d920b0, type: 3}
+  - {fileID: 21300000, guid: 7d1520787ae94c9e849e99d0ca4577b0, type: 3}
+  - {fileID: 21300000, guid: 6a227f6ad3634b839497965159a1636c, type: 3}
+  - {fileID: 21300000, guid: 7d4e2bb104294a17bfa054313bf6fb87, type: 3}
 --- !u!1 &570262875901911924
 GameObject:
   m_ObjectHideFlags: 0
@@ -2832,6 +2867,13 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  clippingSprites:
+  - {fileID: 0}
+  - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
+  - {fileID: 21300000, guid: 43cdf20a7ec948599ff69452a8d920b0, type: 3}
+  - {fileID: 21300000, guid: 7d1520787ae94c9e849e99d0ca4577b0, type: 3}
+  - {fileID: 21300000, guid: 6a227f6ad3634b839497965159a1636c, type: 3}
+  - {fileID: 21300000, guid: 7d4e2bb104294a17bfa054313bf6fb87, type: 3}
 --- !u!1 &739941007363163812
 GameObject:
   m_ObjectHideFlags: 0
@@ -3341,6 +3383,13 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  clippingSprites:
+  - {fileID: 0}
+  - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
+  - {fileID: 21300000, guid: 43cdf20a7ec948599ff69452a8d920b0, type: 3}
+  - {fileID: 21300000, guid: 7d1520787ae94c9e849e99d0ca4577b0, type: 3}
+  - {fileID: 21300000, guid: 6a227f6ad3634b839497965159a1636c, type: 3}
+  - {fileID: 21300000, guid: 7d4e2bb104294a17bfa054313bf6fb87, type: 3}
 --- !u!1 &889652255227199237
 GameObject:
   m_ObjectHideFlags: 0
@@ -4183,6 +4232,13 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  clippingSprites:
+  - {fileID: 0}
+  - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
+  - {fileID: 21300000, guid: 43cdf20a7ec948599ff69452a8d920b0, type: 3}
+  - {fileID: 21300000, guid: 7d1520787ae94c9e849e99d0ca4577b0, type: 3}
+  - {fileID: 21300000, guid: 6a227f6ad3634b839497965159a1636c, type: 3}
+  - {fileID: 21300000, guid: 7d4e2bb104294a17bfa054313bf6fb87, type: 3}
 --- !u!1 &1091548172992140284
 GameObject:
   m_ObjectHideFlags: 0
@@ -6029,6 +6085,13 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  clippingSprites:
+  - {fileID: 0}
+  - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
+  - {fileID: 21300000, guid: 43cdf20a7ec948599ff69452a8d920b0, type: 3}
+  - {fileID: 21300000, guid: 7d1520787ae94c9e849e99d0ca4577b0, type: 3}
+  - {fileID: 21300000, guid: 6a227f6ad3634b839497965159a1636c, type: 3}
+  - {fileID: 21300000, guid: 7d4e2bb104294a17bfa054313bf6fb87, type: 3}
 --- !u!1 &1419906644313025530
 GameObject:
   m_ObjectHideFlags: 0
@@ -6262,6 +6325,13 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  clippingSprites:
+  - {fileID: 0}
+  - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
+  - {fileID: 21300000, guid: 43cdf20a7ec948599ff69452a8d920b0, type: 3}
+  - {fileID: 21300000, guid: 7d1520787ae94c9e849e99d0ca4577b0, type: 3}
+  - {fileID: 21300000, guid: 6a227f6ad3634b839497965159a1636c, type: 3}
+  - {fileID: 21300000, guid: 7d4e2bb104294a17bfa054313bf6fb87, type: 3}
 --- !u!1 &1433227019057174052
 GameObject:
   m_ObjectHideFlags: 0
@@ -6354,6 +6424,13 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  clippingSprites:
+  - {fileID: 0}
+  - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
+  - {fileID: 21300000, guid: 43cdf20a7ec948599ff69452a8d920b0, type: 3}
+  - {fileID: 21300000, guid: 7d1520787ae94c9e849e99d0ca4577b0, type: 3}
+  - {fileID: 21300000, guid: 6a227f6ad3634b839497965159a1636c, type: 3}
+  - {fileID: 21300000, guid: 7d4e2bb104294a17bfa054313bf6fb87, type: 3}
 --- !u!1 &1452928715982544103
 GameObject:
   m_ObjectHideFlags: 0
@@ -8270,6 +8347,13 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  clippingSprites:
+  - {fileID: 0}
+  - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
+  - {fileID: 21300000, guid: 43cdf20a7ec948599ff69452a8d920b0, type: 3}
+  - {fileID: 21300000, guid: 7d1520787ae94c9e849e99d0ca4577b0, type: 3}
+  - {fileID: 21300000, guid: 6a227f6ad3634b839497965159a1636c, type: 3}
+  - {fileID: 21300000, guid: 7d4e2bb104294a17bfa054313bf6fb87, type: 3}
 --- !u!1 &1857507863399146143
 GameObject:
   m_ObjectHideFlags: 0
@@ -8964,6 +9048,13 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  clippingSprites:
+  - {fileID: 0}
+  - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
+  - {fileID: 21300000, guid: 43cdf20a7ec948599ff69452a8d920b0, type: 3}
+  - {fileID: 21300000, guid: 7d1520787ae94c9e849e99d0ca4577b0, type: 3}
+  - {fileID: 21300000, guid: 6a227f6ad3634b839497965159a1636c, type: 3}
+  - {fileID: 21300000, guid: 7d4e2bb104294a17bfa054313bf6fb87, type: 3}
 --- !u!1 &2041994934847032897
 GameObject:
   m_ObjectHideFlags: 0
@@ -9221,6 +9312,13 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  clippingSprites:
+  - {fileID: 0}
+  - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
+  - {fileID: 21300000, guid: 43cdf20a7ec948599ff69452a8d920b0, type: 3}
+  - {fileID: 21300000, guid: 7d1520787ae94c9e849e99d0ca4577b0, type: 3}
+  - {fileID: 21300000, guid: 6a227f6ad3634b839497965159a1636c, type: 3}
+  - {fileID: 21300000, guid: 7d4e2bb104294a17bfa054313bf6fb87, type: 3}
 --- !u!1 &2076617650318042240
 GameObject:
   m_ObjectHideFlags: 0
@@ -10171,6 +10269,13 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  clippingSprites:
+  - {fileID: 0}
+  - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
+  - {fileID: 21300000, guid: 43cdf20a7ec948599ff69452a8d920b0, type: 3}
+  - {fileID: 21300000, guid: 7d1520787ae94c9e849e99d0ca4577b0, type: 3}
+  - {fileID: 21300000, guid: 6a227f6ad3634b839497965159a1636c, type: 3}
+  - {fileID: 21300000, guid: 7d4e2bb104294a17bfa054313bf6fb87, type: 3}
 --- !u!1 &2281993412030954311
 GameObject:
   m_ObjectHideFlags: 0
@@ -10520,6 +10625,13 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  clippingSprites:
+  - {fileID: 0}
+  - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
+  - {fileID: 21300000, guid: 43cdf20a7ec948599ff69452a8d920b0, type: 3}
+  - {fileID: 21300000, guid: 7d1520787ae94c9e849e99d0ca4577b0, type: 3}
+  - {fileID: 21300000, guid: 6a227f6ad3634b839497965159a1636c, type: 3}
+  - {fileID: 21300000, guid: 7d4e2bb104294a17bfa054313bf6fb87, type: 3}
 --- !u!1 &2504326248637811267
 GameObject:
   m_ObjectHideFlags: 0
@@ -11532,6 +11644,13 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  clippingSprites:
+  - {fileID: 0}
+  - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
+  - {fileID: 21300000, guid: 43cdf20a7ec948599ff69452a8d920b0, type: 3}
+  - {fileID: 21300000, guid: 7d1520787ae94c9e849e99d0ca4577b0, type: 3}
+  - {fileID: 21300000, guid: 6a227f6ad3634b839497965159a1636c, type: 3}
+  - {fileID: 21300000, guid: 7d4e2bb104294a17bfa054313bf6fb87, type: 3}
 --- !u!1 &2733320757187152820
 GameObject:
   m_ObjectHideFlags: 0
@@ -15899,6 +16018,13 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  clippingSprites:
+  - {fileID: 0}
+  - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
+  - {fileID: 21300000, guid: 43cdf20a7ec948599ff69452a8d920b0, type: 3}
+  - {fileID: 21300000, guid: 7d1520787ae94c9e849e99d0ca4577b0, type: 3}
+  - {fileID: 21300000, guid: 6a227f6ad3634b839497965159a1636c, type: 3}
+  - {fileID: 21300000, guid: 7d4e2bb104294a17bfa054313bf6fb87, type: 3}
 --- !u!1 &3725746925741745600
 GameObject:
   m_ObjectHideFlags: 0
@@ -16072,6 +16198,13 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  clippingSprites:
+  - {fileID: 0}
+  - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
+  - {fileID: 21300000, guid: 43cdf20a7ec948599ff69452a8d920b0, type: 3}
+  - {fileID: 21300000, guid: 7d1520787ae94c9e849e99d0ca4577b0, type: 3}
+  - {fileID: 21300000, guid: 6a227f6ad3634b839497965159a1636c, type: 3}
+  - {fileID: 21300000, guid: 7d4e2bb104294a17bfa054313bf6fb87, type: 3}
 --- !u!1 &3774018943678934299
 GameObject:
   m_ObjectHideFlags: 0
@@ -18670,6 +18803,13 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  clippingSprites:
+  - {fileID: 0}
+  - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
+  - {fileID: 21300000, guid: 43cdf20a7ec948599ff69452a8d920b0, type: 3}
+  - {fileID: 21300000, guid: 7d1520787ae94c9e849e99d0ca4577b0, type: 3}
+  - {fileID: 21300000, guid: 6a227f6ad3634b839497965159a1636c, type: 3}
+  - {fileID: 21300000, guid: 7d4e2bb104294a17bfa054313bf6fb87, type: 3}
 --- !u!1 &4329696329844078798
 GameObject:
   m_ObjectHideFlags: 0
@@ -18801,6 +18941,13 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  clippingSprites:
+  - {fileID: 0}
+  - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
+  - {fileID: 21300000, guid: 43cdf20a7ec948599ff69452a8d920b0, type: 3}
+  - {fileID: 21300000, guid: 7d1520787ae94c9e849e99d0ca4577b0, type: 3}
+  - {fileID: 21300000, guid: 6a227f6ad3634b839497965159a1636c, type: 3}
+  - {fileID: 21300000, guid: 7d4e2bb104294a17bfa054313bf6fb87, type: 3}
 --- !u!1 &4369538639092938512
 GameObject:
   m_ObjectHideFlags: 0
@@ -21678,6 +21825,13 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  clippingSprites:
+  - {fileID: 0}
+  - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
+  - {fileID: 21300000, guid: 43cdf20a7ec948599ff69452a8d920b0, type: 3}
+  - {fileID: 21300000, guid: 7d1520787ae94c9e849e99d0ca4577b0, type: 3}
+  - {fileID: 21300000, guid: 6a227f6ad3634b839497965159a1636c, type: 3}
+  - {fileID: 21300000, guid: 7d4e2bb104294a17bfa054313bf6fb87, type: 3}
 --- !u!1 &5027807898074500098
 GameObject:
   m_ObjectHideFlags: 0
@@ -23323,6 +23477,13 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  clippingSprites:
+  - {fileID: 0}
+  - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
+  - {fileID: 21300000, guid: 43cdf20a7ec948599ff69452a8d920b0, type: 3}
+  - {fileID: 21300000, guid: 7d1520787ae94c9e849e99d0ca4577b0, type: 3}
+  - {fileID: 21300000, guid: 6a227f6ad3634b839497965159a1636c, type: 3}
+  - {fileID: 21300000, guid: 7d4e2bb104294a17bfa054313bf6fb87, type: 3}
 --- !u!1 &5486558971702411941
 GameObject:
   m_ObjectHideFlags: 0
@@ -25237,6 +25398,13 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  clippingSprites:
+  - {fileID: 0}
+  - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
+  - {fileID: 21300000, guid: 43cdf20a7ec948599ff69452a8d920b0, type: 3}
+  - {fileID: 21300000, guid: 7d1520787ae94c9e849e99d0ca4577b0, type: 3}
+  - {fileID: 21300000, guid: 6a227f6ad3634b839497965159a1636c, type: 3}
+  - {fileID: 21300000, guid: 7d4e2bb104294a17bfa054313bf6fb87, type: 3}
 --- !u!1 &5922772543431859995
 GameObject:
   m_ObjectHideFlags: 0
@@ -25536,6 +25704,13 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  clippingSprites:
+  - {fileID: 0}
+  - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
+  - {fileID: 21300000, guid: 43cdf20a7ec948599ff69452a8d920b0, type: 3}
+  - {fileID: 21300000, guid: 7d1520787ae94c9e849e99d0ca4577b0, type: 3}
+  - {fileID: 21300000, guid: 6a227f6ad3634b839497965159a1636c, type: 3}
+  - {fileID: 21300000, guid: 7d4e2bb104294a17bfa054313bf6fb87, type: 3}
 --- !u!1 &5960119525840487382
 GameObject:
   m_ObjectHideFlags: 0
@@ -25898,6 +26073,13 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  clippingSprites:
+  - {fileID: 0}
+  - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
+  - {fileID: 21300000, guid: 43cdf20a7ec948599ff69452a8d920b0, type: 3}
+  - {fileID: 21300000, guid: 7d1520787ae94c9e849e99d0ca4577b0, type: 3}
+  - {fileID: 21300000, guid: 6a227f6ad3634b839497965159a1636c, type: 3}
+  - {fileID: 21300000, guid: 7d4e2bb104294a17bfa054313bf6fb87, type: 3}
 --- !u!1 &6111904051536410906
 GameObject:
   m_ObjectHideFlags: 0
@@ -27054,6 +27236,13 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  clippingSprites:
+  - {fileID: 0}
+  - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
+  - {fileID: 21300000, guid: 43cdf20a7ec948599ff69452a8d920b0, type: 3}
+  - {fileID: 21300000, guid: 7d1520787ae94c9e849e99d0ca4577b0, type: 3}
+  - {fileID: 21300000, guid: 6a227f6ad3634b839497965159a1636c, type: 3}
+  - {fileID: 21300000, guid: 7d4e2bb104294a17bfa054313bf6fb87, type: 3}
 --- !u!1 &6403854422643035798
 GameObject:
   m_ObjectHideFlags: 0
@@ -27110,6 +27299,13 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  clippingSprites:
+  - {fileID: 0}
+  - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
+  - {fileID: 21300000, guid: 43cdf20a7ec948599ff69452a8d920b0, type: 3}
+  - {fileID: 21300000, guid: 7d1520787ae94c9e849e99d0ca4577b0, type: 3}
+  - {fileID: 21300000, guid: 6a227f6ad3634b839497965159a1636c, type: 3}
+  - {fileID: 21300000, guid: 7d4e2bb104294a17bfa054313bf6fb87, type: 3}
 --- !u!1 &6497615397557813857
 GameObject:
   m_ObjectHideFlags: 0
@@ -28122,6 +28318,13 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  clippingSprites:
+  - {fileID: 0}
+  - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
+  - {fileID: 21300000, guid: 43cdf20a7ec948599ff69452a8d920b0, type: 3}
+  - {fileID: 21300000, guid: 7d1520787ae94c9e849e99d0ca4577b0, type: 3}
+  - {fileID: 21300000, guid: 6a227f6ad3634b839497965159a1636c, type: 3}
+  - {fileID: 21300000, guid: 7d4e2bb104294a17bfa054313bf6fb87, type: 3}
 --- !u!1 &6725502779352736725
 GameObject:
   m_ObjectHideFlags: 0
@@ -30320,6 +30523,13 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  clippingSprites:
+  - {fileID: 0}
+  - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
+  - {fileID: 21300000, guid: 43cdf20a7ec948599ff69452a8d920b0, type: 3}
+  - {fileID: 21300000, guid: 7d1520787ae94c9e849e99d0ca4577b0, type: 3}
+  - {fileID: 21300000, guid: 6a227f6ad3634b839497965159a1636c, type: 3}
+  - {fileID: 21300000, guid: 7d4e2bb104294a17bfa054313bf6fb87, type: 3}
 --- !u!1 &7219048932713017335
 GameObject:
   m_ObjectHideFlags: 0
@@ -30620,6 +30830,13 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  clippingSprites:
+  - {fileID: 0}
+  - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
+  - {fileID: 21300000, guid: 43cdf20a7ec948599ff69452a8d920b0, type: 3}
+  - {fileID: 21300000, guid: 7d1520787ae94c9e849e99d0ca4577b0, type: 3}
+  - {fileID: 21300000, guid: 6a227f6ad3634b839497965159a1636c, type: 3}
+  - {fileID: 21300000, guid: 7d4e2bb104294a17bfa054313bf6fb87, type: 3}
 --- !u!1 &7309850563227544238
 GameObject:
   m_ObjectHideFlags: 0
@@ -31397,6 +31614,13 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  clippingSprites:
+  - {fileID: 0}
+  - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
+  - {fileID: 21300000, guid: 43cdf20a7ec948599ff69452a8d920b0, type: 3}
+  - {fileID: 21300000, guid: 7d1520787ae94c9e849e99d0ca4577b0, type: 3}
+  - {fileID: 21300000, guid: 6a227f6ad3634b839497965159a1636c, type: 3}
+  - {fileID: 21300000, guid: 7d4e2bb104294a17bfa054313bf6fb87, type: 3}
 --- !u!1 &7487175574525602212
 GameObject:
   m_ObjectHideFlags: 0
@@ -32548,6 +32772,13 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  clippingSprites:
+  - {fileID: 0}
+  - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
+  - {fileID: 21300000, guid: 43cdf20a7ec948599ff69452a8d920b0, type: 3}
+  - {fileID: 21300000, guid: 7d1520787ae94c9e849e99d0ca4577b0, type: 3}
+  - {fileID: 21300000, guid: 6a227f6ad3634b839497965159a1636c, type: 3}
+  - {fileID: 21300000, guid: 7d4e2bb104294a17bfa054313bf6fb87, type: 3}
 --- !u!1 &7721617565788438677
 GameObject:
   m_ObjectHideFlags: 0
@@ -35184,6 +35415,13 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  clippingSprites:
+  - {fileID: 0}
+  - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
+  - {fileID: 21300000, guid: 43cdf20a7ec948599ff69452a8d920b0, type: 3}
+  - {fileID: 21300000, guid: 7d1520787ae94c9e849e99d0ca4577b0, type: 3}
+  - {fileID: 21300000, guid: 6a227f6ad3634b839497965159a1636c, type: 3}
+  - {fileID: 21300000, guid: 7d4e2bb104294a17bfa054313bf6fb87, type: 3}
 --- !u!1 &8257627761614667466
 GameObject:
   m_ObjectHideFlags: 0
@@ -35240,6 +35478,13 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  clippingSprites:
+  - {fileID: 0}
+  - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
+  - {fileID: 21300000, guid: 43cdf20a7ec948599ff69452a8d920b0, type: 3}
+  - {fileID: 21300000, guid: 7d1520787ae94c9e849e99d0ca4577b0, type: 3}
+  - {fileID: 21300000, guid: 6a227f6ad3634b839497965159a1636c, type: 3}
+  - {fileID: 21300000, guid: 7d4e2bb104294a17bfa054313bf6fb87, type: 3}
 --- !u!1 &8269562256489457274
 GameObject:
   m_ObjectHideFlags: 0
@@ -36485,6 +36730,13 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  clippingSprites:
+  - {fileID: 0}
+  - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
+  - {fileID: 21300000, guid: 43cdf20a7ec948599ff69452a8d920b0, type: 3}
+  - {fileID: 21300000, guid: 7d1520787ae94c9e849e99d0ca4577b0, type: 3}
+  - {fileID: 21300000, guid: 6a227f6ad3634b839497965159a1636c, type: 3}
+  - {fileID: 21300000, guid: 7d4e2bb104294a17bfa054313bf6fb87, type: 3}
 --- !u!1 &8512999973490587260
 GameObject:
   m_ObjectHideFlags: 0
@@ -36577,6 +36829,13 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  clippingSprites:
+  - {fileID: 0}
+  - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
+  - {fileID: 21300000, guid: 43cdf20a7ec948599ff69452a8d920b0, type: 3}
+  - {fileID: 21300000, guid: 7d1520787ae94c9e849e99d0ca4577b0, type: 3}
+  - {fileID: 21300000, guid: 6a227f6ad3634b839497965159a1636c, type: 3}
+  - {fileID: 21300000, guid: 7d4e2bb104294a17bfa054313bf6fb87, type: 3}
 --- !u!1 &8514483025628748650
 GameObject:
   m_ObjectHideFlags: 0
@@ -37412,6 +37671,13 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  clippingSprites:
+  - {fileID: 0}
+  - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
+  - {fileID: 21300000, guid: 43cdf20a7ec948599ff69452a8d920b0, type: 3}
+  - {fileID: 21300000, guid: 7d1520787ae94c9e849e99d0ca4577b0, type: 3}
+  - {fileID: 21300000, guid: 6a227f6ad3634b839497965159a1636c, type: 3}
+  - {fileID: 21300000, guid: 7d4e2bb104294a17bfa054313bf6fb87, type: 3}
 --- !u!1 &8784345364698981288
 GameObject:
   m_ObjectHideFlags: 0
@@ -38692,6 +38958,13 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  clippingSprites:
+  - {fileID: 0}
+  - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
+  - {fileID: 21300000, guid: 43cdf20a7ec948599ff69452a8d920b0, type: 3}
+  - {fileID: 21300000, guid: 7d1520787ae94c9e849e99d0ca4577b0, type: 3}
+  - {fileID: 21300000, guid: 6a227f6ad3634b839497965159a1636c, type: 3}
+  - {fileID: 21300000, guid: 7d4e2bb104294a17bfa054313bf6fb87, type: 3}
 --- !u!1 &9055036925093039983
 GameObject:
   m_ObjectHideFlags: 0
@@ -39558,6 +39831,13 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  clippingSprites:
+  - {fileID: 0}
+  - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
+  - {fileID: 21300000, guid: 43cdf20a7ec948599ff69452a8d920b0, type: 3}
+  - {fileID: 21300000, guid: 7d1520787ae94c9e849e99d0ca4577b0, type: 3}
+  - {fileID: 21300000, guid: 6a227f6ad3634b839497965159a1636c, type: 3}
+  - {fileID: 21300000, guid: 7d4e2bb104294a17bfa054313bf6fb87, type: 3}
 --- !u!1 &9222949390977544535
 GameObject:
   m_ObjectHideFlags: 0

@@ -13,10 +13,8 @@ public class SeedPopup : MonoBehaviour
 
     bool open;
     [SerializeField] GameObject visual;
-    //[SerializeField] Collider2D seedsButtonCollider;
     [SerializeField] SpriteRenderer dimPanel;
     bool closing;
-    bool ignoreDismissUntilRelease;
     SpriteRenderer[] fadeRenderers;
     CanvasGroup canvasGroup;
     TextMeshPro messageText;
@@ -24,132 +22,154 @@ public class SeedPopup : MonoBehaviour
 
     void Awake()
     {
-        visual = transform.GetChild(0).gameObject;
-        //Transform seedsButton = visual.transform.Find("Seeds");
-        //if (seedsButton != null)
-        //ConfigureSeedsButton(seedsButton);
+        if (visual == null && transform.childCount > 0)
+            visual = transform.GetChild(0).gameObject;
+
+        Transform title = visual.transform.Find("Title Text");
+        messageText = title != null
+            ? title.GetComponent<TextMeshPro>()
+            : visual.GetComponentInChildren<TextMeshPro>(true);
+        if (messageText != null)
+            defaultMessage = messageText.text;
+
+        HideNamedChildren(visual.transform, "Seeds");
+        RefreshEarnLabel();
+
         visual.SetActive(false);
         fadeRenderers = visual.GetComponentsInChildren<SpriteRenderer>(true);
         canvasGroup = visual.GetComponent<CanvasGroup>();
-        messageText = visual.GetComponentInChildren<TextMeshPro>(true);
-
-        if (messageText != null)
-            defaultMessage = messageText.text;
         ApplyOverlaySorting();
     }
 
-    void ConfigureSeedsButton(Transform seedsButton)
+    Transform FindNamedChild(Transform root, string childName)
     {
-        var anchor = seedsButton.GetComponent<AnchorGameObject>();
-        if (anchor != null)
+        Transform[] children = root.GetComponentsInChildren<Transform>(true);
+        for (int i = 0; i < children.Length; i++)
         {
-            anchor.enabled = false;
-            Destroy(anchor);
+            if (children[i] != null && children[i].name == childName)
+                return children[i];
         }
-
-        seedsButton.localPosition = new Vector3(0f, -0.35f, 0f);
-        seedsButton.localRotation = Quaternion.identity;
-        seedsButton.localScale = Vector3.one;
-
-        for (int i = 0; i < seedsButton.childCount; i++)
-        {
-            Transform child = seedsButton.GetChild(i);
-            if (child.name.StartsWith("9-Sliced"))
-                child.gameObject.SetActive(false);
-        }
-
-        /*
-        TextMeshPro label = seedsButton.GetComponentInChildren<TextMeshPro>(true);
-        if (label != null)
-        {
-            label.gameObject.SetActive(true);
-            label.text = "Get Seeds";
-            label.alignment = TextAlignmentOptions.Center;
-            label.enableAutoSizing = false;
-            label.fontSize = 4f;
-            if (label.rectTransform != null)
-            {
-                label.rectTransform.pivot = new Vector2(0.5f, 0.5f);
-                label.rectTransform.anchoredPosition = Vector2.zero;
-                label.rectTransform.sizeDelta = new Vector2(4f, 1f);
-            }
-        }
-        */
-
-        var box = seedsButton.GetComponent<BoxCollider2D>();
-        if (box != null)
-        {
-            box.offset = Vector2.zero;
-            box.size = new Vector2(3.5f, 1f);
-        }
-        //seedsButtonCollider = seedsButton.GetComponent<Collider2D>();
+        return null;
     }
+
+    void RefreshEarnLabel()
+    {
+        if (visual == null)
+            return;
+        Transform seedPrice = FindNamedChild(visual.transform, "SeedPrice");
+        if (seedPrice == null)
+            return;
+        seedPrice.gameObject.SetActive(true);
+        TextMeshPro earnLabel = seedPrice.GetComponentInChildren<TextMeshPro>(true);
+        if (earnLabel != null && Services.Gems != null)
+        {
+            earnLabel.text = "+" + Services.Gems.GetCost("earn");
+            earnLabel.ForceMeshUpdate();
+        }
+    }
+
+    void HideNamedChildren(Transform root, string childName)
+    {
+        Transform[] children = root.GetComponentsInChildren<Transform>(true);
+        for (int i = 0; i < children.Length; i++)
+        {
+            if (children[i] != null && children[i].name == childName)
+                children[i].gameObject.SetActive(false);
+        }
+    }
+
+    bool overlaySortingApplied;
 
     void ApplyOverlaySorting()
     {
+        // Difficulty UI on UIToken tops out at the seed counter (order 38).
+        // Dim sits just under the popup art, and both sit above that counter.
         int layerId = SortingLayer.NameToID("UIToken");
-        TextMeshPro[] texts = visual.GetComponentsInChildren<TextMeshPro>(true);
+        int contentFloor = OverlayBaseOrder + 1;
 
-        int minOrder = int.MaxValue;
-        foreach (SpriteRenderer sr in fadeRenderers)
-            minOrder = Mathf.Min(minOrder, sr.sortingOrder);
-        foreach (TextMeshPro tmp in texts)
-            minOrder = Mathf.Min(minOrder, tmp.sortingOrder);
-        if (minOrder == int.MaxValue)
+        if (dimPanel != null)
+        {
+            dimPanel.sortingLayerID = layerId;
+            dimPanel.sortingOrder = OverlayBaseOrder;
+        }
+
+        if (visual == null)
             return;
 
-        int shift = OverlayBaseOrder - minOrder;
-        foreach (SpriteRenderer sr in fadeRenderers)
+        Renderer[] renderers = visual.GetComponentsInChildren<Renderer>(true);
+        if (renderers.Length == 0)
+            return;
+
+        if (!overlaySortingApplied)
         {
-            sr.sortingLayerID = layerId;
-            sr.sortingOrder += shift;
+            int minOrder = int.MaxValue;
+            foreach (Renderer renderer in renderers)
+                minOrder = Mathf.Min(minOrder, renderer.sortingOrder);
+
+            int shift = contentFloor - minOrder;
+            foreach (Renderer renderer in renderers)
+            {
+                renderer.sortingLayerID = layerId;
+                renderer.sortingOrder += shift;
+            }
+            overlaySortingApplied = true;
         }
-        foreach (TextMeshPro tmp in texts)
+        else
         {
-            tmp.sortingLayerID = layerId;
-            tmp.sortingOrder += shift;
+            foreach (Renderer renderer in renderers)
+            {
+                renderer.sortingLayerID = layerId;
+                if (renderer.sortingOrder < contentFloor)
+                    renderer.sortingOrder = contentFloor;
+            }
         }
+
+        // Flowers hanging off the popup stay above the difficulty UI but under the dim.
+        ParkDecorationBehindDim(layerId);
     }
 
-    /*
-    void Update()
+    void ParkDecorationBehindDim(int layerId)
     {
-        if (!open || closing)
+        Transform decoration = FindNamedChild(visual.transform, "Decoration");
+        if (decoration == null)
             return;
 
-        // Same click that opened us (button OnMouseDown → Open) must not dismiss.
-        if (ignoreDismissUntilRelease)
+        Renderer[] renderers = decoration.GetComponentsInChildren<Renderer>(true);
+        for (int i = 0; i < renderers.Length; i++)
         {
-            if (!InputHelper.GetPrimaryPressHeld())
-                ignoreDismissUntilRelease = false;
-            return;
+            renderers[i].sortingLayerID = layerId;
+            renderers[i].sortingOrder = OverlayBaseOrder - 1;
         }
-
-        if (!InputHelper.GetPrimaryPressBegan())
-            return;
-
-        if (InputHelper.IsPointerOverCollider(seedsButtonCollider))
-        {
-            Close();
-            return;
-        }
-
-        StartCoroutine(WaitToClose());
     }
-    */
+
+    public void OpenWatchAdPrompt(int seedAmount)
+    {
+        Open("Watch Ads for seeds!");
+    }
 
     public void Open(string message = null)
     {
-        if (open)
-            return;
+        if (closing)
+        {
+            StopAllCoroutines();
+            closing = false;
+            KillTweens();
+        }
+
+        RefreshEarnLabel();
 
         if (messageText != null)
+        {
             messageText.text = string.IsNullOrEmpty(message) ? defaultMessage : message;
+            messageText.ForceMeshUpdate();
+        }
+
+        ApplyOverlaySorting();
+
+        if (open && visual.activeSelf)
+            return;
 
         open = true;
-        ignoreDismissUntilRelease = InputHelper.GetPrimaryPressBegan() || InputHelper.GetPrimaryPressHeld();
-        //if (seedsButtonCollider != null)
-        //    seedsButtonCollider.transform.localPosition = new Vector3(0f, -0.35f, 0f);
         visual.SetActive(true);
         SetVisualAlpha(0f);
         StartCoroutine(FadeIn());
@@ -158,10 +178,10 @@ public class SeedPopup : MonoBehaviour
     public void Close()
     {
         open = false;
-        ignoreDismissUntilRelease = false;
         KillTweens();
         visual.SetActive(false);
-        dimPanel.gameObject.SetActive(false);
+        if (dimPanel != null)
+            dimPanel.gameObject.SetActive(false);
         SetVisualAlpha(1f);
     }
 
@@ -170,18 +190,10 @@ public class SeedPopup : MonoBehaviour
         yield return FadeTo(1f, fadeInDuration);
     }
 
-    IEnumerator WaitToClose()
-    {
-        closing = true;
-        yield return new WaitForSeconds(clickDebounce);
-        yield return FadeTo(0f, fadeOutDuration);
-        Close();
-        closing = false;
-    }
-
     IEnumerator FadeTo(float targetAlpha, float duration)
     {
-        dimPanel.gameObject.SetActive(true);
+        if (dimPanel != null)
+            dimPanel.gameObject.SetActive(true);
         if (canvasGroup != null)
         {
             yield return canvasGroup.DOFade(targetAlpha, duration).SetEase(Ease.OutQuad).WaitForCompletion();
@@ -202,7 +214,7 @@ public class SeedPopup : MonoBehaviour
             {
                 float alphaD = Mathf.Lerp(startAlpha, targetAlpha / 0.6f, elapsed / duration);
                 Color color = dimPanel.color;
-                color.a = Mathf.Clamp(alphaD,0f, 0.6f);
+                color.a = Mathf.Clamp(alphaD, 0f, 0.6f);
                 dimPanel.color = color;
             }
             yield return null;

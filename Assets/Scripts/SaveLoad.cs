@@ -81,6 +81,29 @@ namespace Save
             return save?.turn;
         }
 
+        /// <summary>
+        /// Saved difficulty index, or -1 when the save is missing or out of date.
+        /// </summary>
+        public static int PeekDifficulty(int id)
+        {
+            Save save = ReadSave(id);
+            if (save == null)
+            {
+                return -1;
+            }
+            return save.difficulty;
+        }
+
+        /// <summary>
+        /// Copies difficulty, flowers, and unlocks onto the running game
+        /// regardless of game state.
+        /// </summary>
+        public static void ApplyMeta(int id)
+        {
+            Save save = ReadSave(id);
+            save?.ApplyMeta();
+        }
+
         static Save ReadSave(int id)
         {
             string path = null;
@@ -130,23 +153,26 @@ namespace Save
         }
         public void Load()
         {
-
             if(Services.GameController.gameState == GameState.Gameplay || Services.GameController.gameState == GameState.Start)
             {
-                Services.GameController.difficulty = difficulty;
-                PlayerPrefs.SetInt("difficulty", difficulty);
-                PlayerPrefs.Save();
-                foreach (TileFlowers f in flowers)
-                {
-                    f.Load();
-                }
-                Services.GameController.upgradePopup.previousUnlocks.Clear();
-                foreach (string s in previousUnlocks)
-                {
-                    Services.GameController.upgradePopup.previousUnlocks.Add(s);
-                }
+                ApplyMeta();
             }
-            
+        }
+
+        public void ApplyMeta()
+        {
+            Services.GameController.difficulty = difficulty;
+            PlayerPrefs.SetInt("difficulty", difficulty);
+            PlayerPrefs.Save();
+            foreach (TileFlowers f in flowers)
+            {
+                f.Load();
+            }
+            Services.GameController.upgradePopup.previousUnlocks.Clear();
+            foreach (string s in previousUnlocks)
+            {
+                Services.GameController.upgradePopup.previousUnlocks.Add(s);
+            }
         }
     }
     [Serializable]

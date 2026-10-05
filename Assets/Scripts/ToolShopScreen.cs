@@ -69,6 +69,7 @@ public class ToolShopScreen : MonoBehaviour
     void Awake()
     {
         EnableShopButtons();
+        BindUnboundBuyButtons();
     }
 
     void OnEnable()
@@ -84,6 +85,38 @@ public class ToolShopScreen : MonoBehaviour
             if (buttons[i] != null)
             {
                 buttons[i].allowDuringToolShop = true;
+            }
+        }
+    }
+
+    void BindUnboundBuyButtons()
+    {
+        flora.Button[] buttons = GetComponentsInChildren<flora.Button>(true);
+        for (int i = 0; i < buttons.Length; i++)
+        {
+            flora.Button button = buttons[i];
+            if (button == null || button._event == null)
+            {
+                continue;
+            }
+            for (int c = 0; c < button._event.GetPersistentEventCount(); c++)
+            {
+                if (button._event.GetPersistentTarget(c) != null)
+                {
+                    continue;
+                }
+                switch (button._event.GetPersistentMethodName(c))
+                {
+                    case "BuySpade":
+                        button._event.AddListener(BuySpade);
+                        break;
+                    case "BuyAdder":
+                        button._event.AddListener(BuyAdder);
+                        break;
+                    case "BuyClipper":
+                        button._event.AddListener(BuyClipper);
+                        break;
+                }
             }
         }
     }
