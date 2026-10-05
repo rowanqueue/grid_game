@@ -168,7 +168,7 @@ public class HighScoreManager : MonoBehaviour
             if (i < filtered.Count)
             {
                 HighScoreEntry entry = filtered[i];
-                displays[i].SetScore(entry.score, entry.difficulty);
+                displays[i].SetScore(entry.score, entry.difficulty, entry.timestamp);
             }
             else
             {

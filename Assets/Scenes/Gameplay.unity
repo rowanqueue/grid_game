@@ -22808,6 +22808,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: HighScoreScreen
       objectReference: {fileID: 0}
+    - target: {fileID: 2826851080738422024, guid: 34b29f678169eca4bb0a52ebbad7fb83, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4898911517622495235, guid: 34b29f678169eca4bb0a52ebbad7fb83, type: 3}
       propertyPath: _event.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -23240,6 +23244,50 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 703125198}
     m_Modifications:
+    - target: {fileID: 12730466378634220, guid: dc170583c2b4e4f938651379c3449cb3, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0.95
+      objectReference: {fileID: 0}
+    - target: {fileID: 1545889974686171938, guid: dc170583c2b4e4f938651379c3449cb3, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.13
+      objectReference: {fileID: 0}
+    - target: {fileID: 1678765427409861911, guid: dc170583c2b4e4f938651379c3449cb3, type: 3}
+      propertyPath: m_Size.x
+      value: 3.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 1678765427409861911, guid: dc170583c2b4e4f938651379c3449cb3, type: 3}
+      propertyPath: m_Size.y
+      value: 0.73
+      objectReference: {fileID: 0}
+    - target: {fileID: 2182153392843251867, guid: dc170583c2b4e4f938651379c3449cb3, type: 3}
+      propertyPath: m_Size.y
+      value: 4.35
+      objectReference: {fileID: 0}
+    - target: {fileID: 2229086705370607891, guid: dc170583c2b4e4f938651379c3449cb3, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.54
+      objectReference: {fileID: 0}
+    - target: {fileID: 3036901662493200448, guid: dc170583c2b4e4f938651379c3449cb3, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -1.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 3442553910377201948, guid: dc170583c2b4e4f938651379c3449cb3, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -1.51
+      objectReference: {fileID: 0}
+    - target: {fileID: 4487842029686872244, guid: dc170583c2b4e4f938651379c3449cb3, type: 3}
+      propertyPath: m_Size.x
+      value: 3.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 4487842029686872244, guid: dc170583c2b4e4f938651379c3449cb3, type: 3}
+      propertyPath: m_Size.y
+      value: 1.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4487842029686872244, guid: dc170583c2b4e4f938651379c3449cb3, type: 3}
+      propertyPath: m_Offset.y
+      value: -0.23
+      objectReference: {fileID: 0}
     - target: {fileID: 4695600995157317531, guid: dc170583c2b4e4f938651379c3449cb3, type: 3}
       propertyPath: _event.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -23292,6 +23340,10 @@ PrefabInstance:
       propertyPath: dimPanel
       value: 
       objectReference: {fileID: 234671256}
+    - target: {fileID: 7522299152620166842, guid: dc170583c2b4e4f938651379c3449cb3, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8674524170653816488, guid: dc170583c2b4e4f938651379c3449cb3, type: 3}
       propertyPath: _event.m_PersistentCalls.m_Calls.Array.size
       value: 2
@@ -23330,7 +23382,19 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6974973281885867840, guid: dc170583c2b4e4f938651379c3449cb3, type: 3}
       insertIndex: -1
       addedObject: {fileID: 234671255}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6066245998332147430, guid: dc170583c2b4e4f938651379c3449cb3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
+    - targetCorrespondingSourceObject: {fileID: 4487403124696120398, guid: dc170583c2b4e4f938651379c3449cb3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
+    - targetCorrespondingSourceObject: {fileID: 6804628574361164819, guid: dc170583c2b4e4f938651379c3449cb3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
+    - targetCorrespondingSourceObject: {fileID: 68613931314355195, guid: dc170583c2b4e4f938651379c3449cb3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
   m_SourcePrefab: {fileID: 100100000, guid: dc170583c2b4e4f938651379c3449cb3, type: 3}
 --- !u!1001 &6245402257845971630
 PrefabInstance:
