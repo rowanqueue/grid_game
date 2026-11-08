@@ -345,23 +345,7 @@ MonoBehaviour:
   numTokens: 0
   showNextBag: 0
   bagSwitchSprite: {fileID: 0}
-  nextBagCanvas: {fileID: 0}
-  nextBagContent: {fileID: 0}
-  nextBagEntryWidth: 0.9
-  nextBagEntryHeight: 0.5
-  nextBagCanvasSize: {x: 4.6, y: 2}
-  nextBagLocalPos: {x: 0, y: -2.5, z: 0}
-  nextBagRowSpacing: 0.05
-  nextBagIconCountSpacing: 0.06
-  nextBagVerticalRowSpacing: 0.05
-  nextBagMinPairsPerRow: 5
-  nextBagTopPadding: 0.25
-  nextBagSidePadding: 0.2
   nextBagLabelGap: 0.1
-  nextBagLabelHeight: 0.45
-  nextBagLabelFontSize: 3.5
-  nextBagLabelColor: {r: 0.23, g: 0.23, b: 0.23, a: 1}
-  nextBagLabelFont: {fileID: 11400000, guid: 52c9d90975675fb4eb4d2dc32579d50c, type: 2}
   nextBagDisplay: {fileID: 0}
 --- !u!1 &556894118400917130
 GameObject:
@@ -1554,8 +1538,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 7
-  m_fontSizeBase: 7
+  m_fontSize: 6.5
+  m_fontSizeBase: 6.5
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -2818,6 +2802,7 @@ MonoBehaviour:
   slideInDuration: 0.35
   slideOutDuration: 0.55
   panelCollider: {fileID: 0}
+  buyFlyDuration: 0.4
 --- !u!1 &5015671523958714135
 GameObject:
   m_ObjectHideFlags: 0

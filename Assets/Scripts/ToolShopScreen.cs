@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using DG.Tweening;
 
 public class ToolShopScreen : MonoBehaviour
 {
@@ -18,6 +19,8 @@ public class ToolShopScreen : MonoBehaviour
     public float slideOutDuration = 0.55f;
     [Tooltip("Collider covering the shop panel; clicks inside do not dismiss the shop.")]
     public Collider2D panelCollider;
+    [Tooltip("Seconds for a bought tool to fly from the shop into its hand slot.")]
+    public float buyFlyDuration = 0.4f;
 
     Vector3 restPosition;
     bool restPositionValid;
@@ -185,44 +188,83 @@ public class ToolShopScreen : MonoBehaviour
             Services.GameController.DeactivateToolShopScreen();
         }
     }
-    void BuyToken(Logic.TokenData tokenData)
+    void BuyToken(int shopIndex)
     {
-        for (int i = 0; i < Services.GameController.hand.Count; i++)
+        Logic.TokenData tokenData = tokensToBuy[shopIndex].token.data;
+        Vector3 startPos = tokensToBuy[shopIndex].transform.position;
+        GameController gc = Services.GameController;
+        for (int i = 0; i < gc.hand.Count; i++)
         {
-            if (Services.GameController.hand[i] == null)
+            if (gc.hand[i] == null)
             {
-                Services.GameController.game.hand.AddTokenToHand(i, tokenData);
-                Services.GameController.CreateHand(false, false);
+                gc.game.hand.AddTokenToHand(i, tokenData);
+                gc.CreateHand(false, false);
+                if (gc.hand[i] != null)
+                {
+                    StartCoroutine(FlyToHandSlot(gc.hand[i], startPos, i));
+                }
                 return;
             }
         }
-        Services.GameController.game.bag.AddNewTokenToCurrentBag(tokenData);
+        gc.game.bag.AddNewTokenToCurrentBag(tokenData);
+        FlyToBag(tokenData, startPos);
     }
+
+    IEnumerator FlyToHandSlot(Token token, Vector3 startPos, int handIndex)
+    {
+        // moving=true makes GameController's hand Draw skip this token while we drive it.
+        token.moving = true;
+        token.transform.position = startPos;
+        token.UpdateLayer("UIToken");
+        Vector3 target = Services.GameController.handTransforms[handIndex].position;
+        yield return token.transform.DOMove(target, buyFlyDuration).SetEase(Ease.OutCubic).WaitForCompletion();
+        if (token == null) { yield break; }
+        token.transform.position = target;
+        token.UpdateLayer("TokenHand");
+        token.moving = false;
+    }
+
+    void FlyToBag(Logic.TokenData tokenData, Vector3 startPos)
+    {
+        // Visual-only copy; the real token already lives in the bag data.
+        Token token = GameObject.Instantiate(Services.GameController.tokenPrefab).GetComponent<Token>();
+        token.token = new Logic.Token(tokenData, true);
+        token.Init(token.token);
+        token.UpdateLayer("UIToken");
+        token.EnableDisplayShadow();
+        token.transform.position = startPos;
+        token.transform.DOScale(0.6f, 0.4f).SetEase(Ease.InSine);
+        token.PlaceInBag();
+    }
+
     public void BuySpade()
     {
         if(Services.Gems.CanAfford("buySpade") == false)
         {
+            Services.Gems.TooExpensive();
             return;
         }
         Services.Gems.SpendGems("buySpade");
-        BuyToken(tokensToBuy[0].token.data);
+        BuyToken(0);
     }
     public void BuyAdder()
     {
         if (Services.Gems.CanAfford("buyAdder") == false)
         {
+            Services.Gems.TooExpensive();
             return;
         }
         Services.Gems.SpendGems("buyAdder");
-        BuyToken(tokensToBuy[1].token.data);
+        BuyToken(1);
     }
     public void BuyClipper()
     {
         if (Services.Gems.CanAfford("buyClipper") == false)
         {
+            Services.Gems.TooExpensive();
             return;
         }
         Services.Gems.SpendGems("buyClipper");
-        BuyToken(tokensToBuy[2].token.data);
+        BuyToken(2);
     }
 }

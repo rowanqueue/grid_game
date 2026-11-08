@@ -41,7 +41,7 @@ public class Token : MonoBehaviour
 
     public GameObject shade;
 
-    bool moving = false;
+    [HideInInspector] public bool moving = false;
     public Vector2 handPos;
     bool initialized = false;
     bool wiggling = false;

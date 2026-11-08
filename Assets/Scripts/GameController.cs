@@ -2295,7 +2295,8 @@ public class GameController : MonoBehaviour
         }
         if (gameState == GameState.ToolShop)
         {
-            if (InputHelper.GetPrimaryPressBegan() && !ignoreToolShopCloseInputThisFrame)
+            bool seedPopupBlocking = Services.Gems.seedPopup != null && Services.Gems.seedPopup.IsBlockingInput;
+            if (InputHelper.GetPrimaryPressBegan() && !ignoreToolShopCloseInputThisFrame && !seedPopupBlocking)
             {
                 var shop = toolShopScreen ?? stateScreens[(int)GameState.ToolShop].GetComponentInChildren<ToolShopScreen>();
                 if (shop == null || !shop.IsPointerOverPanel())

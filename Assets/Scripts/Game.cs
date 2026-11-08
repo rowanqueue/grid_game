@@ -1684,6 +1684,13 @@ namespace Logic
                         case "spade":
                             tokenData = new TokenData(TokenColor.Spade, 0);
                             break;
+                        // One-off tools (temporary, like shop-bought ones): used up, never refilled into the bag.
+                        case "clipper":
+                            tokenData = new TokenData(TokenColor.Clipper, -1, true);
+                            break;
+                        case "adder":
+                            tokenData = new TokenData(TokenColor.Adder, 0, true);
+                            break;
                         case "*":
                             tokenData = bag.DrawToken();
                             removeSelf = true;

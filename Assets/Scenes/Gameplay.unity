@@ -756,6 +756,7 @@ MonoBehaviour:
   liftHeight: 0.75
   toolLiftSpeed: 0.5
   shade: {fileID: 777332240}
+  moving: 0
   handPos: {x: 0, y: 0}
   travelingFromSpade: 0
   lifted: 0
@@ -1980,6 +1981,7 @@ MonoBehaviour:
   liftHeight: 0.75
   toolLiftSpeed: 0.5
   shade: {fileID: 278399874}
+  moving: 0
   handPos: {x: 0, y: 0}
   travelingFromSpade: 0
   lifted: 0
@@ -3628,7 +3630,7 @@ Transform:
   m_GameObject: {fileID: 300880907}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.468852, y: 4.79, z: 0}
+  m_LocalPosition: {x: -2.472153, y: 4.79, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -17511,7 +17513,7 @@ Transform:
   m_GameObject: {fileID: 1712947391}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2.092554, y: -4.5, z: 0}
+  m_LocalPosition: {x: 2.0959926, y: -4.5, z: 0}
   m_LocalScale: {x: 0.5, y: 0.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -17750,6 +17752,7 @@ MonoBehaviour:
   liftHeight: 0.75
   toolLiftSpeed: 0.5
   shade: {fileID: 2010343693}
+  moving: 0
   handPos: {x: 0, y: 0}
   travelingFromSpade: 0
   lifted: 0
@@ -19490,6 +19493,7 @@ MonoBehaviour:
   liftHeight: 0.75
   toolLiftSpeed: 0.5
   shade: {fileID: 716513205}
+  moving: 0
   handPos: {x: 0, y: 0}
   travelingFromSpade: 0
   lifted: 0
@@ -21027,6 +21031,7 @@ MonoBehaviour:
   liftHeight: 0.75
   toolLiftSpeed: 0.5
   shade: {fileID: 1655863820}
+  moving: 0
   handPos: {x: 0, y: 0}
   travelingFromSpade: 0
   lifted: 0
@@ -22458,6 +22463,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 992859150090028463, guid: 7d1a529277397455d92d20832420e8d7, type: 3}
+      propertyPath: m_text
+      value: Restart
+      objectReference: {fileID: 0}
+    - target: {fileID: 1201249678162164974, guid: 7d1a529277397455d92d20832420e8d7, type: 3}
+      propertyPath: m_text
+      value: BACK
+      objectReference: {fileID: 0}
     - target: {fileID: 1679520708561073963, guid: 7d1a529277397455d92d20832420e8d7, type: 3}
       propertyPath: m_SortingOrder
       value: 5
@@ -22914,43 +22927,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 7138387513501831288, guid: 34b29f678169eca4bb0a52ebbad7fb83, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
-    - targetCorrespondingSourceObject: {fileID: 8027084315987157502, guid: 34b29f678169eca4bb0a52ebbad7fb83, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
-    - targetCorrespondingSourceObject: {fileID: 204690346093059874, guid: 34b29f678169eca4bb0a52ebbad7fb83, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
-    - targetCorrespondingSourceObject: {fileID: 6219348427867041332, guid: 34b29f678169eca4bb0a52ebbad7fb83, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
-    - targetCorrespondingSourceObject: {fileID: 4280522417405211031, guid: 34b29f678169eca4bb0a52ebbad7fb83, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
-    - targetCorrespondingSourceObject: {fileID: 2676615885912231498, guid: 34b29f678169eca4bb0a52ebbad7fb83, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
-    - targetCorrespondingSourceObject: {fileID: 1592132186698580023, guid: 34b29f678169eca4bb0a52ebbad7fb83, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
-    - targetCorrespondingSourceObject: {fileID: 5926611127187468507, guid: 34b29f678169eca4bb0a52ebbad7fb83, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
-    - targetCorrespondingSourceObject: {fileID: 2988869931458096094, guid: 34b29f678169eca4bb0a52ebbad7fb83, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
-    - targetCorrespondingSourceObject: {fileID: 5752853420397397022, guid: 34b29f678169eca4bb0a52ebbad7fb83, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
-    - targetCorrespondingSourceObject: {fileID: 6605401999288094476, guid: 34b29f678169eca4bb0a52ebbad7fb83, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
-    - targetCorrespondingSourceObject: {fileID: 1769184919993500903, guid: 34b29f678169eca4bb0a52ebbad7fb83, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 34b29f678169eca4bb0a52ebbad7fb83, type: 3}
 --- !u!1001 &2728746046184755916
 PrefabInstance:
@@ -23224,7 +23201,7 @@ PrefabInstance:
       objectReference: {fileID: 1959469644}
     - target: {fileID: 3546795605185898949, guid: 7c892abf3aef94db488afc305c949b82, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 2.668852
+      value: 2.672153
       objectReference: {fileID: 0}
     - target: {fileID: 3546795605185898949, guid: 7c892abf3aef94db488afc305c949b82, type: 3}
       propertyPath: m_LocalPosition.y
@@ -23425,19 +23402,7 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6974973281885867840, guid: dc170583c2b4e4f938651379c3449cb3, type: 3}
       insertIndex: -1
       addedObject: {fileID: 234671255}
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 6066245998332147430, guid: dc170583c2b4e4f938651379c3449cb3, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
-    - targetCorrespondingSourceObject: {fileID: 4487403124696120398, guid: dc170583c2b4e4f938651379c3449cb3, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
-    - targetCorrespondingSourceObject: {fileID: 6804628574361164819, guid: dc170583c2b4e4f938651379c3449cb3, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
-    - targetCorrespondingSourceObject: {fileID: 68613931314355195, guid: dc170583c2b4e4f938651379c3449cb3, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dc170583c2b4e4f938651379c3449cb3, type: 3}
 --- !u!1001 &6245402257845971630
 PrefabInstance:

@@ -56,8 +56,10 @@ public class MiniTile : MonoBehaviour
         edgeColor.enabled = true;
         if (token.temporary)
         {
-            backColor.color = Color.gray;
-            edgeColor.color = Color.black;
+            // Clippings read as a normal white mini tile; other temp tools keep gray/black.
+            bool clipping = token.color == TokenColor.Adder;
+            backColor.color = clipping ? Color.white : Color.gray;
+            edgeColor.color = clipping ? Color.white : Color.black;
             spriteDisplay.color = Color.white;
         }
         else

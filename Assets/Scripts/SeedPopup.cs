@@ -6,8 +6,12 @@ using UnityEngine;
 public class SeedPopup : MonoBehaviour
 {
     const int OverlayBaseOrder = 100;
+    const float DimMaxAlpha = 0.6f;
 
     [SerializeField] float fadeInDuration = 0.15f;
+    [SerializeField] float popInDuration = 0.22f;
+    [SerializeField] float popInStartScale = 0.85f;
+    Vector3 visualBaseScale = Vector3.one;
     [SerializeField] float fadeOutDuration = 0.15f;
     [SerializeField] float clickDebounce = 0.1f;
 
@@ -15,7 +19,15 @@ public class SeedPopup : MonoBehaviour
     [SerializeField] GameObject visual;
     [SerializeField] SpriteRenderer dimPanel;
     bool closing;
+    int closedFrame = -1;
     SpriteRenderer[] fadeRenderers;
+
+    // Also true on the frame it closed, so the click that hit Back doesn't fall through (e.g. closing the tool shop).
+    public bool IsBlockingInput => open || Time.frameCount == closedFrame;
+    float[] fadeRendererBaseAlphas;
+    TextMeshPro[] fadeTexts;
+    float[] fadeTextBaseAlphas;
+    float currentAlpha;
     CanvasGroup canvasGroup;
     TextMeshPro messageText;
     string defaultMessage;
@@ -24,6 +36,7 @@ public class SeedPopup : MonoBehaviour
     {
         if (visual == null && transform.childCount > 0)
             visual = transform.GetChild(0).gameObject;
+        visualBaseScale = visual.transform.localScale;
 
         Transform title = visual.transform.Find("Title Text");
         messageText = title != null
@@ -32,11 +45,23 @@ public class SeedPopup : MonoBehaviour
         if (messageText != null)
             defaultMessage = messageText.text;
 
+        // Popup can open over the tool shop, which otherwise blocks button input.
+        foreach (flora.Button button in visual.GetComponentsInChildren<flora.Button>(true))
+            button.allowDuringToolShop = true;
+
         HideNamedChildren(visual.transform, "Seeds");
         RefreshEarnLabel();
 
         visual.SetActive(false);
+        // Cache authored alphas so the fade scales them (shadows are ~9-45% alpha, not opaque).
         fadeRenderers = visual.GetComponentsInChildren<SpriteRenderer>(true);
+        fadeRendererBaseAlphas = new float[fadeRenderers.Length];
+        for (int i = 0; i < fadeRenderers.Length; i++)
+            fadeRendererBaseAlphas[i] = fadeRenderers[i].color.a;
+        fadeTexts = visual.GetComponentsInChildren<TextMeshPro>(true);
+        fadeTextBaseAlphas = new float[fadeTexts.Length];
+        for (int i = 0; i < fadeTexts.Length; i++)
+            fadeTextBaseAlphas[i] = fadeTexts[i].alpha;
         canvasGroup = visual.GetComponent<CanvasGroup>();
         ApplyOverlaySorting();
     }
@@ -171,12 +196,19 @@ public class SeedPopup : MonoBehaviour
 
         open = true;
         visual.SetActive(true);
-        SetVisualAlpha(0f);
-        StartCoroutine(FadeIn());
+        // Pop in at full opacity: alpha-fading the stacked sprites (9-slice, borders, shadows)
+        // makes every layer see-through mid-fade and the panel looks ghostly.
+        SetVisualAlpha(1f);
+        Transform t = visual.transform;
+        t.DOKill();
+        t.localScale = visualBaseScale * popInStartScale;
+        t.DOScale(visualBaseScale, popInDuration).SetEase(Ease.OutBack);
     }
 
     public void Close()
     {
+        if (open)
+            closedFrame = Time.frameCount;
         open = false;
         KillTweens();
         visual.SetActive(false);
@@ -200,23 +232,13 @@ public class SeedPopup : MonoBehaviour
             yield break;
         }
 
-        if (fadeRenderers == null || fadeRenderers.Length == 0)
-            yield break;
-
-        float startAlpha = fadeRenderers[0].color.a;
+        float startAlpha = currentAlpha;
         float elapsed = 0f;
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
-            float alpha = Mathf.Lerp(startAlpha, targetAlpha, elapsed / duration);
-            SetVisualAlpha(alpha);
-            if (dimPanel != null)
-            {
-                float alphaD = Mathf.Lerp(startAlpha, targetAlpha / 0.6f, elapsed / duration);
-                Color color = dimPanel.color;
-                color.a = Mathf.Clamp(alphaD, 0f, 0.6f);
-                dimPanel.color = color;
-            }
+            float t = Mathf.Clamp01(elapsed / duration);
+            SetVisualAlpha(Mathf.Lerp(startAlpha, targetAlpha, t));
             yield return null;
         }
 
@@ -225,25 +247,48 @@ public class SeedPopup : MonoBehaviour
 
     void SetVisualAlpha(float alpha)
     {
+        currentAlpha = alpha;
         if (canvasGroup != null)
         {
             canvasGroup.alpha = alpha;
             return;
         }
 
-        if (fadeRenderers == null)
-            return;
-
-        foreach (SpriteRenderer renderer in fadeRenderers)
+        if (fadeRenderers != null)
         {
-            Color color = renderer.color;
-            color.a = alpha;
-            renderer.color = color;
+            for (int i = 0; i < fadeRenderers.Length; i++)
+            {
+                if (fadeRenderers[i] == null) continue;
+                Color color = fadeRenderers[i].color;
+                color.a = fadeRendererBaseAlphas[i] * alpha;
+                fadeRenderers[i].color = color;
+            }
+        }
+
+        if (fadeTexts != null)
+        {
+            for (int i = 0; i < fadeTexts.Length; i++)
+            {
+                if (fadeTexts[i] == null) continue;
+                fadeTexts[i].alpha = fadeTextBaseAlphas[i] * alpha;
+            }
+        }
+
+        if (dimPanel != null)
+        {
+            Color color = dimPanel.color;
+            color.a = DimMaxAlpha * alpha;
+            dimPanel.color = color;
         }
     }
 
     void KillTweens()
     {
+        if (visual != null)
+        {
+            visual.transform.DOKill();
+            visual.transform.localScale = visualBaseScale;
+        }
         if (canvasGroup != null)
             canvasGroup.DOKill();
     }

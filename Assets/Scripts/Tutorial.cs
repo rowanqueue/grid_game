@@ -98,6 +98,7 @@ public class Tutorial : MonoBehaviour
     Coroutine activeTransition;
     bool presentationRunsOnController;
     IncrementTrigger? deferredIncrementTrigger;
+    int lastIntroAdvanceFrame = -1;
 
     public bool CanAcceptTutorialInput => active && !isPresenting;
 
@@ -429,6 +430,13 @@ public class Tutorial : MonoBehaviour
         {
             return;
         }
+        // Update, GameController.LateUpdate and the click forwarder can all fire on the same press;
+        // without this, back-to-back intro slides (Shop/Snapshot/Mulligan/HighestScore) get skipped.
+        if (Time.frameCount == lastIntroAdvanceFrame)
+        {
+            return;
+        }
+        lastIntroAdvanceFrame = Time.frameCount;
         Services.AudioManager.PlayTutorialNotificationSound();
         RequestIncrementStage(IncrementTrigger.IntroKey);
     }

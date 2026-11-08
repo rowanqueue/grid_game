@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class TutorialIntroClickForwarder : MonoBehaviour, IPointerClickHandler, IPointerDownHandler
+public class TutorialIntroClickForwarder : MonoBehaviour, IPointerDownHandler
 {
     Tutorial tutorial;
 
@@ -10,11 +10,7 @@ public class TutorialIntroClickForwarder : MonoBehaviour, IPointerClickHandler, 
         tutorial = owner;
     }
 
-    public void OnPointerClick(PointerEventData eventData)
-    {
-        Advance();
-    }
-
+    // No OnPointerClick: it fires on release (a later frame) and would advance a second slide.
     public void OnPointerDown(PointerEventData eventData)
     {
         Advance();
