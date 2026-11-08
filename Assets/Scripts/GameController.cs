@@ -1895,6 +1895,7 @@ public class GameController : MonoBehaviour
 
         if (winScreenDisplay != null)
         {
+            print("ShowWinScreenSequence: using WinScreenDisplay");
             WinScreenPayload payload = new WinScreenPayload
             {
                 fromScore = scoreBeforeFinish,
@@ -2160,6 +2161,12 @@ public class GameController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            print("PPPOOOOPPP");
+            StartCoroutine(ShowWinScreenSequence());
+        }
+
         loadSnapshotButton.SetActive(SaveLoad.HasSave(1));
         difficultyName.text = "Difficulty\n" + difficultyNames[difficulty];
         /*if (difficulties[difficulty] != gameJson)
