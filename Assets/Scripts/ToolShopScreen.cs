@@ -19,8 +19,6 @@ public class ToolShopScreen : MonoBehaviour
     public float slideOutDuration = 0.55f;
     [Tooltip("Collider covering the shop panel; clicks inside do not dismiss the shop.")]
     public Collider2D panelCollider;
-    [Tooltip("Seconds for a bought tool to fly from the shop into its hand slot.")]
-    public float buyFlyDuration = 0.4f;
 
     Vector3 restPosition;
     bool restPositionValid;
@@ -201,40 +199,59 @@ public class ToolShopScreen : MonoBehaviour
                 gc.CreateHand(false, false);
                 if (gc.hand[i] != null)
                 {
-                    StartCoroutine(FlyToHandSlot(gc.hand[i], startPos, i));
+                    Token shopTile = tokensToBuy[shopIndex];
+                    shopTile.gameObject.SetActive(false);
+                    gc.hand[i].BeginTravelFromShop(startPos, () => FadeShopTileIn(shopTile));
                 }
                 return;
             }
         }
         gc.game.bag.AddNewTokenToCurrentBag(tokenData);
-        FlyToBag(tokenData, startPos);
+        Token shopTileInBag = tokensToBuy[shopIndex];
+        shopTileInBag.gameObject.SetActive(false);
+        FlyToBag(tokenData, startPos, () => FadeShopTileIn(shopTileInBag));
     }
 
-    IEnumerator FlyToHandSlot(Token token, Vector3 startPos, int handIndex)
+    void FadeShopTileIn(Token shopTile)
     {
-        // moving=true makes GameController's hand Draw skip this token while we drive it.
-        token.moving = true;
-        token.transform.position = startPos;
-        token.UpdateLayer("UIToken");
-        Vector3 target = Services.GameController.handTransforms[handIndex].position;
-        yield return token.transform.DOMove(target, buyFlyDuration).SetEase(Ease.OutCubic).WaitForCompletion();
-        if (token == null) { yield break; }
-        token.transform.position = target;
-        token.UpdateLayer("TokenHand");
-        token.moving = false;
+        if (shopTile == null)
+        {
+            return;
+        }
+
+        shopTile.gameObject.SetActive(true);
+        SpriteRenderer[] renderers = shopTile.GetComponentsInChildren<SpriteRenderer>(true);
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            SpriteRenderer renderer = renderers[i];
+            float targetAlpha = renderer.color.a;
+            Color color = renderer.color;
+            renderer.color = new Color(color.r, color.g, color.b, 0f);
+            renderer.DOFade(targetAlpha, 0.25f);
+        }
+
+        TextMeshPro[] texts = shopTile.GetComponentsInChildren<TextMeshPro>(true);
+        for (int i = 0; i < texts.Length; i++)
+        {
+            TextMeshPro text = texts[i];
+            float targetAlpha = text.alpha;
+            text.alpha = 0f;
+            DOTween.To(() => text.alpha, alpha => text.alpha = alpha, targetAlpha, 0.25f);
+        }
     }
 
-    void FlyToBag(Logic.TokenData tokenData, Vector3 startPos)
+    void FlyToBag(Logic.TokenData tokenData, Vector3 startPos, System.Action onTravelComplete)
     {
         // Visual-only copy; the real token already lives in the bag data.
-        Token token = GameObject.Instantiate(Services.GameController.tokenPrefab).GetComponent<Token>();
+        GameController gc = Services.GameController;
+        Token token = GameObject.Instantiate(gc.tokenPrefab).GetComponent<Token>();
         token.token = new Logic.Token(tokenData, true);
         token.Init(token.token);
-        token.UpdateLayer("UIToken");
         token.EnableDisplayShadow();
-        token.transform.position = startPos;
-        token.transform.DOScale(0.6f, 0.4f).SetEase(Ease.InSine);
-        token.PlaceInBag();
+        Vector3 bagPosition = gc.bagButtonTransform != null
+            ? gc.bagButtonTransform.position
+            : new Vector3(-2.5f, -8f, 0f);
+        token.BeginTravelFromShopToBag(startPos, bagPosition, onTravelComplete);
     }
 
     public void BuySpade()

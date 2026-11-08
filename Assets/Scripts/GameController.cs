@@ -2161,11 +2161,12 @@ public class GameController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            print("PPPOOOOPPP");
-            StartCoroutine(ShowWinScreenSequence());
+            DebugWinGame();
         }
+#endif
 
         loadSnapshotButton.SetActive(SaveLoad.HasSave(1));
         difficultyName.text = "Difficulty\n" + difficultyNames[difficulty];
@@ -3535,6 +3536,21 @@ public class GameController : MonoBehaviour
     {
         PlayerPrefs.DeleteAll();
         Restart();
+    }
+
+    public void DebugWinGame()
+    {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (gameState != GameState.Gameplay) { return; }
+        if (IsTutorialSession) { return; }
+        if (inputState == InputState.Finish || inputState == InputState.TapToRestart) { return; }
+        if (finishRoutineRunning || pendingFinishStart) { return; }
+
+        lastTokenPlaced = null;
+        pendingFinishStart = false;
+        EnterInputState(InputState.Finish);
+        GameLog.Log("Debug: forced win — scoring remaining tiles.");
+#endif
     }
 
     public void DebugNearEndGame()
