@@ -322,6 +322,10 @@ public class WinScreenDisplay : MonoBehaviour
         CacheReferences();
         if (actionButtonsRoot != null)
         {
+            foreach (SpriteRenderer sr in actionButtonsRoot.GetComponentsInChildren<SpriteRenderer>(true))
+            {
+                sr.color = new Color(sr.color.r, sr.color.g, sr.color.b, 0f);
+            }
             actionButtonsRoot.SetActive(true);
             ApplyWinScreenSorting();
         }
@@ -337,6 +341,7 @@ public class WinScreenDisplay : MonoBehaviour
 
     public IEnumerator ShowRoutine(WinScreenPayload payload)
     {
+        print("ShowRoutine: showing win screen with payload: fromScore=" + payload.fromScore + ", toScore=" + payload.toScore + ", isNewHighScore=" + payload.isNewHighScore);
         showingWinScreen = true;
         ResetAnimationSpeed();
         HideActionButtons();
@@ -374,6 +379,7 @@ public class WinScreenDisplay : MonoBehaviour
             showingWinScreen = false;
             ShowActionButtons();
             ResetAnimationSpeed();
+            print("ShowRoutine: scoreText is null");
             yield break;
         }
 
@@ -395,6 +401,18 @@ public class WinScreenDisplay : MonoBehaviour
         scoreSeq.Join(scoreFadeTween);
         scoreSeq.Join(scoreMoveTween);
         scoreSeq.Join(countTween);
+
+
+        ShowActionButtons();
+        print("Fading in action buttons...");
+        foreach (SpriteRenderer sr in actionButtonsRoot.GetComponentsInChildren<SpriteRenderer>(true))
+        {
+            print("Fading in button sprite: " + sr.gameObject.name);
+            Tween spriteFadeTween = sr.DOFade(1f, animateInDuration).SetEase(Ease.OutQuad);
+            TrackTween(spriteFadeTween);
+            scoreSeq.Join(spriteFadeTween);
+        }
+
         TrackTween(scoreFadeTween);
         TrackTween(scoreMoveTween);
         TrackTween(countTween);
@@ -406,8 +424,6 @@ public class WinScreenDisplay : MonoBehaviour
         scoreText.text = BuildScoreText(headline, payload.toScore);
         scoreText.alpha = 1f;
         LockScoreTextPosition();
-
-        ShowActionButtons();
         showingWinScreen = false;
         ResetAnimationSpeed();
     }
@@ -435,16 +451,28 @@ public class WinScreenDisplay : MonoBehaviour
         scoreText.alpha = 0f;
         SetTextPosition(scoreText, scoreRestPosition + Vector2.down * slideOffsetY);
 
+
+        ShowActionButtons();
         Tween fadeTween = scoreText.DOFade(1f, animateInDuration).SetEase(Ease.OutQuad);
         Tween moveTween = CreateTextPositionTween(scoreText, scoreRestPosition, animateInDuration, Ease.OutQuad);
         Sequence sequence = DOTween.Sequence();
         sequence.Join(fadeTween);
         sequence.Join(moveTween);
+
+        print("Fading in action buttons...");
+        foreach (SpriteRenderer sr in actionButtonsRoot.GetComponentsInChildren<SpriteRenderer>(true))
+        {
+            print("Fading in button sprite: " + sr.gameObject.name);
+            Tween spriteFadeTween = sr.DOFade(1f, animateInDuration).SetEase(Ease.OutQuad);
+            TrackTween(spriteFadeTween);
+            sequence.Join(spriteFadeTween);
+        }
+
         TrackTween(fadeTween);
         TrackTween(moveTween);
         TrackTween(sequence);
         yield return WaitForTween(sequence);
-        ShowActionButtons();
+
         showingWinScreen = false;
         ResetAnimationSpeed();
     }

@@ -822,6 +822,7 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  gnome: {fileID: 0}
   clippingSprites:
   - {fileID: 0}
   - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
@@ -904,6 +905,91 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 13.47
+--- !u!1 &166496603353937208
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8628820496602497512}
+  - component: {fileID: 5527585560324260060}
+  m_Layer: 0
+  m_Name: Tile_Blue_10
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8628820496602497512
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 166496603353937208}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -1.193, y: -0.304, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 6312635676350379196}
+  m_Father: {fileID: 4327859360363227170}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &5527585560324260060
+SpriteRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 166496603353937208}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 607463127
+  m_SortingLayer: 6
+  m_SortingOrder: 7
+  m_Sprite: {fileID: 21300000, guid: 6307032590ec5aa4181abc0e6f9f7d28, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 1, y: 1}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_MaskInteraction: 0
+  m_SpriteSortPoint: 0
 --- !u!1 &174192704971994094
 GameObject:
   m_ObjectHideFlags: 0
@@ -1746,6 +1832,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dimTime: 0.5
+  dimFadeInTime: 0.9
   endFade: 0.73
   dim: {fileID: 2948902864672332292}
   stagePhase:
@@ -4823,6 +4910,7 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  gnome: {fileID: 0}
   clippingSprites:
   - {fileID: 0}
   - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
@@ -4961,6 +5049,7 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  gnome: {fileID: 0}
   clippingSprites:
   - {fileID: 0}
   - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
@@ -5860,6 +5949,7 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  gnome: {fileID: 0}
   clippingSprites:
   - {fileID: 0}
   - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
@@ -6771,6 +6861,7 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  gnome: {fileID: 0}
   clippingSprites:
   - {fileID: 0}
   - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
@@ -7069,6 +7160,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dimTime: 0.5
+  dimFadeInTime: 0.9
   endFade: 0.73
   dim: {fileID: 5438322379813010140}
   stagePhase:
@@ -7294,6 +7386,7 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  gnome: {fileID: 0}
   clippingSprites:
   - {fileID: 0}
   - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
@@ -7601,6 +7694,7 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  gnome: {fileID: 0}
   clippingSprites:
   - {fileID: 0}
   - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
@@ -7952,6 +8046,7 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  gnome: {fileID: 0}
   clippingSprites:
   - {fileID: 0}
   - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
@@ -8231,6 +8326,7 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  gnome: {fileID: 0}
   clippingSprites:
   - {fileID: 0}
   - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
@@ -8649,6 +8745,7 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  gnome: {fileID: 0}
   clippingSprites:
   - {fileID: 0}
   - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
@@ -10833,6 +10930,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dimTime: 0.5
+  dimFadeInTime: 0.9
   endFade: 0.73
   dim: {fileID: 4666822918538101810}
   stagePhase:
@@ -12607,6 +12705,7 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  gnome: {fileID: 0}
   clippingSprites:
   - {fileID: 0}
   - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
@@ -14716,6 +14815,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dimTime: 0.5
+  dimFadeInTime: 0.9
   endFade: 0.73
   dim: {fileID: 4393160566001667074}
   stagePhase:
@@ -14959,6 +15059,7 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  gnome: {fileID: 0}
   clippingSprites:
   - {fileID: 0}
   - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
@@ -15022,6 +15123,7 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  gnome: {fileID: 0}
   clippingSprites:
   - {fileID: 0}
   - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
@@ -15892,6 +15994,7 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  gnome: {fileID: 0}
   clippingSprites:
   - {fileID: 0}
   - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
@@ -19170,6 +19273,7 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  gnome: {fileID: 0}
   clippingSprites:
   - {fileID: 0}
   - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
@@ -19317,6 +19421,7 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  gnome: {fileID: 0}
   clippingSprites:
   - {fileID: 0}
   - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
@@ -19380,6 +19485,7 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  gnome: {fileID: 0}
   clippingSprites:
   - {fileID: 0}
   - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
@@ -21659,6 +21765,7 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  gnome: {fileID: 0}
   clippingSprites:
   - {fileID: 0}
   - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
@@ -21933,6 +22040,7 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  gnome: {fileID: 0}
   clippingSprites:
   - {fileID: 0}
   - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
@@ -22253,6 +22361,7 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  gnome: {fileID: 0}
   clippingSprites:
   - {fileID: 0}
   - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
@@ -24726,6 +24835,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dimTime: 0.5
+  dimFadeInTime: 0.9
   endFade: 0.73
   dim: {fileID: 1730632760074736143}
   stagePhase:
@@ -25773,6 +25883,7 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  gnome: {fileID: 0}
   clippingSprites:
   - {fileID: 0}
   - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
@@ -25912,6 +26023,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dimTime: 0.5
+  dimFadeInTime: 0.9
   endFade: 0.73
   dim: {fileID: 4948973355434179891}
   stagePhase:
@@ -26102,6 +26214,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dimTime: 0.5
+  dimFadeInTime: 0.9
   endFade: 0.73
   dim: {fileID: 0}
   stagePhase: []
@@ -26409,6 +26522,7 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  gnome: {fileID: 0}
   clippingSprites:
   - {fileID: 0}
   - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
@@ -26556,6 +26670,7 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  gnome: {fileID: 0}
   clippingSprites:
   - {fileID: 0}
   - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
@@ -26965,6 +27080,7 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  gnome: {fileID: 0}
   clippingSprites:
   - {fileID: 0}
   - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
@@ -27462,6 +27578,7 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  gnome: {fileID: 0}
   clippingSprites:
   - {fileID: 0}
   - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
@@ -28271,6 +28388,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dimTime: 0.5
+  dimFadeInTime: 0.9
   endFade: 0.73
   dim: {fileID: 166647936335048626}
   stagePhase:
@@ -28667,6 +28785,7 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  gnome: {fileID: 0}
   clippingSprites:
   - {fileID: 0}
   - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
@@ -29067,6 +29186,7 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  gnome: {fileID: 0}
   clippingSprites:
   - {fileID: 0}
   - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
@@ -31603,6 +31723,7 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  gnome: {fileID: 0}
   clippingSprites:
   - {fileID: 0}
   - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
@@ -32072,6 +32193,91 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   textDisplay: {fileID: 7820285653061105214}
   background: {fileID: 8946833976609344416}
+--- !u!1 &6256971330506388533
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6312635676350379196}
+  - component: {fileID: 5920663797978769782}
+  m_Layer: 0
+  m_Name: Tile_Red_10
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6312635676350379196
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6256971330506388533}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.8, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 5653632267962314166}
+  m_Father: {fileID: 8628820496602497512}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &5920663797978769782
+SpriteRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6256971330506388533}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 607463127
+  m_SortingLayer: 6
+  m_SortingOrder: 7
+  m_Sprite: {fileID: 21300000, guid: ddff52bfb7bc04243b88d71f0114a6fd, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 1, y: 1}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_MaskInteraction: 0
+  m_SpriteSortPoint: 0
 --- !u!1 &6263305386792623042
 GameObject:
   m_ObjectHideFlags: 0
@@ -32128,6 +32334,7 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  gnome: {fileID: 0}
   clippingSprites:
   - {fileID: 0}
   - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
@@ -34385,6 +34592,7 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  gnome: {fileID: 0}
   clippingSprites:
   - {fileID: 0}
   - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
@@ -35862,6 +36070,7 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  gnome: {fileID: 0}
   clippingSprites:
   - {fileID: 0}
   - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
@@ -36610,6 +36819,7 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  gnome: {fileID: 0}
   clippingSprites:
   - {fileID: 0}
   - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
@@ -36673,6 +36883,7 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  gnome: {fileID: 0}
   clippingSprites:
   - {fileID: 0}
   - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
@@ -36839,6 +37050,7 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  gnome: {fileID: 0}
   clippingSprites:
   - {fileID: 0}
   - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
@@ -37405,6 +37617,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dimTime: 0.5
+  dimFadeInTime: 0.9
   endFade: 0.73
   dim: {fileID: 359832810386617534}
   stagePhase:
@@ -38055,6 +38268,7 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  gnome: {fileID: 0}
   clippingSprites:
   - {fileID: 0}
   - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
@@ -39099,6 +39313,7 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  gnome: {fileID: 0}
   clippingSprites:
   - {fileID: 0}
   - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
@@ -39743,6 +39958,7 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  gnome: {fileID: 0}
   clippingSprites:
   - {fileID: 0}
   - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
@@ -41121,6 +41337,7 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  gnome: {fileID: 0}
   clippingSprites:
   - {fileID: 0}
   - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
@@ -42930,6 +43147,7 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  gnome: {fileID: 0}
   clippingSprites:
   - {fileID: 0}
   - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
@@ -43017,6 +43235,91 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   textDisplay: {fileID: 2152589491797700467}
   background: {fileID: 5161023036630331669}
+--- !u!1 &8175489630313664902
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5653632267962314166}
+  - component: {fileID: 3953401571903015668}
+  m_Layer: 0
+  m_Name: Tile_Green_10
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5653632267962314166
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8175489630313664902}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.8, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 7631665162556354404}
+  m_Father: {fileID: 6312635676350379196}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &3953401571903015668
+SpriteRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8175489630313664902}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 607463127
+  m_SortingLayer: 6
+  m_SortingOrder: 7
+  m_Sprite: {fileID: 21300000, guid: 2ccef3d6891acac4eb650b0152fd706e, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 1, y: 1}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_MaskInteraction: 0
+  m_SpriteSortPoint: 0
 --- !u!1 &8182811683497238401
 GameObject:
   m_ObjectHideFlags: 0
@@ -43285,6 +43588,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dimTime: 0.5
+  dimFadeInTime: 0.9
   endFade: 0.73
   dim: {fileID: 1111945858144057288}
   stagePhase:
@@ -43327,6 +43631,7 @@ Transform:
   - {fileID: 6675298067900174164}
   - {fileID: 2446980347214809613}
   - {fileID: 5007003353027474696}
+  - {fileID: 8628820496602497512}
   m_Father: {fileID: 2727482642914399961}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8280424251499878599
@@ -43628,6 +43933,7 @@ MonoBehaviour:
   adder: {fileID: 21300000, guid: 0e7927f694e21e44c8609c80c8ad70dc, type: 3}
   spade: {fileID: 21300000, guid: e3509bf99b76b7d4980f0478d6eb6c04, type: 3}
   clipper: {fileID: 21300000, guid: 0c4e99230903c744890f7fbf9f38fced, type: 3}
+  gnome: {fileID: 0}
   clippingSprites:
   - {fileID: 0}
   - {fileID: 21300000, guid: 595ad4a75cf44e36b67eda8f0ad94d44, type: 3}
@@ -45283,6 +45589,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dimTime: 0.5
+  dimFadeInTime: 0.9
   endFade: 0.73
   dim: {fileID: 1702079737679271785}
   stagePhase:
@@ -45819,6 +46126,90 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_renderer: {fileID: 3488861232208097106}
   m_maskType: 0
+--- !u!1 &8697167896067352418
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7631665162556354404}
+  - component: {fileID: 2223537224293949021}
+  m_Layer: 0
+  m_Name: Tile_Purple_10
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7631665162556354404
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8697167896067352418}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.8, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5653632267962314166}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &2223537224293949021
+SpriteRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8697167896067352418}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 607463127
+  m_SortingLayer: 6
+  m_SortingOrder: 7
+  m_Sprite: {fileID: 21300000, guid: 6aa3d0fc25124624a8346c6ebf9923b3, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 1, y: 1}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_MaskInteraction: 0
+  m_SpriteSortPoint: 0
 --- !u!1 &8717094719238585216
 GameObject:
   m_ObjectHideFlags: 0
@@ -48424,8 +48815,19 @@ PrefabInstance:
       value: 'The highest value possible on a tile is 8. See how many you can make!
 
 
+
+
+
         Good
         luck!'
+      objectReference: {fileID: 0}
+    - target: {fileID: 1310043581284279243, guid: ba188813d47524e1cbfcce4ec6b6347c, type: 3}
+      propertyPath: m_margin.w
+      value: -0.5890939
+      objectReference: {fileID: 0}
+    - target: {fileID: 1310043581284279243, guid: ba188813d47524e1cbfcce4ec6b6347c, type: 3}
+      propertyPath: m_margin.y
+      value: -0.67193556
       objectReference: {fileID: 0}
     - target: {fileID: 1310043581284279243, guid: ba188813d47524e1cbfcce4ec6b6347c, type: 3}
       propertyPath: m_overflowMode
@@ -48441,7 +48843,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2288969870115533630, guid: ba188813d47524e1cbfcce4ec6b6347c, type: 3}
       propertyPath: m_Size.y
-      value: 2.93
+      value: 4.04
       objectReference: {fileID: 0}
     - target: {fileID: 6799495510992237312, guid: ba188813d47524e1cbfcce4ec6b6347c, type: 3}
       propertyPath: m_Pivot.x
