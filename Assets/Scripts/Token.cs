@@ -23,6 +23,8 @@ public class Token : MonoBehaviour
     public ParticleSystem placementParticles;
     public ParticleSystem dirtParticles;
     public ParticleSystem sparkleParticles;
+    public ParticleSystem shopDirtParticles;
+    public ParticleSystem shopSparkleParticles;
     // Small droplets of water that appear when the watering can rotates
     public ParticleSystem adderWaterSquirtParticles;
     public ParticleSystem clippingSlashParticles;
@@ -48,6 +50,7 @@ public class Token : MonoBehaviour
     Coroutine wiggleAnim;
 
     bool beingSpaded = false;
+    System.Action shopTravelComplete;
     /// <summary>True while a dug Spade tile is lerping from the board into the hand.</summary>
     public bool travelingFromSpade = false;
     int spadeReturnHandIndex = -1;
@@ -478,23 +481,144 @@ public class Token : MonoBehaviour
     }
 
     /// <summary>
+    /// Pickup lift used by spade-dug tiles: lock Draw, tween the token up,
+    /// then hold the same hover sprite offset as a held tile.
+    /// </summary>
+    public IEnumerator PlayPickupLift(string sortingLayer = "TokenMoving")
+    {
+        moving = true;
+        travelingFromSpade = true;
+        lifted = true;
+        UpdateLayer(sortingLayer);
+
+        Vector3 liftTarget = transform.position + Vector3.up * liftHeight;
+        GameLog.Log($"[PickupLift] start from={transform.position} to={liftTarget} liftHeight={liftHeight} speed={toolLiftSpeed}");
+        yield return transform.DOMove(liftTarget, toolLiftSpeed).SetEase(Ease.OutCubic).WaitForCompletion();
+        if (this == null)
+        {
+            yield break;
+        }
+        GameLog.Log($"[PickupLift] done pos={transform.position}");
+        spriteDisplay.transform.localPosition = Vector3.up * 0.5f;
+    }
+    
+        /// <summary>
+    /// Pickup lift used by shop buys: lock Draw, tween the token up,
+    /// then hold the same hover sprite offset as a held tile.
+    /// </summary>
+    public IEnumerator PlayShopPickupLift(string sortingLayer = "TokenMoving", bool includeShadow = false, bool animateSpriteOffset = false)
+    {
+        moving = true;
+        travelingFromSpade = true;
+        lifted = true;
+        UpdateLayer(sortingLayer, includeShadow);
+
+        Vector3 liftTarget = transform.position + Vector3.up * liftHeight/2;
+        GameLog.Log($"[PickupLift] start from={transform.position} to={liftTarget} liftHeight={liftHeight} speed={toolLiftSpeed}");
+        Sequence lift = DOTween.Sequence();
+        lift.Append(transform.DOMove(liftTarget, toolLiftSpeed).SetEase(Ease.OutCubic));
+        if (animateSpriteOffset)
+        {
+            lift.Join(spriteDisplay.transform.DOLocalMoveY(0.5f, toolLiftSpeed).SetEase(Ease.OutCubic));
+        }
+        yield return lift.WaitForCompletion();
+        if (this == null)
+        {
+            yield break;
+        }
+        GameLog.Log($"[PickupLift] done pos={transform.position}");
+        if (!animateSpriteOffset)
+        {
+            spriteDisplay.transform.localPosition = Vector3.up * 0.5f;
+        }
+    }
+
+    /// <summary>
+    /// Shop buy: spawn at the catalog slot, play the pickup lift, then let the hand Draw loop pull in.
+    /// </summary>
+    public void BeginTravelFromShop(Vector3 shopPos, System.Action onTravelComplete = null)
+    {
+        transform.position = shopPos;
+        shopTravelComplete = onTravelComplete;
+        StartCoroutine(ShopLiftThenReleaseToDraw());
+    }
+
+    public void BeginTravelFromShopToBag(Vector3 shopPos, Vector3 bagPos, System.Action onTravelComplete = null)
+    {
+        transform.position = shopPos;
+        StartCoroutine(ShopLiftThenFlyToBag(bagPos, onTravelComplete));
+    }
+
+    IEnumerator ShopLiftThenFlyToBag(Vector3 bagPos, System.Action onTravelComplete)
+    {
+        if (textDisplay != null)
+        {
+            textDisplay.gameObject.SetActive(true);
+        }
+        if (shopDirtParticles != null)
+        {
+            shopDirtParticles.Play();
+        }
+        if (shopSparkleParticles != null)
+        {
+            shopSparkleParticles.Play();
+        }
+        if (shadow != null)
+        {
+            shadow.enabled = true;
+        }
+
+        yield return PlayShopPickupLift("UIToken", true, true);
+        if (this == null)
+        {
+            yield break;
+        }
+
+        Sequence bagTravel = DOTween.Sequence();
+        bagTravel.Append(transform.DOMove(bagPos, 0.4f).SetEase(Ease.InSine));
+        bagTravel.Join(transform.DOScale(0.6f, 0.4f).SetEase(Ease.InSine));
+        yield return bagTravel.WaitForCompletion();
+        onTravelComplete?.Invoke();
+        if (this != null)
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    IEnumerator ShopLiftThenReleaseToDraw()
+    {
+        // UIToken sits above the shop panel; TokenMoving would fly behind it.
+        textDisplay.gameObject.SetActive(true);
+        shopDirtParticles.Play();
+        shopSparkleParticles.Play();
+        shadow.enabled = true;
+        yield return PlayShopPickupLift("UIToken", true);
+        if (this == null)
+        {
+            yield break;
+        }
+        // Draw skips while moving. Keep travelingFromSpade so the hand loop holds hover until settle.
+        moving = false;
+        while (travelingFromSpade)
+        {
+            yield return null;
+        }
+        textDisplay.gameObject.SetActive(false);
+        shopTravelComplete?.Invoke();
+        shopTravelComplete = null;
+    }
+
+    /// <summary>
     /// Lifts the dug flower off the board, then moves it into the hand/free-slot.
     /// Uses <see cref="moving"/> so Draw does not fight the animation.
     /// </summary>
     IEnumerator SpadeDugTileTravelToHand()
     {
-        moving = true;
-        travelingFromSpade = true;
-        lifted = true;
-        UpdateLayer("TokenMoving");
-
-        Vector3 liftTarget = transform.position + Vector3.up * liftHeight;
-        GameLog.Log($"[Spade] Lift tween start from={transform.position} to={liftTarget} liftHeight={liftHeight} speed={toolLiftSpeed}");
-        yield return transform.DOMove(liftTarget, toolLiftSpeed).SetEase(Ease.OutCubic).WaitForCompletion();
-        GameLog.Log($"[Spade] Lift tween done pos={transform.position}");
-
-        // Raise sprite while traveling (same hover offset as held tiles).
-        spriteDisplay.transform.localPosition = Vector3.up * 0.5f;
+        yield return PlayPickupLift();
+        if (this == null)
+        {
+            yield break;
+        }
 
         Vector3 HandTarget()
         {
@@ -780,6 +904,11 @@ public class Token : MonoBehaviour
             {
                 travelingFromSpade = false;
                 lifted = false;
+                UpdateLayer("TokenHand");
+                if (shadow != null)
+                {
+                    shadow.enabled = true;
+                }
                 GameLog.Log($"[Spade] Arrived in hand (Draw settle) dug={name} id={GetInstanceID()}");
             }
         }
@@ -836,7 +965,7 @@ public class Token : MonoBehaviour
         }
         yield return new WaitForSeconds(Services.GameController.PlacementSettleSeconds);
     }
-    public void UpdateLayer(string sortingLayer)
+    public void UpdateLayer(string sortingLayer, bool includeShadow = false)
     {
         if (sortingLayer == "TokenMoving")
         {
@@ -845,12 +974,26 @@ public class Token : MonoBehaviour
         spriteDisplay.sortingLayerName = sortingLayer;
         number.sortingLayerName = sortingLayer;
         textDisplay.sortingLayerID = spriteDisplay.sortingLayerID;
+        if (includeShadow && shadow != null)
+        {
+            shadow.sortingLayerName = sortingLayer;
+            shadow.sortingOrder = -1;
+        }
+        else
+        {
+            shadow.sortingLayerName = "Default";
+            shadow.sortingOrder = 0;
+
+        }
         if (sortingLayer == "UIToken")
         {
             if (shadow != null)
             {
                 shadow.sortingLayerName = sortingLayer;
-                shadow.enabled = false;
+                if (!includeShadow)
+                {
+                    shadow.enabled = false;
+                }
             }
             if (crunchCircle != null)
             {
