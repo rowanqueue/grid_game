@@ -3233,6 +3233,53 @@ public class GameController : MonoBehaviour
         return token;
 
     }
+    /// <summary>
+    /// Destroys flowers that grew after the given history turn count (i.e. on turns that were undone).
+    /// </summary>
+    void RemoveFlowersAfterTurn(int turnCount)
+    {
+        List<Tile> emptied = new List<Tile>();
+        foreach (KeyValuePair<Tile, List<Flower>> entry in flowers)
+        {
+            entry.Value.RemoveAll(f =>
+            {
+                if (f == null) { return true; }
+                if (f.turn <= turnCount) { return false; }
+                f.ShrinkAway();
+                numFlowers--;
+                return true;
+            });
+            if (entry.Value.Count == 0)
+            {
+                emptied.Add(entry.Key);
+            }
+        }
+        // Shrinking flowers are already out of the list, so the save right after Undo skips them.
+        foreach (Tile tile in emptied)
+        {
+            flowers.Remove(tile);
+        }
+    }
+
+    /// <summary>
+    /// Destroys every flower on the board, e.g. before a save's flowers are applied.
+    /// </summary>
+    public void ClearFlowers()
+    {
+        foreach (List<Flower> tileFlowers in flowers.Values)
+        {
+            foreach (Flower f in tileFlowers)
+            {
+                if (f != null)
+                {
+                    GameObject.Destroy(f.gameObject);
+                }
+            }
+        }
+        flowers.Clear();
+        numFlowers = 0;
+    }
+
     public void CreateFlower(Vector2 pos, TokenColor tokenColor, bool loaded = false)
     {
         CreateFlower(tiles[new Vector2Int((int)pos.x, (int)pos.y)], tokenColor, loaded);
@@ -3273,6 +3320,8 @@ public class GameController : MonoBehaviour
         Flower flower = GameObject.Instantiate(flowerPrefabs[(int)tokenColor], tile.transform.position + (Vector3)extents, Quaternion.identity, gridTransform).GetComponent<Flower>();
         flower.tokenColor = tokenColor;
         flower.x = tile.tile.pos.x;
+        // Flowers loaded from a save have no turn to undo back past.
+        flower.turn = (loaded || game?.history == null) ? 0 : game.history.turns.Count;
         if (loaded)
         {
             flower.Finish();
@@ -3542,6 +3591,12 @@ public class GameController : MonoBehaviour
             {
                 Save();
             }
+
+            // Hold the mulligan button until the new hand has finished flying in from the bag.
+            while (hand.Exists(t => t != null && t.moving))
+            {
+                yield return null;
+            }
         }
         finally
         {
@@ -3577,6 +3632,7 @@ public class GameController : MonoBehaviour
                     game.Undo();
                 }
             }
+            RemoveFlowersAfterTurn(game.history.turns.Count);
             score = game.score;
             scoreDelta = 0;
             dyingTokens.Clear();

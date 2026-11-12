@@ -43,6 +43,32 @@ public class PolaroidDisplay : MonoBehaviour
         {
             dimPanel.gameObject.SetActive(false);
         }
+        SortBelowSeedPopup();
+    }
+
+    // The preview shares the seed popup's sorting order (100) and sits closer to the camera,
+    // so it drew over the popup's dim. Drop it under the dim and the popup's decoration (99).
+    void SortBelowSeedPopup()
+    {
+        Renderer[] renderers = GetComponentsInChildren<Renderer>(true);
+        if (renderers.Length == 0)
+        {
+            return;
+        }
+        int maxOrder = int.MinValue;
+        foreach (Renderer renderer in renderers)
+        {
+            maxOrder = Mathf.Max(maxOrder, renderer.sortingOrder);
+        }
+        int shift = (SeedPopup.OverlayBaseOrder - 2) - maxOrder;
+        if (shift >= 0)
+        {
+            return;
+        }
+        foreach (Renderer renderer in renderers)
+        {
+            renderer.sortingOrder += shift;
+        }
     }
 
     void OnEnable()

@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class SeedPopup : MonoBehaviour
 {
-    const int OverlayBaseOrder = 100;
+    public const int OverlayBaseOrder = 100;
     const float DimMaxAlpha = 0.6f;
 
     [SerializeField] float fadeInDuration = 0.15f;
@@ -46,8 +46,12 @@ public class SeedPopup : MonoBehaviour
             defaultMessage = messageText.text;
 
         // Popup can open over the tool shop, which otherwise blocks button input.
+        // Every other button is blocked while the popup is open.
         foreach (flora.Button button in visual.GetComponentsInChildren<flora.Button>(true))
+        {
             button.allowDuringToolShop = true;
+            button.allowDuringSeedPopup = true;
+        }
 
         HideNamedChildren(visual.transform, "Seeds");
         RefreshEarnLabel();

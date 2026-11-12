@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -16,9 +17,13 @@ public class Flower : MonoBehaviour
     float _angle;
     int wind = 0;
     public int x;
+    // history.turns.Count when this flower grew; undoing past that turn removes it. 0 = never undone.
+    [HideInInspector] public int turn;
     // Start is called before the first frame update
     void Start()
     {
+        // Undone the same frame it spawned; don't reset the scale the shrink is driving.
+        if (shrinking) { return; }
         bool flip = Random.value < 0.5f;
         //stem.flipX = flip;
         //petals.flipX = flip;
@@ -49,9 +54,25 @@ public class Flower : MonoBehaviour
         animIndex = 100;
     }
 
+    bool shrinking;
+
+    // Undo: shrink to nothing, then destroy.
+    public void ShrinkAway(float duration = 0.25f)
+    {
+        if (shrinking) { return; }
+        shrinking = true;
+        transform.DOKill();
+        transform.DOScale(0f, duration)
+            .SetDelay(Random.Range(0f, 0.08f))
+            .SetEase(Ease.InBack)
+            .OnComplete(() => Destroy(gameObject));
+    }
+
     // Update is called once per frame
     void Update()
     {
+        // Wind sway divides by localScale, which hits zero mid-shrink.
+        if (shrinking) { return; }
         animIndex += animSpeed;
         int index = Mathf.FloorToInt(animIndex);
         index = Mathf.Clamp(index, 0, stemSprites.Length - 1);
