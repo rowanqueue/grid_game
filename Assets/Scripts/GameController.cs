@@ -825,7 +825,6 @@ public class GameController : MonoBehaviour
         }
         if (inputState == InputState.Finish || inputState == InputState.TapToRestart) { return; }
         if (inTutorial) { return; }
-        if (inTutorial) { return; }
         if (gameState != GameState.Credits && gameState != GameState.HighScore)
         {
             settingsOpenedFrom = gameState;
@@ -1023,6 +1022,69 @@ public class GameController : MonoBehaviour
         Services.AudioManager.StopScoreLoop();
         SceneManager.LoadScene(0);
     }
+    /// <summary>
+    /// Android back (Escape): close the topmost thing, or send the app to the background
+    /// from the main screens, mirroring each screen's own Back/close path.
+    /// </summary>
+    void HandleBackButton()
+    {
+        if (Services.Gems.seedPopup != null && Services.Gems.seedPopup.IsBlockingInput)
+        {
+            Services.Gems.seedPopup.Close();
+            return;
+        }
+        // Upgrade popups, snapshot overlays and scoring animations dismiss on tap; leave them be.
+        if (UpgradePopupBlocking || movingToScreen) { return; }
+        if (inputState == InputState.Wait || inputState == InputState.Popup
+            || inputState == InputState.Snapshot || inputState == InputState.Finish)
+        {
+            return;
+        }
+
+        switch (gameState)
+        {
+            case GameState.Settings:
+            case GameState.ToolShop:
+            case GameState.Snapshot:
+            case GameState.Help:
+                GameStateGameplay();
+                return;
+            case GameState.Bag:
+                deckDisplay.ClearBagAfterDelay();
+                GameStateGameplay();
+                return;
+            case GameState.Credits:
+                GameStateSettings();
+                return;
+            case GameState.HighScore:
+                HighScoreBack();
+                return;
+            case GameState.SelectDifficulty:
+                GameStateStart();
+                return;
+        }
+
+        if (gameState == GameState.Gameplay && inputState == InputState.Place)
+        {
+            // Same as right-click: put the held token back.
+            EnterInputState(InputState.Choose);
+            return;
+        }
+
+        MoveAppToBackground();
+    }
+
+    static void MoveAppToBackground()
+    {
+#if UNITY_ANDROID && !UNITY_EDITOR
+        using (AndroidJavaClass player = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
+        using (AndroidJavaObject activity = player.GetStatic<AndroidJavaObject>("currentActivity"))
+        {
+            activity.Call<bool>("moveTaskToBack", true);
+        }
+#endif
+    }
+
     public void GameStateHelp()
     {
         if (inputState == InputState.Finish || inputState == InputState.TapToRestart) { return; }
@@ -1402,11 +1464,17 @@ public class GameController : MonoBehaviour
         {
             return;
         }
-        if (game.hand.AllSlotsEmpty())
+        bool handWasEmpty = game.hand.AllSlotsEmpty();
+        if (handWasEmpty)
         {
             game.hand.FillHand(game.bag);
         }
-        CreateHand(true);
+        // The Mulligan beat already drew this hand; CreateHand(true) re-animates every
+        // existing token from the bag, so only draw when there's something new to show.
+        if (handWasEmpty || !HandViewsMatchLogic())
+        {
+            CreateHand(true);
+        }
     }
 
     int CountVisibleHandTokens()
@@ -1895,7 +1963,6 @@ public class GameController : MonoBehaviour
 
         if (winScreenDisplay != null)
         {
-            print("ShowWinScreenSequence: using WinScreenDisplay");
             WinScreenPayload payload = new WinScreenPayload
             {
                 fromScore = scoreBeforeFinish,
@@ -2161,10 +2228,9 @@ public class GameController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
-            print("PPPOOOOPPP");
-            StartCoroutine(ShowWinScreenSequence());
+            HandleBackButton();
         }
 
         loadSnapshotButton.SetActive(SaveLoad.HasSave(1));

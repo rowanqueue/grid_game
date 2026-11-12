@@ -196,6 +196,9 @@ public class SeedPopup : MonoBehaviour
 
         open = true;
         visual.SetActive(true);
+        // Close() turns the dim off; FadeTo used to turn it back on, but Open no longer fades.
+        if (dimPanel != null)
+            dimPanel.gameObject.SetActive(true);
         // Pop in at full opacity: alpha-fading the stacked sprites (9-slice, borders, shadows)
         // makes every layer see-through mid-fade and the panel looks ghostly.
         SetVisualAlpha(1f);

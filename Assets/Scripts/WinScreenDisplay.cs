@@ -317,17 +317,46 @@ public class WinScreenDisplay : MonoBehaviour
         }
     }
 
-    public void ShowActionButtons()
+    // Authored alphas (shadows aren't opaque), cached before the first fade touches them.
+    Dictionary<SpriteRenderer, float> actionButtonBaseAlphas;
+
+    public void ShowActionButtons(bool fadeIn = false)
     {
         CacheReferences();
         if (actionButtonsRoot != null)
         {
-            foreach (SpriteRenderer sr in actionButtonsRoot.GetComponentsInChildren<SpriteRenderer>(true))
+            CacheActionButtonAlphas();
+            foreach (KeyValuePair<SpriteRenderer, float> pair in actionButtonBaseAlphas)
             {
-                sr.color = new Color(sr.color.r, sr.color.g, sr.color.b, 0f);
+                if (pair.Key == null) continue;
+                Color c = pair.Key.color;
+                c.a = fadeIn ? 0f : pair.Value;
+                pair.Key.color = c;
             }
             actionButtonsRoot.SetActive(true);
             ApplyWinScreenSorting();
+        }
+    }
+
+    void CacheActionButtonAlphas()
+    {
+        if (actionButtonBaseAlphas != null) return;
+        actionButtonBaseAlphas = new Dictionary<SpriteRenderer, float>();
+        foreach (SpriteRenderer sr in actionButtonsRoot.GetComponentsInChildren<SpriteRenderer>(true))
+        {
+            actionButtonBaseAlphas[sr] = sr.color.a;
+        }
+    }
+
+    void JoinActionButtonFades(Sequence sequence)
+    {
+        if (actionButtonBaseAlphas == null) return;
+        foreach (KeyValuePair<SpriteRenderer, float> pair in actionButtonBaseAlphas)
+        {
+            if (pair.Key == null) continue;
+            Tween fade = pair.Key.DOFade(pair.Value, animateInDuration).SetEase(Ease.OutQuad);
+            TrackTween(fade);
+            sequence.Join(fade);
         }
     }
 
@@ -341,7 +370,6 @@ public class WinScreenDisplay : MonoBehaviour
 
     public IEnumerator ShowRoutine(WinScreenPayload payload)
     {
-        print("ShowRoutine: showing win screen with payload: fromScore=" + payload.fromScore + ", toScore=" + payload.toScore + ", isNewHighScore=" + payload.isNewHighScore);
         showingWinScreen = true;
         ResetAnimationSpeed();
         HideActionButtons();
@@ -379,7 +407,6 @@ public class WinScreenDisplay : MonoBehaviour
             showingWinScreen = false;
             ShowActionButtons();
             ResetAnimationSpeed();
-            print("ShowRoutine: scoreText is null");
             yield break;
         }
 
@@ -401,18 +428,8 @@ public class WinScreenDisplay : MonoBehaviour
         scoreSeq.Join(scoreFadeTween);
         scoreSeq.Join(scoreMoveTween);
         scoreSeq.Join(countTween);
-
-
-        ShowActionButtons();
-        print("Fading in action buttons...");
-        foreach (SpriteRenderer sr in actionButtonsRoot.GetComponentsInChildren<SpriteRenderer>(true))
-        {
-            print("Fading in button sprite: " + sr.gameObject.name);
-            Tween spriteFadeTween = sr.DOFade(1f, animateInDuration).SetEase(Ease.OutQuad);
-            TrackTween(spriteFadeTween);
-            scoreSeq.Join(spriteFadeTween);
-        }
-
+        ShowActionButtons(true);
+        JoinActionButtonFades(scoreSeq);
         TrackTween(scoreFadeTween);
         TrackTween(scoreMoveTween);
         TrackTween(countTween);
@@ -451,23 +468,13 @@ public class WinScreenDisplay : MonoBehaviour
         scoreText.alpha = 0f;
         SetTextPosition(scoreText, scoreRestPosition + Vector2.down * slideOffsetY);
 
-
-        ShowActionButtons();
+        ShowActionButtons(true);
         Tween fadeTween = scoreText.DOFade(1f, animateInDuration).SetEase(Ease.OutQuad);
         Tween moveTween = CreateTextPositionTween(scoreText, scoreRestPosition, animateInDuration, Ease.OutQuad);
         Sequence sequence = DOTween.Sequence();
         sequence.Join(fadeTween);
         sequence.Join(moveTween);
-
-        print("Fading in action buttons...");
-        foreach (SpriteRenderer sr in actionButtonsRoot.GetComponentsInChildren<SpriteRenderer>(true))
-        {
-            print("Fading in button sprite: " + sr.gameObject.name);
-            Tween spriteFadeTween = sr.DOFade(1f, animateInDuration).SetEase(Ease.OutQuad);
-            TrackTween(spriteFadeTween);
-            sequence.Join(spriteFadeTween);
-        }
-
+        JoinActionButtonFades(sequence);
         TrackTween(fadeTween);
         TrackTween(moveTween);
         TrackTween(sequence);
