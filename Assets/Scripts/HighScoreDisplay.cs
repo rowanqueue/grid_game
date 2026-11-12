@@ -36,7 +36,9 @@ public class HighScoreDisplay : MonoBehaviour
             return;
         }
 
-        string dateMarkup = "<size=65%>" + date + "</size>";
+        //string dateMarkup = "<size=65%>" + date + "</size>";
+        string dateMarkup = date;
+
         if (textDisplay.textInfo == null)
         {
             textDisplay.text = line + dateMarkup;
