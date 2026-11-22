@@ -148,11 +148,11 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  display: {fileID: 0}
+  display: {fileID: 905590162451757023}
   displayDropShadow: {fileID: 0}
   toggledDisplay: {fileID: 0}
   words: {fileID: 0}
-  hoverColor: {r: 0.7529412, g: 0.7529412, b: 0.7529412, a: 1}
+  hoverColor: {r: 1, g: 1, b: 1, a: 1}
   standardColor: {r: 1, g: 1, b: 1, a: 1}
   pressScale: 0.95
   pressDuration: 0.08
@@ -1356,7 +1356,7 @@ MonoBehaviour:
   displayDropShadow: {fileID: 0}
   toggledDisplay: {fileID: 0}
   words: {fileID: 0}
-  hoverColor: {r: 0.7529412, g: 0.7529412, b: 0.7529412, a: 1}
+  hoverColor: {r: 1, g: 1, b: 1, a: 1}
   standardColor: {r: 1, g: 1, b: 1, a: 1}
   pressScale: 0.95
   pressDuration: 0.08
@@ -1869,11 +1869,11 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  display: {fileID: 0}
+  display: {fileID: 4122362256364121555}
   displayDropShadow: {fileID: 0}
   toggledDisplay: {fileID: 0}
   words: {fileID: 0}
-  hoverColor: {r: 0.7529412, g: 0.7529412, b: 0.7529412, a: 1}
+  hoverColor: {r: 1, g: 1, b: 1, a: 1}
   standardColor: {r: 1, g: 1, b: 1, a: 1}
   pressScale: 0.95
   pressDuration: 0.08
@@ -2802,7 +2802,6 @@ MonoBehaviour:
   slideInDuration: 0.35
   slideOutDuration: 0.55
   panelCollider: {fileID: 0}
-  buyFlyDuration: 0.4
 --- !u!1 &5015671523958714135
 GameObject:
   m_ObjectHideFlags: 0
