@@ -1,0 +1,256 @@
+APP STORE LISTING TEMPLATE
+==========================
+
+Everything Google Play and the Apple App Store ask for, in one place.
+Fill in anything in [BRACKETS]. Character limits are in (parentheses).
+Limits and image sizes change now and then, so check them against each
+store's current help pages before uploading.
+
+
+SHARED BY BOTH STORES
+=====================
+
+APP ID (permanent on both stores, can never change)
+------
+Reverse domain style, such as com.[company].[app]. Use the company name if a
+company will own the app.
+
+  [APP ID]
+
+
+APP NAME (30)
+--------
+  [APP NAME]
+
+
+CONTACT
+-------
+  Support email          [EMAIL]          (both stores, required)
+  Support URL            [URL]            (Apple, required)
+  Marketing URL          [URL]            (Apple, optional)
+  Website                [URL]            (Google, optional)
+  Privacy policy URL     [URL]            (both stores, required, even if the
+                                           app collects nothing)
+
+
+PRIVACY POLICY
+--------------
+A hosted page anyone can open. It should cover what data the app collects,
+why, who it's shared with, and how to get in touch. If the app collects
+nothing, say so plainly. It must match the answers in Google's Data safety
+form and Apple's App Privacy label.
+
+  Collects data?         [YES / NO]
+  What and why           [LIST, OR "NOTHING"]
+  Third-party SDKs       [ADS / ANALYTICS / CRASH REPORTING / NONE]
+
+
+DESCRIPTION (4000, both stores)
+-----------
+The first two or three lines matter most: both stores cut the text off there
+until the reader taps "more". Write for the device: "tap" and "drag", not
+"click" or keyboard keys.
+
+  [OPENING HOOK, 1-2 LINES]
+
+  [WHAT THE PLAYER DOES]
+
+  [FEATURES, AS A SHORT LIST]
+
+  [OPTIONAL: CREDITS OR A CLOSING LINE]
+
+
+CATEGORY
+--------
+  Primary                [CATEGORY]
+  Secondary              [CATEGORY]       (Apple: Games can take two
+                                           subcategories)
+
+
+SCREENSHOTS (shot list)
+-----------
+Pick portrait or landscape and keep every screenshot the same way. The first
+two or three show in search results, so lead with the strongest. Captions or
+frames around the shots are allowed on both stores.
+
+  1. [SHOT]
+  2. [SHOT]
+  3. [SHOT]
+  4. [SHOT]
+  5. [SHOT]
+
+
+VIDEO (optional)
+-----
+  Google                 A YouTube link, any length. Ads must be off on it.
+  Apple                  App previews: up to 3, 15-30 s each, uploaded as
+                         files. Must show footage captured from the app
+                         itself.
+
+  [VIDEO PLAN OR LINK]
+
+
+RIGHTS AND CREDITS
+------------------
+  [ ] Written agreement with every contributor (code, art, music, sound)
+      allowing commercial release by whoever owns the app
+  [ ] Licenses for third-party art, fonts, sounds and code allow commercial
+      use, and their notices ship inside the app
+  [ ] Any jam, contest or publisher terms the project was made under allow
+      releasing it here
+  [ ] App name is not already taken on either store, and not a trademark
+
+
+GOOGLE PLAY
+===========
+
+TEXT
+----
+  App name (30)              [APP NAME]
+  Short description (80)     [ONE LINE]
+  Full description (4000)    see DESCRIPTION above
+
+
+IMAGES
+------
+  App icon                   512 x 512 PNG, 1 MB max. Google adds the rounded
+                             mask, so fill the square.
+  Feature graphic            1024 x 500 JPG or PNG with no transparency.
+                             Required. Keep important text away from the
+                             edges, it is sometimes cropped.
+  Phone screenshots          2-8. Short side 320-3840 px, long side no more
+                             than twice the short side. At least 4 at 1080 px
+                             or more to be eligible for featuring.
+  7" tablet screenshots      Optional. Needed to be featured on tablets.
+  10" tablet screenshots     Optional. Same as above.
+  Chromebook screenshots     Optional.
+
+
+STORE SETTINGS
+--------------
+  Category                   [GAME / APP] > [CATEGORY]
+  Tags                       up to 5: [TAGS]
+  Countries                  [ALL / LIST]
+  Price                      [FREE / PAID PRICE]
+                             A free app can never become paid later.
+  In-app purchases           [YES / NO]
+
+
+POLICY FORMS (Play Console > App content)
+------------
+  [ ] Privacy policy URL
+  [ ] App access             Does any part need a login? If so, give
+                             reviewers a test account.  [ANSWER]
+  [ ] Ads                    Contains ads?  [YES / NO]
+  [ ] Content rating         IARC questionnaire: violence, language, gambling,
+                             user interaction, etc.
+  [ ] Target audience        Age groups the app is for. Choosing any group
+                             under 13 brings in the Families policy (stricter
+                             rules on ads, data and SDKs). Google may also ask
+                             whether the app could appeal to children.
+                             [AGE GROUPS]
+  [ ] Data safety            What is collected and shared, matching the
+                             privacy policy.
+  [ ] News, health, financial, government declarations  (usually "no")
+
+
+BUILD AND ACCOUNT
+-----------------
+  [ ] Developer account      Personal or organization. Organization needs a
+                             D-U-N-S number and shows the business address
+                             publicly.
+  [ ] Signed .aab            Play App Signing on. Keep the upload key backed
+                             up somewhere safe.
+  [ ] Target API level       The level Google currently requires for new apps
+  [ ] Version code / name    [CODE] / [NAME]
+  [ ] Closed test            Personal accounts made after Nov 2023 only:
+                             at least 12 testers opted in for 14 days in a
+                             row before production access.
+                             Testers: [LIST]
+  [ ] Release notes          [WHAT'S NEW] (500)
+
+
+APPLE APP STORE
+===============
+
+TEXT
+----
+  App name (30)              [APP NAME]
+  Subtitle (30)              [SUBTITLE]       Shows under the name in search.
+  Promotional text (170)     [TEXT]           Top of the description. Can be
+                                              changed any time without review.
+  Description (4000)         see DESCRIPTION above. Changing it needs a new
+                             version.
+  Keywords (100)             [WORD,WORD,WORD]
+                             Commas, no spaces. Don't repeat words already in
+                             the name or subtitle, they count anyway.
+  Copyright                  [YEAR] [OWNER]
+  What's New (4000)          [RELEASE NOTES]  (not needed on the first version)
+
+
+IMAGES
+------
+  App icon                   1024 x 1024 PNG, no transparency, square
+                             corners (iOS rounds them). Goes in the Xcode
+                             asset catalog, not uploaded separately.
+  iPhone screenshots         6.9" display: 1320 x 2868 or 1290 x 2796
+                             (portrait; swap for landscape). 1-10 shots.
+                             Apple scales them down for smaller iPhones.
+  iPad screenshots           13" display: 2064 x 2752 or 2048 x 2732.
+                             1-10 shots. Required only if the app runs on
+                             iPad. Make the app iPhone-only to skip them.
+  App previews (optional)    Up to 3 per device size, 15-30 s.
+
+
+STORE SETTINGS
+--------------
+  Primary category           [CATEGORY]
+  Secondary category         [CATEGORY]       (optional)
+  Price                      [FREE / PRICE TIER]
+  Availability               [ALL / COUNTRIES]
+  Devices                    [IPHONE / IPHONE + IPAD]
+
+
+FORMS (App Store Connect)
+-----
+  [ ] Age rating             Questionnaire: violence, mature themes,
+                             gambling, user-generated content, etc.
+  [ ] App Privacy            "Data Not Collected", or each data type with
+                             its purpose, matching the privacy policy.
+  [ ] Encryption             Most apps answer "no" (only standard HTTPS or
+                             none). Set ITSAppUsesNonExemptEncryption to
+                             false in Info.plist to skip the question on
+                             every upload.
+  [ ] EU trader status       Digital Services Act. A company is a trader:
+                             its address, phone and email show publicly on
+                             the EU store.
+  [ ] Content rights         Does the app use third-party content? Do you
+                             have the rights to it?
+  [ ] App Review info        Contact name, phone, email, notes for the
+                             reviewer, and a demo account if there's a login.
+                             [NOTES]
+
+
+BUILD AND ACCOUNT
+-----------------
+  [ ] Developer account      Individual or organization ($99/year).
+                             Organization needs a D-U-N-S number.
+  [ ] Mac with Xcode, or a cloud build service, to build and upload
+  [ ] Bundle ID              matches APP ID above
+  [ ] Version / build        [VERSION] / [BUILD]
+  [ ] TestFlight             Test on real devices before submitting
+
+
+BEFORE SUBMITTING
+=================
+  [ ] Every [BRACKET] filled in
+  [ ] Privacy policy is live and matches both stores' privacy forms
+  [ ] Screenshots taken from the release build, all one orientation
+  [ ] Description reads right for touch (no mouse or keyboard words)
+  [ ] Tested on a real Android phone and a real iPhone
+  [ ] Tested on the smallest screen the app supports, and on a notched one
+  [ ] Android back button does something sensible
+  [ ] App pauses when sent to the background, and audio stops
+  [ ] Saved data survives closing and reopening the app
+  [ ] Links inside the app open somewhere the player can get back from
+  [ ] Rights and credits checklist done

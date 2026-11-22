@@ -35,6 +35,8 @@ namespace flora
         public bool disabled = false;
         [Tooltip("If true, this button can be pressed while the tool shop is open.")]
         public bool allowDuringToolShop = false;
+        [Tooltip("If true, this button can be pressed while the seed popup is open.")]
+        public bool allowDuringSeedPopup = false;
         [Tooltip("Extra objects to hide when this button is disabled (e.g. seed cost icons).")]
         public GameObject[] hideWhenDisabled;
         Vector3 baseScale;
@@ -62,6 +64,15 @@ namespace flora
             }
             
             baseScale = transform.localScale;
+
+            // The seed popup opens over the tool shop, so the seed counter has to work there too.
+            for (int i = 0; _event != null && i < _event.GetPersistentEventCount(); i++)
+            {
+                if (_event.GetPersistentMethodName(i) == nameof(GameController.GameStateSeeds))
+                {
+                    allowDuringToolShop = true;
+                }
+            }
 
             if (type == ButtonType.StartGame)
             {
@@ -144,7 +155,7 @@ namespace flora
             }
             if (display != null && disabled == false)
             {
-                display.color = (hover ? hoverColor : standardColor);
+                display.color = (hover && !BlockedByOverlay ? hoverColor : standardColor);
             }
             if (type == ButtonType.Difficulty)
             {
@@ -205,6 +216,17 @@ namespace flora
             }
         }
 
+        bool BlockedBySeedPopup => !allowDuringSeedPopup
+            && Services.Gems != null
+            && Services.Gems.seedPopup != null
+            && Services.Gems.seedPopup.IsBlockingInput;
+
+        // A fresh snapshot stays up until the player taps it away; that tap shouldn't hit buttons.
+        bool BlockedBySnapshot => Services.GameController != null
+            && Services.GameController.inputState == InputState.Snapshot;
+
+        bool BlockedByOverlay => BlockedBySeedPopup || BlockedBySnapshot;
+
         void OnMouseDown()
         {
             TryActivate();
@@ -222,6 +244,10 @@ namespace flora
             {
                 return;
             }
+            if (BlockedByOverlay)
+            {
+                return;
+            }
 
             PlayPressFeedback();
             _event.Invoke();
@@ -235,6 +261,23 @@ namespace flora
         void OnMouseExit()
         {
             hover = false;
+        }
+
+        // Hiding a button under the cursor (e.g. the seed popup closing on Watch Ad) skips OnMouseExit,
+        // which left it stuck grey the next time it was shown.
+        void OnDisable()
+        {
+            hover = false;
+            if (display != null && !disabled)
+            {
+                display.color = standardColor;
+            }
+            // Deactivation also kills the press-scale coroutine mid-squash.
+            if (pressRoutine != null)
+            {
+                pressRoutine = null;
+                transform.localScale = baseScale;
+            }
         }
 
         void PlayPressFeedback()

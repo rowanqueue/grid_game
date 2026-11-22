@@ -164,6 +164,8 @@ namespace Save
             Services.GameController.difficulty = difficulty;
             PlayerPrefs.SetInt("difficulty", difficulty);
             PlayerPrefs.Save();
+            // Replace the board's flowers rather than stacking the save's on top (loading a snapshot mid-run).
+            Services.GameController.ClearFlowers();
             foreach (TileFlowers f in flowers)
             {
                 f.Load();

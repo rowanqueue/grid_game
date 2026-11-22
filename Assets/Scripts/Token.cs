@@ -50,6 +50,9 @@ public class Token : MonoBehaviour
     Coroutine wiggleAnim;
 
     bool beingSpaded = false;
+    // Bag-draw / spade-return travel; cancelled if the token gets placed mid-flight.
+    Coroutine travelRoutine;
+    bool bagDrawCountedDown = true;
     System.Action shopTravelComplete;
     /// <summary>True while a dug Spade tile is lerping from the board into the hand.</summary>
     public bool travelingFromSpade = false;
@@ -384,6 +387,7 @@ public class Token : MonoBehaviour
 
     public void ToolAnim(Token toolToken, int index)
     {
+        toolToken.CancelTravel();
         if (toolToken.token.data.color == Logic.TokenColor.Spade)
         {
             beingSpaded = true;
@@ -455,7 +459,7 @@ public class Token : MonoBehaviour
         Services.AudioManager.PlaySpadeSound();
         beingSpaded = false;
         GameLog.Log($"[Spade] Scoop start: dug-tile lift dug={name} id={GetInstanceID()} pos={transform.position}");
-        StartCoroutine(SpadeDugTileTravelToHand());
+        travelRoutine = StartCoroutine(SpadeDugTileTravelToHand());
 
         tool.transform.DORotate(Vector3.forward * Spade_EndRotation, Spade_DigTime).SetEase(Ease.InOutSine).Play();
         tool.transform.DOMove(transform.position + Spade_DigDestination, Spade_DigTime).SetEase(Ease.InOutSine).Play();
@@ -808,13 +812,15 @@ public class Token : MonoBehaviour
         moving = true;
         transform.position = Services.GameController.bagButtonTransform.position;
         transform.position = new Vector2(-2.5f, -8f);
-        StartCoroutine(BagDraw(index * bagDrawStaggerSeconds));
+        bagDrawCountedDown = false;
+        travelRoutine = StartCoroutine(BagDraw(index * bagDrawStaggerSeconds));
     }
 
     IEnumerator BagDraw(float delay)
     {
         yield return new WaitForSeconds(delay);
         Services.GameController.tempDeckNumberForAnim -= 1;
+        bagDrawCountedDown = true;
         Services.AudioManager.PlayNewTileSound();
         while (Vector3.Distance(handPos, transform.position) > 0.05f)
         {
@@ -851,8 +857,32 @@ public class Token : MonoBehaviour
     bool placementSettling;
     bool placementAnimating;
 
+    /// <summary>
+    /// Stops any bag-draw / spade / shop travel so Draw can move the token again.
+    /// Otherwise a token placed mid-travel (or whose travel coroutine died when the screen
+    /// was deactivated) stays pinned in the hand while merges play on it.
+    /// </summary>
+    public void CancelTravel()
+    {
+        if (travelRoutine != null)
+        {
+            StopCoroutine(travelRoutine);
+            travelRoutine = null;
+        }
+        if (!bagDrawCountedDown)
+        {
+            bagDrawCountedDown = true;
+            Services.GameController.tempDeckNumberForAnim -= 1;
+        }
+        transform.DOKill();
+        moving = false;
+        beingSpaded = false;
+        travelingFromSpade = false;
+    }
+
     public void BeginPlacementAnimation()
     {
+        CancelTravel();
         placementAnimating = true;
         placementSettling = false;
     }

@@ -21,9 +21,9 @@ public class Gems : MonoBehaviour, IUnityAdsInitializationListener, IUnityAdsLoa
         {"earn",5 },
         {"newGame",5 },
         {"takeSnapshot", 0},
-        {"buySpade", 2 },
-        {"buyAdder", 3 },
-        {"buyClipper", 4 }
+        {"buySpade",2 },
+        {"buyAdder",3 },
+        {"buyClipper",4 }
     };
     [SerializeField] string _androidGameId = "";
     [SerializeField] string _iOSGameId = "";

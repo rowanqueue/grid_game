@@ -825,7 +825,6 @@ public class GameController : MonoBehaviour
         }
         if (inputState == InputState.Finish || inputState == InputState.TapToRestart) { return; }
         if (inTutorial) { return; }
-        if (inTutorial) { return; }
         if (gameState != GameState.Credits && gameState != GameState.HighScore)
         {
             settingsOpenedFrom = gameState;
@@ -1023,6 +1022,69 @@ public class GameController : MonoBehaviour
         Services.AudioManager.StopScoreLoop();
         SceneManager.LoadScene(0);
     }
+    /// <summary>
+    /// Android back (Escape): close the topmost thing, or send the app to the background
+    /// from the main screens, mirroring each screen's own Back/close path.
+    /// </summary>
+    void HandleBackButton()
+    {
+        if (Services.Gems.seedPopup != null && Services.Gems.seedPopup.IsBlockingInput)
+        {
+            Services.Gems.seedPopup.Close();
+            return;
+        }
+        // Upgrade popups, snapshot overlays and scoring animations dismiss on tap; leave them be.
+        if (UpgradePopupBlocking || movingToScreen) { return; }
+        if (inputState == InputState.Wait || inputState == InputState.Popup
+            || inputState == InputState.Snapshot || inputState == InputState.Finish)
+        {
+            return;
+        }
+
+        switch (gameState)
+        {
+            case GameState.Settings:
+            case GameState.ToolShop:
+            case GameState.Snapshot:
+            case GameState.Help:
+                GameStateGameplay();
+                return;
+            case GameState.Bag:
+                deckDisplay.ClearBagAfterDelay();
+                GameStateGameplay();
+                return;
+            case GameState.Credits:
+                GameStateSettings();
+                return;
+            case GameState.HighScore:
+                HighScoreBack();
+                return;
+            case GameState.SelectDifficulty:
+                GameStateStart();
+                return;
+        }
+
+        if (gameState == GameState.Gameplay && inputState == InputState.Place)
+        {
+            // Same as right-click: put the held token back.
+            EnterInputState(InputState.Choose);
+            return;
+        }
+
+        MoveAppToBackground();
+    }
+
+    static void MoveAppToBackground()
+    {
+#if UNITY_ANDROID && !UNITY_EDITOR
+        using (AndroidJavaClass player = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
+        using (AndroidJavaObject activity = player.GetStatic<AndroidJavaObject>("currentActivity"))
+        {
+            activity.Call<bool>("moveTaskToBack", true);
+        }
+#endif
+    }
+
     public void GameStateHelp()
     {
         if (inputState == InputState.Finish || inputState == InputState.TapToRestart) { return; }
@@ -1402,11 +1464,17 @@ public class GameController : MonoBehaviour
         {
             return;
         }
-        if (game.hand.AllSlotsEmpty())
+        bool handWasEmpty = game.hand.AllSlotsEmpty();
+        if (handWasEmpty)
         {
             game.hand.FillHand(game.bag);
         }
-        CreateHand(true);
+        // The Mulligan beat already drew this hand; CreateHand(true) re-animates every
+        // existing token from the bag, so only draw when there's something new to show.
+        if (handWasEmpty || !HandViewsMatchLogic())
+        {
+            CreateHand(true);
+        }
     }
 
     int CountVisibleHandTokens()
@@ -1591,6 +1659,7 @@ public class GameController : MonoBehaviour
             case InputState.Wait:
                 draggingTile = false;
                 holdingClick = false;
+                placedTokenTravelWait = 0f;
                 // Flush before clear so re-entering Wait (place / popup dismiss)
                 // cannot orphan floating death-score labels.
                 FlushDyingTokens();
@@ -1895,7 +1964,6 @@ public class GameController : MonoBehaviour
 
         if (winScreenDisplay != null)
         {
-            print("ShowWinScreenSequence: using WinScreenDisplay");
             WinScreenPayload payload = new WinScreenPayload
             {
                 fromScore = scoreBeforeFinish,
@@ -1932,6 +2000,33 @@ public class GameController : MonoBehaviour
         dismissingPopup = false;
         waiting = waitTime;
         EnterInputState(InputState.Wait);
+    }
+
+    // Hold turn events until the placed token reaches its tile, so merges never play mid-flight
+    // (e.g. a token whose travel left it pinned in the hand). Times out so it can't soft-lock.
+    const float placedTokenArriveDistance = 0.1f;
+    const float placedTokenTravelTimeout = 2f;
+    float placedTokenTravelWait;
+
+    bool PlacedTokenStillTraveling()
+    {
+        if (lastTokenPlaced == null || placedTokenTravelWait >= placedTokenTravelTimeout)
+        {
+            return false;
+        }
+        foreach (Tile tile in tiles.Values)
+        {
+            if (tile.token == lastTokenPlaced)
+            {
+                if (Vector2.Distance(lastTokenPlaced.transform.position, tile.transform.position) <= placedTokenArriveDistance)
+                {
+                    return false;
+                }
+                placedTokenTravelWait += Time.deltaTime;
+                return true;
+            }
+        }
+        return false;
     }
 
     bool AnyGridTokenStillPlacing(float snapDistance)
@@ -2161,12 +2256,16 @@ public class GameController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            HandleBackButton();
+        }
+    #if UNITY_EDITOR || DEVELOPMENT_BUILD
         if (Input.GetKeyDown(KeyCode.Space))
         {
             DebugWinGame();
         }
-#endif
+    #endif
 
         loadSnapshotButton.SetActive(SaveLoad.HasSave(1));
         difficultyName.text = "Difficulty\n" + difficultyNames[difficulty];
@@ -2797,7 +2896,7 @@ public class GameController : MonoBehaviour
                 break;
             }
             case InputState.Wait:
-                if (game.gridUpdating == false && !mergeUpgradeBlocking)
+                if (game.gridUpdating == false && !mergeUpgradeBlocking && !PlacedTokenStillTraveling())
                 {
                     waiting -= Time.deltaTime;
 
@@ -3162,6 +3261,53 @@ public class GameController : MonoBehaviour
         return token;
 
     }
+    /// <summary>
+    /// Destroys flowers that grew after the given history turn count (i.e. on turns that were undone).
+    /// </summary>
+    void RemoveFlowersAfterTurn(int turnCount)
+    {
+        List<Tile> emptied = new List<Tile>();
+        foreach (KeyValuePair<Tile, List<Flower>> entry in flowers)
+        {
+            entry.Value.RemoveAll(f =>
+            {
+                if (f == null) { return true; }
+                if (f.turn <= turnCount) { return false; }
+                f.ShrinkAway();
+                numFlowers--;
+                return true;
+            });
+            if (entry.Value.Count == 0)
+            {
+                emptied.Add(entry.Key);
+            }
+        }
+        // Shrinking flowers are already out of the list, so the save right after Undo skips them.
+        foreach (Tile tile in emptied)
+        {
+            flowers.Remove(tile);
+        }
+    }
+
+    /// <summary>
+    /// Destroys every flower on the board, e.g. before a save's flowers are applied.
+    /// </summary>
+    public void ClearFlowers()
+    {
+        foreach (List<Flower> tileFlowers in flowers.Values)
+        {
+            foreach (Flower f in tileFlowers)
+            {
+                if (f != null)
+                {
+                    GameObject.Destroy(f.gameObject);
+                }
+            }
+        }
+        flowers.Clear();
+        numFlowers = 0;
+    }
+
     public void CreateFlower(Vector2 pos, TokenColor tokenColor, bool loaded = false)
     {
         CreateFlower(tiles[new Vector2Int((int)pos.x, (int)pos.y)], tokenColor, loaded);
@@ -3202,6 +3348,8 @@ public class GameController : MonoBehaviour
         Flower flower = GameObject.Instantiate(flowerPrefabs[(int)tokenColor], tile.transform.position + (Vector3)extents, Quaternion.identity, gridTransform).GetComponent<Flower>();
         flower.tokenColor = tokenColor;
         flower.x = tile.tile.pos.x;
+        // Flowers loaded from a save have no turn to undo back past.
+        flower.turn = (loaded || game?.history == null) ? 0 : game.history.turns.Count;
         if (loaded)
         {
             flower.Finish();
@@ -3471,6 +3619,12 @@ public class GameController : MonoBehaviour
             {
                 Save();
             }
+
+            // Hold the mulligan button until the new hand has finished flying in from the bag.
+            while (hand.Exists(t => t != null && t.moving))
+            {
+                yield return null;
+            }
         }
         finally
         {
@@ -3506,6 +3660,7 @@ public class GameController : MonoBehaviour
                     game.Undo();
                 }
             }
+            RemoveFlowersAfterTurn(game.history.turns.Count);
             score = game.score;
             scoreDelta = 0;
             dyingTokens.Clear();

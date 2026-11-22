@@ -123,6 +123,12 @@ public class HighScoreManager : MonoBehaviour
         RefreshUI();
     }
 
+    [ContextMenu("Debug/Add 12,345 High Score")]
+    void DebugAddBigHighScore()
+    {
+        SubmitScore(12345, viewDifficulty);
+    }
+
     public bool WouldBeNewBest(int score, int difficulty)
     {
         if (score <= 0)

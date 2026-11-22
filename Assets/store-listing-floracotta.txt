@@ -1,0 +1,308 @@
+FLORACOTTA STORE LISTING
+========================
+
+Project copy of store-listing.txt. Values marked (from project) were read
+from ProjectSettings / the code on 2026-11-08; change them there, not just
+here. Everything marked TODO still needs a decision or an asset.
+Limits and image sizes change now and then, so check them against each
+store's current help pages before uploading.
+
+
+SHARED BY BOTH STORES
+=====================
+
+APP ID (permanent on both stores, can never change)
+------
+  com.wobblestone.floracotta                    (from project, Android + iOS)
+  TODO: confirm "wobblestone" is the name you want on this forever. If a
+        company will own the app, the ID should use the company's name.
+
+
+APP NAME (30)
+--------
+  TODO: final display name. Project productName is "floracotta" (lowercase).
+        Decide on capitalization ("Floracotta"?) and whether to add a
+        tagline, e.g. "Floracotta: [SOMETHING]", within 30 characters.
+  TODO: search both stores to check the name isn't taken.
+
+
+CONTACT
+-------
+  Support email          contact@wobblestonegames.com                     (both stores, required)
+  Support URL            TODO                     (Apple, required; a simple
+                                                   page with the email works)
+  Marketing URL          TODO or skip             (Apple, optional)
+  Website                TODO or skip             (Google, optional)
+  Privacy policy URL     TODO                     (both stores, required)
+
+
+PRIVACY POLICY
+--------------
+A hosted page anyone can open. It must match the answers in Google's Data
+safety form and Apple's App Privacy label.
+
+  Collects data?         YES (from project: Unity Ads is integrated)
+  What and why           - Advertising ID and device/usage data, collected by
+                           Unity Ads to serve and measure rewarded ads
+                           (watch an ad for seeds).
+                         - TODO: is Unity Analytics actually turned on in the
+                           Unity dashboard? The analytics module is in the
+                           package manifest. If on, list analytics data too.
+                         - Game progress, high scores and settings stay on
+                           the device (PlayerPrefs + local save files).
+  Third-party SDKs       Unity Ads 4.16.4 (ads). TODO: Unity Analytics?
+                         FMOD (audio, collects nothing).
+  TODO: write and host the policy. Link Unity's own privacy policy for the
+        ads data.
+  TODO: iOS App Tracking Transparency. Unity Ads wants the IDFA on iOS;
+        either add the ATT prompt (and an NSUserTrackingUsageDescription
+        string) or confirm ads run without tracking.
+  TODO: GDPR/CCPA consent for ads in the EU/UK/California. Unity Ads needs
+        a consent signal; check Unity's current consent requirements.
+
+
+DESCRIPTION (4000, both stores)
+-----------
+The first two or three lines matter most: both stores cut the text off there
+until the reader taps "more". Write for touch: "tap" and "drag".
+
+  TODO: opening hook, 1-2 lines. Draft to rewrite:
+        "Grow a garden one tile at a time. Drag flowers onto the grid,
+         match colors, and watch your patch bloom."
+
+  TODO: what the player does. Points from the game to cover:
+        - Draw a hand of flower tiles from your bag and place them on
+          the grid
+        - Blue, red, green, purple and gold flowers each score their
+          own way
+        - See what's coming in your next bag and plan ahead
+        - Tools: spade, clippers and cuttings
+
+  TODO: features, as a short list. Candidates from the project:
+        - Built-in tutorial
+        - Several difficulties, with high scores for each
+        - Mulligan a bad hand
+        - Snapshot your board and load it later
+        - Tool shop paid for with seeds
+        - Haptics, fast mode, dice mode (TODO: explain or drop dice mode)
+
+  TODO: optional credits / closing line (wobblestone + contributors).
+
+
+CATEGORY
+--------
+  Primary                TODO: Games > Puzzle (suggested)
+  Secondary              TODO: Games > Strategy, Casual or Board (Apple:
+                         Games can take two subcategories)
+
+
+SCREENSHOTS (shot list)
+-----------
+Portrait (from project: portrait only, no autorotate). The first two or
+three show in search results, so lead with the strongest.
+
+  1. TODO: a full, colorful board mid-game
+  2. TODO: a big scoring moment / combo
+  3. TODO: the win screen with a high score
+  4. TODO: the tool shop or next-bag preview
+  5. TODO: difficulty select or a tutorial step
+
+  TODO: decide on captions/frames.
+  TODO: capture from a release build (no debug buttons like
+        DebugNearEndGame visible).
+
+
+VIDEO (optional)
+-----
+  Google                 A YouTube link, any length. Ads must be off on it.
+  Apple                  App previews: up to 3, 15-30 s each, uploaded as
+                         files. Must show footage captured from the app.
+
+  TODO: skip for launch, or record a 15-30 s portrait gameplay clip.
+
+
+RIGHTS AND CREDITS
+------------------
+  [ ] TODO: Written agreement with every contributor (code, art, music,
+      sound) allowing commercial release by whoever owns the app
+  [ ] TODO: Licenses allow commercial use and notices ship in the app:
+      - FMOD: free indie licence needs the project registered with FMOD
+        and a "Made with FMOD" credit (check the Credits screen)
+      - DOTween (Demigiant): check the licence for the version in
+        Assets/Plugins/Demigiant
+      - Nice Vibrations, EZHaptics, QuickDither: check asset store licences
+      - Sound effects in Assets/Audio (e.g. "Pop 31.wav"): note the source
+        pack and licence
+      - Fonts (e.g. Nunito, OFL): include the notice if required
+  [ ] TODO: Any jam, contest or publisher terms the project was made under
+  [ ] TODO: App name not taken on either store, and not a trademark
+
+
+GOOGLE PLAY
+===========
+
+TEXT
+----
+  App name (30)              TODO (see APP NAME)
+  Short description (80)     TODO. Draft: "Place flowers, match colors and
+                             grow a high-scoring garden."
+  Full description (4000)    see DESCRIPTION above
+
+
+IMAGES
+------
+  App icon                   TODO: 512 x 512 PNG, 1 MB max, fill the square.
+                             The project has an icon assigned; export a
+                             512 px version from the source art.
+  Feature graphic            TODO: 1024 x 500 JPG/PNG, no transparency.
+                             Required.
+  Phone screenshots          TODO: 2-8, portrait. At least 4 at 1080 px or
+                             more to be eligible for featuring.
+  Tablet screenshots         TODO: optional; skip unless you want tablet
+                             featuring.
+
+
+STORE SETTINGS
+--------------
+  Category                   Game > TODO (Puzzle suggested)
+  Tags                       TODO: up to 5
+  Countries                  TODO: all?
+  Price                      TODO: free (with rewarded ads)? A free app can
+                             never become paid later.
+  In-app purchases           NO (from project: no Unity IAP)
+
+
+POLICY FORMS (Play Console > App content)
+------------
+  [ ] Privacy policy URL     TODO
+  [ ] App access             No login needed; nothing for reviewers to set up.
+  [ ] Ads                    YES (Unity Ads, rewarded)
+  [ ] Content rating         TODO: IARC questionnaire. Expected answers: no
+                             violence, no language, no gambling (TODO: check
+                             "dice mode" doesn't read as gambling), no user
+                             interaction or sharing.
+  [ ] Target audience        TODO: age groups. Choosing any group under 13
+                             brings in the Families policy (stricter ad and
+                             SDK rules for Unity Ads). 13+ is simplest.
+  [ ] Data safety            TODO: matching the privacy policy (ads: device
+                             IDs, app interactions; shared with Unity).
+  [ ] News, health, financial, government declarations: No
+
+
+BUILD AND ACCOUNT
+-----------------
+  [ ] Developer account      TODO: personal or organization? Organization
+                             needs a D-U-N-S number and shows the business
+                             address publicly.
+  [ ] Signed .aab            Release keystore set up (from project):
+                             floracotta-release.keystore, alias floracotta.
+                             TODO: back the keystore + passwords up somewhere
+                             safe off this machine. Turn on Play App Signing.
+  [ ] Target API level       36 (from project; Google requires API 36 for new
+                             apps since Aug 31 2026). Min SDK 23.
+                             TODO: confirm Unity 2022.3.50f1 builds against
+                             API 36 (may need the SDK installed manually or a
+                             newer 2022.3 patch).
+  [ ] 16 KB page size        TODO: required for apps targeting Android 15+.
+                             Check that the Unity version and native plugins
+                             (FMOD, Unity Ads, haptics) support it; likely
+                             needs a newer 2022.3 LTS patch.
+  [ ] Version code / name    1 / 1.0.0 (from project)
+  [ ] Closed test            TODO: personal accounts made after Nov 2023
+                             need 12+ testers opted in for 14 days in a row
+                             before production access.
+                             Testers: TODO
+  [ ] Release notes          Not needed for the first release (500 max).
+
+
+APPLE APP STORE
+===============
+
+TEXT
+----
+  App name (30)              TODO (see APP NAME)
+  Subtitle (30)              TODO. Draft: "A cozy flower puzzle"
+  Promotional text (170)     TODO (can change any time without review)
+  Description (4000)         see DESCRIPTION above
+  Keywords (100)             TODO, e.g. garden,flowers,tiles,grid,match,
+                             cozy,strategy,relaxing (commas, no spaces; don't
+                             repeat words from the name/subtitle)
+  Copyright                  2026 wobblestone (TODO: confirm owner/name)
+  What's New (4000)          Not needed on the first version.
+
+
+IMAGES
+------
+  App icon                   TODO: 1024 x 1024 PNG, no transparency, square
+                             corners. Check the source art is at least
+                             1024 px.
+  iPhone screenshots         TODO: 6.9" display, 1320 x 2868 or 1290 x 2796,
+                             portrait. 1-10 shots.
+  iPad screenshots           TODO: the project currently targets iPhone +
+                             iPad, so 13" iPad shots (2064 x 2752 or
+                             2048 x 2732) are required. Either take them or
+                             switch Player Settings > iOS > Target Device to
+                             iPhone Only.
+  App previews (optional)    Skip for launch, or see VIDEO.
+
+
+STORE SETTINGS
+--------------
+  Primary category           Games
+  Subcategories              TODO: Puzzle + Strategy/Casual/Board
+  Price                      TODO: free?
+  Availability               TODO: all countries?
+  Devices                    iPhone + iPad (from project). TODO: keep, or
+                             iPhone only (see iPad screenshots).
+
+
+FORMS (App Store Connect)
+-----
+  [ ] Age rating             TODO: questionnaire. Expect 4+; no mature
+                             content, no unrestricted web, no user content.
+  [ ] App Privacy            TODO: NOT "Data Not Collected". Unity Ads
+                             collects identifiers + usage data for
+                             advertising. Match the privacy policy.
+  [ ] Encryption             Answer "no". TODO: set
+                             ITSAppUsesNonExemptEncryption = false in
+                             Info.plist (not set in the project yet).
+  [ ] EU trader status       TODO: trader or not? A trader's address, phone
+                             and email show publicly on the EU store.
+  [ ] Content rights         TODO: yes for third-party content, once the
+                             rights checklist above is done.
+  [ ] App Review info        TODO: contact name, phone, email. Notes: no
+                             login needed; the tutorial runs on first
+                             launch; ads are rewarded and optional.
+
+
+BUILD AND ACCOUNT
+-----------------
+  [ ] Developer account      TODO: individual or organization ($99/year).
+  [ ] TODO: Mac with Xcode, or a cloud build service (e.g. Unity Build
+      Automation / Codemagic), to build and upload
+  [ ] Bundle ID              com.wobblestone.floracotta (from project)
+  [ ] Version / build        1.0.0 / TODO: iOS build number is 0 in the
+                             project; set it to 1.
+  [ ] TestFlight             TODO: test on real devices before submitting
+
+
+BEFORE SUBMITTING
+=================
+  [ ] Every TODO above resolved
+  [ ] Privacy policy is live and matches both stores' privacy forms
+  [ ] Screenshots taken from the release build, all portrait
+  [ ] Description reads right for touch (no mouse or keyboard words)
+  [ ] Tested on a real Android phone and a real iPhone
+  [ ] Tested on the smallest screen the app supports, and on a notched one
+      (project caps Android aspect ratio at 2.1; check tall phones)
+  [ ] Android back button: closes popups and screens, puts held tokens
+      back, and backgrounds the app from the main screen. TODO: test on
+      device.
+  [ ] App pauses when sent to the background, and audio stops. TODO: test;
+      runInBackground is on, and FMOD's RuntimeManager handles pause.
+  [ ] Saved data survives closing and reopening the app
+  [ ] Links inside the app open somewhere the player can get back from
+  [ ] Debug-only UI hidden in release (e.g. the DebugNearEndGame button,
+      the Z key / right-click shortcuts are harmless)
+  [ ] Remove stray Assets/IMG_8063.PNG if it isn't used
+  [ ] Rights and credits checklist done
