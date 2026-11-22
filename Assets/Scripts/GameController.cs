@@ -1659,6 +1659,7 @@ public class GameController : MonoBehaviour
             case InputState.Wait:
                 draggingTile = false;
                 holdingClick = false;
+                placedTokenTravelWait = 0f;
                 // Flush before clear so re-entering Wait (place / popup dismiss)
                 // cannot orphan floating death-score labels.
                 FlushDyingTokens();
@@ -1999,6 +2000,33 @@ public class GameController : MonoBehaviour
         dismissingPopup = false;
         waiting = waitTime;
         EnterInputState(InputState.Wait);
+    }
+
+    // Hold turn events until the placed token reaches its tile, so merges never play mid-flight
+    // (e.g. a token whose travel left it pinned in the hand). Times out so it can't soft-lock.
+    const float placedTokenArriveDistance = 0.1f;
+    const float placedTokenTravelTimeout = 2f;
+    float placedTokenTravelWait;
+
+    bool PlacedTokenStillTraveling()
+    {
+        if (lastTokenPlaced == null || placedTokenTravelWait >= placedTokenTravelTimeout)
+        {
+            return false;
+        }
+        foreach (Tile tile in tiles.Values)
+        {
+            if (tile.token == lastTokenPlaced)
+            {
+                if (Vector2.Distance(lastTokenPlaced.transform.position, tile.transform.position) <= placedTokenArriveDistance)
+                {
+                    return false;
+                }
+                placedTokenTravelWait += Time.deltaTime;
+                return true;
+            }
+        }
+        return false;
     }
 
     bool AnyGridTokenStillPlacing(float snapDistance)
@@ -2868,7 +2896,7 @@ public class GameController : MonoBehaviour
                 break;
             }
             case InputState.Wait:
-                if (game.gridUpdating == false && !mergeUpgradeBlocking)
+                if (game.gridUpdating == false && !mergeUpgradeBlocking && !PlacedTokenStillTraveling())
                 {
                     waiting -= Time.deltaTime;
 
