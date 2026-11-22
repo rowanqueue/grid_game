@@ -209,7 +209,18 @@ public class ToolShopScreen : MonoBehaviour
         gc.game.bag.AddNewTokenToCurrentBag(tokenData);
         Token shopTileInBag = tokensToBuy[shopIndex];
         shopTileInBag.gameObject.SetActive(false);
-        FlyToBag(tokenData, startPos, () => FadeShopTileIn(shopTileInBag));
+        FlyToBag(tokenData, startPos, () => OnFlyToBagComplete(shopTileInBag));
+    }
+
+    private void OnFlyToBagComplete(Token shopTile)
+    {
+        if (shopTile == null)
+        {
+            return;
+        }
+        StartCoroutine(Services.GameController.BagRefillAnim());
+        FadeShopTileIn(shopTile);
+
     }
 
     void FadeShopTileIn(Token shopTile)

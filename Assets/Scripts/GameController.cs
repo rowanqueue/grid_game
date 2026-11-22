@@ -3130,7 +3130,7 @@ public class GameController : MonoBehaviour
         }
         InputHelper.EndFrame();
     }
-    IEnumerator BagRefillAnim()
+    public IEnumerator BagRefillAnim()
     {
         float originalScale = bagButtonTransform.localScale.x;
         float scale = originalScale;
