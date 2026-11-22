@@ -359,6 +359,7 @@ MonoBehaviour:
   tutorialSortingLayer: 
   disabled: 0
   allowDuringToolShop: 0
+  allowDuringSeedPopup: 0
   hideWhenDisabled: []
 --- !u!4 &30839284
 Transform:
@@ -650,6 +651,7 @@ MonoBehaviour:
   tutorialSortingLayer: 
   disabled: 0
   allowDuringToolShop: 0
+  allowDuringSeedPopup: 0
   hideWhenDisabled: []
 --- !u!4 &52254145
 Transform:
@@ -1666,6 +1668,7 @@ MonoBehaviour:
   tutorialSortingLayer: 
   disabled: 0
   allowDuringToolShop: 0
+  allowDuringSeedPopup: 0
   hideWhenDisabled: []
 --- !u!1 &156174256
 GameObject:
@@ -3380,14 +3383,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 5247843904302109704, guid: b8a811c16432a46d08bfadd219fa53e9, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 0.5875
-      objectReference: {fileID: 0}
-    - target: {fileID: 5247843904302109704, guid: b8a811c16432a46d08bfadd219fa53e9, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 23.24
-      objectReference: {fileID: 0}
     - target: {fileID: 6179955840307650718, guid: b8a811c16432a46d08bfadd219fa53e9, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -3699,7 +3694,7 @@ Transform:
   m_GameObject: {fileID: 300880907}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.47, y: 4.79, z: 0}
+  m_LocalPosition: {x: -6.988725, y: 4.79, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3832,6 +3827,7 @@ MonoBehaviour:
   tutorialSortingLayer: Tile
   disabled: 0
   allowDuringToolShop: 0
+  allowDuringSeedPopup: 0
   hideWhenDisabled: []
 --- !u!1 &302808058
 GameObject:
@@ -4231,7 +4227,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: f650beab453d4954cb5bfe0fbee4987f, type: 3}
+  m_Sprite: {fileID: 21300000, guid: fffe497461feb4d2ebc272d3f0f25c06, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -5593,6 +5589,7 @@ MonoBehaviour:
   tutorialSortingLayer: 
   disabled: 0
   allowDuringToolShop: 0
+  allowDuringSeedPopup: 0
   hideWhenDisabled: []
 --- !u!1 &461891527
 GameObject:
@@ -5822,6 +5819,7 @@ MonoBehaviour:
   tutorialSortingLayer: 
   disabled: 0
   allowDuringToolShop: 0
+  allowDuringSeedPopup: 0
   hideWhenDisabled: []
 --- !u!4 &462623252
 Transform:
@@ -6900,6 +6898,7 @@ MonoBehaviour:
   tutorialSortingLayer: 
   disabled: 0
   allowDuringToolShop: 0
+  allowDuringSeedPopup: 0
   hideWhenDisabled: []
 --- !u!4 &606761154
 Transform:
@@ -10726,6 +10725,7 @@ MonoBehaviour:
   tutorialSortingLayer: 
   disabled: 1
   allowDuringToolShop: 0
+  allowDuringSeedPopup: 0
   hideWhenDisabled: []
 --- !u!1 &1008886704
 GameObject:
@@ -12459,6 +12459,7 @@ MonoBehaviour:
   tutorialSortingLayer: Tile
   disabled: 0
   allowDuringToolShop: 0
+  allowDuringSeedPopup: 0
   hideWhenDisabled: []
 --- !u!4 &1135808323
 Transform:
@@ -13118,6 +13119,7 @@ MonoBehaviour:
   tutorialSortingLayer: 
   disabled: 0
   allowDuringToolShop: 0
+  allowDuringSeedPopup: 0
   hideWhenDisabled: []
 --- !u!1 &1204776778
 GameObject:
@@ -17529,6 +17531,7 @@ MonoBehaviour:
   tutorialSortingLayer: Tile
   disabled: 0
   allowDuringToolShop: 0
+  allowDuringSeedPopup: 0
   hideWhenDisabled: []
 --- !u!4 &1712947395
 Transform:
@@ -17539,7 +17542,7 @@ Transform:
   m_GameObject: {fileID: 1712947391}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2.09375, y: -4.5, z: 0}
+  m_LocalPosition: {x: 6.8007555, y: -4.5, z: 0}
   m_LocalScale: {x: 0.5, y: 0.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -17968,6 +17971,7 @@ MonoBehaviour:
   tutorialSortingLayer: 
   disabled: 0
   allowDuringToolShop: 0
+  allowDuringSeedPopup: 0
   hideWhenDisabled: []
 --- !u!1 &1736435859
 GameObject:
@@ -18512,6 +18516,7 @@ MonoBehaviour:
   tutorialSortingLayer: 
   disabled: 0
   allowDuringToolShop: 0
+  allowDuringSeedPopup: 0
   hideWhenDisabled: []
 --- !u!114 &1764562211 stripped
 MonoBehaviour:
@@ -19908,6 +19913,7 @@ MonoBehaviour:
   tutorialSortingLayer: 
   disabled: 0
   allowDuringToolShop: 0
+  allowDuringSeedPopup: 0
   hideWhenDisabled: []
 --- !u!1 &1918370954
 GameObject:
@@ -20305,6 +20311,7 @@ MonoBehaviour:
   tutorialSortingLayer: 
   disabled: 0
   allowDuringToolShop: 0
+  allowDuringSeedPopup: 0
   hideWhenDisabled: []
 --- !u!4 &1943094247
 Transform:
@@ -20885,6 +20892,7 @@ MonoBehaviour:
   tutorialSortingLayer: 
   disabled: 0
   allowDuringToolShop: 0
+  allowDuringSeedPopup: 0
   hideWhenDisabled: []
 --- !u!1001 &1982496010
 PrefabInstance:
@@ -22916,6 +22924,10 @@ PrefabInstance:
       propertyPath: m_Size.x
       value: 2.95
       objectReference: {fileID: 0}
+    - target: {fileID: 6035423266701384301, guid: 34b29f678169eca4bb0a52ebbad7fb83, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -7.1707554
+      objectReference: {fileID: 0}
     - target: {fileID: 6232485641784175626, guid: 34b29f678169eca4bb0a52ebbad7fb83, type: 3}
       propertyPath: m_LocalPosition.x
       value: 8
@@ -23277,7 +23289,7 @@ PrefabInstance:
       objectReference: {fileID: 1959469644}
     - target: {fileID: 3546795605185898949, guid: 7c892abf3aef94db488afc305c949b82, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 2.67
+      value: 7.188725
       objectReference: {fileID: 0}
     - target: {fileID: 3546795605185898949, guid: 7c892abf3aef94db488afc305c949b82, type: 3}
       propertyPath: m_LocalPosition.y
@@ -23563,7 +23575,19 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1195225015188979331, guid: eb6661d54e4a94398bb044a888a3e5a1, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
+    - targetCorrespondingSourceObject: {fileID: 7813451329397601154, guid: eb6661d54e4a94398bb044a888a3e5a1, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
+    - targetCorrespondingSourceObject: {fileID: 8091623579642307556, guid: eb6661d54e4a94398bb044a888a3e5a1, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
+    - targetCorrespondingSourceObject: {fileID: 1583195633379795116, guid: eb6661d54e4a94398bb044a888a3e5a1, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
   m_SourcePrefab: {fileID: 100100000, guid: eb6661d54e4a94398bb044a888a3e5a1, type: 3}
 --- !u!1001 &8256203996079753659
 PrefabInstance:
